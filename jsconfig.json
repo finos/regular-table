@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true
+  },
+  "include": ["package.json", "src/js/*"]
+}
