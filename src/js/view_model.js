@@ -7,9 +7,8 @@
  *
  */
 
-import {get_type_config} from "@finos/perspective/dist/esm/config";
 import {METADATA_MAP} from "./constants";
-import {memoize} from "./utils";
+import {get_type_config, memoize} from "./utils";
 import {tree_header} from "./tree_row_header";
 
 /******************************************************************************

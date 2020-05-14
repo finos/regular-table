@@ -118,3 +118,116 @@ export const html = (strings, ...args) =>
         .flat()
         .filter(a => !!a)
         .join("");
+
+export function throttlePromise(target, property, descriptor) {
+    const lock = Symbol("private lock");
+    const f = descriptor.value;
+    descriptor.value = async function(...args) {
+        if (this[lock]) {
+            await this[lock];
+            if (this[lock]) {
+                await this[lock];
+                return;
+            }
+        }
+        this[lock] = invertPromise();
+        let result;
+        try {
+            result = await f.call(this, ...args);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            const l = this[lock];
+            this[lock] = undefined;
+            l.resolve();
+            return result;
+        }
+    };
+    return descriptor;
+}
+
+export function get_type_config(type) {
+    const config = {};
+    if (default_types[type]) {
+        Object.assign(config, default_types[type]);
+    }
+    if (config.type) {
+        const props = get_type_config(config.type);
+        Object.assign(props, config);
+        return props;
+    } else {
+        return config;
+    }
+};
+
+export const default_types = {
+    /**
+     * `types` are the type-specific configuration options.  Each key is the
+     * name of a perspective type; their values are configuration objects for
+     * that type.
+     */
+    types: {
+        float: {
+            /**
+             * Which filter operator should be the default when a column of this
+             * type is pivotted.
+             */
+            filter_operator: "==",
+
+            /**
+             * Which aggregate should be the default when a column of this type
+             * is pivotted.
+             */
+            aggregate: "sum",
+
+            /**
+             * The format object for this type.  Can be either an
+             * `toLocaleString()` `options` object for this type (or supertype),
+             * or a function which returns the formatted string for this type.
+             */
+            format: {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        },
+        string: {
+            filter_operator: "==",
+            aggregate: "count"
+        },
+        integer: {
+            filter_operator: "==",
+            aggregate: "sum",
+            format: {}
+        },
+        boolean: {
+            filter_operator: "==",
+            aggregate: "count"
+        },
+        datetime: {
+            filter_operator: "==",
+            aggregate: "count",
+            format: {
+                week: "numeric",
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric"
+            },
+            null_value: -1
+        },
+        date: {
+            filter_operator: "==",
+            aggregate: "count",
+            format: {
+                week: "numeric",
+                year: "numeric",
+                month: "numeric",
+                day: "numeric"
+            },
+            null_value: -1
+        }
+    }
+};
