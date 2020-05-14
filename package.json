@@ -1,12 +1,12 @@
 {
-    "name": "@finos/perspective-viewer-datagrid",
+    "name": "html-grid",
     "version": "0.4.8",
-    "description": "Perspective.js",
-    "main": "dist/cjs/perspective-viewer-datagrid.js",
-    "module": "dist/cjs/perspective-viewer-datagrid.js",
-    "browser": "dist/cjs/perspective-viewer-datagrid.js",
-    "unpkg": "dist/umd/perspective-viewer-datagrid.js",
-    "jsdelivr": "dist/umd/perspective-viewer-datagrid.js",
+    "description": "Grid framework built on a virtualized <table> element",
+    "main": "dist/cjs/html-grid.js",
+    "module": "dist/cjs/html-grid.js",
+    "browser": "dist/cjs/html-grid.js",
+    "unpkg": "dist/umd/html-grid.js",
+    "jsdelivr": "dist/umd/html-grid.js",
     "files": [
         "dist/**/*",
         "babel.config.js"

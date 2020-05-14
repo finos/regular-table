@@ -6,8 +6,8 @@ module.exports = common({}, config =>
         entry: "./dist/esm/index.js",
         externals: [/^[a-z0-9@]/],
         output: {
-            filename: "perspective-viewer-datagrid.js",
-            library: "perspective-viewer-datagrid",
+            filename: "html-grid.js",
+            library: "html-grid",
             libraryTarget: "umd",
             path: path.resolve(__dirname, "../../dist/cjs")
         }
