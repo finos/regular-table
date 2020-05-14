@@ -1,5 +1,5 @@
 const path = require("path");
-const common = require("@finos/perspective/src/config/common.config.js");
+const common = require("./common.config.js");
 
 module.exports = common({}, config =>
     Object.assign(config, {
