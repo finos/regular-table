@@ -1,8 +1,7 @@
-# Python testing artifacts
-/osfs_local/
-/s3proxy*
-/s3_local/
-smb.conf
+# javascript testing artifacts
+screenshots/
+**/results/*
+!**/results/linux.docker.json
 
 # Logs
 logs

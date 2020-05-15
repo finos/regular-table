@@ -119,6 +119,15 @@ export const html = (strings, ...args) =>
         .filter(a => !!a)
         .join("");
 
+const invertPromise = () => {
+    let resolve;
+    let promise = new Promise(_resolve => {
+        resolve = _resolve;
+    });
+    promise.resolve = resolve;
+    return promise;
+};
+
 export function throttlePromise(target, property, descriptor) {
     const lock = Symbol("private lock");
     const f = descriptor.value;

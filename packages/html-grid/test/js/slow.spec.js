@@ -10,7 +10,7 @@
 const utils = require("@finos/perspective-test");
 const path = require("path");
 
-const mutation_tests = require("@finos/perspective-viewer/test/js/mutation_tests.js");
+const mutation_tests = require("./mutation_tests.js");
 
 utils.with_server({}, () => {
     describe.page(

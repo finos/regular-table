@@ -20,8 +20,9 @@
         "build:webpack:esm": "webpack --color --config src/config/cjs.config.js",
         "build:webpack:umd": "webpack --color --config src/config/umd.config.js",
         "build": "npm-run-all build:babel build:webpack:esm build:webpack:umd",
-        "test:build": "cpx \"test/html/*\" dist/umd",
+        "test:build": "cpx \"test/html/*\" dist/umd && cpx \"test/csv/*\" dist/umd && cpx \"test/css/*\" dist/umd",
         "test:run": "jest --rootDir=. --config=../perspective-test/jest.config.js --color",
+        "test:write": "WRITE_TESTS=true npm run test:run",
         "test": "npm-run-all test:build test:run",
         "watch:babel": "babel src/js --source-maps --watch --out-dir dist/esm",
         "watch:webpack": "webpack --watch --color --config src/config/umd.config.js",
@@ -44,6 +45,7 @@
     },
     "devDependencies": {
         "@finos/perspective": "^0.4.8",
+        "@finos/perspective-viewer": "^0.4.8",
         "@finos/perspective-test": "^0.4.8",
         "@finos/perspective-webpack-plugin": "^0.4.8"
     }

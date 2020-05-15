@@ -10,7 +10,7 @@
 const utils = require("@finos/perspective-test");
 const path = require("path");
 
-const simple_tests = require("@finos/perspective-viewer/test/js/simple_tests.js");
+const simple_tests = require("./simple_tests.js");
 
 utils.with_server({}, () => {
     describe.page(
