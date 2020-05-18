@@ -11,7 +11,8 @@ import isEqual from "lodash/isEqual";
 import CONTAINER_STYLE from "../less/container.less";
 import MATERIAL_STYLE from "../less/material.less";
 
-import {log_perf, html, throttlePromise} from "./utils";
+import {log_perf, html} from "./utils";
+import {throttlePromise} from "./utils_viewer";
 import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DOUBLE_BUFFER_COLUMN} from "./constants";
 
 /**

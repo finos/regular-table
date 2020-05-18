@@ -240,3 +240,12 @@ export const default_types = {
         }
     }
 };
+
+export const registerPlugin = (name, plugin) => {
+    if (global.registerPlugin) {
+        global.registerPlugin(name, plugin);
+    } else {
+        global.__perspective_plugins__ = global.__perspective_plugins__ || [];
+        global.__perspective_plugins__.push([name, plugin]);
+    }
+};

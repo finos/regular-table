@@ -234,7 +234,7 @@ describe.page = (url, body, {reload_page = true, name, root} = {}) => {
 
     if (IS_LOCAL_PUPPETEER && !fs.existsSync(path.join(test_root, "test", "results", RESULTS_FILENAME)) && !process.env.WRITE_TESTS) {
         throw new Error(`
-        
+
 ERROR: Running in puppeteer tests without "${RESULTS_FILENAME}"
 
 Please re-run with "yarn test --write" to generate initial screenshot diffs
@@ -258,7 +258,7 @@ test.run = function run(name, body, viewport = null) {
         await page.waitForSelector("perspective-viewer:not([updating])");
         const body_results = await body(page);
         expect(body_results).toBe(true);
-    });
+    }, 6000000);
 };
 
 const OLD_SETTINGS = {};
@@ -278,7 +278,7 @@ expect.extend({
     }
 });
 
-test.capture = function capture(name, body, {timeout = 60000, viewport = null, wait_for_update = true, fail_on_errors = true, preserve_hover = false} = {}) {
+test.capture = function capture(name, body, {timeout = 6000000, viewport = null, wait_for_update = true, fail_on_errors = true, preserve_hover = false} = {}) {
     const _url = page_url;
     const _reload_page = page_reload;
     const spec = test(

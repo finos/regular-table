@@ -7,8 +7,7 @@
  *
  */
 
-// import {registerPlugin} from "@finos/perspective-viewer/dist/esm/utils.js";
-import {_start_profiling_loop} from "./utils";
+import {_start_profiling_loop, registerPlugin} from "./utils";
 import {DatagridViewModel} from "./datagrid";
 import {VIEWER_MAP} from "./constants";
 import MATERIAL_STYLE from "../less/material.less";
@@ -124,7 +123,7 @@ function _register_global_styles() {
 
 window.customElements.define("perspective-datagrid", DatagridViewModel);
 
-// registerPlugin("datagrid", DatagridPlugin);
+registerPlugin("datagrid", DatagridPlugin);
 
 _start_profiling_loop();
 _register_global_styles();
