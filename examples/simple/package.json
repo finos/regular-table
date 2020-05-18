@@ -1,0 +1,16 @@
+{
+    "name": "simple",
+    "private": true,
+    "version": "0.4.8",
+    "description": "A collection of simple client-side Perspective examples.",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "keywords": [],
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@finos/perspective": "^0.4.8",
+        "@finos/perspective-viewer": "^0.4.8",
+        "html-grid": "^0.4.8"
+    }
+}
