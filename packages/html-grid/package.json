@@ -20,6 +20,7 @@
         "build:webpack:esm": "webpack --color --config src/config/cjs.config.js",
         "build:webpack:umd": "webpack --color --config src/config/umd.config.js",
         "build": "npm-run-all build:babel build:webpack:esm build:webpack:umd",
+        "build:debug": "PSP_NO_MINIFY=true PSP_DEBUG=true npm run build",
         "test:build": "cpx \"test/html/*\" dist/umd && cpx \"test/csv/*\" dist/umd && cpx \"test/css/*\" dist/umd",
         "test:run": "TZ=UTC jest --rootDir=. --config=../perspective-test/jest.config.js --color",
         "test:write": "WRITE_TESTS=true npm run test:run",

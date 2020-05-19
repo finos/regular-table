@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "jest",
       "type": "node",
       "request": "launch",
-      "name": "Jest Current File",
-      "env": {"WRITE_TESTS": "true"},
+
       "cwd": "${workspaceFolder}/packages/html-grid",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": [
@@ -17,7 +17,69 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true
+      "disableOptimisticBPs": true,
+
+      // "env": {"WRITE_TESTS": "true"},
+    },
+    {
+      "name": "jest (interactive)",
+      "type": "node",
+      "request": "launch",
+
+      "cwd": "${workspaceFolder}/packages/html-grid",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "${fileBasenameNoExtension}",
+        "--config",
+        "../perspective-test/jest.config.js",
+        "--rootDir",
+        ".",
+        "--color",
+        "--runInBand",
+        "--noStackTrace"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+
+      "env": {
+        // "WRITE_TESTS": "true",
+        "PSP_PAUSE_ON_FAILURE": "true",
+        "TZ": "UTC",
+      },
+    },
+    {
+      "name": "simple",
+      "type": "node",
+      "request": "launch",
+
+      "cwd": "${workspaceFolder}/examples/simple",
+      "program": "${workspaceFolder}/examples/simple/server.js",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "examples frontend",
+      "type": "chrome",
+      "request": "launch",
+
+      "sourceMapPathOverrides": {
+          "webpack:///*": "${webRoot}/*"
+      },
+      "timeout": 180000,
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/packages/html-grid",
+
+      // debug using a specific copy of chrome/chromium
+      // "runtimeExecutable": "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    },
+  ],
+  "compounds": [
+    {
+      "name": "simple compound",
+      "configurations": [
+        "simple",
+        "examples frontend"
+      ]
     }
   ]
 }
