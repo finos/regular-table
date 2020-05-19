@@ -9,7 +9,7 @@
 
 import perspective from "@finos/perspective";
 import "@finos/perspective-viewer";
-import "html-grid";
+import {CsvDataModel} from "html-grid"
 
 import "@finos/perspective-viewer/dist/umd/material.css";
 import "./index.css";
@@ -32,3 +32,13 @@ window.addEventListener("load", async () => {
 
     window.viewer = viewer;
 });
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'superstore.csv', true);
+xhr.onload = function () {
+    const csv = xhr.response;
+
+    let csvData = new CsvDataModel(csv);
+    console.log(csvData.cols);
+}
+xhr.send(null);
