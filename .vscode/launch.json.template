@@ -63,11 +63,11 @@
       "request": "launch",
 
       "sourceMapPathOverrides": {
-          "webpack:///*": "${webRoot}/*"
+          "webpack:///*": "${workspaceFolder}/packages/html-grid/*"
       },
       "timeout": 180000,
       "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}/packages/html-grid",
+      "webRoot": "${workspaceFolder}/examples/simple",
 
       // debug using a specific copy of chrome/chromium
       // "runtimeExecutable": "/Applications/Chromium.app/Contents/MacOS/Chromium",
