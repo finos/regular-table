@@ -1,0 +1,27 @@
+{
+    "name": "html-grid-example-webpack",
+    "private": true,
+    "version": "0.4.8",
+    "description": "An example app built using html-grid.",
+    "scripts": {
+        "start": "webpack-dev-server --open",
+        "webpack": "webpack --colour"
+    },
+    "keywords": [],
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@finos/perspective": "^0.4.8",
+        "@finos/perspective-viewer": "^0.4.8",
+        "html-grid": "^0.4.8"
+    },
+    "devDependencies": {
+        "@finos/perspective-webpack-plugin": "^0.4.8",
+        "css-loader": "^0.28.7",
+        "file-loader": "^4.2.0",
+        "html-webpack-plugin": "^4.3.0",
+        "style-loader": "^0.18.2",
+        "webpack": "^4.31.0",
+        "webpack-cli": "^3.3.7",
+        "webpack-dev-server": "^3.8.0"
+    }
+}
