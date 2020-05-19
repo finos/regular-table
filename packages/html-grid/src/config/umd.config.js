@@ -3,7 +3,7 @@ const common = require("./common.config.js");
 
 module.exports = common({}, config =>
     Object.assign(config, {
-        entry: "./dist/esm/index.js",
+        entry: "./src/js/index.js",
         output: {
             filename: "html-grid.js",
             library: "html-grid",

@@ -29,6 +29,36 @@ function common({build_worker, no_minify, inline} = {}) {
                         loader: "arraybuffer-loader",
                         options: {}
                     }
+                },
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [[
+                                "@babel/preset-env",
+                                {
+                                    targets: {
+                                        chrome: "70",
+                                        node: "12",
+                                        ios: "13"
+                                    },
+                                    modules: process.env.BABEL_MODULE || false,
+                                    useBuiltIns: "usage",
+                                    corejs: 3
+                                }
+                            ]],
+                            plugins: [
+                                "lodash",
+                                ["@babel/plugin-proposal-decorators", {legacy: true}],
+                                "transform-custom-element-classes",
+                                "@babel/plugin-proposal-class-properties",
+                                "@babel/plugin-proposal-optional-chaining",
+                                path.resolve(__dirname, "../../babel-plugin-transform-tagged-literal.js")
+                            ]
+                        }
+                    }
                 }
             ]
         },
