@@ -2,7 +2,7 @@
     "name": "html-grid",
     "version": "0.4.8",
     "description": "Grid framework built on a virtualized <table> element",
-    "main": "dist/cjs/html-grid.js",
+    "main": "dist/esm/html-grid.js",
     "module": "dist/cjs/html-grid.js",
     "browser": "dist/cjs/html-grid.js",
     "unpkg": "dist/umd/html-grid.js",
@@ -17,9 +17,9 @@
         "bench:run": "echo \"No Benchmarks\"",
         "prebuild": "mkdirp dist/esm",
         "build:babel": "cpx \"src/**/*\" dist && babel src/js --source-maps --out-dir dist/esm",
-        "build:webpack:esm": "webpack --color --config src/config/cjs.config.js",
+        "build:webpack:cjs": "webpack --color --config src/config/cjs.config.js",
         "build:webpack:umd": "webpack --color --config src/config/umd.config.js",
-        "build": "npm-run-all build:babel build:webpack:esm build:webpack:umd",
+        "build": "npm-run-all build:babel build:webpack:cjs build:webpack:umd",
         "build:debug": "PSP_NO_MINIFY=true PSP_DEBUG=true npm run build",
         "test:build": "cpx \"test/html/*\" dist/umd && cpx \"test/csv/*\" dist/umd && cpx \"test/css/*\" dist/umd",
         "test:run": "TZ=UTC jest --rootDir=. --config=../perspective-test/jest.config.js --color",
@@ -44,11 +44,13 @@
     "dependencies": {
         "@finos/perspective-viewer": "^0.4.8",
         "core-js": "^3.6.4",
+        "papaparse": "5.2.0",
         "superscript-number": "^1.0.0"
     },
     "devDependencies": {
         "@finos/perspective": "^0.4.8",
         "@finos/perspective-test": "^0.4.8",
-        "@finos/perspective-webpack-plugin": "^0.4.8"
+        "@finos/perspective-webpack-plugin": "^0.4.8",
+        "babel-loader": "^8.1.0"
     }
 }

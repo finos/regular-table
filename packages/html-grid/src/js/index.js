@@ -127,3 +127,12 @@ registerPlugin("datagrid", DatagridPlugin);
 
 _start_profiling_loop();
 _register_global_styles();
+
+export * from './data';
+export * from './datagrid';
+export * from './events';
+export * from './scroll_panel';
+export * from './table';
+export * from './thead';
+export * from './tree_row_header';
+export * from './view_model';

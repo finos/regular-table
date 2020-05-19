@@ -8,12 +8,10 @@
  */
 
 import perspective from "@finos/perspective";
-
 import "@finos/perspective-viewer";
 import "html-grid";
 
 import "@finos/perspective-viewer/dist/umd/material.css";
-
 import "./index.css";
 
 const worker = perspective.shared_worker();
