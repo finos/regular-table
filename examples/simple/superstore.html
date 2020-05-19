@@ -17,36 +17,26 @@
     <script src="perspective-viewer.js"></script>
     <script src="html-grid.js"></script>
 
-    <!-- <script src="perspective.js"></script> -->
-
     <link rel='stylesheet' href="index.css">
     <link rel='stylesheet' href="material-dense.css" is="custom-style">
-
 
 </head>
 
 <body>
 
-    <!-- <perspective-viewer plugin="datagrid" row-pivots='["Region","State","City"]'
-    column-pivots='["Category","Sub-Category"]' sort='[["Profit","desc"]]' columns='["Sales","Profit"]'>
-    </perspective-viewer> -->
-
     <perspective-viewer plugin="datagrid"></perspective-viewer>
 
     <script>
+
+        const viewer = document.getElementsByTagName('perspective-viewer')[0];
+
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'superstore.csv', true);
         xhr.onload = function () {
-            document.getElementsByTagName('perspective-viewer')[0].load(xhr.response);
+            viewer.load(xhr.response);
         }
         xhr.send(null);
 
-        // window.addEventListener('WebComponentsReady', async function() {
-        //     const viewer = document.getElementsByTagName('perspective-viewer')[0];
-        //     const data = await fetch("superstore.csv");
-        //     viewer.load(await data.arrayBuffer());
-        //     viewer.toggleConfig();
-        // });
     </script>
 
 </body>
