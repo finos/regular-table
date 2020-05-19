@@ -55,6 +55,23 @@
 
       "cwd": "${workspaceFolder}/examples/simple",
       "program": "${workspaceFolder}/examples/simple/server.js",
+      "args": [
+        "--port",
+        "12121"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "webpack",
+      "type": "node",
+      "request": "launch",
+
+      "cwd": "${workspaceFolder}/examples/webpack",
+      "program": "${workspaceFolder}/node_modules/.bin/webpack-dev-server",
+      "args": [
+        "--port",
+        "12121"
+      ],
       "console": "integratedTerminal"
     },
     {
@@ -66,7 +83,7 @@
           "webpack:///*": "${workspaceFolder}/packages/html-grid/*"
       },
       "timeout": 180000,
-      "url": "http://localhost:8080",
+      "url": "http://localhost:12121",
       "webRoot": "${workspaceFolder}/examples/simple",
 
       // debug using a specific copy of chrome/chromium
@@ -78,6 +95,13 @@
       "name": "simple compound",
       "configurations": [
         "simple",
+        "examples frontend"
+      ]
+    },
+    {
+      "name": "webpack compound",
+      "configurations": [
+        "webpack",
         "examples frontend"
       ]
     }
