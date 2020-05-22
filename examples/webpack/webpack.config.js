@@ -19,7 +19,7 @@ module.exports = {
         }
     },
     mode: process.env.NODE_ENV || "development",
-    entry: ["babel-polyfill", "./src/index.js"],
+    entry: ["./src/index.js"],
     output: {
         filename: "index.js"
     },
@@ -43,17 +43,7 @@ module.exports = {
                     loader: 'babel-loader',
                     options: {
                         presets: [[
-                            "@babel/preset-env",
-                            {
-                                targets: {
-                                    chrome: "70",
-                                    node: "12",
-                                    ios: "13"
-                                },
-                                modules: process.env.BABEL_MODULE || false,
-                                useBuiltIns: "usage",
-                                corejs: 3
-                            }
+                            "@babel/preset-env", {targets: {esmodules: true}}
                         ]],
                         plugins: [
                             "lodash",
