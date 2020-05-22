@@ -5,8 +5,8 @@ module.exports = common({}, config =>
     Object.assign(config, {
         entry: "./src/js/index.js",
         output: {
-            filename: "html-grid.js",
-            library: "html-grid",
+            filename: "regular-table.js",
+            library: "regular-table",
             libraryTarget: "umd",
             path: path.resolve(__dirname, "../../dist/umd")
         }

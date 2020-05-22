@@ -15,7 +15,7 @@ module.exports = {
     // context:
     resolve: {
         alias: {
-            "html-grid": path.resolve(__dirname, '../../packages/html-grid/src/js')
+            "regular-table": path.resolve(__dirname, '../../packages/regular-table/src/js')
         }
     },
     mode: process.env.NODE_ENV || "development",
@@ -25,7 +25,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebPackPlugin({
-            title: "html-grid Webpack Example"
+            title: "regular-table Webpack Example"
         }),
         new PerspectivePlugin()
     ],
@@ -51,7 +51,7 @@ module.exports = {
                             "transform-custom-element-classes",
                             "@babel/plugin-proposal-class-properties",
                             "@babel/plugin-proposal-optional-chaining",
-                            path.resolve(__dirname, "../../packages/html-grid/babel-plugin-transform-tagged-literal.js")
+                            path.resolve(__dirname, "../../packages/regular-table/babel-plugin-transform-tagged-literal.js")
                         ]
                     }
                 }

@@ -1,8 +1,8 @@
 {
-    "name": "html-grid-example-webpack",
+    "name": "regular-table-example-webpack",
     "private": true,
     "version": "0.4.8",
-    "description": "An example app built using html-grid.",
+    "description": "An example app built using regular-table.",
     "scripts": {
         "start": "webpack-dev-server",
         "webpack": "webpack --colour"
@@ -12,7 +12,7 @@
     "dependencies": {
         "@finos/perspective": "^0.4.8",
         "@finos/perspective-viewer": "^0.4.8",
-        "html-grid": "^0.4.8"
+        "regular-table": "^0.4.8"
     },
     "devDependencies": {
         "@finos/perspective-webpack-plugin": "^0.4.8",

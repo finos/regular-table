@@ -1,3 +1,3 @@
 # Webpack Example
 
-Simple webpack example using `html-grid`.
+Simple webpack example using `regular-table`.

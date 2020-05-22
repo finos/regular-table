@@ -2,7 +2,7 @@
     "private": true,
     "repository": {
         "type": "git",
-        "url": "https://github.com/telamonian/html-grid"
+        "url": "https://github.com/jpmorganchase/regular-table"
     },
     "engines": {
         "node": ">=8.12.0"

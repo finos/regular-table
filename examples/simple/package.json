@@ -1,5 +1,5 @@
 {
-    "name": "html-grid-example-simple",
+    "name": "regular-table-example-simple",
     "private": true,
     "version": "0.4.8",
     "description": "A collection of simple client-side Perspective examples.",
@@ -12,6 +12,6 @@
         "@finos/perspective": "^0.4.8",
         "@finos/perspective-viewer": "^0.4.8",
         "commander": "^5.1.0",
-        "html-grid": "^0.4.8"
+        "regular-table": "^0.4.8"
     }
 }

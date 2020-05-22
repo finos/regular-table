@@ -1,12 +1,12 @@
 {
-    "name": "html-grid",
+    "name": "regular-table",
     "version": "0.4.8",
     "description": "Grid framework built on a virtualized <table> element",
-    "main": "dist/esm/html-grid.js",
-    "module": "dist/cjs/html-grid.js",
-    "browser": "dist/cjs/html-grid.js",
-    "unpkg": "dist/umd/html-grid.js",
-    "jsdelivr": "dist/umd/html-grid.js",
+    "main": "dist/esm/regular-table.js",
+    "module": "dist/cjs/regular-table.js",
+    "browser": "dist/cjs/regular-table.js",
+    "unpkg": "dist/umd/regular-table.js",
+    "jsdelivr": "dist/umd/regular-table.js",
     "files": [
         "dist/**/*",
         "babel.config.js"
@@ -37,7 +37,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/telamonian/html-grid"
+        "url": "https://github.com/jpmorganchase/regular-table"
     },
     "author": "",
     "license": "Apache-2.0",

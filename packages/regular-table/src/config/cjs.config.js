@@ -6,8 +6,8 @@ module.exports = common({}, config =>
         entry: "./src/js/index.js",
         externals: [/^[a-z0-9@]/],
         output: {
-            filename: "html-grid.js",
-            library: "html-grid",
+            filename: "regular-table.js",
+            library: "regular-table",
             libraryTarget: "commonjs2",
             path: path.resolve(__dirname, "../../dist/cjs")
         }

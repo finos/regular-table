@@ -9,7 +9,7 @@
 
 import perspective from "@finos/perspective";
 import "@finos/perspective-viewer";
-import {CsvDataModel} from "html-grid"
+import {CsvDataModel} from "regular-table"
 
 import "@finos/perspective-viewer/dist/umd/material.css";
 import "./index.css";
