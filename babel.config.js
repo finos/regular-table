@@ -4,15 +4,10 @@ module.exports = {
             "@babel/preset-env",
             {
                 targets: {
-                    chrome: "70",
-                    node: "12",
-                    ios: "13",
                     esmodules: true,
                 },
-                useBuiltIns: "usage",
-                corejs: 3
-            }
-        ]
+            },
+        ],
     ],
     plugins: [
         "lodash",
@@ -20,6 +15,6 @@ module.exports = {
         "transform-custom-element-classes",
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-proposal-optional-chaining",
-        "./babel-plugin-transform-tagged-literal.js"
-    ]
+        "./babel-plugin-transform-tagged-literal.js",
+    ],
 };
