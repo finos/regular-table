@@ -65,8 +65,7 @@ typings/
 # javascript/typescript build files
 *.tsbuildinfo
 lib
-package-lock.json
-yarn.lock
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
