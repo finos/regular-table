@@ -114,7 +114,7 @@ export function column_path_2_type(schema, column) {
  * babel that this string should be HTML-minified on production builds.
  */
 export const html = (strings, ...args) =>
-    (Array.isArray(strings[0]) ? strings : [strings])
+    strings
         .map((str, i) => [str, args[i]])
         .flat()
         .filter((a) => !!a)

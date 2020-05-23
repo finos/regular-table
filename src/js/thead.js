@@ -17,9 +17,9 @@ import {html} from "./utils.js";
  * column_sizes, which leverages <tables> autosize behavior across
  * virtual pages.
  *
- * @class DatagridHeaderViewModel
+ * @class RegularHeaderViewModel
  */
-export class DatagridHeaderViewModel extends ViewModel {
+export class RegularHeaderViewModel extends ViewModel {
     _draw_group_th(offset_cache, d, column, sort_dir) {
         const {tr, row_container} = this._get_row(d);
         const th = this._get_cell("th", row_container, offset_cache[d], tr);

@@ -1,5 +1,7 @@
 # regular-table
 
+[![Build Status](https://travis-ci.org/jpmorganchase/regular-table.svg?branch=master)](https://travis-ci.org/jpmorganchase/regular-table)
+
 ## Development
 
 First install `dev_dependencies`:

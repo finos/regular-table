@@ -14,9 +14,9 @@ import {ViewModel} from "./view_model";
 /**
  * <tbody> view model.
  *
- * @class DatagridBodyViewModel
+ * @class RegularBodyViewModel
  */
-export class DatagridBodyViewModel extends ViewModel {
+export class RegularBodyViewModel extends ViewModel {
     _draw_td(ridx, val, id, is_open, {cidx, column_name, type, first_col}, {selected_id, depth, ridx_offset, cidx_offset}) {
         const {tr, row_container} = this._get_row(ridx);
 

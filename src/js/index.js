@@ -9,7 +9,7 @@
  */
 
 import {_start_profiling_loop} from "./utils";
-import {DatagridViewModel} from "./datagrid";
+import {RegularViewModel} from "./custom_element";
 import MATERIAL_STYLE from "../less/material.less";
 
 /**
@@ -29,7 +29,7 @@ function _register_global_styles() {
  *
  */
 
-window.customElements.define("regular-table", DatagridViewModel);
+window.customElements.define("regular-table", RegularViewModel);
 
 _start_profiling_loop();
 _register_global_styles();

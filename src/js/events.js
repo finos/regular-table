@@ -10,16 +10,16 @@
 
 import isEqual from "lodash/isEqual";
 import {METADATA_MAP} from "./constants";
-import {DatagridVirtualTableViewModel} from "./scroll_panel";
+import {RegularVirtualTableViewModel} from "./scroll_panel";
 import {getCellConfig, throttlePromise} from "./utils";
 
 /**
  *
  *
- * @class DatagridViewEventModel
- * @extends {DatagridVirtualTableViewModel}
+ * @class RegularViewEventModel
+ * @extends {RegularVirtualTableViewModel}
  */
-export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
+export class RegularViewEventModel extends RegularVirtualTableViewModel {
     register_listeners() {
         this.addEventListener("scroll", this._on_scroll.bind(this), {
             passive: false,
@@ -33,13 +33,13 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
 
     /**
      * @returns
-     * @memberof DatagridViewModel
+     * @memberof RegularViewModel
      */
     async _on_scroll(event) {
         event.stopPropagation();
         event.returnValue = false;
         await this.draw();
-        this.dispatchEvent(new CustomEvent("perspective-datagrid-scroll"));
+        this.dispatchEvent(new CustomEvent("regular-table-scroll"));
     }
 
     /**
@@ -47,7 +47,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      * visual artifacts due to scrolling "inertia" on modern browsers/mobile.
      *
      * @param {*} event
-     * @memberof DatagridViewModel
+     * @memberof RegularViewModel
      */
     _on_mousewheel(event) {
         if (this._virtual_scrolling_disabled) {
@@ -68,7 +68,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      *
      * @param {*} event
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     async _on_dblclick(event) {
         let element = event.target;
@@ -103,7 +103,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      *
      * @param {*} event
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     async _on_click(event) {
         if (event.button !== 0) {
@@ -133,12 +133,12 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
     }
 
     /**
-     * Datagrid event for column resize.
+     * Regular event for column resize.
      *
      * @param {*} event
      * @param {*} element
      * @param {*} metadata
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _on_resize_column(event, element, metadata) {
         const start = event.pageX;
@@ -157,14 +157,14 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
     }
 
     /**
-     * Datagrid event for mouse movement when resizing a column.
+     * Regular event for mouse movement when resizing a column.
      *
      * @param {*} event
      * @param {*} th
      * @param {*} start
      * @param {*} width
      * @param {*} metadata
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     @throttlePromise
     async _on_resize_column_move(event, th, start, width, metadata) {
@@ -191,7 +191,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
     /**
      * Get the id of the selected row
      *
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _get_selected() {
         return this._selected_id;
@@ -201,7 +201,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      * will be highlighted if it's in the viewport
      *
      * @param {*} selected_id
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _set_selected(selected_id) {
         this._selected_id = selected_id;
@@ -209,18 +209,18 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
     /**
      * Clears selected row
      *
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _clear_selected() {
         delete this._selected_id;
     }
 
     /**
-     * Datagrid event which handles row selection.
+     * Regular event which handles row selection.
      *
      * @param {*} metadata
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     async _on_row_select(metadata) {
         const is_deselect = isEqual(metadata.id, this._selected_id);
@@ -253,7 +253,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      *
      * @param {*} event
      * @param {*} metadata
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     async _on_toggle(event, metadata) {
         if (metadata.is_open) {
@@ -273,7 +273,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
     }
 
     /**
-     * Datagrid event which handles sorting.  There are 3 control states:
+     * Regular event which handles sorting.  There are 3 control states:
      *
      *  - Already sorted by `metadata.column_name`, increment sort clause to
      *    next sort state.
@@ -282,7 +282,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      *
      * @param {*} event
      * @param {*} metadata
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     async _on_sort(event, metadata) {
         let sort = this._view_cache.config.sort.slice();
