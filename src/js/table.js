@@ -8,8 +8,8 @@
  *
  */
 
-import {DatagridHeaderViewModel} from "./thead";
-import {DatagridBodyViewModel} from "./tbody";
+import {RegularHeaderViewModel} from "./thead";
+import {RegularBodyViewModel} from "./tbody";
 import {column_path_2_type, html} from "./utils";
 
 /**
@@ -18,9 +18,9 @@ import {column_path_2_type, html} from "./utils";
  * until the page is complete, and makes some column viewport estimations
  * when this information is not availble.
  *
- * @class DatagridTableViewModel
+ * @class RegularTableViewModel
  */
-export class DatagridTableViewModel {
+export class RegularTableViewModel {
     constructor(table_clip, column_sizes, element) {
         element.innerHTML = html`
             <table cellspacing="0">
@@ -32,8 +32,8 @@ export class DatagridTableViewModel {
         const [thead, tbody] = table.children;
         this.table = table;
         this._column_sizes = column_sizes;
-        this.header = new DatagridHeaderViewModel(column_sizes, table_clip, thead);
-        this.body = new DatagridBodyViewModel(column_sizes, table_clip, tbody);
+        this.header = new RegularHeaderViewModel(column_sizes, table_clip, thead);
+        this.body = new RegularBodyViewModel(column_sizes, table_clip, tbody);
         this.fragment = document.createDocumentFragment();
     }
 
@@ -46,7 +46,7 @@ export class DatagridTableViewModel {
      *
      * @param {*} last_cells
      * @param {*} {columns, column_pivots}
-     * @memberof DatagridTableViewModel
+     * @memberof RegularTableViewModel
      */
     autosize_cells(last_cells) {
         while (last_cells.length > 0) {

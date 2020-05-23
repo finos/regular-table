@@ -51,9 +51,9 @@ import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DO
  * `table`, which is then updated offscreen and swapped back in.  While this is
  * much slower to render, it prevents draw-in.
  *
- * @class DatagridVirtualTableViewModel
+ * @class RegularVirtualTableViewModel
  */
-export class DatagridVirtualTableViewModel extends HTMLElement {
+export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Create the DOM for this `shadowRoot`.
      *
@@ -62,7 +62,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * double buffered `<table>` is rendered in the shadow DOM before being
      * swapped in.
      *
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     create_shadow_dom() {
         this.attachShadow({mode: "open"});
@@ -95,7 +95,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      * @param {*} reset_scroll_position
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _calculate_viewport(nrows, reset_scroll_position) {
         const id = this._view_cache.config.row_pivots.length > 0;
@@ -144,7 +144,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      * @param {*} reset_scroll_position
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _calculate_row_range(nrows, reset_scroll_position) {
         const {height} = this._container_size;
@@ -166,7 +166,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * of `total_scroll_height` from `_calculate_row_range`.
      *
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _calculate_column_range() {
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
@@ -198,7 +198,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      *   |                 |       |         |        |
      *
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _max_scroll_column() {
         let width = 0;
@@ -222,7 +222,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      *
      * @param {*} {start_col, end_col, start_row, end_row}
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _validate_viewport({start_col, end_col, start_row, end_row}) {
         const invalid_column = this._start_col !== start_col;
@@ -240,7 +240,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      *
      * @param {*} {invalid_schema, invalid_row, invalid_column}
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _needs_swap({invalid_row, invalid_column}) {
         return (DOUBLE_BUFFER_RECREATE && this._invalid_schema) || (DOUBLE_BUFFER_COLUMN && (invalid_column || this._invalid_schema)) || (DOUBLE_BUFFER_ROW && (invalid_row || this._invalid_schema));
@@ -251,11 +251,11 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * the real table to the hidden shadow DOM for mutation.
      *
      * @param {*} args
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _swap_in(args) {
         this.dispatchEvent(
-            new CustomEvent("perspective-datagrid-before-update", {
+            new CustomEvent("regular-table-before-update", {
                 bubbles: true,
                 detail: this,
             })
@@ -279,14 +279,14 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * light DOM.
      *
      * @param {*} args
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _swap_out(args) {
         if (!this._virtual_scrolling_disabled && this._needs_swap(args)) {
             this._sticky_container.replaceChild(this.table_model.table, this._sticky_container.children[0]);
         }
         this.dispatchEvent(
-            new CustomEvent("perspective-datagrid-after-update", {
+            new CustomEvent("regular-table-after-update", {
                 bubbles: true,
                 detail: this,
             })
@@ -297,7 +297,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * Updates the `virtual_panel` width based on view state.
      *
      * @param {*} invalid_schema
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _update_virtual_panel_width(invalid_schema) {
         if (invalid_schema) {
@@ -324,7 +324,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * Updates the `virtual_panel` height based on the view state.
      *
      * @param {*} nrows
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     _update_virtual_panel_height(nrows) {
         const {row_height = 19} = this._column_sizes;
@@ -346,7 +346,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      *
      * @param {*} config
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     infer_options(config) {
         config = Object.assign({}, config);
@@ -376,7 +376,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * @param {boolean} [options.preserve_width=false]
      * @param {boolean} [options.invalid_viewport=false]
      * @returns
-     * @memberof DatagridVirtualTableViewModel
+     * @memberof RegularVirtualTableViewModel
      */
     @throttlePromise
     async draw(options = {}) {

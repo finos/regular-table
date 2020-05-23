@@ -9,23 +9,23 @@
  */
 
 import {METADATA_MAP} from "./constants";
-import {DatagridTableViewModel} from "./table";
-import {DatagridViewEventModel} from "./events";
+import {RegularTableViewModel} from "./table";
+import {RegularViewEventModel} from "./events";
 
 /**
- * Datagrid's "public" API.  See the `superstore-custom-grid.html` simple
+ * Regular's "public" API.  See the `superstore-custom-grid.html` simple
  * example.
  *
- * @class DatagridViewEventModel
- * @extends {DatagridVirtualTableViewModel}
+ * @class RegularViewEventModel
+ * @extends {RegularVirtualTableViewModel}
  */
-export class DatagridViewModel extends DatagridViewEventModel {
+export class RegularViewModel extends RegularViewEventModel {
     connectedCallback() {
         this.create_shadow_dom();
         this.register_listeners();
         this.setAttribute("tabindex", "0");
         this._column_sizes = {auto: {}, override: {}, indices: []};
-        this.table_model = new DatagridTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
+        this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
         if (!this.table_model) return;
         if (this !== this._sticky_container.parentElement) {
             this.appendChild(this._sticky_container);
@@ -34,12 +34,12 @@ export class DatagridViewModel extends DatagridViewEventModel {
 
     /**
      * Returns the metadata object associated with a `<td>` or `<th>`.  When
-     * an `perspective-datagrid-after-update` event fires, use this method
+     * an `regular-table-after-update` event fires, use this method
      * to look up the Perspective data associated with a `<table>`s DOM cells.
      *
      * @param {*} td
      * @returns a metadata object.
-     * @memberof DatagridViewModel
+     * @memberof RegularViewModel
      */
     get_meta(td) {
         return METADATA_MAP.get(td);
@@ -50,7 +50,7 @@ export class DatagridViewModel extends DatagridViewEventModel {
      * `element.querySlectorAll("td");
      *
      * @returns
-     * @memberof DatagridViewModel
+     * @memberof RegularViewModel
      */
     get_tds() {
         return this.table_model.body.cells.flat(1);
@@ -61,7 +61,7 @@ export class DatagridViewModel extends DatagridViewEventModel {
      * `element.querySlectorAll("th");
      *
      * @returns
-     * @memberof DatagridViewModel
+     * @memberof RegularViewModel
      */
     get_ths() {
         return this.table_model.body.cells.flat(1);
@@ -70,7 +70,7 @@ export class DatagridViewModel extends DatagridViewEventModel {
     /**
      * Clear this renderer.
      *
-     * @memberof DatagridViewModel
+     * @memberof RegularViewModel
      */
     clear() {
         this._sticky_container.innerHTML = "<table></table>";
