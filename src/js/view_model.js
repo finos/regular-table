@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -52,13 +53,13 @@ export class ViewModel {
             float: Intl.NumberFormat,
             integer: Intl.NumberFormat,
             datetime: Intl.DateTimeFormat,
-            date: Intl.DateTimeFormat
+            date: Intl.DateTimeFormat,
         }[real_type];
         if (format_function) {
             const func = new format_function("en-us", config.format);
-            return path => func.format(path);
+            return (path) => func.format(path);
         } else {
-            return path => path;
+            return (path) => path;
         }
     }
 
@@ -67,7 +68,7 @@ export class ViewModel {
         const config = get_type_config(type);
         const real_type = config.type || type;
         if (real_type === "integer" || real_type === "float") {
-            return path => {
+            return (path) => {
                 if (path > 0) {
                     return "pd-positive";
                 } else if (path < 0) {
@@ -93,7 +94,7 @@ export class ViewModel {
                 if (c) {
                     td.classList.add(c);
                 }
-            }
+            },
         };
     }
 

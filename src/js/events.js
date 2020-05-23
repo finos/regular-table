@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -20,8 +21,12 @@ import {getCellConfig, throttlePromise} from "./utils";
  */
 export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
     register_listeners() {
-        this.addEventListener("scroll", this._on_scroll.bind(this), {passive: false});
-        this.addEventListener("mousewheel", this._on_mousewheel.bind(this), {passive: false});
+        this.addEventListener("scroll", this._on_scroll.bind(this), {
+            passive: false,
+        });
+        this.addEventListener("mousewheel", this._on_mousewheel.bind(this), {
+            passive: false,
+        });
         this.addEventListener("mousedown", this._on_click.bind(this));
         this.addEventListener("dblclick", this._on_dblclick.bind(this));
     }
@@ -139,7 +144,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
         const start = event.pageX;
         element = this.table_model.header.get_column_header(metadata.vcidx);
         const width = this._column_sizes.indices[metadata.cidx];
-        const move = event => this._on_resize_column_move(event, element, start, width, metadata);
+        const move = (event) => this._on_resize_column_move(event, element, start, width, metadata);
         const up = async () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
@@ -236,8 +241,8 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
                 composed: true,
                 detail: {
                     selected: !is_deselect,
-                    config: {filters}
-                }
+                    config: {filters},
+                },
             })
         );
     }
@@ -281,7 +286,7 @@ export class DatagridViewEventModel extends DatagridVirtualTableViewModel {
      */
     async _on_sort(event, metadata) {
         let sort = this._view_cache.config.sort.slice();
-        const current_idx = sort.findIndex(x => x[0] === metadata.column_name);
+        const current_idx = sort.findIndex((x) => x[0] === metadata.column_name);
         if (current_idx > -1) {
             const sort_dir = sort[current_idx][1];
             const new_sort = this.parentElement._increment_sort(sort_dir, false, event.altKey);

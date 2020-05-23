@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -68,7 +69,14 @@ export class DatagridTableViewModel {
         const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
         const depth = config.row_pivots.length;
         const id_column = columns_data["__ID__"];
-        const view_state = {viewport_width: 0, selected_id, depth, ridx_offset, cidx_offset, row_height: this._column_sizes.row_height};
+        const view_state = {
+            viewport_width: 0,
+            selected_id,
+            depth,
+            ridx_offset,
+            cidx_offset,
+            row_height: this._column_sizes.row_height,
+        };
 
         let cont_body,
             cidx = 0,
@@ -76,11 +84,21 @@ export class DatagridTableViewModel {
             first_col = true;
         if (column_paths[0] === "__ROW_PATH__") {
             const column_name = config.row_pivots.join(",");
-            const type = config.row_pivots.map(x => table_schema[x]);
+            const type = config.row_pivots.map((x) => table_schema[x]);
             const column_data = columns_data["__ROW_PATH__"];
-            const column_state = {column_name, cidx: 0, column_data, id_column, type, first_col};
+            const column_state = {
+                column_name,
+                cidx: 0,
+                column_data,
+                id_column,
+                type,
+                first_col,
+            };
             const cont_head = this.header.draw(config, column_name, "", type, 0);
-            cont_body = this.body.draw(container_height, column_state, {...view_state, cidx_offset: 0});
+            cont_body = this.body.draw(container_height, column_state, {
+                ...view_state,
+                cidx_offset: 0,
+            });
             first_col = false;
             view_state.viewport_width += this._column_sizes.indices[0] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
             view_state.row_height = view_state.row_height || cont_body.row_height;
@@ -107,7 +125,14 @@ export class DatagridTableViewModel {
 
                 const type = column_path_2_type(schema, column_name);
                 const column_data = columns_data[column_name];
-                const column_state = {column_name, cidx, column_data, id_column, type, first_col};
+                const column_state = {
+                    column_name,
+                    cidx,
+                    column_data,
+                    id_column,
+                    type,
+                    first_col,
+                };
                 const cont_head = this.header.draw(config, undefined, column_name, type, cidx + cidx_offset);
                 cont_body = this.body.draw(container_height, column_state, view_state);
                 first_col = false;

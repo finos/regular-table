@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -21,14 +22,14 @@ export async function getCellConfig({view, config}, row_idx, col_idx) {
     const start_row = row_idx >= 0 ? row_idx : 0;
     const end_row = start_row + 1;
     const r = await view.to_json({start_row, end_row});
-    const row_paths = r.map(x => x.__ROW_PATH__);
+    const row_paths = r.map((x) => x.__ROW_PATH__);
     const row_pivots_values = row_paths[0] || [];
     const row_filters = row_pivots
         .map((pivot, index) => {
             const pivot_value = row_pivots_values[index];
             return pivot_value ? [pivot, "==", pivot_value] : undefined;
         })
-        .filter(x => x);
+        .filter((x) => x);
     const column_index = row_pivots.length > 0 ? col_idx + 1 : col_idx;
     const column_paths = Object.keys(r[0])[column_index];
     const result = {row: r[0]};
@@ -41,7 +42,7 @@ export async function getCellConfig({view, config}, row_idx, col_idx) {
                 const pivot_value = column_pivot_values[index];
                 return pivot_value ? [pivot, "==", pivot_value] : undefined;
             })
-            .filter(x => x)
+            .filter((x) => x)
             .filter(([, , value]) => value !== "__ROW_PATH__");
     }
 
@@ -104,7 +105,7 @@ export function memoize(_target, _property, descriptor) {
 }
 
 export function column_path_2_type(schema, column) {
-    let parts = column.split("|");
+    const parts = column.split("|");
     return schema[parts[parts.length - 1]];
 }
 
@@ -113,25 +114,25 @@ export function column_path_2_type(schema, column) {
  * babel that this string should be HTML-minified on production builds.
  */
 export const html = (strings, ...args) =>
-    strings
+    (Array.isArray(strings[0]) ? strings : [strings])
         .map((str, i) => [str, args[i]])
         .flat()
-        .filter(a => !!a)
+        .filter((a) => !!a)
         .join("");
 
 const invertPromise = () => {
-    let resolve;
-    let promise = new Promise(_resolve => {
-        resolve = _resolve;
+    let _resolve;
+    const promise = new Promise((resolve) => {
+        _resolve = resolve;
     });
-    promise.resolve = resolve;
+    promise.resolve = _resolve;
     return promise;
 };
 
 export function throttlePromise(target, property, descriptor) {
     const lock = Symbol("private lock");
     const f = descriptor.value;
-    descriptor.value = async function(...args) {
+    descriptor.value = async function (...args) {
         if (this[lock]) {
             await this[lock];
             if (this[lock]) {
@@ -167,7 +168,7 @@ export function get_type_config(type) {
     } else {
         return config;
     }
-};
+}
 
 export const default_types = {
     /**
@@ -197,21 +198,21 @@ export const default_types = {
             format: {
                 style: "decimal",
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
+                maximumFractionDigits: 2,
+            },
         },
         string: {
             filter_operator: "==",
-            aggregate: "count"
+            aggregate: "count",
         },
         integer: {
             filter_operator: "==",
             aggregate: "sum",
-            format: {}
+            format: {},
         },
         boolean: {
             filter_operator: "==",
-            aggregate: "count"
+            aggregate: "count",
         },
         datetime: {
             filter_operator: "==",
@@ -223,9 +224,9 @@ export const default_types = {
                 day: "numeric",
                 hour: "numeric",
                 minute: "numeric",
-                second: "numeric"
+                second: "numeric",
             },
-            null_value: -1
+            null_value: -1,
         },
         date: {
             filter_operator: "==",
@@ -234,9 +235,9 @@ export const default_types = {
                 week: "numeric",
                 year: "numeric",
                 month: "numeric",
-                day: "numeric"
+                day: "numeric",
             },
-            null_value: -1
-        }
-    }
+            null_value: -1,
+        },
+    },
 };

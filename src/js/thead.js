@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -33,11 +34,9 @@ export class DatagridHeaderViewModel extends ViewModel {
             `;
         } else {
             const sort_txt = sort_dir
-                ?.map(x => {
+                ?.map((x) => {
                     const icon = ICON_MAP[x];
-                    return html`
-                        <span class="pd-column-header-icon">${icon}</span>
-                    `;
+                    return html` <span class="pd-column-header-icon">${icon}</span> `;
                 })
                 .join("");
             th.innerHTML = html`
@@ -127,7 +126,7 @@ export class DatagridHeaderViewModel extends ViewModel {
                     this._redraw_previous(this._offset_cache, d);
                 }
                 const vcidx = this._offset_cache[d];
-                const sort_dir = config.sort?.filter(x => x[0] === column_name).map(x => x[1]);
+                const sort_dir = config.sort?.filter((x) => x[0] === column_name).map((x) => x[1]);
                 th = this._draw_group_th(this._offset_cache, d, column_name, sort_dir);
 
                 // Update the group header's metadata such that each group

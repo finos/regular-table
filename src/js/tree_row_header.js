@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -24,7 +25,7 @@ function _tree_header_classes(name, type, is_leaf) {
 }
 
 function _tree_header_levels(path, is_open, is_leaf) {
-    const tree_levels = path.map(() => `<span class="pd-tree-group"></span>`);
+    const tree_levels = path.map(() => '<span class="pd-tree-group"></span>');
     if (!is_leaf) {
         const group_icon = is_open ? "remove" : "add";
         const tree_button = `<span class="pd-row-header-icon">${group_icon}</span>`;
