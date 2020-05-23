@@ -19,6 +19,19 @@ import {DatagridViewEventModel} from "./events";
  * @extends {DatagridVirtualTableViewModel}
  */
 export class DatagridViewModel extends DatagridViewEventModel {
+   
+    connectedCallback() {
+        this.create_shadow_dom();
+        this.register_listeners();
+        this.setAttribute("tabindex", "0");
+        this._column_sizes = {auto: {}, override: {}, indices: []};
+        this.table_model = new DatagridTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
+        if (!this.table_model) return;
+        if (this !== this._sticky_container.parentElement) {
+            this.appendChild(this._sticky_container);
+        }
+    }
+
     /**
      * Returns the metadata object associated with a `<td>` or `<th>`.  When
      * an `perspective-datagrid-after-update` event fires, use this method
@@ -86,17 +99,6 @@ export class DatagridViewModel extends DatagridViewEventModel {
         const options = this.infer_options(config);
         this._view_cache = {view, config, column_paths, schema, table_schema};
         return options;
-    }
-
-    set_element(virtual_scrolling_disabled = false) {
-        this._virtual_scrolling_disabled = virtual_scrolling_disabled;
-        this.create_shadow_dom();
-        this._column_sizes = {auto: {}, override: {}, indices: []};
-        this.table_model = new DatagridTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
-        if (!this.table_model) return;
-        if (this !== this._sticky_container.parentElement) {
-            this.appendChild(this._sticky_container);
-        }
     }
 
     save() {

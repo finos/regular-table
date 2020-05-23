@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-    entry: "./dist/esm/index.js",
+    entry: "./dist/js/index.js",
     devtool: "source-map",
     mode: "production",
     externals: [/^[a-z0-9@]/], 
@@ -11,6 +11,10 @@ module.exports = {
                 test: /\.less$/,
                 exclude: /node_modules/,
                 use: [{loader: "css-loader"}, {loader: "clean-css-loader", options: {level: 2}}, {loader: "less-loader"}]
+            }, {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: "babel-loader"
             }
         ]
     },

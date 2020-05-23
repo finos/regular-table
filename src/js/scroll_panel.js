@@ -53,9 +53,6 @@ import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DO
  * @class DatagridVirtualTableViewModel
  */
 export class DatagridVirtualTableViewModel extends HTMLElement {
-    constructor() {
-        super();
-    }
 
     /**
      * Create the DOM for this `shadowRoot`.
@@ -81,7 +78,6 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
 
         const sticky_container = document.createElement("div");
         sticky_container.setAttribute("tabindex", "0");
-        this.setAttribute("tabindex", "0");
         const [, virtual_panel, table_clip, table_staging] = this.shadowRoot.children;
         this._sticky_container = sticky_container;
         this._table_clip = table_clip;

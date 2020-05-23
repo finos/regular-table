@@ -9,7 +9,6 @@
 
 // Singleton `WeakMap`s to store metadata for td/th elements, as well as the
 // datagrids themselves for each `<perspective-viewer>`
-export const VIEWER_MAP = new WeakMap();
 export const METADATA_MAP = new WeakMap();
 
 // Output runtime debug info like FPS.
