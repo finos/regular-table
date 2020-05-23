@@ -10,7 +10,7 @@ module.exports = {
             {
                 test: /\.less$/,
                 exclude: /node_modules/,
-                use: [{loader: "css-loader"}, {loader: "clean-css-loader", options: {level: 2}}, {loader: "less-loader"}],
+                use: [{loader: "css-loader"}, {loader: "less-loader"}],
             },
             {
                 test: /\.js$/,

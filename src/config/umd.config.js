@@ -7,9 +7,13 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.(woff|ttf|eot|svg|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: "base64-font-loader",
+            },
+            {
                 test: /\.less$/,
                 exclude: /node_modules/,
-                use: [{loader: "css-loader"}, {loader: "clean-css-loader", options: {level: 2}}, {loader: "less-loader"}],
+                use: [{loader: "css-loader"}, {loader: "less-loader"}],
             },
             {
                 test: /\.js$/,

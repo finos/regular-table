@@ -1,0 +1,51 @@
+<!--
+   
+   Copyright (c) 2020, the Regular Table Authors.
+   
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="https://unpkg.com/@finos/perspective"></script>
+    <script src="../umd/regular-table.js"></script>
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <script>
+        const URL = "https://unpkg.com/@jpmorganchase/perspective-examples/build/superstore.arrow";
+                        
+        async function get_layout() {
+            const req = await fetch("layout.json");
+            const json = await req.json();
+            return json;
+        }
+
+        const datasource = async () => {
+            const request = fetch(URL);
+            const worker = perspective.worker();
+            const response = await request;
+            const buffer = await response.arrayBuffer();
+            return worker.table(buffer);
+        };
+            
+        window.addEventListener('DOMContentLoaded', async function () {
+            const regular = document.getElementsByTagName('regular-table')[0];
+            const table = await datasource();
+            await regular.set_view(table, table.view());
+            await regular.draw();
+        });
+
+    </script>
+
+</body>
+
+</html>
