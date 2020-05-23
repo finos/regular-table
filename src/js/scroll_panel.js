@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -53,7 +54,6 @@ import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DO
  * @class DatagridVirtualTableViewModel
  */
 export class DatagridVirtualTableViewModel extends HTMLElement {
-
     /**
      * Create the DOM for this `shadowRoot`.
      *
@@ -71,8 +71,12 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
             <style>
                 ${CONTAINER_STYLE + MATERIAL_STYLE}
             </style>
-            <div class="pd-virtual-panel">${this._virtual_scrolling_disabled ? slot : ""}</div>
-            <div class="pd-scroll-table-clip">${this._virtual_scrolling_disabled ? "" : slot}</div>
+            <div class="pd-virtual-panel">
+                ${this._virtual_scrolling_disabled ? slot : ""}
+            </div>
+            <div class="pd-scroll-table-clip">
+                ${this._virtual_scrolling_disabled ? "" : slot}
+            </div>
             <div style="position: absolute; visibility: hidden;"></div>
         `;
 
@@ -250,7 +254,12 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
      * @memberof DatagridVirtualTableViewModel
      */
     _swap_in(args) {
-        this.dispatchEvent(new CustomEvent("perspective-datagrid-before-update", {bubbles: true, detail: this}));
+        this.dispatchEvent(
+            new CustomEvent("perspective-datagrid-before-update", {
+                bubbles: true,
+                detail: this,
+            })
+        );
         if (!this._virtual_scrolling_disabled) {
             if (this._needs_swap(args)) {
                 if (this._sticky_container === this.table_model.table.parentElement) {
@@ -276,7 +285,12 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
         if (!this._virtual_scrolling_disabled && this._needs_swap(args)) {
             this._sticky_container.replaceChild(this.table_model.table, this._sticky_container.children[0]);
         }
-        this.dispatchEvent(new CustomEvent("perspective-datagrid-after-update", {bubbles: true, detail: this}));
+        this.dispatchEvent(
+            new CustomEvent("perspective-datagrid-after-update", {
+                bubbles: true,
+                detail: this,
+            })
+        );
     }
 
     /**
@@ -384,7 +398,7 @@ export class DatagridVirtualTableViewModel extends HTMLElement {
         } else {
             this._container_size = (!this._invalid_schema && !invalid_viewport && this._container_size) || {
                 width: this._table_clip.offsetWidth,
-                height: this._table_clip.offsetHeight
+                height: this._table_clip.offsetHeight,
             };
         }
 

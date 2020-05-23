@@ -2,8 +2,9 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
@@ -35,5 +36,5 @@ export const ICON_MAP = {
     "col asc": "arrow_back",
     "col desc": "arrow_forward",
     "col asc abs": "\u21E8",
-    "col desc abs": "\u21E6"
+    "col desc abs": "\u21E6",
 };

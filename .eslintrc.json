@@ -1,0 +1,40 @@
+{
+    "parser": "babel-eslint",
+    "plugins": [
+        "prettier"
+    ],
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true,
+        "jest": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "ecmaFeatures": {},
+        "sourceType": "module",
+        "experimentalObjectRestSpread": true
+    },
+    "rules": {
+        "prettier/prettier": ["error", {
+            "printWidth": 200,
+            "tabWidth": 4,
+            "bracketSpacing": false
+        }],
+        "max-len": ["warn", {
+            "code": 200,
+            "comments": 80,
+            "ignoreTrailingComments": true
+        }],
+        "@typescript-eslint/camelcase": "off",
+        "camelcase": "off",
+        "no-const-assign": "error",
+        "no-this-before-super": "error",
+        "no-undef": "error",
+        "no-unreachable": "error",
+        "no-unused-vars": "error",
+        "constructor-super": "error",
+        "valid-typeof": "error"
+    }
+}

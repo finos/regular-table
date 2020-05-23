@@ -2,15 +2,16 @@
  *
  * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Regular Table library, distributed under the terms of
- * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ * This file is part of the Regular Table library, distributed under the terms
+ * of the Apache License 2.0.  The full license can be found in the LICENSE
+ * file.
  *
  */
 
 const pattern = new RegExp("[\n\t ]+", "g");
 
 // Replace whitespace in `html` tagged literals for minification.
-module.exports = function(babel) {
+module.exports = function (babel) {
     const t = babel.types;
     return {
         visitor: {
@@ -23,7 +24,7 @@ module.exports = function(babel) {
                         }
                     }
                 }
-            }
-        }
+            },
+        },
     };
 };
