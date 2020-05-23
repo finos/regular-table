@@ -1,12 +1,12 @@
 const path = require("path");
-const common = require("@finos/perspective/src/config/common.config.js");
+const common = require("./common.config.js");
 
 module.exports = common({}, config =>
     Object.assign(config, {
-        entry: "./dist/esm/index.js",
+        entry: "./src/js/index.js",
         output: {
-            filename: "perspective-viewer-datagrid.js",
-            library: "perspective-viewer-datagrid",
+            filename: "regular-table.js",
+            library: "regular-table",
             libraryTarget: "umd",
             path: path.resolve(__dirname, "../../dist/umd")
         }

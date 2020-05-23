@@ -7,12 +7,10 @@
  *
  */
 
-import {throttlePromise} from "@finos/perspective-viewer/dist/esm/utils.js";
-
 import isEqual from "lodash/isEqual";
 import {METADATA_MAP} from "./constants";
 import {DatagridVirtualTableViewModel} from "./scroll_panel";
-import {getCellConfig} from "./utils";
+import {getCellConfig, throttlePromise} from "./utils";
 
 /**
  *

@@ -27,7 +27,6 @@ export class DatagridBodyViewModel extends ViewModel {
             tr.classList.toggle("pd-selected", !!id && is_selected);
             tr.classList.toggle("pd-sub-selected", !!id && is_sub_selected);
         }
-
         const metadata = this._get_or_create_metadata(td);
         metadata.id = id;
         metadata.cidx = cidx + cidx_offset;

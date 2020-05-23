@@ -1,12 +1,12 @@
 {
-    "name": "@finos/perspective-viewer-datagrid",
+    "name": "regular-table",
     "version": "0.4.8",
-    "description": "Perspective.js",
-    "main": "dist/cjs/perspective-viewer-datagrid.js",
-    "module": "dist/cjs/perspective-viewer-datagrid.js",
-    "browser": "dist/cjs/perspective-viewer-datagrid.js",
-    "unpkg": "dist/umd/perspective-viewer-datagrid.js",
-    "jsdelivr": "dist/umd/perspective-viewer-datagrid.js",
+    "description": "Grid framework built on a virtualized <table> element",
+    "main": "dist/esm/regular-table.js",
+    "module": "dist/cjs/regular-table.js",
+    "browser": "dist/cjs/regular-table.js",
+    "unpkg": "dist/umd/regular-table.js",
+    "jsdelivr": "dist/umd/regular-table.js",
     "files": [
         "dist/**/*",
         "babel.config.js"
@@ -17,11 +17,14 @@
         "bench:run": "echo \"No Benchmarks\"",
         "prebuild": "mkdirp dist/esm",
         "build:babel": "cpx \"src/**/*\" dist && babel src/js --source-maps --out-dir dist/esm",
-        "build:webpack:esm": "webpack --color --config src/config/cjs.config.js",
+        "build:webpack:cjs": "webpack --color --config src/config/cjs.config.js",
         "build:webpack:umd": "webpack --color --config src/config/umd.config.js",
-        "build": "npm-run-all build:babel build:webpack:esm build:webpack:umd",
-        "test:build": "cpx \"test/html/*\" dist/umd",
-        "test:run": "jest --rootDir=. --config=../perspective-test/jest.config.js --color",
+        "build": "npm-run-all build:babel build:webpack:cjs build:webpack:umd",
+        "build:debug": "PSP_NO_MINIFY=true PSP_DEBUG=true npm run build",
+        "test:build": "cpx \"test/html/*\" dist/umd && cpx \"test/csv/*\" dist/umd && cpx \"test/css/*\" dist/umd",
+        "test:run": "TZ=UTC jest --rootDir=. --config=../perspective-test/jest.config.js --color",
+        "test:write": "WRITE_TESTS=true npm run test:run",
+        "test:interactive": "PSP_PAUSE_ON_FAILURE=true TZ=UTC node ../../node_modules/.bin/jest --rootDir=. --config=../perspective-test/jest.config.js --color --runInBand",
         "test": "npm-run-all test:build test:run",
         "watch:babel": "babel src/js --source-maps --watch --out-dir dist/esm",
         "watch:webpack": "webpack --watch --color --config src/config/umd.config.js",
@@ -34,18 +37,20 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/finos/perspective"
+        "url": "https://github.com/jpmorganchase/regular-table"
     },
     "author": "",
     "license": "Apache-2.0",
     "dependencies": {
-        "@finos/perspective": "^0.4.8",
         "@finos/perspective-viewer": "^0.4.8",
         "core-js": "^3.6.4",
+        "papaparse": "5.2.0",
         "superscript-number": "^1.0.0"
     },
     "devDependencies": {
+        "@finos/perspective": "^0.4.8",
         "@finos/perspective-test": "^0.4.8",
-        "@finos/perspective-webpack-plugin": "^0.4.8"
+        "@finos/perspective-webpack-plugin": "^0.4.8",
+        "babel-loader": "^8.1.0"
     }
 }
