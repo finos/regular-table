@@ -8,10 +8,9 @@
  *
  */
 
-import isEqual from "lodash/isEqual";
 import {METADATA_MAP} from "./constants";
 import {RegularVirtualTableViewModel} from "./scroll_panel";
-import {getCellConfig, throttlePromise} from "./utils";
+import {getCellConfig, throttlePromise, isEqual} from "./utils";
 
 /**
  *
