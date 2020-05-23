@@ -1,0 +1,66 @@
+<!--
+   
+   Copyright (c) 2020, the Regular Table Authors.
+   
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="../umd/regular-table.js"></script>
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', async function () {
+            const table = document.getElementsByTagName('regular-table')[0];
+            await table.set_view({
+                schema: async () => { 
+                    return {
+                        "Column 0": "float",
+                        "Column 1": "float", 
+                        "Column 2": "float"
+                    };
+                }
+            }, {
+                num_rows: async () => 2000000000,
+                column_paths: async () => ["Column 0", "Column 1", "Column 2"],
+                get_config: async () => { 
+                    return {
+                         row_pivots: [], 
+                         column_pivots: [] 
+                    };
+                },
+                to_columns: ({start_row, end_row, start_col, end_col}) => {
+                    const columns = {};
+                    for (let i = start_col; i < end_col; i ++) {
+                        const column = columns[`Column ${i}`] = [];
+                        for (let j = start_row; j < end_row; j ++) {
+                            column.push(j);
+                        }
+                    }
+                    return columns;
+                },
+                schema: async () => { 
+                    return {
+                        "Column 0": "float",
+                        "Column 1": "float", 
+                        "Column 2": "float"
+                    };
+                }
+            });
+            await table.draw();
+        });
+    </script>
+
+</body>
+
+</html>
