@@ -1,8 +1,7 @@
 {
-    "name": "@jpmorganchase/regular-table",
-    "version": "0.0.0",
+    "name": "regular-table",
+    "version": "0.0.1",
     "description": "A regular `<table>`, for an async and virtual data model.",
-    "private": true,
     "repository": {
         "type": "git",
         "url": "https://github.com/jpmorganchase/regular-table"
@@ -38,7 +37,7 @@
         "watch": "npm-run-all -p watch:*"
     },
     "publishConfig": {
-        "access": "restricted"
+        "access": "public"
     },
     "dependencies": {
         "core-js": "^3.6.4",
