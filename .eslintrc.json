@@ -10,6 +10,12 @@
         "node": true,
         "jest": true
     },
+    "globals": {
+        "page": true,
+        "browser": true,
+        "context": true,
+        "jestPuppeteer": true
+    },
     "parserOptions": {
         "ecmaVersion": 2018,
         "ecmaFeatures": {},
