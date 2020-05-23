@@ -1,8 +1,8 @@
 /******************************************************************************
  *
- * Copyright (c) 2017, the Perspective Authors.
+ * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Perspective library, distributed under the terms of
+ * This file is part of the Regular Table library, distributed under the terms of
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
@@ -131,7 +131,8 @@ export class DatagridHeaderViewModel extends ViewModel {
                 th = this._draw_group_th(this._offset_cache, d, column_name, sort_dir);
 
                 // Update the group header's metadata such that each group
-                // header has the same metadata coordinates of its rightmost column.
+                // header has the same metadata coordinates of its rightmost
+                // column.
                 const metadata = this._draw_th(alias || column_path, column_name, type, th);
                 metadata.vcidx = vcidx;
                 metadata.cidx = cidx;

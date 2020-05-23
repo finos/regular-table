@@ -1,8 +1,8 @@
 /******************************************************************************
  *
- * Copyright (c) 2017, the Perspective Authors.
+ * Copyright (c) 2020, the Regular Table Authors.
  *
- * This file is part of the Perspective library, distributed under the terms of
+ * This file is part of the Regular Table library, distributed under the terms of
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
@@ -24,20 +24,20 @@ function get_or_create_datagrid(element, div) {
     let datagrid;
     if (!VIEWER_MAP.has(div)) {
         datagrid = document.createElement("perspective-datagrid");
-        datagrid.appendChild(document.createElement("slot"));
-        datagrid.set_element(element);
+        datagrid.set_element(element.hasAttribute("disable-virtual-datagrid"));
         datagrid.register_listeners();
         div.innerHTML = "";
-        div.appendChild(datagrid);
+        div.appendChild(document.createElement("slot"));
+        element.appendChild(datagrid);
         VIEWER_MAP.set(div, datagrid);
     } else {
         datagrid = VIEWER_MAP.get(div);
-    }
-
-    if (!datagrid.isConnected) {
-        datagrid.clear();
-        div.innerHTML = "";
-        div.appendChild(datagrid);
+        if (!datagrid.isConnected) {
+            datagrid.clear();
+            div.innerHTML = "";
+            div.appendChild(document.createElement("slot"));
+            element.appendChild(datagrid);
+        }
     }
 
     return datagrid;
@@ -64,7 +64,7 @@ class DatagridPlugin {
 
     static async create(div, view) {
         const datagrid = get_or_create_datagrid(this, div);
-        const options = await datagrid.set_view(view);
+        const options = await datagrid.set_view(this.table, view);
         if (this._plugin_config) {
             datagrid.restore(this._plugin_config);
             delete this._plugin_config;
@@ -75,7 +75,6 @@ class DatagridPlugin {
     static async resize() {
         if (this.view && VIEWER_MAP.has(this._datavis)) {
             const datagrid = VIEWER_MAP.get(this._datavis);
-            datagrid.reset_size();
             await datagrid.draw({invalid_viewport: true});
         }
     }
@@ -128,11 +127,13 @@ registerPlugin("datagrid", DatagridPlugin);
 _start_profiling_loop();
 _register_global_styles();
 
-export * from './data';
-export * from './datagrid';
-export * from './events';
-export * from './scroll_panel';
-export * from './table';
-export * from './thead';
-export * from './tree_row_header';
-export * from './view_model';
+// TODO This is not necessary - only need to register the Custom Element
+
+// export * from './data';
+// export * from './datagrid';
+// export * from './events';
+// export * from './scroll_panel';
+// export * from './table';
+// export * from './thead';
+// export * from './tree_row_header';
+// export * from './view_model';
