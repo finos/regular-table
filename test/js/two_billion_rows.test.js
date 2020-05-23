@@ -16,6 +16,7 @@ describe("Two billion rows", () => {
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.waitFor("regular-table table tbody tr td");
         });
 
         test("with the correct # of rows", async () => {
