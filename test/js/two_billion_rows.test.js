@@ -15,7 +15,7 @@ describe("Two billion rows", () => {
 
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8080/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
         });
 
         test("with the correct # of rows", async () => {
@@ -39,10 +39,11 @@ describe("Two billion rows", () => {
 
     describe("Scrolls down", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8080/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
-            await page.evaluate((table) => {
+            await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
+                await table.draw();
             }, table);
         });
 

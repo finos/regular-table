@@ -1,6 +1,6 @@
 module.exports = {
     server: {
-        command: "yarn start",
-        port: 8080,
+        command: "yarn start -p 8081",
+        port: 8081,
     },
 };
