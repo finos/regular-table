@@ -18,7 +18,7 @@ module.exports = {
         "transform-custom-element-classes",
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-proposal-optional-chaining",
-        "./babel-plugin-html-template.js",
-        "./babel-plugin-css-template.js",
+        "./scripts/babel-plugin-html-template.js",
+        "./scripts/babel-plugin-css-template.js",
     ],
 };
