@@ -20,7 +20,7 @@ export const DEBUG = false;
 // expense of performance.
 export const DOUBLE_BUFFER_COLUMN = false;
 export const DOUBLE_BUFFER_ROW = false;
-export const DOUBLE_BUFFER_RECREATE = true;
+export const DOUBLE_BUFFER_RECREATE = false;
 
 // The largest size virtual <div> in (px) that Chrome can support without
 // glitching.

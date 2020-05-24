@@ -8,10 +8,7 @@
  *
  */
 
-import CONTAINER_STYLE from "../less/container.less";
-import MATERIAL_STYLE from "../less/material.less";
-
-import {log_perf, html, isEqual, throttlePromise} from "./utils";
+import {css, log_perf, html, isEqual, throttlePromise} from "./utils";
 import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DOUBLE_BUFFER_COLUMN} from "./constants";
 
 /**
@@ -56,6 +53,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Create the DOM for this `shadowRoot`.
      *
+     * TODO deprecated
      * `MATERIAL_STYLE` is needed both here, and in the document `<head>`, due
      * to double buffering, which may read incorrect position/size values as the
      * double buffered `<table>` is rendered in the shadow DOM before being
@@ -66,9 +64,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     create_shadow_dom() {
         this.attachShadow({mode: "open"});
         const slot = `<slot></slot>`;
+        const container_css = css`src/less/container.less`;
         this.shadowRoot.innerHTML = html`
             <style>
-                ${CONTAINER_STYLE + MATERIAL_STYLE}
+                ${container_css}
             </style>
             <div class="pd-virtual-panel">
                 ${this._virtual_scrolling_disabled ? slot : ""}

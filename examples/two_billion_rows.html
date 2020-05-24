@@ -13,6 +13,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <script src="../umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../css/material.css">
 </head>
 
 <body>
@@ -20,19 +21,20 @@
     <regular-table></regular-table>
 
     <script>
+
+        const NUM_ROWS = 2000000000;
+        const NUM_COLUMNS = 1000;
+
+        const COLUMN_NAMES = new Array(NUM_COLUMNS).fill(0).map((_, i) => `Column ${i}`);
+        const SCHEMA = COLUMN_NAMES.reduce((schema, col) => ({... schema, [col]: "float"}), {});
+        
         window.addEventListener('DOMContentLoaded', async function () {
             const table = document.getElementsByTagName('regular-table')[0];
             await table.set_view({
-                schema: async () => { 
-                    return {
-                        "Column 0": "float",
-                        "Column 1": "float", 
-                        "Column 2": "float"
-                    };
-                }
+                schema: async () => SCHEMA
             }, {
-                num_rows: async () => 2000000000,
-                column_paths: async () => ["Column 0", "Column 1", "Column 2"],
+                num_rows: async () => NUM_ROWS,
+                column_paths: async () => COLUMN_NAMES,
                 get_config: async () => { 
                     return {
                          row_pivots: [], 
@@ -44,17 +46,13 @@
                     for (let i = start_col; i < end_col; i ++) {
                         const column = columns[`Column ${i}`] = [];
                         for (let j = start_row; j < end_row; j ++) {
-                            column.push(j);
+                            column.push(j + i);
                         }
                     }
                     return columns;
                 },
                 schema: async () => { 
-                    return {
-                        "Column 0": "float",
-                        "Column 1": "float", 
-                        "Column 2": "float"
-                    };
+                    return SCHEMA;
                 }
             });
             await table.draw();
