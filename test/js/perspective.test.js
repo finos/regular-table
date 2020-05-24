@@ -13,7 +13,8 @@ describe("Perspective", () => {
         await page.setViewport({width: 200, height: 100});
     });
 
-    describe("creates a `<table>` body when attached to `document`", () => {
+    // TODO don't run these, they depend on unpkg.com
+    describe.skip("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/examples/perspective.html");
             await page.waitFor("regular-table table tbody tr td");

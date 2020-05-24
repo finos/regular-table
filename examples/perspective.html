@@ -21,13 +21,8 @@
     <regular-table></regular-table>
 
     <script>
+        
         const URL = "https://unpkg.com/@jpmorganchase/perspective-examples/build/superstore.arrow";
-                        
-        async function get_layout() {
-            const req = await fetch("layout.json");
-            const json = await req.json();
-            return json;
-        }
 
         const datasource = async () => {
             const request = fetch(URL);
