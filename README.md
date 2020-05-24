@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-squar"></a>
   <a href="https://travis-ci.org/jpmorganchase/regular-table"><img alt="Travis Status" src="https://travis-ci.org/jpmorganchase/regular-table.svg?branch=master"></a>
 </p>
 

@@ -10,9 +10,9 @@
         "node": ">=10.18.1"
     },
     "license": "Apache-2.0",
-    "main": "dist/esm/regular-table.js",
-    "module": "dist/esm/regular-table.js",
-    "browser": "dist/esm/regular-table.js",
+    "main": "dist/esm/index.js",
+    "module": "dist/esm/index.js",
+    "browser": "dist/esm/index.js",
     "unpkg": "dist/umd/regular-table.js",
     "jsdelivr": "dist/umd/regular-table.js",
     "files": [
@@ -20,8 +20,8 @@
         "babel.config.js"
     ],
     "scripts": {
-        "prebuild": "mkdirp dist/esm dist/examples dist/css",
-        "build:static": "cpx \"examples/*\" dist/examples",
+        "prebuild": "mkdirp dist/esm dist/examples dist/css dist/less",
+        "build:static": "cpx \"src/less/*\" dist/less && cpx \"examples/*\" dist/examples",
         "build:babel": "babel src/js --source-maps --out-dir dist/esm",
         "build:webpack": "webpack --color --config webpack.config.js",
         "build:less": "lessc src/less/material.less dist/css/material.css",
