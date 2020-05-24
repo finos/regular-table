@@ -31,8 +31,6 @@
         window.addEventListener('DOMContentLoaded', async function () {
             const table = document.getElementsByTagName('regular-table')[0];
             await table.set_view({
-                schema: async () => SCHEMA
-            }, {
                 num_rows: async () => NUM_ROWS,
                 column_paths: async () => COLUMN_NAMES,
                 get_config: async () => { 

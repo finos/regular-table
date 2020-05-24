@@ -36,7 +36,16 @@
         window.addEventListener('DOMContentLoaded', async function () {
             const regular = document.getElementsByTagName('regular-table')[0];
             const table = await datasource();
-            await regular.set_view(table, table.view());
+            const view = table.view({row_pivots: ["State"]});
+            const table_schema = await table.schema();
+            await regular.set_view({
+                num_rows: () => view.num_rows(),
+                column_paths: () => view.column_paths(),
+                get_config: () => view.get_config(),
+                to_columns: (...args) => view.to_columns(...args),
+                schema: () => view.schema().then(x => Object.assign(x, table_schema))
+            });
+
             await regular.draw();
         });
 

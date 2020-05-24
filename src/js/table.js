@@ -63,7 +63,7 @@ export class RegularTableViewModel {
 
     async draw(container_size, view_cache, selected_id, preserve_width, viewport) {
         const {width: container_width, height: container_height} = container_size;
-        const {view, config, column_paths, schema, table_schema} = view_cache;
+        const {view, config, column_paths, schema} = view_cache;
         const visible_columns = column_paths.slice(viewport.start_col);
         const columns_data = await view.to_columns(viewport);
         const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
@@ -84,7 +84,7 @@ export class RegularTableViewModel {
             first_col = true;
         if (column_paths[0] === "__ROW_PATH__") {
             const column_name = config.row_pivots.join(",");
-            const type = config.row_pivots.map((x) => table_schema[x]);
+            const type = config.row_pivots.map((x) => schema[x]);
             const column_data = columns_data["__ROW_PATH__"];
             const column_state = {
                 column_name,
