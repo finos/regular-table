@@ -14,11 +14,11 @@ module.exports = {
         ],
     ],
     plugins: [
-        "lodash",
         ["@babel/plugin-proposal-decorators", {legacy: true}],
         "transform-custom-element-classes",
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-proposal-optional-chaining",
-        "./babel-plugin-transform-tagged-literal.js",
+        "./babel-plugin-html-template.js",
+        "./babel-plugin-css-template.js",
     ],
 };

@@ -10,18 +10,6 @@
 
 import {_start_profiling_loop} from "./utils";
 import {RegularViewModel} from "./custom_element";
-import MATERIAL_STYLE from "../less/material.less";
-
-/**
- * Appends the default tbale CSS to `<head>`, should be run once on module
- *  import.
- *
- */
-function _register_global_styles() {
-    const style = document.createElement("style");
-    style.textContent = MATERIAL_STYLE;
-    document.head.appendChild(style);
-}
 
 /******************************************************************************
  *
@@ -32,4 +20,3 @@ function _register_global_styles() {
 window.customElements.define("regular-table", RegularViewModel);
 
 _start_profiling_loop();
-_register_global_styles();

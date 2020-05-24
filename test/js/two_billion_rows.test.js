@@ -34,7 +34,7 @@ describe("Two billion rows", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["0", "0", "0"]);
+            expect(cell_values).toEqual(["0", "1", "2"]);
         });
     });
 
@@ -63,7 +63,7 @@ describe("Two billion rows", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["200,002", "200,002", "200,002"]);
+            expect(cell_values).toEqual(["200,002", "200,003", "200,004"]);
         });
     });
 });
