@@ -61,14 +61,12 @@ export class RegularTableViewModel {
         }
     }
 
-    async draw(container_size, view_cache, selected_id, preserve_width, viewport) {
+    async draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
-        const {view, config, column_paths, schema} = view_cache;
-        const visible_columns = column_paths.slice(viewport.start_col);
-        const columns_data = await view.to_columns(viewport);
+        const {view, config, schema} = view_cache;
+        const {data, row_indices, column_indices, __id_column: id_column} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
         const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
         const depth = config.row_pivots.length;
-        const id_column = columns_data["__ID__"];
         const view_state = {
             viewport_width: 0,
             selected_id,
@@ -82,10 +80,10 @@ export class RegularTableViewModel {
             cidx = 0,
             last_cells = [],
             first_col = true;
-        if (column_paths[0] === "__ROW_PATH__") {
+        if (row_indices?.length > 0) {
             const column_name = config.row_pivots.join(",");
             const type = config.row_pivots.map((x) => schema[x]);
-            const column_data = columns_data["__ROW_PATH__"];
+            const column_data = row_indices;
             const column_state = {
                 column_name,
                 cidx: 0,
@@ -109,22 +107,20 @@ export class RegularTableViewModel {
         }
 
         try {
-            while (cidx < visible_columns.length) {
-                const column_name = visible_columns[cidx];
-                if (!columns_data[column_name]) {
+            let dcidx = 0;
+            const num_visible_columns = num_columns - viewport.start_col;
+            while (dcidx < num_visible_columns) {
+                if (!data[dcidx]) {
                     let missing_cidx = Math.max(viewport.end_col, 0);
                     viewport.start_col = missing_cidx;
                     viewport.end_col = missing_cidx + 1;
-                    const new_col = await view.to_columns(viewport);
-                    if (!(column_name in new_col)) {
-                        new_col[column_name] = [];
-                    }
-
-                    columns_data[column_name] = new_col[column_name];
+                    const new_col = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+                    data[dcidx] = new_col.data[0];
+                    column_indices[dcidx] = new_col.column_indices[0];
                 }
-
+                const column_name = column_indices[dcidx][column_indices[dcidx].length - 1];
                 const type = column_path_2_type(schema, column_name);
-                const column_data = columns_data[column_name];
+                const column_data = data[dcidx];
                 const column_state = {
                     column_name,
                     cidx,
@@ -139,6 +135,7 @@ export class RegularTableViewModel {
                 view_state.viewport_width += this._column_sizes.indices[cidx + cidx_offset] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
                 view_state.row_height = view_state.row_height || cont_body.row_height;
                 cidx++;
+                dcidx++;
                 if (!preserve_width) {
                     last_cells.push([cont_body.td || cont_head.th, cont_body.metadata || cont_head.metadata]);
                 }

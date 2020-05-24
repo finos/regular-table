@@ -26,9 +26,8 @@ describe("Two billion rows", () => {
                 column: "Column 0",
                 is_open: false,
                 ridx: 0,
-                size_key: "Column 0|float",
-                type: "float",
-                value: 0,
+                size_key: "Column 0|undefined",
+                value: "0",
             });
         });
 
@@ -52,9 +51,8 @@ describe("Two billion rows", () => {
                     column: "Column 16",
                     is_open: false,
                     ridx: 0,
-                    size_key: "Column 16|float",
-                    type: "float",
-                    value: 16,
+                    size_key: "Column 16|undefined",
+                    value: "16",
                 });
             });
         });
@@ -79,9 +77,8 @@ describe("Two billion rows", () => {
                     column: "Column 0",
                     is_open: false,
                     ridx: 200002,
-                    size_key: "Column 0|float",
-                    type: "float",
-                    value: 200002,
+                    size_key: "Column 0|undefined",
+                    value: "200,002",
                 });
             });
         });

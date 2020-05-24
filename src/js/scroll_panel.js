@@ -95,15 +95,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      * @memberof RegularVirtualTableViewModel
      */
-    _calculate_viewport(nrows, reset_scroll_position) {
-        const id = this._view_cache.config.row_pivots.length > 0;
-        if (this._virtual_scrolling_disabled) {
-            return {id};
-        }
+    _calculate_viewport(nrows, num_columns, reset_scroll_position) {
         const {start_row, end_row} = this._calculate_row_range(nrows, reset_scroll_position);
-        const {start_col, end_col} = this._calculate_column_range();
+        const {start_col, end_col} = this._calculate_column_range(num_columns);
         this._nrows = nrows;
-        return {start_col, end_col, start_row, end_row, id};
+        return {start_col, end_col, start_row, end_row};
     }
 
     /**
@@ -166,10 +162,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      * @memberof RegularVirtualTableViewModel
      */
-    _calculate_column_range() {
+    _calculate_column_range(num_columns) {
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
         const percent_left = this.scrollLeft / total_scroll_width;
-        const max_scroll_column = this._max_scroll_column() + 0.5;
+        const max_scroll_column = this._max_scroll_column(num_columns) + 0.5;
         let start_col = Math.floor(max_scroll_column * percent_left);
         let end_col = start_col + (this.table_model.num_columns() || 1) + 1;
         return {start_col, end_col};
@@ -198,18 +194,18 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      * @memberof RegularVirtualTableViewModel
      */
-    _max_scroll_column() {
+    _max_scroll_column(num_columns) {
         let width = 0;
         if (this._view_cache.config.row_pivots.length > 0) {
             width = this._column_sizes.indices[0];
         }
-        let max_scroll_column = this._view_cache.column_paths.length;
+        let max_scroll_column = num_columns;
         while (width < this._container_size.width && max_scroll_column >= 0) {
             max_scroll_column--;
             width += this._column_sizes.indices[max_scroll_column] || 60;
         }
         const psp_offset = this._view_cache.config.row_pivots.length > 0;
-        return Math.min(this._view_cache.column_paths.length - (psp_offset ? 2 : 1), max_scroll_column + (psp_offset ? 0 : 1));
+        return Math.min(num_columns - (psp_offset ? 2 : 1), max_scroll_column + (psp_offset ? 0 : 1));
     }
 
     /**
@@ -297,14 +293,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} invalid_schema
      * @memberof RegularVirtualTableViewModel
      */
-    _update_virtual_panel_width(invalid_schema) {
+    _update_virtual_panel_width(invalid_schema, num_columns) {
         if (invalid_schema) {
             if (this._virtual_scrolling_disabled) {
                 this._virtual_panel.style.width = this._column_sizes.indices.reduce((x, y) => x + y, 0) + "px";
             } else {
                 const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
                 const percent_left = this.scrollLeft / total_scroll_width;
-                const max_scroll_column = this._max_scroll_column();
+                const max_scroll_column = this._max_scroll_column(num_columns);
                 let cidx = 0,
                     virtual_width = 0;
                 while (cidx < max_scroll_column) {
@@ -381,15 +377,19 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const __debug_start_time__ = DEBUG && performance.now();
         const {reset_scroll_position = false, preserve_width = false, invalid_viewport = false} = options;
 
-        if (this._view_cache.column_paths === undefined) {
-            return;
-        }
-
         if (reset_scroll_position) {
             this.reset_scroll();
         }
 
-        const nrows = await this._view_cache.view.num_rows();
+        const {num_columns, num_rows, __config, __schema} = await this._view_cache.view(0, 0, 0, 0);
+
+        if (__config) {
+            this._view_cache.config = __config;
+        }
+
+        if (__schema) {
+            this._view_cache.schema = __schema;
+        }
 
         if (this._virtual_scrolling_disabled) {
             this._container_size = {width: Infinity, height: Infinity};
@@ -400,18 +400,18 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             };
         }
 
-        const viewport = this._calculate_viewport(nrows, reset_scroll_position);
+        const viewport = this._calculate_viewport(num_rows, num_columns, reset_scroll_position);
         const swap_args = this._validate_viewport(viewport);
         const {invalid_row, invalid_column} = swap_args;
-        this._update_virtual_panel_height(nrows);
+        this._update_virtual_panel_height(num_rows);
 
         if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
             this._swap_in(swap_args);
-            const last_cells = await this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport);
+            const last_cells = await this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns);
             this._swap_out(swap_args);
             this.table_model.autosize_cells(last_cells);
             if (!preserve_width) {
-                this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport);
+                this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);
             }
             this._invalid_schema = false;
         }
