@@ -1,0 +1,109 @@
+<!--
+
+   Copyright (c) 2020, the Regular Table Authors.
+
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="../umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../css/material.css">
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <script>
+        const NUM_ROWS = 100;
+        const NUM_DIR = 10;
+        const NUM_FILE = NUM_ROWS - NUM_DIR;
+
+        const COLUMN_NAMES = ['__ROW_PATH__', 'modified', 'writable'];
+        const SCHEMA = {'name': 'string', 'modified': 'date', 'writable': 'string'};
+
+        const _contents_cache = new Map();
+        function getContents(path, expand) {
+            // infinite recursive mock contents
+            let contents;
+            if (_contents_cache.has(path)) {
+                contents = _contents_cache.get(path);
+            } else {
+                contents = {path, modified: new Date(1000*i), writable: false};
+                _contents_cache.set(path, contents);
+            }
+
+            if (!expand || 'contents' in contents) {
+                return contents;
+            }
+
+            let sub = []
+            for (let i = 0; i < NUM_ROWS; i ++) {
+                sub.push({
+                    path: [...path, i < NUM_DIR ? `${i}/` : `${i}.txt`],
+                    date: new Date(1000*i),
+                    writable: false,
+                });
+            }
+
+            contents.contents = sub;
+            return contents;
+        }
+
+        function insertContents(rix, arr) {
+            const contents = getContents(arr[rix].path, true);
+            arr.splice(rix, 0, ...contents.contents);
+        }
+
+        function popContents(rix, arr) {
+            const contents = getContents(arr[rix].path, true);
+            arr.splice(rix, contents.contents.length);
+        }
+
+        let rows = getContents([], true);
+
+        window.addEventListener('DOMContentLoaded', async function () {
+            const table = document.getElementsByTagName('regular-table')[0];
+            await table.set_view({
+                schema: async () => SCHEMA
+            }, {
+                num_rows: async () => rows.length,
+                column_paths: async () => COLUMN_NAMES,
+                get_config: async () => {
+                    return {
+                         row_pivots: ['name'],
+                         column_pivots: []
+                    };
+                },
+                to_columns: ({start_row, end_row, start_col, end_col}) => {
+                    const columns = {};
+                    for (let cix = start_col; cix < end_col; cix ++) {
+                        const name = COLUMN_NAMES[i];
+                        columns[name] = rows.slice(start_row, end_row).map(c => c[name === '___ROW__PATH__' ? 'name' : name]);
+                    }
+
+                    return columns;
+                },
+                schema: async () => {
+                    return SCHEMA;
+                },
+                colapse: rix => {
+                    popContents(rix, rows);
+                },
+                expand: rix => {
+                    insertContents(rix, rows);
+                }
+            });
+            await table.draw();
+        });
+    </script>
+
+</body>
+
+</html>
