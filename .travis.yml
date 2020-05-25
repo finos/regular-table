@@ -2,6 +2,20 @@ dist: trusty
 language: node_js
 node_js: "10"
 
+git:
+  autocrlf: input
+
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+    # - os: windows
+    # - os: osx
+
+# allow_failures:
+#   - os: windows
+#   - os: osx
+
 before_install:
   - npm install -g yarn
 
@@ -11,3 +25,4 @@ install:
 script:
   - yarn build
   - yarn test
+  - yarn lint

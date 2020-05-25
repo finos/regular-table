@@ -32,12 +32,61 @@
             const buffer = await response.arrayBuffer();
             return worker.table(buffer);
         };
+
+        class PerspectiveDataModel {
+
+            async get_data(x0, y0, x1, y1) {
+                let columns = {};
+                if (width > 0 && height > 0) {
+                    columns = await this.view.to_columns({
+                        start_row: y0, 
+                        start_col: x0, 
+                        end_row: y1, 
+                        end_col: x1,
+                        id: this._config.row_pivots.length > 0
+                    });
+                }
+
+                const data = [];
+                const column_indices = [];
+                for (const path of this._column_paths.slice(x0, x0 + width)) {
+                    data.push(columns[path]);
+                    column_indices.push(path.split("|"));
+                }
+
+                return {
+                    __id_column: columns.__ID__,
+                    __config: this._config,
+                    __schema: this._schema,
+                    num_rows: this._num_rows,
+                    num_columns: this._column_paths.length,
+                    row_indices: columns.__ROW_PATH__,
+                    column_indices,
+                    data,
+                }
+            }
+
+            async set_view(table, view) {
+                this.view = view;
+                this.table_schema = await table.schema();
+                this._config = await view.get_config();
+                this._num_rows = await view.num_rows();
+                this._schema = await view.schema();
+                this._column_paths = await view.column_paths()
+                this._column_paths = this._column_paths.filter(path => {
+                    return path !== "__ROW_PATH__" && path !== "__ID__";
+                });
+            }
+        }
             
         window.addEventListener('DOMContentLoaded', async function () {
-            const regular = document.getElementsByTagName('regular-table')[0];
             const table = await datasource();
-            await regular.set_view(table, table.view());
-            await regular.draw();
+            const view = table.view();
+            const data_model = new PerspectiveDataModel();
+            await data_model.set_view(table, view);
+
+            const regular = document.getElementsByTagName('regular-table')[0];
+            await regular.setDataModel(data_model.get_data.bind(data_model));
         });
 
     </script>

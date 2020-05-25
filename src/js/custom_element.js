@@ -90,15 +90,17 @@ export class RegularViewModel extends RegularViewEventModel {
         this.reset_viewport();
     }
 
-    async set_view(table, view) {
-        const config = await view.get_config();
-        const table_schema = await table.schema();
-        const schema = await view.schema();
-        const column_paths = await view.column_paths();
+    async setDataModel(view) {
+        let schema = {};
+        let config = {
+            row_pivots: [],
+            column_pivots: [],
+        };
+
         this._invalid_schema = true;
         const options = this.infer_options(config);
-        this._view_cache = {view, config, column_paths, schema, table_schema};
-        return options;
+        this._view_cache = {view, config, schema};
+        await this.draw(options);
     }
 
     save() {
