@@ -35,7 +35,7 @@
             if (_contents_cache.has(path)) {
                 contents = _contents_cache.get(path);
             } else {
-                contents = {path, modified: new Date(1000*i), writable: false};
+                contents = {path, modified: new Date(1000), writable: false};
                 _contents_cache.set(path, contents);
             }
 
@@ -47,7 +47,7 @@
             for (let i = 0; i < NUM_ROWS; i ++) {
                 sub.push({
                     path: [...path, i < NUM_DIR ? `${i}/` : `${i}.txt`],
-                    date: new Date(1000*i),
+                    modified: new Date(1000*86400*i),
                     writable: false,
                 });
             }
@@ -63,10 +63,10 @@
 
         function popContents(rix, arr) {
             const contents = getContents(arr[rix].path, true);
-            arr.splice(rix, contents.contents.length);
+            arr.splice(rix + 1, contents.contents.length);
         }
 
-        let rows = getContents([], true);
+        let rows = getContents([], true).contents;
 
         window.addEventListener('DOMContentLoaded', async function () {
             const table = document.getElementsByTagName('regular-table')[0];
@@ -84,8 +84,8 @@
                 to_columns: ({start_row, end_row, start_col, end_col}) => {
                     const columns = {};
                     for (let cix = start_col; cix < end_col; cix ++) {
-                        const name = COLUMN_NAMES[i];
-                        columns[name] = rows.slice(start_row, end_row).map(c => c[name === '___ROW__PATH__' ? 'name' : name]);
+                        const name = COLUMN_NAMES[cix];
+                        columns[name] = rows.slice(start_row, end_row).map(c => c[name === '__ROW_PATH__' ? 'path' : name]);
                     }
 
                     return columns;
@@ -93,11 +93,11 @@
                 schema: async () => {
                     return SCHEMA;
                 },
-                colapse: rix => {
+                collapse: rix => {
                     popContents(rix, rows);
                 },
                 expand: rix => {
-                    insertContents(rix, rows);
+                    insertContents(rix + 1, rows);
                 }
             });
             await table.draw();
