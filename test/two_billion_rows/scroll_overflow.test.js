@@ -8,7 +8,7 @@
  *
  */
 
-describe("Two billion rows", () => {
+describe("two_billion_rows.html Scroll Overflow", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
     });
