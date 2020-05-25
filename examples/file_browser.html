@@ -62,8 +62,17 @@
         }
 
         function popContents(rix, arr) {
-            const contents = getContents(arr[rix].path, true);
-            arr.splice(rix + 1, contents.contents.length);
+            const {path} = arr[rix]
+            const contents = getContents(path, true);
+
+            // pop out the contents of the collapsed node and any expanded subnodes
+            let npop = contents.contents.length;
+            let check_ix = rix + 1 + npop;
+            while (arr[check_ix++].path.length > path.length) {
+                npop++;
+            }
+
+            arr.splice(rix + 1, npop);
         }
 
         let rows = getContents([], true).contents;

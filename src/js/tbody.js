@@ -52,7 +52,7 @@ export class RegularBodyViewModel extends ViewModel {
             metadata.value = null;
             metadata.row_path = null;
         } else if (formatter) {
-            formatter.format(td, val, type, val.length === depth, is_open);
+            formatter.format(td, val, type, val.length >= depth, is_open);
             metadata.value = Array.isArray(val) ? val[val.length - 1] : val;
             metadata.row_path = id;
             metadata.is_open = is_open;

@@ -39,7 +39,7 @@ export function tree_header(td, path, types, is_leaf, is_open) {
     const type = types[path.length - 1];
     const name = path.length === 0 ? "TOTAL" : path[path.length - 1];
 
-    if (path.length && path[0].endsWith('/')) {
+    if (path.length && path[path.length - 1].endsWith("/")) {
         is_leaf = false;
     }
 
