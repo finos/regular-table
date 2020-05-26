@@ -65,15 +65,17 @@
         const blob = new Blob([document.querySelector('#two_billion_worker').textContent]);
         const worker = new Worker(window.URL.createObjectURL(blob, {type: "text/javascript"}));
         const regularTable = document.getElementsByTagName('regular-table')[0];
+        
+        let callback;
 
-        const queue = [];
+        worker.addEventListener("message", event => {
+            callback(event.data);
+        });
 
-        worker.addEventListener("message", event => queue.shift()(event.data));
-
-        regularTable.setDataModel(function (...viewport) {    
+        regularTable.setDataModel((...viewport) => {
             return new Promise(function (resolve) {    
+                callback = resolve;
                 worker.postMessage(viewport);
-                queue.push(resolve);
             });
         }); 
 

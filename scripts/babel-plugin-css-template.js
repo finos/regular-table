@@ -10,7 +10,9 @@
 
 const fs = require("fs");
 
-// Replace whitespace in `html` tagged literals for minification.
+const pattern = new RegExp("[\n\t ]+", "g");
+
+// Replace whitespace in `css` tagged literals for minification.
 module.exports = function (babel) {
     const t = babel.types;
     return {
@@ -21,7 +23,7 @@ module.exports = function (babel) {
                     for (const type of ["raw", "cooked"]) {
                         for (const element of node.quasi.quasis) {
                             const value = element.value[type];
-                            element.value[type] = fs.readFileSync(value).toString();
+                            element.value[type] = fs.readFileSync(value).toString().replace(pattern, " ");
                         }
                     }
                 }
