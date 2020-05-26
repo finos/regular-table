@@ -22,8 +22,8 @@
     <regular-table></regular-table>
 
     <script>
-        
         const URL = "https://unpkg.com/@jpmorganchase/perspective-examples/build/superstore.arrow";
+        const perspective = window.perspective;
 
         const datasource = async () => {
             const request = fetch(URL);
@@ -34,16 +34,15 @@
         };
 
         class PerspectiveDataModel {
-
             async get_data(x0, y0, x1, y1) {
                 let columns = {};
                 if (x1 - x0 > 0 && y1 - y0 > 0) {
                     columns = await this.view.to_columns({
-                        start_row: y0, 
-                        start_col: x0, 
-                        end_row: y1, 
+                        start_row: y0,
+                        start_col: x0,
+                        end_row: y1,
                         end_col: x1,
-                        id: this._config.row_pivots.length > 0
+                        id: this._config.row_pivots.length > 0,
                     });
                 }
 
@@ -56,14 +55,13 @@
 
                 return {
                     __id_column: columns.__ID__,
-                    __config: this._config,
                     __schema: this._schema,
                     num_rows: this._num_rows,
                     num_columns: this._column_paths.length,
                     row_indices: columns.__ROW_PATH__,
                     column_indices,
                     data,
-                }
+                };
             }
 
             async set_view(table, view) {
@@ -72,23 +70,26 @@
                 this._config = await view.get_config();
                 this._num_rows = await view.num_rows();
                 this._schema = await view.schema();
-                this._column_paths = await view.column_paths()
-                this._column_paths = this._column_paths.filter(path => {
+                this._column_paths = await view.column_paths();
+                this._column_paths = this._column_paths.filter((path) => {
                     return path !== "__ROW_PATH__" && path !== "__ID__";
                 });
             }
         }
-            
-        window.addEventListener('DOMContentLoaded', async function () {
+
+        window.addEventListener("DOMContentLoaded", async function () {
             const table = await datasource();
-            const view = table.view();
+            const view = table.view({
+                column_pivots: ["Category", "Sub-Category"],
+                columns: ["Sales", "Profit"],
+            });
+
             const data_model = new PerspectiveDataModel();
             await data_model.set_view(table, view);
 
-            const regular = document.getElementsByTagName('regular-table')[0];
+            const regular = document.getElementsByTagName("regular-table")[0];
             await regular.setDataModel(data_model.get_data.bind(data_model));
         });
-
     </script>
 
 </body>

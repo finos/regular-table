@@ -67,6 +67,7 @@ export class RegularTableViewModel {
         const {data, row_indices, column_indices, __id_column: id_column} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
         const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
         const depth = config.row_pivots.length;
+        view_cache.config.column_pivots = Array.from(Array(column_indices[0]?.length - 1 || 0).keys());
         const view_state = {
             viewport_width: 0,
             selected_id,
@@ -118,7 +119,7 @@ export class RegularTableViewModel {
                     data[dcidx] = new_col.data[0];
                     column_indices[dcidx] = new_col.column_indices[0];
                 }
-                const column_name = column_indices[dcidx][column_indices[dcidx].length - 1];
+                const column_name = column_indices[dcidx];
                 const type = column_path_2_type(schema, column_name);
                 const column_data = data[dcidx];
                 const column_state = {

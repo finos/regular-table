@@ -16,7 +16,7 @@ named `<regular-table>`,
 which renders a regular HTML `<table>` to a `fixed` position within a scollable
 viewport.  Only visible cells are rendered and queried from a natively `async`
 virtual data model, making `regular-table` ideal for enormous or remote data
-sets.  Use it to build high-performance Data Grids,
+sets.  Use it to build Data Grids,
 Spreadsheets, Pivot Tables, File Trees, or anytime you need:
 
 * Just a regular `<table>`.
@@ -106,9 +106,7 @@ Here's a simple _virtual_ data model for this example, the function
 `getDataSlice()`.  This function is called by your `<regular-table>` whenever it
 needs more data, with coordinate arguments, `(x0, y0)` to `(x1, y1)`.  Only
 this region is needed to render the viewport, so `getDataSlice()` returns 
-this rectangular `slice` of `DATA`, as well as overall dimensions the overall 
-dimensions of `DATA` itself ( `num_rows`, `num_columns`), for sizing the
-virtual scroll area:
+this rectangular `slice` of `DATA`:
 
 ```javascript
 function getDataSlice(x0, y0, x1, y1) {
@@ -123,6 +121,26 @@ function getDataSlice(x0, y0, x1, y1) {
         column_indices, 
         data
     };
+}
+```
+
+For the window (0, 0) to (2, 2), `getDataSlice()` would generate an Object
+like this, containing the `data` slice, as well as the overall dimensions of 
+`DATA` itself ( `num_rows`, `num_columns`), for sizing the scroll area, and
+`column_indices` which generate `<th>` column headers in a `fixed` position.
+
+```json
+{
+    "num_rows": 26,
+    "num_columns": 3,
+    "data": [
+        [0, 1],
+        ["A", "B"]
+    ],
+    "column_indices": [
+        ["Column 1 (number)"],
+        ["Column 2 (string)"]
+    ]
 }
 ```
 

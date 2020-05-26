@@ -23,7 +23,7 @@ describe("two_billion_rows.html Metadata", () => {
             }, table);
             expect(JSON.parse(meta)).toEqual({
                 cidx: 0,
-                column: "Column 0",
+                column: ["Column 0"],
                 is_open: false,
                 ridx: 0,
                 size_key: "Column 0|undefined",
@@ -48,7 +48,7 @@ describe("two_billion_rows.html Metadata", () => {
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     cidx: 16,
-                    column: "Column 16",
+                    column: ["Column 16"],
                     is_open: false,
                     ridx: 0,
                     size_key: "Column 16|undefined",
@@ -74,7 +74,7 @@ describe("two_billion_rows.html Metadata", () => {
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     cidx: 0,
-                    column: "Column 0",
+                    column: ["Column 0"],
                     is_open: false,
                     ridx: 200002,
                     size_key: "Column 0|undefined",

@@ -101,9 +101,8 @@ export class RegularHeaderViewModel extends ViewModel {
     _group_header_cache = [];
     _offset_cache = [];
 
-    draw(config, alias, column_path, type, cidx) {
+    draw(config, alias, parts, type, cidx) {
         const header_levels = config.column_pivots.length + 1;
-        let parts = column_path.split?.("|");
         let th,
             column_name,
             is_new_group = false;
@@ -117,7 +116,7 @@ export class RegularHeaderViewModel extends ViewModel {
                     th.setAttribute("colspan", this._group_header_cache[d][2]);
                 } else {
                     th = this._draw_group_th(this._offset_cache, d, column_name, []);
-                    const metadata = this._draw_group(column_path, column_name, type, th);
+                    const metadata = this._draw_group(parts, column_name, type, th);
                     this._group_header_cache[d] = [metadata, th, 1];
                     is_new_group = true;
                 }
@@ -132,7 +131,7 @@ export class RegularHeaderViewModel extends ViewModel {
                 // Update the group header's metadata such that each group
                 // header has the same metadata coordinates of its rightmost
                 // column.
-                const metadata = this._draw_th(alias || column_path, column_name, type, th);
+                const metadata = this._draw_th(alias || parts, column_name, type, th);
                 metadata.vcidx = vcidx;
                 metadata.cidx = cidx;
                 for (const [group_meta] of this._group_header_cache) {
