@@ -25,7 +25,7 @@
         const NUM_DIR = 10;
         const NUM_FILE = NUM_ROWS - NUM_DIR;
 
-        const COLUMN_NAMES = ['__ROW_PATH__', 'modified', 'writable'];
+        const COLUMN_NAMES = ['modified', 'writable'];
         const SCHEMA = {'name': 'string', 'modified': 'date', 'writable': 'string'};
 
         const _contents_cache = new Map();
@@ -77,39 +77,38 @@
 
         let rows = getContents([], true).contents;
 
-        window.addEventListener('DOMContentLoaded', async function () {
-            const table = document.getElementsByTagName('regular-table')[0];
-            await table.set_view({
-                schema: async () => SCHEMA
-            }, {
-                num_rows: async () => rows.length,
-                column_paths: async () => COLUMN_NAMES,
-                get_config: async () => {
-                    return {
-                         row_pivots: ['name'],
-                         column_pivots: []
-                    };
-                },
-                to_columns: ({start_row, end_row, start_col, end_col}) => {
-                    const columns = {};
-                    for (let cix = start_col; cix < end_col; cix ++) {
-                        const name = COLUMN_NAMES[cix];
-                        columns[name] = rows.slice(start_row, end_row).map(c => c[name === '__ROW_PATH__' ? 'path' : name]);
-                    }
+        async function file_browser_model(start_col, start_row, end_col, end_row) {
+            const data = [];
+            for (let cix = start_col; cix < end_col; cix ++) {
+                const name = COLUMN_NAMES[cix];
+                data.push(
+                    rows.slice(start_row, end_row).map(c => c[name])
+                );
+            }
 
-                    return columns;
-                },
-                schema: async () => {
-                    return SCHEMA;
-                },
-                collapse: rix => {
-                    popContents(rix, rows);
-                },
-                expand: rix => {
-                    insertContents(rix + 1, rows);
-                }
-            });
-            await table.draw();
+            return {
+                num_rows: rows.length,
+                num_columns: COLUMN_NAMES.length,
+                column_indices: COLUMN_NAMES.map(col => [col]),
+                row_indices: rows.slice(start_row, end_row).map(c => c['path']),
+                data,
+            };
+        }
+
+        // for tree support
+        file_browser_model.collapse = rix => {
+            popContents(rix, rows);
+        };
+        file_browser_model.expand = rix => {
+            insertContents(rix + 1, rows);
+        }
+
+        const table = document.getElementsByTagName('regular-table')[0];
+        table.setDataModel(file_browser_model).then(() => {
+            table._view_cache.config = {
+                row_pivots: ['name'],
+                column_pivots: []
+            };
         });
     </script>
 
