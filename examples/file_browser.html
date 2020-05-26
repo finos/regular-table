@@ -21,12 +21,14 @@
     <regular-table></regular-table>
 
     <script>
+
         const NUM_ROWS = 100;
         const NUM_DIR = 10;
         const NUM_FILE = NUM_ROWS - NUM_DIR;
 
         const COLUMN_NAMES = ['modified', 'writable'];
-        const SCHEMA = {'name': 'string', 'modified': 'date', 'writable': 'string'};
+
+        const formatter = new Intl.DateTimeFormat("en-us");
 
         const _contents_cache = new Map();
         function getContents(path, expand) {
@@ -81,9 +83,9 @@
             const data = [];
             for (let cix = start_col; cix < end_col; cix ++) {
                 const name = COLUMN_NAMES[cix];
-                data.push(
-                    rows.slice(start_row, end_row).map(c => c[name])
-                );
+                data.push(rows.slice(start_row, end_row).map(c => {
+                    return name === 'modified' ? formatter.format(c[name]) : c[name];
+                }));
             }
 
             return {
@@ -96,19 +98,16 @@
         }
 
         // for tree support
-        file_browser_model.collapse = rix => {
+        file_browser_model.collapse = async rix => {
             popContents(rix, rows);
-        };
-        file_browser_model.expand = rix => {
+        }
+        file_browser_model.expand = async rix => {
             insertContents(rix + 1, rows);
         }
 
         const table = document.getElementsByTagName('regular-table')[0];
         table.setDataModel(file_browser_model).then(() => {
-            table._view_cache.config = {
-                row_pivots: ['name'],
-                column_pivots: []
-            };
+            table._view_cache.config.row_pivots = ['name']
         });
     </script>
 
