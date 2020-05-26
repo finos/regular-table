@@ -20,7 +20,7 @@
         "babel.config.js"
     ],
     "scripts": {
-        "prebuild": "mkdirp dist/esm dist/examples dist/css dist/less",
+        "prebuild": "mkdirp dist/esm dist/css dist/less",
         "build:static": "cpx \"src/less/*\" dist/less && cpx \"examples/*\" dist/examples",
         "build:babel": "babel src/js --source-maps --out-dir dist/esm",
         "build:webpack": "webpack --color",
@@ -29,8 +29,8 @@
         "clean": "rimraf dist",
         "lint": "eslint src",
         "fix": "eslint src --fix",
-        "start": "http-server dist",
         "test": "yarn jest --verbose",
+        "start": "http-server",
         "watch:babel": "babel src/js --source-maps --watch --out-dir dist/esm",
         "watch:webpack": "webpack --watch --color",
         "watch": "npm-run-all -p watch:*"

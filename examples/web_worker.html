@@ -26,7 +26,7 @@
 
     <regular-table></regular-table>
 
-    <script>
+    <script id="two_billion_worker" type="javascript/worker">
 
         const NUM_ROWS = 2000000000;
         const NUM_COLUMNS = 1000;
@@ -36,11 +36,11 @@
         async function test_data_model(x0, y0, x1, y1) {
             const data = [];
             const column_indices = [];
-            for (let i = x0; i < x1; i ++) {
+            for (let i = x0; i < x1; i++) {
                 const column = [];
                 data.push(column);
                 column_indices.push([`Column ${i}`]);
-                for (let j = y0; j < y1; j ++) {
+                for (let j = y0; j < y1; j++) {
                     column.push(formatter.format(j + i));
                 }
             }
@@ -49,12 +49,33 @@
                 num_rows: NUM_ROWS,
                 num_columns: NUM_COLUMNS,
                 column_indices,
-                data
+                data,
             };
         }
 
-        const table = document.getElementsByTagName('regular-table')[0];
-        table.setDataModel(test_data_model);      
+        self.addEventListener("message", async (event) => {
+            const response = await test_data_model.apply(null, event.data);
+            self.postMessage(response);
+        });
+
+    </script>
+
+    <script>
+
+        const blob = new Blob([document.querySelector('#two_billion_worker').textContent]);
+        const worker = new Worker(window.URL.createObjectURL(blob, {type: "text/javascript"}));
+        const regularTable = document.getElementsByTagName('regular-table')[0];
+
+        const queue = [];
+
+        worker.addEventListener("message", event => queue.shift()(event.data));
+
+        regularTable.setDataModel(function (...viewport) {    
+            return new Promise(function (resolve) {    
+                worker.postMessage(viewport);
+                queue.push(resolve);
+            });
+        }); 
 
     </script>
 

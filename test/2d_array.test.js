@@ -8,19 +8,15 @@
  *
  */
 
-describe("two_billion_rows.html Scroll Overflow", () => {
+describe("2d_array.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 200, height: 100});
+        await page.setViewport({width: 400, height: 100});
     });
 
-    describe("scrolls down beyond bottom threshold", () => {
+    describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
-            const table = await page.$("regular-table");
-            await page.evaluate(async (table) => {
-                table.scrollTop = table.scrollHeight + 100000;
-                await table.draw();
-            }, table);
+            await page.goto("http://localhost:8081/examples/2d_array.html");
+            await page.waitFor("regular-table table tbody tr td");
         });
 
         test("with the correct # of rows", async () => {
@@ -38,36 +34,36 @@ describe("two_billion_rows.html Scroll Overflow", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["1,999,999,997", "1,999,999,998", "1,999,999,999"]);
+            expect(cell_values).toEqual(["0", "A", "true"]);
         });
     });
 
-    describe("scrolls rights beyond right border threshold", () => {
+    describe("scrolls via scrollTo() method", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/examples/2d_array.html");
+            await page.waitFor("regular-table table tbody tr td");
+        });
+
+        test("to (0, 1)", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                table.scrollLeft = table.scrollWidth + 100000;
+                table.scrollTo(0, 1, 3, 26);
                 await table.draw();
             }, table);
-        });
-
-        test("with the correct # of rows", async () => {
-            const tbody = await page.$("regular-table tbody");
-            const num_rows = await page.evaluate((tbody) => tbody.children.length, tbody);
-            expect(num_rows).toEqual(5);
-        });
-
-        test("with the correct # of columns", async () => {
-            const first_tr = await page.$("regular-table tbody tr:first-child");
-            const num_cells = await page.evaluate((first_tr) => first_tr.children.length, first_tr);
-            expect(num_cells).toEqual(2);
-        });
-
-        test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["998", "999"]);
+            expect(cell_values).toEqual(["1", "B", "false"]);
+        });
+
+        test("to (0, 4)", async () => {
+            const table = await page.$("regular-table");
+            await page.evaluate(async (table) => {
+                table.scrollTo(0, 4, 3, 26);
+                await table.draw();
+            }, table);
+            const first_tr = await page.$("regular-table tbody tr:first-child");
+            const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
+            expect(cell_values).toEqual(["4", "E", "true"]);
         });
     });
 });

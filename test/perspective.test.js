@@ -8,7 +8,7 @@
  *
  */
 
-describe("Perspective", () => {
+describe("perspective,html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
     });

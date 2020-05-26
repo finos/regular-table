@@ -13,8 +13,8 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <script src="https://unpkg.com/@finos/perspective"></script>
-    <script src="../umd/regular-table.js"></script>
-    <link rel='stylesheet' href="../css/material.css">
+    <script src="../dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../dist/css/material.css">
 </head>
 
 <body>
@@ -37,7 +37,7 @@
 
             async get_data(x0, y0, x1, y1) {
                 let columns = {};
-                if (width > 0 && height > 0) {
+                if (x1 - x0 > 0 && y1 - y0 > 0) {
                     columns = await this.view.to_columns({
                         start_row: y0, 
                         start_col: x0, 
@@ -49,7 +49,7 @@
 
                 const data = [];
                 const column_indices = [];
-                for (const path of this._column_paths.slice(x0, x0 + width)) {
+                for (const path of this._column_paths.slice(x0, x1)) {
                     data.push(columns[path]);
                     column_indices.push(path.split("|"));
                 }

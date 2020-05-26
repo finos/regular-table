@@ -8,7 +8,7 @@
  *
  */
 
-describe("Two billion rows", () => {
+describe("two_billion_rows.html Scolling", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
     });
@@ -68,6 +68,24 @@ describe("Two billion rows", () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
             expect(cell_values).toEqual(["16", "17", "18"]);
+        });
+    });
+
+    describe("scrolls via scrollTo() method", () => {
+        beforeAll(async () => {
+            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.waitFor("regular-table table tbody tr td");
+        });
+
+        test.skip("https://github.com/jpmorganchase/regular-table/issues/15", async () => {
+            const table = await page.$("regular-table");
+            await page.evaluate(async (table) => {
+                table.scrollTo(0, 250500, 1000, 2000000000);
+                await table.draw();
+            }, table);
+            const first_tr = await page.$("regular-table tbody tr:first-child");
+            const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
+            expect(cell_values).toEqual(["250,501", "250,502", "250,503"]);
         });
     });
 });

@@ -8,7 +8,7 @@
  *
  */
 
-describe("Two billion rows", () => {
+describe("two_billion_rows.html Metadata", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
         await page.goto("http://localhost:8081/examples/two_billion_rows.html");
