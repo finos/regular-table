@@ -27,10 +27,10 @@ Spreadsheets, Pivot Tables, File Trees, or anytime you need:
 
 ## Examples
 
-||||
-|:--|:--|:--|
-|two_billion_rows|canvas_data_model|perspective|
-|[![two_billion_rows](https://bl.ocks.org/texodus/raw/483a42e7b877043714e18bea6872b039/thumbnail.png)](https://bl.ocks.org/texodus/483a42e7b877043714e18bea6872b039)|[![canvas_data_model](https://bl.ocks.org/texodus/raw/4c6537e23dff3c8f97c316559cef012e/thumbnail.png)](https://bl.ocks.org/texodus/4c6537e23dff3c8f97c316559cef012e)|[![perspective](https://bl.ocks.org/texodus/raw/d92520387cb7aa5752dad7286cbb89c9/thumbnail.png)](https://bl.ocks.org/texodus/d92520387cb7aa5752dad7286cbb89c9)|
+|||||
+|:--|:--|:--|:--|
+|two_billion_rows|canvas_data_model|perspective|file_browser|
+|[![two_billion_rows](https://bl.ocks.org/texodus/raw/483a42e7b877043714e18bea6872b039/thumbnail.png)](https://bl.ocks.org/texodus/483a42e7b877043714e18bea6872b039)|[![canvas_data_model](https://bl.ocks.org/texodus/raw/4c6537e23dff3c8f97c316559cef012e/thumbnail.png)](https://bl.ocks.org/texodus/4c6537e23dff3c8f97c316559cef012e)|[![perspective](https://bl.ocks.org/texodus/raw/d92520387cb7aa5752dad7286cbb89c9/thumbnail.png)](https://bl.ocks.org/texodus/d92520387cb7aa5752dad7286cbb89c9)|[![file_browser](https://bl.ocks.org/telamonian/raw/a0c536b6e9f96aa0414436949a380b98/thumbnail.png)](https://bl.ocks.org/telamonian/a0c536b6e9f96aa0414436949a380b98)|
 
 ## Installation
 
@@ -56,7 +56,7 @@ import "regular-table/dist/css/material.css";
 
 ## Custom Element
 
-`regular-table` exports no symbols, only the `<regular-table>` Custom Element 
+`regular-table` exports no symbols, only the `<regular-table>` Custom Element
 which is registered as a module import side-effect.  Once loaded,
 `<regular-table>` can be used just like any other `HTMLElement`, using regular
 browser APIs:
@@ -90,13 +90,13 @@ indirectly.
 
 ```javascript
 const COLUMN_NAMES = [
-    "Column 1 (number)", 
+    "Column 1 (number)",
     "Column 2 (string)",
     "Column 3 (boolean)",
 ];
 
 const DATA = [
-    [0, 1, 2, 3, 4, 5], 
+    [0, 1, 2, 3, 4, 5],
     ["A", "B", "C", "D", "E", "F"],
     [true, false, true, false, true, false]
 ];
@@ -105,8 +105,8 @@ const DATA = [
 Here's a simple _virtual_ data model for this example, the function
 `getDataSlice()`.  This function is called by your `<regular-table>` whenever it
 needs more data, with coordinate arguments, `(x0, y0)` to `(x1, y1)`.  Only
-this region is needed to render the viewport, so `getDataSlice()` returns 
-this rectangular `slice` of `DATA`, as well as overall dimensions the overall 
+this region is needed to render the viewport, so `getDataSlice()` returns
+this rectangular `slice` of `DATA`, as well as overall dimensions the overall
 dimensions of `DATA` itself ( `num_rows`, `num_columns`), for sizing the
 virtual scroll area:
 
@@ -116,11 +116,11 @@ function getDataSlice(x0, y0, x1, y1) {
     const column_indices = COLUMN_NAMES.slice(x0, x1);
     const num_columns = DATA.length;
     const num_rows = DATA[0].length;
-  
+
     return {
         num_rows,
         num_columns,
-        column_indices, 
+        column_indices,
         data
     };
 }
@@ -186,11 +186,11 @@ worker.addEventListener("message", event => {
 });
 
 regularTable.setDataModel((...viewport) => {
-    return new Promise(function (resolve) {    
+    return new Promise(function (resolve) {
         callback = resolve;
         worker.postMessage(viewport);
     });
-}); 
+});
 ```
 
 This example works by calling a simple remote call wrapper to
@@ -228,7 +228,7 @@ Start the example server at [`http://localhost:8080/examples/`](http://localhost
 ```bash
 yarn start
 ```
-<!-- 
+<!--
 ## Stats
 
 [![Build Status](https://travis-ci.org/jpmorganchase/regular-table.svg?branch=master)](https://travis-ci.org/jpmorganchase/regular-table)
