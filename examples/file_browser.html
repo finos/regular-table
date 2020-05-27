@@ -14,6 +14,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <script src="../dist/umd/regular-table.js"></script>
     <link rel='stylesheet' href="../dist/css/material.css">
+
+    <style>
+        .rt-browser-icon:before {
+            content: "";
+            float: left;
+            margin-right: 5px;
+            margin-left: -10px;
+            min-width: 16px;
+            min-height: 16px;
+        }
+
+        .rt-browser-dir-icon:before {
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBjbGFzcz0ianAtaWNvbjMganAtaWNvbi1zZWxlY3RhYmxlIiBmaWxsPSIjNjE2MTYxIiBkPSJNMTAgNEg0Yy0xLjEgMC0xLjk5LjktMS45OSAyTDIgMThjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY4YzAtMS4xLS45LTItMi0yaC04bC0yLTJ6Ii8+PC9zdmc+");
+        }
+
+        .rt-browser-text-icon:before {
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBjbGFzcz0ianAtaWNvbjMganAtaWNvbi1zZWxlY3RhYmxlIiBmaWxsPSIjNjE2MTYxIiBkPSJNMTUgMTVIM3YyaDEydi0yem0wLThIM3YyaDEyVjd6TTMgMTNoMTh2LTJIM3Yyem0wIDhoMTh2LTJIM3Yyek0zIDN2MmgxOFYzSDN6Ii8+PC9zdmc+");
+        }
+    </style>
 </head>
 
 <body>
@@ -111,8 +130,30 @@
             };
         }
 
-        const table = document.getElementsByTagName('regular-table')[0];
-        table.setDataModel(file_browser_model);
+        window.addEventListener('DOMContentLoaded', async function () {
+            const table = document.getElementsByTagName('regular-table')[0];
+            await table.setDataModel(file_browser_model);
+
+            table.addEventListener("regular-table-after-update", function () {
+                const trs = table.querySelectorAll("tr");
+                for (const tr of trs) {
+                    const {children} = tr;
+                    const row_name_node = children[0].querySelector('.pd-group-name');
+                    for (let i = 1; i < children.length; i ++) {
+                        const text = children[i].textContent;
+                        if (text === 'dir') {
+                            row_name_node.classList.add('rt-browser-icon', 'rt-browser-dir-icon');
+                            break;
+                        } else if (text === 'text') {
+                            row_name_node.classList.add('rt-browser-icon', 'rt-browser-text-icon');
+                            break;
+                        }
+                    }
+                }
+            });
+
+            await table.draw();
+        });
     </script>
 
 </body>
