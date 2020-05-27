@@ -12,8 +12,8 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <script src="../umd/regular-table.js"></script>
-    <link rel='stylesheet' href="../css/material.css">
+    <script src="../dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../dist/css/material.css">
 </head>
 
 <body>
@@ -75,7 +75,7 @@
         async function collapse(rix) {
             const contents = getContents(rows[rix].path);
 
-            // pop out the contents of the collapsed node and any expanded subnodes
+            // splice out the contents of the collapsed node and any expanded subnodes
             let npop = contents.contents.length;
             let check_ix = rix + 1 + npop;
             while (rows[check_ix++].path.length > contents.path.length) {
