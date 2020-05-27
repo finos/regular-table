@@ -257,15 +257,15 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     async _on_toggle(event, metadata) {
         if (metadata.is_open) {
             if (event.shiftKey) {
-                await this._view_cache.view.set_depth(metadata.row_path.length - 1);
+                await this._view_cache.set_depth(metadata.row_path.length - 1);
             } else {
-                await this._view_cache.view.collapse(metadata.ridx);
+                await this._view_cache.collapse(metadata.ridx);
             }
         } else if (metadata.is_open === false) {
             if (event.shiftKey) {
-                await this._view_cache.view.set_depth(metadata.row_path.length);
+                await this._view_cache.set_depth(metadata.row_path.length);
             } else {
-                await this._view_cache.view.expand(metadata.ridx);
+                await this._view_cache.expand(metadata.ridx);
             }
         }
         await this.draw({invalid_viewport: true});

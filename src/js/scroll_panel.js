@@ -387,10 +387,18 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             this.reset_scroll();
         }
 
-        const {num_columns, num_rows, __config, __schema} = await this._view_cache.view(0, 0, 0, 0);
+        const {num_columns, num_rows, __collapse, __config, __expand, __schema} = await this._view_cache.view(0, 0, 0, 0);
+
+        if (__collapse) {
+            this._view_cache.collapse = __collapse;
+        }
 
         if (__config) {
             this._view_cache.config = __config;
+        }
+
+        if (__expand) {
+            this._view_cache.expand = __expand;
         }
 
         if (__schema) {

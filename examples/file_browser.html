@@ -24,11 +24,10 @@
 
         const NUM_ROWS = 100;
         const NUM_DIR = 10;
-        const NUM_FILE = NUM_ROWS - NUM_DIR;
 
-        const COLUMN_NAMES = ['modified', 'writable'];
-
-        const formatter = new Intl.DateTimeFormat("en-us");
+        const COLUMN_NAMES = ['modified', 'kind', 'writable'];
+        const DIR_NAMES = ['able', 'baker', 'charlie', 'dog', 'easy', 'fox', 'george', 'how', 'item', 'jig', 'king', 'love', 'mike', 'nan', 'oboe', 'peter', 'queen', 'roger', 'sugar', 'tare', 'uncle', 'victor', 'william', 'xray', 'yoke', 'zebra'];
+        const date_formatter = new Intl.DateTimeFormat("en-us");
 
         const _contents_cache = new Map();
         function getContents(path, expand) {
@@ -37,7 +36,11 @@
             if (_contents_cache.has(path)) {
                 contents = _contents_cache.get(path);
             } else {
-                contents = {path, modified: new Date(1000), writable: false};
+                contents = {
+                    path,
+                    modified: new Date(1000),
+                    kind: 'dir',
+                    writable: false};
                 _contents_cache.set(path, contents);
             }
 
@@ -45,46 +48,54 @@
                 return contents;
             }
 
-            let sub = []
+            contents.contents = []
             for (let i = 0; i < NUM_ROWS; i ++) {
-                sub.push({
-                    path: [...path, i < NUM_DIR ? `${i}/` : `${i}.txt`],
-                    modified: new Date(1000*86400*i),
+                const subcontents = {
+                    path: [...path, i < NUM_DIR ? `${DIR_NAMES[i]}/` : `file_${i - NUM_DIR}.txt`],
+                    modified: new Date(contents.modified.getTime() + 24*60*60*1000*(365 + i)),
+                    kind: i < NUM_DIR ? 'dir' : 'text',
                     writable: false,
-                });
+                };
+
+                _contents_cache.set(subcontents.path, subcontents);
+                contents.contents.push(subcontents);
             }
 
-            contents.contents = sub;
             return contents;
         }
 
-        function insertContents(rix, arr) {
-            const contents = getContents(arr[rix].path, true);
-            arr.splice(rix, 0, ...contents.contents);
+        let config = {
+            column_pivots: [],
+            row_pivots: ['path'],
         }
 
-        function popContents(rix, arr) {
-            const {path} = arr[rix]
-            const contents = getContents(path, true);
+        let rows = getContents([], true).contents;
+
+        // for tree support
+        async function collapse(rix) {
+            const contents = getContents(rows[rix].path);
 
             // pop out the contents of the collapsed node and any expanded subnodes
             let npop = contents.contents.length;
             let check_ix = rix + 1 + npop;
-            while (arr[check_ix++].path.length > path.length) {
+            while (rows[check_ix++].path.length > contents.path.length) {
                 npop++;
             }
 
-            arr.splice(rix + 1, npop);
+            rows.splice(rix + 1, npop);
         }
 
-        let rows = getContents([], true).contents;
+        async function expand(rix) {
+            const contents = getContents(rows[rix].path, true);
+            rows.splice(rix + 1, 0, ...contents.contents);
+        }
 
         async function file_browser_model(start_col, start_row, end_col, end_row) {
             const data = [];
             for (let cix = start_col; cix < end_col; cix ++) {
                 const name = COLUMN_NAMES[cix];
                 data.push(rows.slice(start_row, end_row).map(c => {
-                    return name === 'modified' ? formatter.format(c[name]) : c[name];
+                    return name === 'modified' ? date_formatter.format(c[name]) : c[name];
                 }));
             }
 
@@ -94,21 +105,14 @@
                 column_indices: COLUMN_NAMES.map(col => [col]),
                 row_indices: rows.slice(start_row, end_row).map(c => c['path']),
                 data,
+                __collapse: collapse,
+                __config: config,
+                __expand: expand,
             };
         }
 
-        // for tree support
-        file_browser_model.collapse = async rix => {
-            popContents(rix, rows);
-        }
-        file_browser_model.expand = async rix => {
-            insertContents(rix + 1, rows);
-        }
-
         const table = document.getElementsByTagName('regular-table')[0];
-        table.setDataModel(file_browser_model).then(() => {
-            table._view_cache.config.row_pivots = ['name']
-        });
+        table.setDataModel(file_browser_model);
     </script>
 
 </body>
