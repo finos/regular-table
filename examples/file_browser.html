@@ -38,7 +38,7 @@
             } else {
                 contents = {
                     path,
-                    modified: new Date(1000),
+                    modified: new Date(12*60*60*1000),
                     kind: 'dir',
                     writable: false};
                 _contents_cache.set(path, contents);
