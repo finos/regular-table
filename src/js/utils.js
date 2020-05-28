@@ -104,11 +104,6 @@ export function memoize(_target, _property, descriptor) {
     }
 }
 
-export function column_path_2_type(schema, column) {
-    const parts = column.split("|");
-    return schema[parts[parts.length - 1]];
-}
-
 /**
  * Identical to a non-tagger template literal, this is only used to indicate to
  * babel that this string should be HTML-minified on production builds.

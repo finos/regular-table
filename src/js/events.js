@@ -10,7 +10,7 @@
 
 import {METADATA_MAP} from "./constants";
 import {RegularVirtualTableViewModel} from "./scroll_panel";
-import {getCellConfig, throttlePromise, isEqual} from "./utils";
+import {throttlePromise} from "./utils";
 
 /**
  *
@@ -117,17 +117,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             }
         }
 
-        const is_button = event.target.classList.contains("pd-row-header-icon");
         const is_resize = event.target.classList.contains("pd-column-resize");
         const metadata = METADATA_MAP.get(element);
-        if (is_button) {
-            await this._on_toggle(event, metadata);
-        } else if (is_resize) {
+        if (is_resize) {
             this._on_resize_column(event, element, metadata);
-        } else if (metadata?.is_column_header) {
-            await this._on_sort(event, metadata);
-        } else if (this.parentElement.hasAttribute("selectable")) {
-            await this._on_row_select(metadata);
         }
     }
 
@@ -186,119 +179,5 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 td.classList.toggle("pd-cell-clip", auto_width > override_width);
             }
         }
-    }
-    /**
-     * Get the id of the selected row
-     *
-     * @memberof RegularVirtualTableViewModel
-     */
-    _get_selected() {
-        return this._selected_id;
-    }
-    /**
-     * sets the selected row to the `selected_id`. The row for the id
-     * will be highlighted if it's in the viewport
-     *
-     * @param {*} selected_id
-     * @memberof RegularVirtualTableViewModel
-     */
-    _set_selected(selected_id) {
-        this._selected_id = selected_id;
-    }
-    /**
-     * Clears selected row
-     *
-     * @memberof RegularVirtualTableViewModel
-     */
-    _clear_selected() {
-        delete this._selected_id;
-    }
-
-    /**
-     * Regular event which handles row selection.
-     *
-     * @param {*} metadata
-     * @returns
-     * @memberof RegularVirtualTableViewModel
-     */
-    async _on_row_select(metadata) {
-        const is_deselect = isEqual(metadata.id, this._selected_id);
-        let filters = [];
-        if (is_deselect) {
-            this._clear_selected();
-            await this.draw({invalid_viewport: true});
-        } else {
-            this._set_selected(metadata.id);
-            await this.draw({invalid_viewport: true});
-            filters = await getCellConfig(this._view_cache, metadata.ridx, metadata.cidx);
-            filters = filters.config.filters;
-        }
-
-        this.dispatchEvent(
-            new CustomEvent("perspective-select", {
-                bubbles: true,
-                composed: true,
-                detail: {
-                    selected: !is_deselect,
-                    config: {filters},
-                },
-            })
-        );
-    }
-
-    /**
-     * Toggles a tree row between 'open' and 'closed' states, or toggles all
-     * tree rows at this depth when the shift key is also pressed.
-     *
-     * @param {*} event
-     * @param {*} metadata
-     * @memberof RegularVirtualTableViewModel
-     */
-    async _on_toggle(event, metadata) {
-        if (metadata.is_open) {
-            if (event.shiftKey) {
-                await this._view_cache.view.set_depth(metadata.row_path.length - 1);
-            } else {
-                await this._view_cache.view.collapse(metadata.ridx);
-            }
-        } else if (metadata.is_open === false) {
-            if (event.shiftKey) {
-                await this._view_cache.view.set_depth(metadata.row_path.length);
-            } else {
-                await this._view_cache.view.expand(metadata.ridx);
-            }
-        }
-        await this.draw({invalid_viewport: true});
-    }
-
-    /**
-     * Regular event which handles sorting.  There are 3 control states:
-     *
-     *  - Already sorted by `metadata.column_name`, increment sort clause to
-     *    next sort state.
-     *  - Not sorted, shift key, append new sort clause to existing.
-     *  - Not sorted, set as new sort clause.
-     *
-     * @param {*} event
-     * @param {*} metadata
-     * @memberof RegularVirtualTableViewModel
-     */
-    async _on_sort(event, metadata) {
-        let sort = this._view_cache.config.sort.slice();
-        const current_idx = sort.findIndex((x) => x[0] === metadata.column_name);
-        if (current_idx > -1) {
-            const sort_dir = sort[current_idx][1];
-            const new_sort = this.parentElement._increment_sort(sort_dir, false, event.altKey);
-            sort[current_idx] = [metadata.column_name, new_sort];
-        } else {
-            let sort_dir = event.altKey ? "asc abs" : "asc";
-            const new_sort = [metadata.column_name, sort_dir];
-            if (event.shiftKey) {
-                sort.push(new_sort);
-            } else {
-                sort = [new_sort];
-            }
-        }
-        this.parentElement.setAttribute("sort", JSON.stringify(sort));
     }
 }

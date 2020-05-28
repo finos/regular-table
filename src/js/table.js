@@ -10,7 +10,7 @@
 
 import {RegularHeaderViewModel} from "./thead";
 import {RegularBodyViewModel} from "./tbody";
-import {column_path_2_type, html} from "./utils";
+import {html} from "./utils";
 
 /**
  * <table> view model.  In order to handle unknown column width when `draw()`
@@ -120,7 +120,7 @@ export class RegularTableViewModel {
                     column_indices[dcidx] = new_col.column_indices[0];
                 }
                 const column_name = column_indices[dcidx];
-                const type = column_path_2_type(schema, column_name);
+                const type = "string";
                 const column_data = data[dcidx];
                 const column_state = {
                     column_name,

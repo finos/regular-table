@@ -46,21 +46,16 @@ export class RegularBodyViewModel extends ViewModel {
             td.style.minWidth = "";
             td.style.maxWidth = "";
         }
-        const formatter = this._format(type);
-        if (val === undefined || val === null) {
-            td.textContent = "-";
-            metadata.value = null;
-            metadata.row_path = null;
-        } else if (formatter) {
-            formatter.format(td, val, type, val.length === depth, is_open);
-            metadata.value = Array.isArray(val) ? val[val.length - 1] : val;
-            metadata.row_path = id;
-            metadata.is_open = is_open;
+
+        if (val instanceof HTMLElement) {
+            td.textContent = "";
+            td.appendChild(val);
         } else {
             td.textContent = val;
-            metadata.value = val;
         }
 
+        metadata.value = val;
+        metadata.row_path = id;
         return {td, metadata};
     }
 

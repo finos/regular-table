@@ -9,8 +9,6 @@
  */
 
 import {METADATA_MAP} from "./constants";
-import {get_type_config, memoize} from "./utils";
-import {tree_header} from "./tree_row_header";
 
 /******************************************************************************
  *
@@ -43,59 +41,6 @@ export class ViewModel {
             METADATA_MAP.set(td, metadata);
             return metadata;
         }
-    }
-
-    @memoize
-    _format_text(type) {
-        const config = get_type_config(type);
-        const real_type = config.type || type;
-        const format_function = {
-            float: Intl.NumberFormat,
-            integer: Intl.NumberFormat,
-            datetime: Intl.DateTimeFormat,
-            date: Intl.DateTimeFormat,
-        }[real_type];
-        if (format_function) {
-            const func = new format_function("en-us", config.format);
-            return (path) => func.format(path);
-        } else {
-            return (path) => path;
-        }
-    }
-
-    @memoize
-    _format_class(type) {
-        const config = get_type_config(type);
-        const real_type = config.type || type;
-        if (real_type === "integer" || real_type === "float") {
-            return (path) => {
-                if (path > 0) {
-                    return "pd-positive";
-                } else if (path < 0) {
-                    return "pd-negative";
-                }
-            };
-        } else {
-            return () => "";
-        }
-    }
-
-    @memoize
-    _format(type) {
-        if (Array.isArray(type)) {
-            return {format: tree_header.bind(this)};
-        }
-        const fmt = this._format_text(type);
-        const cls = this._format_class(type);
-        return {
-            format(td, path) {
-                td.textContent = fmt(path);
-                const c = cls(path);
-                if (c) {
-                    td.classList.add(c);
-                }
-            },
-        };
     }
 
     _get_cell(tag = "td", row_container, cidx, tr) {
