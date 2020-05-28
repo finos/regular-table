@@ -23,7 +23,7 @@ export class RegularBodyViewModel extends ViewModel {
         metadata.cidx = cidx + cidx_offset;
         metadata.column = column_name;
         metadata.size_key = `${column_name}|undefined`;
-        metadata.ridx = ridx + ridx_offset;
+        metadata.y = ridx + ridx_offset;
         const override_width = this._column_sizes.override[metadata.size_key];
         if (override_width) {
             const auto_width = this._column_sizes.auto[metadata.size_key];
@@ -48,7 +48,7 @@ export class RegularBodyViewModel extends ViewModel {
         return {td, metadata};
     }
 
-    draw(container_height, column_state, view_state, th = false) {
+    draw(container_height, column_state, view_state, th = false, dcidx = 0) {
         const {cidx, column_data, id_column} = column_state;
         let {row_height} = view_state;
         let ridx = 0;
@@ -81,6 +81,7 @@ export class RegularBodyViewModel extends ViewModel {
             }
             td = obj.td;
             metadata = obj.metadata;
+            metadata.x = dcidx;
             row_height = row_height || td.offsetHeight;
             if (ridx * row_height > container_height) {
                 break;

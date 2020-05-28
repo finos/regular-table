@@ -85,19 +85,9 @@ regular-table, :host {
 
     // frozen rows
 
-    tr td.pd-group-header,
-    tr th {
-        border-right: 1px solid #ddd;
-    }
 
 
-    tr:last-child th:not(.pd-group-header),
-    tr th:last-child {
-        border-right: none;
-    }
-
-
-    tr:last-child th {
+    thead tr:last-child th {
         border-bottom: 1px solid #ddd;
     }
 
@@ -123,9 +113,6 @@ regular-table, :host {
     }
 
 
-    tbody {
-        transition: opacity 0.2s ease-in;
-    }
 
     tbody:hover tr:hover td {
         background: #eee;
@@ -136,9 +123,6 @@ regular-table, :host {
         color: #333;
     }
 
-    tr {
-        transition: background-color 0.2s ease-in, color 0.2s ease-in;
-    }
 
     table * {
         box-sizing: border-box;

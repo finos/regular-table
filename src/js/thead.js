@@ -55,7 +55,7 @@ export class RegularHeaderViewModel extends ViewModel {
         }
         const th = this._get_cell("TH", d, cidx);
         if (!th) return;
-        th.classList.add("pd-group-header");
+        th.setAttribute("colspan", "1");
         return th;
     }
 
@@ -78,7 +78,6 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.size_key = `${column}|${type}`;
         const auto_width = this._column_sizes.auto[metadata.size_key];
         const override_width = this._column_sizes.override[metadata.size_key];
-        th.classList.add(`pd-${type}`);
         if (override_width) {
             th.classList.toggle("pd-cell-clip", auto_width > override_width);
             th.style.minWidth = override_width + "px";
@@ -98,8 +97,9 @@ export class RegularHeaderViewModel extends ViewModel {
     _group_header_cache = [];
     _offset_cache = [];
 
-    draw(config, alias, parts, type, cidx, colspan) {
-        const header_levels = config.column_pivots.length + 1;
+    draw(config, alias, parts, type, cidx, colspan, dcidx) {
+        const header_levels = parts?.length; //config.column_pivots.length + 1;
+        if (header_levels === 0) return {};
         let th,
             column_name,
             is_new_group = false;
@@ -131,6 +131,7 @@ export class RegularHeaderViewModel extends ViewModel {
                 const metadata = this._draw_th(alias || parts, column_name, type, th);
                 metadata.vcidx = vcidx;
                 metadata.cidx = cidx;
+                metadata.x = dcidx;
                 for (const [group_meta] of this._group_header_cache) {
                     group_meta.cidx = cidx;
                     group_meta.vcidx = vcidx;
@@ -142,8 +143,8 @@ export class RegularHeaderViewModel extends ViewModel {
             }
         }
 
-        if (header_levels === 1 && Array.isArray(type)) {
-            th.classList.add("pd-group-header");
+        if (header_levels === 1 && dcidx === undefined) {
+            th.setAttribute("colspan", 1);
         }
         const metadata = this._get_or_create_metadata(th);
         this._clean_rows(this._offset_cache.length);

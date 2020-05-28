@@ -204,8 +204,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             max_scroll_column--;
             width += this._column_sizes.indices[max_scroll_column] || 60;
         }
-        const psp_offset = this._view_cache.config.row_pivots.length > 0;
-        return Math.min(num_columns - (psp_offset ? 2 : 1), max_scroll_column + (psp_offset ? 0 : 1));
+        return Math.min(num_columns - 1, max_scroll_column + 1);
     }
 
     /**
