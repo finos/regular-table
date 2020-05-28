@@ -24,6 +24,32 @@
     <script>
         const URL = "../node_modules/superstore-arrow/superstore.arrow";
         const perspective = window.perspective;
+        const template = document.createElement("template");
+
+        function _tree_header_levels(path, is_open, is_leaf) {
+            const tree_levels = path.map(() => '<span class="pd-tree-group"></span>');
+            if (!is_leaf) {
+                const group_icon = is_open ? "remove" : "add";
+                const tree_button = `<span class="pd-row-header-icon">${group_icon}</span>`;
+                tree_levels.push(tree_button);
+            }
+
+            return tree_levels.join("");
+        }
+
+        function tree_header(path, is_leaf, is_open) {
+            const name = path.length === 0 ? "TOTAL" : path[path.length - 1];
+            const header_classes = is_leaf ? "pd-group-name pd-group-leaf" : "pd-group-name";
+            const tree_levels = _tree_header_levels(path, is_open, is_leaf);
+            const header_text = name;
+            template.innerHTML = `
+                <span class="pd-tree-container">
+                    ${tree_levels}
+                    <span class="${header_classes}">${header_text}</span>
+                </span>
+            `.trim();
+            return template.content.firstChild;
+        }
 
         const datasource = async () => {
             const request = fetch(URL);
@@ -41,7 +67,7 @@
                     datetime: Intl.DateTimeFormat,
                     date: Intl.DateTimeFormat,
                 }[type];
-                return func && new func("en-us");
+                return new func("en-us");
             }
 
             _format(parts, val) {
@@ -49,7 +75,7 @@
                     return "-";
                 }
                 const type = this._schema[parts[parts.length - 1]] || "string";
-                return this._formatter(type)?.format(val) || val;
+                return this._formatter(type).format(val);
             }
 
             async get_data(x0, y0, x1, y1) {
@@ -77,6 +103,7 @@
                     __schema: this._schema,
                     num_rows: this._num_rows,
                     num_columns: this._column_paths.length,
+                    row_indices: (columns.__ROW_PATH__ || []).map((x) => [tree_header(x, x.length === 3, true)]),
                     column_indices,
                     data,
                 };
@@ -97,7 +124,11 @@
 
         window.addEventListener("DOMContentLoaded", async function () {
             const table = await datasource();
-            const view = table.view();
+            const view = table.view({
+                row_pivots: ["Region", "State", "City"],
+                column_pivots: ["Category", "Sub-Category"],
+                // columns: ["Sales", "Profit"],
+            });
 
             const data_model = new PerspectiveDataModel();
             await data_model.set_view(table, view);

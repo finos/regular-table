@@ -8,13 +8,12 @@
  *
  */
 
-describe("perspective,html", () => {
+describe("perspective.html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
     });
 
-    // TODO don't run these, they depend on unpkg.com
-    describe.skip("creates a `<table>` body when attached to `document`", () => {
+    describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/examples/perspective.html");
             await page.waitFor("regular-table table tbody tr td");
@@ -23,7 +22,7 @@ describe("perspective,html", () => {
         test("with the first row's cells from superstore.arrow", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["1", "CA-2013-152156", "Second Class"]);
+            expect(cell_values).toEqual(["1", "CA-2016-152156", "11/8/2016"]);
         });
     });
 });

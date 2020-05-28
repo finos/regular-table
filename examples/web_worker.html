@@ -61,24 +61,22 @@
     </script>
 
     <script>
-
-        const blob = new Blob([document.querySelector('#two_billion_worker').textContent]);
+        const blob = new Blob([document.querySelector("#two_billion_worker").textContent]);
         const worker = new Worker(window.URL.createObjectURL(blob, {type: "text/javascript"}));
-        const regularTable = document.getElementsByTagName('regular-table')[0];
+        const regularTable = document.getElementsByTagName("regular-table")[0];
         
         let callback;
 
-        worker.addEventListener("message", event => {
+        worker.addEventListener("message", (event) => {
             callback(event.data);
         });
 
         regularTable.setDataModel((...viewport) => {
-            return new Promise(function (resolve) {    
+            return new Promise(function (resolve) {
                 callback = resolve;
                 worker.postMessage(viewport);
             });
-        }); 
-
+        });
     </script>
 
 </body>

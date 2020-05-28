@@ -43,11 +43,18 @@ export class ViewModel {
         }
     }
 
-    _get_cell(tag = "td", row_container, cidx, tr) {
+    _get_cell(tag = "TD", ridx, cidx) {
+        const {tr, row_container} = this._get_row(ridx);
         let td = row_container[cidx];
         if (!td) {
             td = row_container[cidx] = document.createElement(tag);
             tr.appendChild(td);
+        }
+        if (td.tagName !== tag) {
+            const new_td = document.createElement(tag);
+            tr.replaceChild(new_td, td);
+            this.cells[ridx].splice(cidx, 1, new_td);
+            td = new_td;
         }
         return td;
     }

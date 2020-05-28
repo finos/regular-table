@@ -8,7 +8,6 @@
  *
  */
 
-import {isEqual} from "./utils";
 import {ViewModel} from "./view_model";
 
 /**
@@ -17,23 +16,13 @@ import {ViewModel} from "./view_model";
  * @class RegularBodyViewModel
  */
 export class RegularBodyViewModel extends ViewModel {
-    _draw_td(ridx, val, id, is_open, {cidx, column_name, type, first_col}, {selected_id, depth, ridx_offset, cidx_offset}) {
-        const {tr, row_container} = this._get_row(ridx);
-
-        const td = this._get_cell("td", row_container, cidx, tr);
-        td.className = `pd-${type}`;
-        if (first_col && selected_id !== undefined) {
-            const is_selected = isEqual(id, selected_id);
-            const is_sub_selected = !is_selected && isEqual(id?.slice(0, selected_id?.length), selected_id);
-            tr.classList.toggle("pd-selected", !!id && is_selected);
-            tr.classList.toggle("pd-sub-selected", !!id && is_sub_selected);
-        }
+    _draw_td(tagName, ridx, val, id, cidx, {column_name}, {ridx_offset, cidx_offset}) {
+        const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
         metadata.id = id;
         metadata.cidx = cidx + cidx_offset;
-        metadata.type = type;
         metadata.column = column_name;
-        metadata.size_key = `${column_name}|${type}`;
+        metadata.size_key = `${column_name}|undefined`;
         metadata.ridx = ridx + ridx_offset;
         const override_width = this._column_sizes.override[metadata.size_key];
         if (override_width) {
@@ -59,15 +48,37 @@ export class RegularBodyViewModel extends ViewModel {
         return {td, metadata};
     }
 
-    draw(container_height, column_state, view_state) {
+    draw(container_height, column_state, view_state, th = false) {
         const {cidx, column_data, id_column} = column_state;
         let {row_height} = view_state;
         let ridx = 0;
-        let td, metadata;
+        let td, metadata, prev;
         for (const val of column_data) {
-            const next = column_data[ridx + 1];
             const id = id_column?.[ridx];
-            const obj = this._draw_td(ridx++, val, id, next?.length > val?.length, column_state, view_state);
+            const row = [];
+            let obj;
+            if (th) {
+                let cidx_ = cidx;
+                for (let i = 0; i < val.length; i++) {
+                    const row_header = val[i];
+                    if (prev && prev[i][0] === row_header) {
+                        obj = this._draw_td("TH", ridx, row_header, id, cidx_, column_state, view_state);
+                        prev[i][1].setAttribute("rowspan", prev[i][2] + 1);
+                        obj.td.style.display = "none";
+                        row.push([prev[i][0], prev[i][1], prev[i][2] + 1]);
+                    } else {
+                        obj = this._draw_td("TH", ridx, row_header, id, cidx_, column_state, view_state);
+                        obj.td.style.display = "";
+                        obj.td.removeAttribute("rowspan");
+                        row.push([row_header, obj.td, 1]);
+                    }
+                    cidx_++;
+                }
+                prev = row;
+                ridx++;
+            } else {
+                obj = this._draw_td("TD", ridx++, val, id, cidx, column_state, view_state);
+            }
             td = obj.td;
             metadata = obj.metadata;
             row_height = row_height || td.offsetHeight;
@@ -76,7 +87,7 @@ export class RegularBodyViewModel extends ViewModel {
             }
         }
         this._clean_rows(ridx);
-        return {td, cidx, ridx, metadata, row_height};
+        return {td, ridx, metadata, row_height};
     }
 
     clean({ridx, cidx}) {

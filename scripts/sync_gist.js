@@ -14,8 +14,13 @@ for (const file in hashes) {
         child_process.execSync(`git clone https://gist.github.com/${hashes[file]}.git dist/${hashes[file]}`);
         fs.copyFileSync(`images/${file}.preview.png`, `dist/${hashes[file]}/preview.png`);
         fs.copyFileSync(`images/${file}.thumbnail.png`, `dist/${hashes[file]}/thumbnail.png`);
-        const source = fs.readFileSync(`examples/${file}.html`).toString();
-        fs.writeFileSync(`dist/${hashes[file]}/index.html`, source.replace(/\.\.\//g, `https://cdn.jsdelivr.net/npm/regular-table@${pkg.version}/`));
+
+        // Retarget source assets to jsdelivr
+        let source = fs.readFileSync(`examples/${file}.html`).toString();
+        source = source.replace(/\.\.\/node_modules\//g, `https://cdn.jsdelivr.net/npm/@${pkg.version}/`);
+        source = source.replace(/\.\.\//g, `https://cdn.jsdelivr.net/npm/regular-table@${pkg.version}/`);
+
+        fs.writeFileSync(`dist/${hashes[file]}/index.html`, source);
         process.chdir(`dist/${hashes[file]}`);
         child_process.execSync(`git add thumbnail.png preview.png index.html`);
         console.log(child_process.execSync(`git status`).toString());

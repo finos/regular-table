@@ -54,6 +54,10 @@ regular-table, :host {
         text-align: right;
     }
 
+    tbody th {
+        text-align: left;
+    }
+
 
     .pd-positive {
         color: #1078d1;
@@ -101,7 +105,7 @@ regular-table, :host {
         position: relative;
     }
 
-    tr td span.pd-tree-group {
+    tr th span.pd-tree-group {
         margin-left: 5px;
         margin-right: 15px;
         border-left: 1px solid #eee;
@@ -193,8 +197,12 @@ regular-table, :host {
         flex: 1;
         height: 100%;
     }
+    
+    th span.pd-group-name {
+        text-align: left;
+    }
 
-    td span.pd-group-leaf {
+    td th span.pd-group-leaf, th span.pd-group-leaf {
         margin-left: 12px;
         height: 100%;
     }

@@ -66,12 +66,12 @@ export class RegularTableViewModel {
         const {view, config, schema} = view_cache;
         const {data, row_indices, column_indices, __id_column: id_column} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
         const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
-        const depth = config.row_pivots.length;
-        view_cache.config.column_pivots = Array.from(Array(column_indices[0]?.length - 1 || 0).keys());
+        view_cache.config.column_pivots = Array.from(Array(column_indices?.[0]?.length - 1 || 0).keys());
+        view_cache.config.row_pivots = Array.from(Array(row_indices?.[0]?.length || 0).keys());
+
         const view_state = {
             viewport_width: 0,
             selected_id,
-            depth,
             ridx_offset,
             cidx_offset,
             row_height: this._column_sizes.row_height,
@@ -84,7 +84,15 @@ export class RegularTableViewModel {
         if (row_indices?.length > 0) {
             const column_name = config.row_pivots.join(",");
             const type = config.row_pivots.map((x) => schema[x]);
-            const column_data = row_indices;
+
+            // pad row_indices for embedded renderer
+            // TODO maybe dont need this - perspective compat
+            const row_index_length = row_indices.reduce((max, x) => Math.max(max, x.length), 0);
+            const column_data = row_indices.map((x) => {
+                x.length = row_index_length;
+                return x;
+            });
+
             const column_state = {
                 column_name,
                 cidx: 0,
@@ -93,15 +101,20 @@ export class RegularTableViewModel {
                 type,
                 first_col,
             };
-            const cont_head = this.header.draw(config, column_name, "", type, 0);
-            cont_body = this.body.draw(container_height, column_state, {
-                ...view_state,
-                cidx_offset: 0,
-            });
+            cont_body = this.body.draw(
+                container_height,
+                column_state,
+                {
+                    ...view_state,
+                    cidx_offset: 0,
+                },
+                true
+            );
+            const cont_head = this.header.draw(config, column_name, "", type, 0, row_index_length);
             first_col = false;
             view_state.viewport_width += this._column_sizes.indices[0] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
             view_state.row_height = view_state.row_height || cont_body.row_height;
-            cidx++;
+            cidx = row_indices[0].length;
             if (!preserve_width) {
                 last_cells.push([cont_body.td || cont_head.th, cont_body.metadata || cont_head.metadata]);
             }

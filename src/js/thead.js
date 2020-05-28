@@ -21,8 +21,7 @@ import {html} from "./utils.js";
  */
 export class RegularHeaderViewModel extends ViewModel {
     _draw_group_th(offset_cache, d, column, sort_dir) {
-        const {tr, row_container} = this._get_row(d);
-        const th = this._get_cell("th", row_container, offset_cache[d], tr);
+        const th = this._get_cell("TH", d, offset_cache[d]);
         offset_cache[d] += 1;
         th.className = "";
         th.removeAttribute("colspan");
@@ -50,12 +49,11 @@ export class RegularHeaderViewModel extends ViewModel {
     }
 
     _redraw_previous(offset_cache, d) {
-        const {tr, row_container} = this._get_row(d);
         const cidx = offset_cache[d] - 1;
         if (cidx < 0) {
             return;
         }
-        const th = this._get_cell("th", row_container, cidx, tr);
+        const th = this._get_cell("TH", d, cidx);
         if (!th) return;
         th.classList.add("pd-group-header");
         return th;
@@ -94,14 +92,13 @@ export class RegularHeaderViewModel extends ViewModel {
     }
 
     get_column_header(cidx) {
-        const {tr, row_container} = this._get_row(this.rows.length - 1);
-        return this._get_cell("th", row_container, cidx, tr);
+        return this._get_cell("TH", this.rows.length - 1, cidx);
     }
 
     _group_header_cache = [];
     _offset_cache = [];
 
-    draw(config, alias, parts, type, cidx) {
+    draw(config, alias, parts, type, cidx, colspan) {
         const header_levels = config.column_pivots.length + 1;
         let th,
             column_name,
@@ -139,6 +136,9 @@ export class RegularHeaderViewModel extends ViewModel {
                     group_meta.vcidx = vcidx;
                     group_meta.size_key = metadata.size_key;
                 }
+            }
+            if (colspan > 1) {
+                th.setAttribute("colspan", colspan);
             }
         }
 

@@ -34,24 +34,21 @@
             margin: 0;
             overflow: auto;
         }
-        th, td {
+        th:not(:first-child), td {
             height: 20px !important;
             min-width: 20px !important;
             max-width: 20px !important;
             padding: 0px;
         }
-        thead tr:last-child th {
-            transform: rotate(-90deg);
-            transform-origin: 30% 90%;
-            border-bottom-width: 0px !important;
-            border-right-width: 0px !important;
-            height: 40px !important;
-            text-align: left !important;
-            border-left: 1px solid white;
-        }
         th {           
             color: white;
             font-family: monospace;
+        }
+        tbody th:first-child {
+            vertical-align: top;
+            border-top: 1px solid white;
+            border-right: 0px !important;
+            text-align: left;
         }
         regular-table {
             position: absolute;
@@ -70,7 +67,7 @@
             bottom: 0;
             right: 0;
             border-top-width: 0;
-            box-shadow: 0px 15px 10px -10px rgba(0,0,0,1);
+            border-left-width: 0;
         }
         regular-table::-webkit-scrollbar-thumb {
             background-color: #fff !important;
@@ -100,6 +97,8 @@
         const ref_image = document.getElementById("ref_image");
         const table = document.getElementsByTagName("regular-table")[0];
         const canvas = document.createElement("canvas");
+        const scroll_container = window.scroll_container;
+        const reticle = window.reticle;
 
         ref_image.onload = async function () {
             canvas.width = ref_image.width;
@@ -133,7 +132,8 @@
                 }
                 return {
                     data,
-                    column_indices: column_names.slice(x0, x1).map((x) => [clamp(x, 10), clamp(x, 1)]),
+                    row_indices: y1 - y0 === 0 ? [] : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [clamp(y0 + z, 10), (y0 + z) % 10]),
+                    column_indices: column_names.slice(x0, x1).map((x) => [clamp(x, 10), x % 10]),
                     num_rows: canvas.height,
                     num_columns: column_names.length,
                 };
