@@ -1,0 +1,290 @@
+<!--
+   
+   Copyright (c) 2020, the Regular Table Authors.
+   
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="../dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../dist/css/material.css">
+
+    <style>
+        body {
+            background: black;
+        }
+        regular-table::-webkit-scrollbar-thumb {
+            background-color: #fff !important;
+        }
+        regular-table td {
+            max-width: 20px !important;
+            min-width: 20px !important;
+            height: 20px !important;
+            font-family: monospace;
+            font-weight: 700;
+            text-align: center;
+            padding: 0 !important;
+            font-size: 16px;
+        }
+
+        regular-table td.unknown {
+            background-color: #999;
+            border-top: 4px solid #CCC;
+            border-left: 4px solid #AAA;
+            border-bottom: 4px solid #666;
+            border-right: 4px solid #888;
+        }
+
+        td.boom {
+            color: red !important;
+            background-color: red !important;
+            border: 0px !important;
+        }
+
+        td.boom span {
+            color: red !important;
+            background-color: red !important;
+        }
+
+        regular-table {
+            cursor: pointer;
+        }
+        td {
+            background-color: white;
+        }
+        regular-table tbody:hover tr:hover td {
+            background: white;
+        }
+        regular-table tbody:hover tr:hover td.unknown {
+            background: #999;
+        }
+        table tr:hover {
+            color: #333;
+        }
+        .flag, regular-table tbody:hover tr:hover td.flag {
+            background-color: sandybrown;
+        }
+        .marker-1 {
+            color: black;
+            background-color: white;
+        }
+        .marker-2 {
+            color: purple;
+            background-color: white;
+        }
+        .marker-3 {
+            color: blue;
+            background-color: white;
+        }
+        .marker-4 {
+            color: green;
+            background-color: white;
+        }
+        .marker-5 {
+            color: yellow;
+            background-color: white;
+        }
+        .marker-6 {
+            color: orange;
+            background-color: white;
+        }
+        .marker-7 {
+            color: red;
+            background-color: white;
+        }
+        .marker-8 {
+            color: black;
+            background-color: white;
+        }
+        /* .2-marker {
+            color: green;
+        } */
+    </style>
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <script>
+        const width = 1000;
+        const height = 1000;
+        const mines = 130000;
+
+        let BOOM = false;
+
+        const MINE = 9;
+
+        const VIEW_DATA = Array(width)
+            .fill(0)
+            .map(() => Array(height).fill(-1));
+
+        const MINE_DATA = Array(width)
+            .fill(0)
+            .map(() => Array(height).fill(-1));
+
+        for (let i = 0; i < mines; i++) {
+            MINE_DATA[Math.floor(Math.random() * width)][Math.floor(Math.random() * height)] = 9;
+        }
+
+        //const COLUMN_NAMES = Array.from(Array(width).keys());
+
+        function clear(candidates) {
+            while (candidates.length > 0) {
+                let count = 0;
+                const [x1, y1] = candidates.pop();
+                if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height) continue;
+                const offsets = [
+                    [-1, -1],
+                    [-1, 0],
+                    [-1, 1],
+                    [0, -1],
+                    [0, 0],
+                    [0, 1],
+                    [1, -1],
+                    [1, 0],
+                    [1, 1],
+                ];
+                for (const [dx, dy] of offsets) {
+                    const x2 = x1 + dx;
+                    const y2 = y1 + dy;
+                    if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) continue;
+                    if (MINE_DATA[x2][y2] === MINE) {
+                        count++;
+                    }
+                }
+                VIEW_DATA[x1][y1] = count;
+                if (count === 0) {
+                    for (const [dx, dy] of offsets) {
+                        const x2 = x1 + dx;
+                        const y2 = y1 + dy;
+                        if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) continue;
+                        if (VIEW_DATA[x2][y2] === -1) {
+                            candidates.push([x2, y2]);
+                        }
+                    }
+                }
+            }
+        }
+
+        async function detonate(x, y) {
+            if (VIEW_DATA[x][y] !== -1) return;
+            if (MINE_DATA[x][y] === MINE) {
+                VIEW_DATA[x][y] = MINE;
+            } else {
+                clear([[x, y]]);
+            }
+            await table.draw({invalid_viewport: true});
+        }
+
+        function format(x) {
+            switch (x) {
+                case -1:
+                    return "";
+                case MINE:
+                    BOOM = true;
+                    return "";
+                case 10:
+                    return "F";
+                case 0:
+                    return "";
+                default:
+                    return x;
+            }
+        }
+
+        function getDataSlice(x0, y0, x1, y1) {
+            const data = VIEW_DATA.slice(x0, x1).map((col) => col.slice(y0, y1).map(format));
+            //const column_indices = COLUMN_NAMES.slice(x0, x1);
+            const num_columns = VIEW_DATA.length;
+            const num_rows = VIEW_DATA[0].length;
+        
+            return {
+                num_rows,
+                num_columns,
+                //column_indices,
+                data,
+            };
+        }
+
+        const table = document.getElementsByTagName("regular-table")[0];
+
+        table.addEventListener("regular-table-after-update", () => {
+            for (const td of table.get_tds()) {
+                const meta = table.get_meta(td);
+                const val = VIEW_DATA[meta.x][meta.y];
+                const numeric = parseInt(val);
+                td.className = "";
+                if (BOOM) {
+                    td.classList.add("boom");
+                } else if (numeric > 0 && numeric < 9) {
+                    td.classList.add(`marker-${val}`);
+                    td.classList.toggle("unknown", false);
+                    td.classList.toggle("flag", false);
+                } else {
+                    td.classList.toggle("unknown", VIEW_DATA[meta.x][meta.y] === -1);
+                    td.classList.toggle("flag", VIEW_DATA[meta.x][meta.y] === 10);
+                }
+            }
+        });
+
+        table.setDataModel(getDataSlice);
+
+        table.addEventListener("click", (event) => {
+            if (event.target.tagName === "TD") {
+                const meta = table.get_meta(event.target);
+                detonate(meta.x, meta.y);
+            }
+        });
+
+        table.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            if (event.target.tagName === "TD") {
+                const meta = table.get_meta(event.target);
+                const val = VIEW_DATA[meta.x][meta.y];
+                if (val > -1 && val < 9) {
+                    const candidates = [];
+                    const offsets = [
+                        [-1, -1],
+                        [-1, 0],
+                        [-1, 1],
+                        [0, -1],
+                        [0, 0],
+                        [0, 1],
+                        [1, -1],
+                        [1, 0],
+                        [1, 1],
+                    ];
+                    let count = 0;
+                    for (const [dx, dy] of offsets) {
+                        const x2 = meta.x + dx;
+                        const y2 = meta.y + dy;
+                        if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) continue;
+                        if (VIEW_DATA[x2][y2] !== 10) {
+                            candidates.push([x2, y2]);
+                        } else {
+                            count++;
+                        }
+                    }
+                    if (count === val) {
+                        clear(candidates);
+                    }
+                } else if (val === 10) {
+                    VIEW_DATA[meta.x][meta.y] = -1;
+                } else if (val === -1) {
+                    VIEW_DATA[meta.x][meta.y] = 10;
+                }
+                table.draw({invalid_viewport: true});
+            }
+        });
+    </script>
+
+</body>
+
+</html>
