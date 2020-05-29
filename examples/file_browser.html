@@ -1,0 +1,161 @@
+<!--
+
+   Copyright (c) 2020, the Regular Table Authors.
+
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="../dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../dist/css/material.css">
+
+    <style>
+        .rt-browser-icon:before {
+            content: "";
+            float: left;
+            margin-right: 5px;
+            margin-left: -10px;
+            min-width: 16px;
+            min-height: 16px;
+        }
+
+        .rt-browser-dir-icon:before {
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBjbGFzcz0ianAtaWNvbjMganAtaWNvbi1zZWxlY3RhYmxlIiBmaWxsPSIjNjE2MTYxIiBkPSJNMTAgNEg0Yy0xLjEgMC0xLjk5LjktMS45OSAyTDIgMThjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY4YzAtMS4xLS45LTItMi0yaC04bC0yLTJ6Ii8+PC9zdmc+");
+        }
+
+        .rt-browser-text-icon:before {
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBjbGFzcz0ianAtaWNvbjMganAtaWNvbi1zZWxlY3RhYmxlIiBmaWxsPSIjNjE2MTYxIiBkPSJNMTUgMTVIM3YyaDEydi0yem0wLThIM3YyaDEyVjd6TTMgMTNoMTh2LTJIM3Yyem0wIDhoMTh2LTJIM3Yyek0zIDN2MmgxOFYzSDN6Ii8+PC9zdmc+");
+        }
+    </style>
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <script>
+
+        const NUM_ROWS = 100;
+        const NUM_DIR = 10;
+
+        const COLUMN_NAMES = ['modified', 'kind', 'writable'];
+        const DIR_NAMES = ['able', 'baker', 'charlie', 'dog', 'easy', 'fox', 'george', 'how', 'item', 'jig', 'king', 'love', 'mike', 'nan', 'oboe', 'peter', 'queen', 'roger', 'sugar', 'tare', 'uncle', 'victor', 'william', 'xray', 'yoke', 'zebra'];
+        const date_formatter = new Intl.DateTimeFormat("en-us");
+
+        const _contents_cache = new Map();
+        function getContents(path, expand) {
+            // infinite recursive mock contents
+            let contents;
+            if (_contents_cache.has(path)) {
+                contents = _contents_cache.get(path);
+            } else {
+                contents = {
+                    path,
+                    modified: new Date(12*60*60*1000),
+                    kind: 'dir',
+                    writable: false};
+                _contents_cache.set(path, contents);
+            }
+
+            if (!expand || 'contents' in contents) {
+                return contents;
+            }
+
+            contents.contents = []
+            for (let i = 0; i < NUM_ROWS; i ++) {
+                const subcontents = {
+                    path: [...path, i < NUM_DIR ? `${DIR_NAMES[i]}/` : `file_${i - NUM_DIR}.txt`],
+                    modified: new Date(contents.modified.getTime() + 24*60*60*1000*(365 + i)),
+                    kind: i < NUM_DIR ? 'dir' : 'text',
+                    writable: false,
+                };
+
+                _contents_cache.set(subcontents.path, subcontents);
+                contents.contents.push(subcontents);
+            }
+
+            return contents;
+        }
+
+        let config = {
+            column_pivots: [],
+            row_pivots: ['path'],
+        }
+
+        let rows = getContents([], true).contents;
+
+        // for tree support
+        async function collapse(rix) {
+            const contents = getContents(rows[rix].path);
+
+            // splice out the contents of the collapsed node and any expanded subnodes
+            let npop = contents.contents.length;
+            let check_ix = rix + 1 + npop;
+            while (rows[check_ix++].path.length > contents.path.length) {
+                npop++;
+            }
+
+            rows.splice(rix + 1, npop);
+        }
+
+        async function expand(rix) {
+            const contents = getContents(rows[rix].path, true);
+            rows.splice(rix + 1, 0, ...contents.contents);
+        }
+
+        async function file_browser_model(start_col, start_row, end_col, end_row) {
+            const data = [];
+            for (let cix = start_col; cix < end_col; cix ++) {
+                const name = COLUMN_NAMES[cix];
+                data.push(rows.slice(start_row, end_row).map(c => {
+                    return name === 'modified' ? date_formatter.format(c[name]) : c[name];
+                }));
+            }
+
+            return {
+                num_rows: rows.length,
+                num_columns: COLUMN_NAMES.length,
+                column_indices: COLUMN_NAMES.map(col => [col]),
+                row_indices: rows.slice(start_row, end_row).map(c => c['path']),
+                data,
+                __collapse: collapse,
+                __config: config,
+                __expand: expand,
+            };
+        }
+
+        window.addEventListener('DOMContentLoaded', async function () {
+            const table = document.getElementsByTagName('regular-table')[0];
+            await table.setDataModel(file_browser_model);
+
+            table.addEventListener("regular-table-after-update", function () {
+                const trs = table.querySelectorAll("tr");
+                for (const tr of trs) {
+                    const {children} = tr;
+                    const row_name_node = children[0].querySelector('.pd-group-name');
+                    for (let i = 1; i < children.length; i ++) {
+                        const text = children[i].textContent;
+                        if (text === 'dir') {
+                            row_name_node.classList.add('rt-browser-icon', 'rt-browser-dir-icon');
+                            break;
+                        } else if (text === 'text') {
+                            row_name_node.classList.add('rt-browser-icon', 'rt-browser-text-icon');
+                            break;
+                        }
+                    }
+                }
+            });
+
+            await table.draw();
+        });
+    </script>
+
+</body>
+
+</html>
