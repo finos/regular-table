@@ -1,0 +1,283 @@
+<!--
+   
+   Copyright (c) 2020, the Regular Table Authors.
+   
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="../dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../dist/css/material.css">
+
+    <style>
+        body {
+            background: black;
+        }
+        regular-table::-webkit-scrollbar-thumb {
+            background-color: #fff !important;
+        }
+        regular-table td {
+            max-width: 20px !important;
+            min-width: 20px !important;
+            height: 20px !important;
+            font-family: monospace;
+            font-weight: 700;
+            text-align: center;
+            padding: 0 !important;
+            font-size: 16px;
+        }
+
+        regular-table td.unknown {
+            background-color: #999;
+            border-top: 4px solid #CCC;
+            border-left: 4px solid #AAA;
+            border-bottom: 4px solid #666;
+            border-right: 4px solid #888;
+        }
+
+        td.boom {
+            color: red !important;
+            background-color: red !important;
+            border: 0px !important;
+        }
+
+        td.boom span {
+            color: red !important;
+            background-color: red !important;
+        }
+
+        regular-table {
+            cursor: pointer;
+        }
+        td {
+            background-color: white;
+        }
+        regular-table tbody:hover tr:hover td {
+            background: white;
+        }
+        regular-table tbody:hover tr:hover td.unknown {
+            background: #999;
+        }
+        table tr:hover {
+            color: #333;
+        }
+        .flag, regular-table tbody:hover tr:hover td.flag {
+            background-color: sandybrown;
+        }
+        .marker-1 {
+            color: black;
+            background-color: white;
+        }
+        .marker-2 {
+            color: purple;
+            background-color: white;
+        }
+        .marker-3 {
+            color: blue;
+            background-color: white;
+        }
+        .marker-4 {
+            color: green;
+            background-color: white;
+        }
+        .marker-5 {
+            color: yellow;
+            background-color: white;
+        }
+        .marker-6 {
+            color: orange;
+            background-color: white;
+        }
+        .marker-7 {
+            color: red;
+            background-color: white;
+        }
+        .marker-8 {
+            color: black;
+            background-color: white;
+        }
+        /* .2-marker {
+            color: green;
+        } */
+    </style>
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <script>
+        const WIDTH = 1000;
+        const HEIGHT = 1000;
+        const NUM_MINES = 130000;
+
+        let BOOM = false;
+
+        const MINE_ENUM = 9;
+        const FLAG_ENUM = 10;
+        const CLEAR_ENUM = -1;
+
+        const OFFSETS = [
+            [-1, -1],
+            [-1, 0],
+            [-1, 1],
+            [0, -1],
+            [0, 0],
+            [0, 1],
+            [1, -1],
+            [1, 0],
+            [1, 1],
+        ];
+
+        const VIEW_DATA = Array(WIDTH)
+            .fill(0)
+            .map(() => Array(HEIGHT).fill(CLEAR_ENUM));
+
+        const MINE_DATA = Array(WIDTH)
+            .fill(0)
+            .map(() => Array(HEIGHT).fill(CLEAR_ENUM));
+
+        for (let i = 0; i < NUM_MINES; i++) {
+            MINE_DATA[Math.floor(Math.random() * WIDTH)][Math.floor(Math.random() * HEIGHT)] = 9;
+        }
+
+        //const COLUMN_NAMES = Array.from(Array(WIDTH).keys());
+
+        function clear(candidates) {
+            while (candidates.length > 0) {
+                let count = 0;
+                const [x1, y1] = candidates.pop();
+                if (x1 < 0 || x1 >= WIDTH || y1 < 0 || y1 >= HEIGHT) continue;
+
+                for (const [dx, dy] of OFFSETS) {
+                    const x2 = x1 + dx;
+                    const y2 = y1 + dy;
+                    if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                    if (MINE_DATA[x2][y2] === MINE_ENUM) {
+                        count++;
+                    }
+                }
+                VIEW_DATA[x1][y1] = count;
+                if (count === 0) {
+                    for (const [dx, dy] of OFFSETS) {
+                        const x2 = x1 + dx;
+                        const y2 = y1 + dy;
+                        if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                        if (VIEW_DATA[x2][y2] === CLEAR_ENUM) {
+                            candidates.push([x2, y2]);
+                        }
+                    }
+                }
+            }
+        }
+
+        async function detonate(x, y) {
+            if (VIEW_DATA[x][y] !== CLEAR_ENUM) return;
+            if (MINE_DATA[x][y] === MINE_ENUM) {
+                VIEW_DATA[x][y] = MINE_ENUM;
+            } else {
+                clear([[x, y]]);
+            }
+            await table.draw({invalid_viewport: true});
+        }
+
+        function format(x) {
+            switch (x) {
+                case CLEAR_ENUM:
+                    return "";
+                case MINE_ENUM:
+                    BOOM = true;
+                    return "";
+                case FLAG_ENUM:
+                    return "F";
+                case 0:
+                    return "";
+                default:
+                    return x;
+            }
+        }
+
+        function getDataSlice(x0, y0, x1, y1) {
+            const data = VIEW_DATA.slice(x0, x1).map((col) => col.slice(y0, y1).map(format));
+            //const column_headers = COLUMN_NAMES.slice(x0, x1);
+            const num_columns = VIEW_DATA.length;
+            const num_rows = VIEW_DATA[0].length;
+        
+            return {
+                num_rows,
+                num_columns,
+                //column_headers,
+                data,
+            };
+        }
+
+        const table = document.getElementsByTagName("regular-table")[0];
+
+        table.addEventListener("regular-table-after-update", () => {
+            for (const td of table.get_tds()) {
+                const meta = table.get_meta(td);
+                const val = VIEW_DATA[meta.x][meta.y];
+                const numeric = parseInt(val);
+                td.className = "";
+                if (BOOM) {
+                    td.classList.add("boom");
+                } else if (numeric > 0 && numeric < 9) {
+                    td.classList.add(`marker-${val}`);
+                    td.classList.toggle("unknown", false);
+                    td.classList.toggle("flag", false);
+                } else {
+                    td.classList.toggle("unknown", VIEW_DATA[meta.x][meta.y] === CLEAR_ENUM);
+                    td.classList.toggle("flag", VIEW_DATA[meta.x][meta.y] === FLAG_ENUM);
+                }
+            }
+        });
+
+        table.setDataModel(getDataSlice);
+
+        table.addEventListener("click", (event) => {
+            if (event.target.tagName === "TD") {
+                const meta = table.get_meta(event.target);
+                detonate(meta.x, meta.y);
+            }
+        });
+
+        table.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            if (event.target.tagName === "TD") {
+                const meta = table.get_meta(event.target);
+                const val = VIEW_DATA[meta.x][meta.y];
+                if (val > CLEAR_ENUM && val < 9) {
+                    const candidates = [];
+                    let count = 0;
+                    for (const [dx, dy] of OFFSETS) {
+                        const x2 = meta.x + dx;
+                        const y2 = meta.y + dy;
+                        if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                        if (VIEW_DATA[x2][y2] !== FLAG_ENUM) {
+                            candidates.push([x2, y2]);
+                        } else {
+                            count++;
+                        }
+                    }
+                    if (count === val) {
+                        clear(candidates);
+                    }
+                } else if (val === FLAG_ENUM) {
+                    VIEW_DATA[meta.x][meta.y] = CLEAR_ENUM;
+                } else if (val === CLEAR_ENUM) {
+                    VIEW_DATA[meta.x][meta.y] = FLAG_ENUM;
+                }
+                table.draw({invalid_viewport: true});
+            }
+        });
+    </script>
+
+</body>
+
+</html>

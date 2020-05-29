@@ -27,10 +27,12 @@
     <regular-table></regular-table>
 
     <script>
-        const NUM_ROWS = 2000000000;
+        const NUM_ROWS = 200000;
         const NUM_COLUMNS = 1000;
 
         const formatter = new Intl.NumberFormat("en-us");
+
+        const clamp = (x, y, offset = 0) => Math.floor(x / y) * y + offset + "";
 
         async function test_data_model(x0, y0, x1, y1) {
             const data = [];
@@ -38,15 +40,21 @@
             for (let i = x0; i < x1; i++) {
                 const column = [];
                 data.push(column);
-                column_headers.push([`Column ${i}`]);
+                column_headers.push([`Group ${clamp(i, 10)}`, `Column ${i}`]);
                 for (let j = y0; j < y1; j++) {
                     column.push(formatter.format(j + i));
                 }
             }
 
+            const row_headers = [];
+            for (let j = y0; j < y1; j++) {
+                row_headers.push(["Group " + clamp(j, 10, 0), "Row " + j]);
+            }
+
             return {
                 num_rows: NUM_ROWS,
                 num_columns: NUM_COLUMNS,
+                row_headers,
                 column_headers,
                 data,
             };

@@ -157,6 +157,12 @@
     </script>
     
     <script>
+        /**********************************************************************
+         *
+         * Example
+         *
+         */
+
         const URL = "../node_modules/superstore-arrow/superstore.arrow";
         const perspective = window.perspective;
 
@@ -170,7 +176,11 @@
 
         window.addEventListener("DOMContentLoaded", async function () {
             const table = await datasource();
-            const view = table.view();
+            const view = table.view({
+                row_pivots: ["Region", "State", "City"],
+                column_pivots: ["Category", "Sub-Category"],
+                columns: ["Sales", "Profit"],
+            });
 
             const data_model = new window.PerspectiveDataModel();
             await data_model.set_view(table, view);

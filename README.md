@@ -16,7 +16,7 @@ named `<regular-table>`,
 which renders a regular HTML `<table>` to a `fixed` position within a scollable
 viewport.  Only visible cells are rendered and queried from a natively `async`
 virtual data model, making `regular-table` ideal for enormous or remote data
-sets.  Use it to build high-performance Data Grids,
+sets.  Use it to build Data Grids,
 Spreadsheets, Pivot Tables, File Trees, or anytime you need:
 
 * Just a regular `<table>`.
@@ -89,12 +89,6 @@ to write a simple _virtual_ data model to access `DATA` and `COLUMN_NAMES`
 indirectly.
 
 ```javascript
-const COLUMN_NAMES = [
-    "Column 1 (number)", 
-    "Column 2 (string)",
-    "Column 3 (boolean)",
-];
-
 const DATA = [
     [0, 1, 2, 3, 4, 5], 
     ["A", "B", "C", "D", "E", "F"],
@@ -102,27 +96,54 @@ const DATA = [
 ];
 ```
 
+When clipped by the scrollable viewport, you may end up with a `<table>` of just
+a rectangular region of `DATA`:
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+<td>A</td>
+</tr>
+<tr>
+<td>1</td>
+<td>B</td>
+</tr>
+</tbody>
+</table>
+
 Here's a simple _virtual_ data model for this example, the function
 `getDataSlice()`.  This function is called by your `<regular-table>` whenever it
 needs more data, with coordinate arguments, `(x0, y0)` to `(x1, y1)`.  Only
 this region is needed to render the viewport, so `getDataSlice()` returns 
-this rectangular `slice` of `DATA`, as well as overall dimensions the overall 
-dimensions of `DATA` itself ( `num_rows`, `num_columns`), for sizing the
-virtual scroll area:
+this rectangular `slice` of `DATA`:
 
 ```javascript
 function getDataSlice(x0, y0, x1, y1) {
     const data = DATA.slice(x0, x1).map(col => col.slice(y0, y1));
-    const column_indices = COLUMN_NAMES.slice(x0, x1);
     const num_columns = DATA.length;
     const num_rows = DATA[0].length;
   
     return {
         num_rows,
         num_columns,
-        column_indices, 
         data
     };
+}
+```
+
+For the window (0, 0) to (2, 2), `getDataSlice()` would generate an Object
+like this, containing the `data` slice, as well as the overall dimensions of 
+`DATA` itself ( `num_rows`, `num_columns`), for sizing the scroll area.
+
+```json
+{
+    "num_rows": 26,
+    "num_columns": 3,
+    "data": [
+        [0, 1],
+        ["A", "B"]
+    ]
 }
 ```
 
@@ -143,12 +164,6 @@ scroll, more data will be fetched from `getDataSlice()`, and parts of the
 <regular-table>
 
     <table>
-        <thead>
-            <tr>
-                <th>Column 1 (number)</th>
-                <th>Column 2 (string)</th>
-            </tr>
-        </thead>
         <tbody>
             <tr>
                 <td>0</td>
@@ -201,6 +216,196 @@ self.addEventListener("message", async (event) => {
     const response = await getDataSlice.apply(null, event.data);
     self.postMessage(response);
 });
+```
+
+## Column and Row Headers
+
+`regular-table` can also generate Hierarchial Row and Column Headers, using
+`<th>` elements which layout in a `fixed` position within the virtual table.
+It can generate Column Headers (within the `<thead>`), or Row Headers (the first
+children of each `tbody tr`), via the `column_headers` and `row_headers`
+properties (respectively) of your data model's `Response` object.
+
+
+<table>
+<thead>
+<tr>
+<th>Column 1 (number)</th>
+<th>Column 2 (string)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>A</td>
+</tr>
+<tr>
+<td>1</td>
+<td>B</td>
+</tr>
+</tbody>
+</table>
+
+This can be renderered with `column_headers`, a two dimensional `Array` which
+must be of length `x1 - x0`.
+one `Array` for every column in your `data` window.  A modified
+`getDataSlice()` which describes this `<table>`:
+
+```javascript
+const COLUMN_HEADERS = [
+    ["Column 1 (number)"], 
+    ["Column 2 (string)"],
+    ["Column 3 (boolean)"],
+];
+
+function getDataSlice(x0, y0, x1, y1) {
+    const data = DATA.slice(x0, x1).map(col => col.slice(y0, y1));
+    const column_headers = COLUMN_NAMES.slice(x0, x1);
+    const num_columns = DATA.length;
+    const num_rows = DATA[0].length;
+  
+    return {
+        column_headers, 
+        num_rows,
+        num_columns,
+        data
+    };
+}
+```
+
+Samples response:
+
+```json
+{
+    "num_rows": 26,
+    "num_columns": 3,
+    "data": [
+        [0, 1],
+        ["A", "B"]
+    ],
+    "column_headers": [
+        ["Column 1 (number)"],
+        ["Column 2 (string)"]
+    ]
+}
+```
+
+Resulting HTML:
+
+```html
+<regular-table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Column 1 (number)</th>
+                <th>Column 2 (string)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>0</td>
+                <td>A</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>B</td>
+            </tr>
+        </tbody>
+    </table>
+
+</regular-table>
+```
+
+##  Hierarchial/Group Headers
+
+`regular-table` supports multiple `<tr>` of `<th>`, and also uses `colspan` and
+`rowspan` to merge simple consecutive names, which allows description of simple
+Row and Column Group Hierarchies such as this:
+
+
+<table>
+<thead>
+<tr>
+<th colspan="2" rowspan="2"></th>
+<th colspan="2">Colgroup 1</th>
+</tr>
+<tr>
+<th>Column 1</th>
+<th>Column 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th rowspan="2">Rowgroup 1</th>
+<th>Row 1</th>
+<td>0</td>
+<td>A</td>
+</tr>
+<tr>
+<th>Row 2</th>
+<td>1</td>
+<td>B</td>
+</tr>
+</tbody>
+</table>
+
+A sample response object that renders this `<table>` would look like this:
+
+```json
+{
+    "num_rows": 26,
+    "num_columns": 3,
+    "data": [
+        [0, 1],
+        ["A", "B"]
+    ],
+    "row_headers": [
+        ["Rowgroup 1", "Row 1"],
+        ["Rowgroup 1", "Row 2"]
+    ],
+    "column_headers": [
+        ["Colgroup 1", "Column 1"],
+        ["Colgroup 1", "Column 2"]
+    ]
+}
+```
+
+Note that  in the rendered HTML below, for these Row and Column `Array`,
+repeated elements in a sequence will be automatically merged via `rowspan` and
+`colspan` attributes.  In this example, e.g. `"Rowgroup 1"` will only output
+to one `<th>` node in the resulting `<table>`:
+
+```html
+<regular-table>
+
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2" rowspan="2"></th>
+                <th colspan="2">Colgroup 1</th>
+            </tr>
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th rowspan="2">Rowgroup 1</th>
+                <th>Row 1</th>
+                <td>0</td>
+                <td>A</td>
+            </tr>
+            <tr>
+                <th>Row 2</th>
+                <td>1</td>
+                <td>B</td>
+            </tr>
+        </tbody>
+    </table>
+
+</regular-table>
 ```
 
 ## Development

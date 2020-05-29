@@ -9,6 +9,8 @@
  */
 
 @import (css) url("https://fonts.googleapis.com/css?family=Open+Sans");
+@import (css) url("https://fonts.googleapis.com/css?family=Material+Icons");
+@import (css) url("https://fonts.googleapis.com/css?family=Roboto+Mono");
 
 @row-height: 19px;
 
@@ -52,6 +54,10 @@ regular-table, :host {
         text-align: right;
     }
 
+    tbody th {
+        text-align: left;
+    }
+
 
     .pd-positive {
         color: #1078d1;
@@ -79,19 +85,9 @@ regular-table, :host {
 
     // frozen rows
 
-    tr td.pd-group-header,
-    tr th {
-        border-right: 1px solid #ddd;
-    }
 
 
-    tr:last-child th:not(.pd-group-header),
-    tr th:last-child {
-        border-right: none;
-    }
-
-
-    tr:last-child th {
+    thead tr:last-child th {
         border-bottom: 1px solid #ddd;
     }
 
@@ -99,7 +95,7 @@ regular-table, :host {
         position: relative;
     }
 
-    tr td span.pd-tree-group {
+    tr th span.pd-tree-group {
         margin-left: 5px;
         margin-right: 15px;
         border-left: 1px solid #eee;
@@ -117,9 +113,6 @@ regular-table, :host {
     }
 
 
-    tbody {
-        transition: opacity 0.2s ease-in;
-    }
 
     tbody:hover tr:hover td {
         background: #eee;
@@ -130,9 +123,6 @@ regular-table, :host {
         color: #333;
     }
 
-    tr {
-        transition: background-color 0.2s ease-in, color 0.2s ease-in;
-    }
 
     table * {
         box-sizing: border-box;
@@ -191,8 +181,12 @@ regular-table, :host {
         flex: 1;
         height: 100%;
     }
+    
+    th span.pd-group-name {
+        text-align: left;
+    }
 
-    td span.pd-group-leaf {
+    td th span.pd-group-leaf, th span.pd-group-leaf {
         margin-left: 12px;
         height: 100%;
     }

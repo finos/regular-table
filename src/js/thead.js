@@ -21,8 +21,7 @@ import {html} from "./utils.js";
  */
 export class RegularHeaderViewModel extends ViewModel {
     _draw_group_th(offset_cache, d, column, sort_dir) {
-        const {tr, row_container} = this._get_row(d);
-        const th = this._get_cell("th", row_container, offset_cache[d], tr);
+        const th = this._get_cell("TH", d, offset_cache[d]);
         offset_cache[d] += 1;
         th.className = "";
         th.removeAttribute("colspan");
@@ -50,14 +49,13 @@ export class RegularHeaderViewModel extends ViewModel {
     }
 
     _redraw_previous(offset_cache, d) {
-        const {tr, row_container} = this._get_row(d);
         const cidx = offset_cache[d] - 1;
         if (cidx < 0) {
             return;
         }
-        const th = this._get_cell("th", row_container, cidx, tr);
+        const th = this._get_cell("TH", d, cidx);
         if (!th) return;
-        th.classList.add("pd-group-header");
+        th.setAttribute("colspan", "1");
         return th;
     }
 
@@ -80,7 +78,6 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.size_key = `${column}|${type}`;
         const auto_width = this._column_sizes.auto[metadata.size_key];
         const override_width = this._column_sizes.override[metadata.size_key];
-        th.classList.add(`pd-${type}`);
         if (override_width) {
             th.classList.toggle("pd-cell-clip", auto_width > override_width);
             th.style.minWidth = override_width + "px";
@@ -94,16 +91,15 @@ export class RegularHeaderViewModel extends ViewModel {
     }
 
     get_column_header(cidx) {
-        const {tr, row_container} = this._get_row(this.rows.length - 1);
-        return this._get_cell("th", row_container, cidx, tr);
+        return this._get_cell("TH", this.rows.length - 1, cidx);
     }
 
     _group_header_cache = [];
     _offset_cache = [];
 
-    draw(config, alias, column_path, type, cidx) {
-        const header_levels = config.column_pivots.length + 1;
-        let parts = column_path.split?.("|");
+    draw(config, alias, parts, type, cidx, colspan, dcidx) {
+        const header_levels = parts?.length; //config.column_pivots.length + 1;
+        if (header_levels === 0) return {};
         let th,
             column_name,
             is_new_group = false;
@@ -117,7 +113,7 @@ export class RegularHeaderViewModel extends ViewModel {
                     th.setAttribute("colspan", this._group_header_cache[d][2]);
                 } else {
                     th = this._draw_group_th(this._offset_cache, d, column_name, []);
-                    const metadata = this._draw_group(column_path, column_name, type, th);
+                    const metadata = this._draw_group(parts, column_name, type, th);
                     this._group_header_cache[d] = [metadata, th, 1];
                     is_new_group = true;
                 }
@@ -132,19 +128,23 @@ export class RegularHeaderViewModel extends ViewModel {
                 // Update the group header's metadata such that each group
                 // header has the same metadata coordinates of its rightmost
                 // column.
-                const metadata = this._draw_th(alias || column_path, column_name, type, th);
+                const metadata = this._draw_th(alias || parts, column_name, type, th);
                 metadata.vcidx = vcidx;
                 metadata.cidx = cidx;
+                metadata.x = dcidx;
                 for (const [group_meta] of this._group_header_cache) {
                     group_meta.cidx = cidx;
                     group_meta.vcidx = vcidx;
                     group_meta.size_key = metadata.size_key;
                 }
             }
+            if (colspan > 1) {
+                th.setAttribute("colspan", colspan);
+            }
         }
 
-        if (header_levels === 1 && Array.isArray(type)) {
-            th.classList.add("pd-group-header");
+        if (header_levels === 1 && dcidx === undefined) {
+            th.setAttribute("colspan", 1);
         }
         const metadata = this._get_or_create_metadata(th);
         this._clean_rows(this._offset_cache.length);

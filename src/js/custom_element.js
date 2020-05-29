@@ -90,6 +90,10 @@ export class RegularViewModel extends RegularViewEventModel {
         this.reset_viewport();
     }
 
+    async addStyleModel(view) {
+        return this.addEventListener("regular-table-after-update", view);
+    }
+
     async setDataModel(view) {
         let schema = {};
         let config = {
