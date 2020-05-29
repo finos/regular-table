@@ -113,59 +113,63 @@
     <regular-table></regular-table>
 
     <script>
-        const width = 1000;
-        const height = 1000;
-        const mines = 130000;
+        const WIDTH = 1000;
+        const HEIGHT = 1000;
+        const NUM_MINES = 130000;
 
         let BOOM = false;
 
-        const MINE = 9;
+        const MINE_ENUM = 9;
+        const FLAG_ENUM = 10;
+        const CLEAR_ENUM = -1;
 
-        const VIEW_DATA = Array(width)
+        const OFFSETS = [
+            [-1, -1],
+            [-1, 0],
+            [-1, 1],
+            [0, -1],
+            [0, 0],
+            [0, 1],
+            [1, -1],
+            [1, 0],
+            [1, 1],
+        ];
+
+        const VIEW_DATA = Array(WIDTH)
             .fill(0)
-            .map(() => Array(height).fill(-1));
+            .map(() => Array(HEIGHT).fill(CLEAR_ENUM));
 
-        const MINE_DATA = Array(width)
+        const MINE_DATA = Array(WIDTH)
             .fill(0)
-            .map(() => Array(height).fill(-1));
+            .map(() => Array(HEIGHT).fill(CLEAR_ENUM));
 
-        for (let i = 0; i < mines; i++) {
-            MINE_DATA[Math.floor(Math.random() * width)][Math.floor(Math.random() * height)] = 9;
+        for (let i = 0; i < NUM_MINES; i++) {
+            MINE_DATA[Math.floor(Math.random() * WIDTH)][Math.floor(Math.random() * HEIGHT)] = 9;
         }
 
-        //const COLUMN_NAMES = Array.from(Array(width).keys());
+        //const COLUMN_NAMES = Array.from(Array(WIDTH).keys());
 
         function clear(candidates) {
             while (candidates.length > 0) {
                 let count = 0;
                 const [x1, y1] = candidates.pop();
-                if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height) continue;
-                const offsets = [
-                    [-1, -1],
-                    [-1, 0],
-                    [-1, 1],
-                    [0, -1],
-                    [0, 0],
-                    [0, 1],
-                    [1, -1],
-                    [1, 0],
-                    [1, 1],
-                ];
-                for (const [dx, dy] of offsets) {
+                if (x1 < 0 || x1 >= WIDTH || y1 < 0 || y1 >= HEIGHT) continue;
+
+                for (const [dx, dy] of OFFSETS) {
                     const x2 = x1 + dx;
                     const y2 = y1 + dy;
-                    if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) continue;
-                    if (MINE_DATA[x2][y2] === MINE) {
+                    if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                    if (MINE_DATA[x2][y2] === MINE_ENUM) {
                         count++;
                     }
                 }
                 VIEW_DATA[x1][y1] = count;
                 if (count === 0) {
-                    for (const [dx, dy] of offsets) {
+                    for (const [dx, dy] of OFFSETS) {
                         const x2 = x1 + dx;
                         const y2 = y1 + dy;
-                        if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) continue;
-                        if (VIEW_DATA[x2][y2] === -1) {
+                        if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                        if (VIEW_DATA[x2][y2] === CLEAR_ENUM) {
                             candidates.push([x2, y2]);
                         }
                     }
@@ -174,9 +178,9 @@
         }
 
         async function detonate(x, y) {
-            if (VIEW_DATA[x][y] !== -1) return;
-            if (MINE_DATA[x][y] === MINE) {
-                VIEW_DATA[x][y] = MINE;
+            if (VIEW_DATA[x][y] !== CLEAR_ENUM) return;
+            if (MINE_DATA[x][y] === MINE_ENUM) {
+                VIEW_DATA[x][y] = MINE_ENUM;
             } else {
                 clear([[x, y]]);
             }
@@ -185,12 +189,12 @@
 
         function format(x) {
             switch (x) {
-                case -1:
+                case CLEAR_ENUM:
                     return "";
-                case MINE:
+                case MINE_ENUM:
                     BOOM = true;
                     return "";
-                case 10:
+                case FLAG_ENUM:
                     return "F";
                 case 0:
                     return "";
@@ -201,14 +205,14 @@
 
         function getDataSlice(x0, y0, x1, y1) {
             const data = VIEW_DATA.slice(x0, x1).map((col) => col.slice(y0, y1).map(format));
-            //const column_indices = COLUMN_NAMES.slice(x0, x1);
+            //const column_headers = COLUMN_NAMES.slice(x0, x1);
             const num_columns = VIEW_DATA.length;
             const num_rows = VIEW_DATA[0].length;
         
             return {
                 num_rows,
                 num_columns,
-                //column_indices,
+                //column_headers,
                 data,
             };
         }
@@ -228,8 +232,8 @@
                     td.classList.toggle("unknown", false);
                     td.classList.toggle("flag", false);
                 } else {
-                    td.classList.toggle("unknown", VIEW_DATA[meta.x][meta.y] === -1);
-                    td.classList.toggle("flag", VIEW_DATA[meta.x][meta.y] === 10);
+                    td.classList.toggle("unknown", VIEW_DATA[meta.x][meta.y] === CLEAR_ENUM);
+                    td.classList.toggle("flag", VIEW_DATA[meta.x][meta.y] === FLAG_ENUM);
                 }
             }
         });
@@ -248,25 +252,14 @@
             if (event.target.tagName === "TD") {
                 const meta = table.get_meta(event.target);
                 const val = VIEW_DATA[meta.x][meta.y];
-                if (val > -1 && val < 9) {
+                if (val > CLEAR_ENUM && val < 9) {
                     const candidates = [];
-                    const offsets = [
-                        [-1, -1],
-                        [-1, 0],
-                        [-1, 1],
-                        [0, -1],
-                        [0, 0],
-                        [0, 1],
-                        [1, -1],
-                        [1, 0],
-                        [1, 1],
-                    ];
                     let count = 0;
-                    for (const [dx, dy] of offsets) {
+                    for (const [dx, dy] of OFFSETS) {
                         const x2 = meta.x + dx;
                         const y2 = meta.y + dy;
-                        if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) continue;
-                        if (VIEW_DATA[x2][y2] !== 10) {
+                        if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                        if (VIEW_DATA[x2][y2] !== FLAG_ENUM) {
                             candidates.push([x2, y2]);
                         } else {
                             count++;
@@ -275,10 +268,10 @@
                     if (count === val) {
                         clear(candidates);
                     }
-                } else if (val === 10) {
-                    VIEW_DATA[meta.x][meta.y] = -1;
-                } else if (val === -1) {
-                    VIEW_DATA[meta.x][meta.y] = 10;
+                } else if (val === FLAG_ENUM) {
+                    VIEW_DATA[meta.x][meta.y] = CLEAR_ENUM;
+                } else if (val === CLEAR_ENUM) {
+                    VIEW_DATA[meta.x][meta.y] = FLAG_ENUM;
                 }
                 table.draw({invalid_viewport: true});
             }

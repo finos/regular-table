@@ -48,7 +48,7 @@ export class RegularBodyViewModel extends ViewModel {
         return {td, metadata};
     }
 
-    draw(container_height, column_state, view_state, th = false, dcidx = 0) {
+    draw(container_height, column_state, view_state, th = false, dcidx) {
         const {cidx, column_data, id_column} = column_state;
         let {row_height} = view_state;
         let ridx = 0;

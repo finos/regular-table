@@ -49,7 +49,7 @@ describe("two_billion_rows.html Metadata", () => {
                 expect(JSON.parse(meta)).toEqual({
                     cidx: 16,
                     column: ["Column 16"],
-                    x: 0,
+                    x: 16,
                     y: 0,
                     size_key: "Column 16|undefined",
                     value: "16",

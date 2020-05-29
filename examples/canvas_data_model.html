@@ -132,8 +132,8 @@
                 }
                 return {
                     data,
-                    row_indices: y1 - y0 === 0 ? [] : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [clamp(y0 + z, 10), (y0 + z) % 10]),
-                    column_indices: column_names.slice(x0, x1).map((x) => [clamp(x, 10), x % 10]),
+                    row_headers: y1 - y0 === 0 ? [] : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [clamp(y0 + z, 10), (y0 + z) % 10]),
+                    column_headers: column_names.slice(x0, x1).map((x) => [clamp(x, 10), x % 10]),
                     num_rows: canvas.height,
                     num_columns: column_names.length,
                 };

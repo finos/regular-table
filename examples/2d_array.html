@@ -31,14 +31,14 @@
 
         function getDataSlice(x0, y0, x1, y1) {
             const data = DATA.slice(x0, x1).map((col) => col.slice(y0, y1));
-            const column_indices = COLUMN_NAMES.slice(x0, x1);
+            const column_headers = COLUMN_NAMES.slice(x0, x1);
             const num_columns = DATA.length;
             const num_rows = DATA[0].length;
         
             return {
                 num_rows,
                 num_columns,
-                column_indices,
+                column_headers,
                 data,
             };
         }

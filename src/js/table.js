@@ -64,10 +64,10 @@ export class RegularTableViewModel {
     async draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
-        const {data, row_indices, column_indices, __id_column: id_column} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+        const {data, row_headers, column_headers, __id_column: id_column} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
         const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
-        view_cache.config.column_pivots = Array.from(Array(column_indices?.[0]?.length - 1 || 0).keys());
-        view_cache.config.row_pivots = Array.from(Array(row_indices?.[0]?.length || 0).keys());
+        view_cache.config.column_pivots = Array.from(Array(column_headers?.[0]?.length - 1 || 0).keys());
+        view_cache.config.row_pivots = Array.from(Array(row_headers?.[0]?.length || 0).keys());
 
         const view_state = {
             viewport_width: 0,
@@ -81,13 +81,13 @@ export class RegularTableViewModel {
             cidx = 0,
             last_cells = [],
             first_col = true;
-        if (row_indices?.length > 0) {
+        if (row_headers?.length > 0) {
             const column_name = config.row_pivots.join(",");
 
-            // pad row_indices for embedded renderer
+            // pad row_headers for embedded renderer
             // TODO maybe dont need this - perspective compat
-            const row_index_length = row_indices.reduce((max, x) => Math.max(max, x.length), 0);
-            const column_data = row_indices.map((x) => {
+            const row_index_length = row_headers.reduce((max, x) => Math.max(max, x.length), 0);
+            const column_data = row_headers.map((x) => {
                 x.length = row_index_length;
                 return x;
             });
@@ -112,7 +112,7 @@ export class RegularTableViewModel {
             first_col = false;
             view_state.viewport_width += this._column_sizes.indices[0] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
             view_state.row_height = view_state.row_height || cont_body.row_height;
-            cidx = row_indices[0].length;
+            cidx = row_headers[0].length;
             if (!preserve_width) {
                 last_cells.push([cont_body.td || cont_head.th, cont_body.metadata || cont_head.metadata]);
             }
@@ -128,11 +128,11 @@ export class RegularTableViewModel {
                     viewport.end_col = missing_cidx + 1;
                     const new_col = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
                     data[dcidx] = new_col.data[0];
-                    if (column_indices) {
-                        column_indices[dcidx] = new_col.column_indices?.[0];
+                    if (column_headers) {
+                        column_headers[dcidx] = new_col.column_headers?.[0];
                     }
                 }
-                const column_name = column_indices?.[dcidx] || "";
+                const column_name = column_headers?.[dcidx] || "";
                 const column_data = data[dcidx];
                 const column_state = {
                     column_name,
@@ -142,7 +142,7 @@ export class RegularTableViewModel {
                     first_col,
                 };
                 const cont_head = this.header.draw(config, undefined, column_name, undefined, dcidx + cidx_offset, undefined, dcidx);
-                cont_body = this.body.draw(container_height, column_state, view_state, false, dcidx);
+                cont_body = this.body.draw(container_height, column_state, view_state, false, dcidx + cidx_offset);
                 first_col = false;
                 view_state.viewport_width += this._column_sizes.indices[cidx + cidx_offset] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
                 view_state.row_height = view_state.row_height || cont_body.row_height;

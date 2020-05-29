@@ -8,14 +8,14 @@
  *
  */
 
-describe("perspective_indices.html", () => {
+describe("perspective_headers.html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
     });
 
     describe("Loads a regular-table with perspective backend superstore example", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/perspective_indices.html");
+            await page.goto("http://localhost:8081/examples/perspective_headers.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 

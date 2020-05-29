@@ -35,11 +35,11 @@
 
         async function test_data_model(x0, y0, x1, y1) {
             const data = [];
-            const column_indices = [];
+            const column_headers = [];
             for (let i = x0; i < x1; i++) {
                 const column = [];
                 data.push(column);
-                column_indices.push([`Column ${i}`]);
+                column_headers.push([`Column ${i}`]);
                 for (let j = y0; j < y1; j++) {
                     column.push(formatter.format(j + i));
                 }
@@ -48,7 +48,7 @@
             return {
                 num_rows: NUM_ROWS,
                 num_columns: NUM_COLUMNS,
-                column_indices,
+                column_headers,
                 data,
             };
         }

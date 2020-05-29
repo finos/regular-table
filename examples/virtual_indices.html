@@ -36,26 +36,26 @@
 
         async function test_data_model(x0, y0, x1, y1) {
             const data = [];
-            const column_indices = [];
+            const column_headers = [];
             for (let i = x0; i < x1; i++) {
                 const column = [];
                 data.push(column);
-                column_indices.push([`Group ${clamp(i, 10)}`, `Column ${i}`]);
+                column_headers.push([`Group ${clamp(i, 10)}`, `Column ${i}`]);
                 for (let j = y0; j < y1; j++) {
                     column.push(formatter.format(j + i));
                 }
             }
 
-            const row_indices = [];
+            const row_headers = [];
             for (let j = y0; j < y1; j++) {
-                row_indices.push(["Group " + clamp(j, 10, 0), "Row " + j]);
+                row_headers.push(["Group " + clamp(j, 10, 0), "Row " + j]);
             }
 
             return {
                 num_rows: NUM_ROWS,
                 num_columns: NUM_COLUMNS,
-                row_indices,
-                column_indices,
+                row_headers,
+                column_headers,
                 data,
             };
         }

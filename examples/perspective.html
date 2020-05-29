@@ -96,11 +96,11 @@
                 }
 
                 const data = [];
-                const column_indices = [];
+                const column_headers = [];
                 for (const path of this._column_paths.slice(x0, x1)) {
                     const path_parts = path.split("|");
                     data.push(columns[path].map((x) => this._format(path_parts, x)));
-                    column_indices.push(path_parts);
+                    column_headers.push(path_parts);
                 }
 
                 return {
@@ -108,8 +108,8 @@
                     __schema: this._schema,
                     num_rows: this._num_rows,
                     num_columns: this._column_paths.length,
-                    row_indices: (columns.__ROW_PATH__ || []).map((x) => [this._tree_header(x, x.length === 3, true)]),
-                    column_indices,
+                    row_headers: (columns.__ROW_PATH__ || []).map((x) => [this._tree_header(x, x.length === 3, true)]),
+                    column_headers,
                     data,
                 };
             }
