@@ -34,13 +34,29 @@
             margin: 0;
             overflow: auto;
         }
-        th:not(:first-child), td {
+        regular-table tbody th {
+            text-align: center;
+        }
+        regular-table tbody th:nth-child(2),
+        regular-table thead tr:first-child th
+        {
+            border-right: 1px solid white;
+        }
+        regular-table thead tr:first-child th {
+            text-align: left;
+            padding-left: 6px;
+        }
+        regular-table thead th:first-child {
+            border-right: 1px solid white;
+        }
+        regular-table th:not(:first-child),
+        regular-table td {
             height: 20px !important;
             min-width: 20px !important;
             max-width: 20px !important;
             padding: 0px;
         }
-        th {           
+        regular-table th {           
             color: white;
             font-family: monospace;
         }
@@ -48,7 +64,6 @@
             vertical-align: top;
             border-bottom: 1px solid white;
             border-right: 0px !important;
-            text-align: left;
         }
         regular-table {
             position: absolute;
@@ -108,7 +123,7 @@
             scroll_container.removeChild(ref_image);
             scroll_container.appendChild(canvas);
         
-            table.addEventListener("regular-table-after-update", () => {
+            table.addStyleListener(() => {
                 const tds = table.querySelectorAll("td");
                 for (const td of tds) {
                     td.style.backgroundColor = td.textContent;
@@ -120,7 +135,7 @@
             const formatter = new Intl.NumberFormat("en-us");
             const clamp = (x, y) => formatter.format(Math.floor(x / y) * y);
         
-            await table.setDataModel((x0, y0, x1, y1) => {
+            table.setDataListener((x0, y0, x1, y1) => {
                 const data = [];
                 for (let i = x0; i < x1; i++) {
                     const column = [];

@@ -104,8 +104,6 @@
                 }
 
                 return {
-                    __id_column: columns.__ID__,
-                    __schema: this._schema,
                     num_rows: this._num_rows,
                     num_columns: this._column_paths.length,
                     row_headers: (columns.__ROW_PATH__ || []).map((x) => [this._tree_header(x, x.length === 3, true)]),
@@ -130,10 +128,14 @@
                         td.classList.toggle("pd-align-left", false);
                         if (parseFloat(metadata.value) > 0) {
                             td.classList.add("pd-positive");
+                            td.classList.toggle("pd-negative", false);
                         } else if (parseFloat(metadata.value) < 0) {
                             td.classList.add("pd-negative");
+                            td.classList.toggle("pd-positive", false);
                         }
                     } else {
+                        td.classList.toggle("pd-positive", false);
+                        td.classList.toggle("pd-negative", false);
                         td.classList.toggle("pd-align-right", false);
                         td.classList.toggle("pd-align-left", true);
                     }
@@ -186,8 +188,9 @@
             await data_model.set_view(table, view);
 
             const regular = document.getElementsByTagName("regular-table")[0];
-            await regular.addStyleModel(data_model.applyStyle.bind(data_model));
-            await regular.setDataModel(data_model.getData.bind(data_model));
+            regular.addStyleListener(data_model.applyStyle.bind(data_model));
+            regular.setDataListener(data_model.getData.bind(data_model));
+            await regular.draw();
         });
     </script>
 

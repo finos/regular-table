@@ -32,7 +32,6 @@
             padding: 0 !important;
             font-size: 16px;
         }
-
         regular-table td.unknown {
             background-color: #999;
             border-top: 4px solid #CCC;
@@ -40,18 +39,11 @@
             border-bottom: 4px solid #666;
             border-right: 4px solid #888;
         }
-
-        td.boom {
+        td.boom,td.boom span {
             color: red !important;
             background-color: red !important;
             border: 0px !important;
         }
-
-        td.boom span {
-            color: red !important;
-            background-color: red !important;
-        }
-
         regular-table {
             cursor: pointer;
         }
@@ -102,12 +94,8 @@
             color: black;
             background-color: white;
         }
-        /* .2-marker {
-            color: green;
-        } */
     </style>
 </head>
-
 <body>
 
     <regular-table></regular-table>
@@ -147,7 +135,14 @@
             MINE_DATA[Math.floor(Math.random() * WIDTH)][Math.floor(Math.random() * HEIGHT)] = 9;
         }
 
-        //const COLUMN_NAMES = Array.from(Array(WIDTH).keys());
+        function* neighborIterator(x, y) {
+            for (const [dx, dy] of OFFSETS) {
+                const x2 = x + dx;
+                const y2 = y + dy;
+                if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                yield [x2, y2];
+            }
+        }
 
         function clear(candidates) {
             while (candidates.length > 0) {
@@ -155,20 +150,14 @@
                 const [x1, y1] = candidates.pop();
                 if (x1 < 0 || x1 >= WIDTH || y1 < 0 || y1 >= HEIGHT) continue;
 
-                for (const [dx, dy] of OFFSETS) {
-                    const x2 = x1 + dx;
-                    const y2 = y1 + dy;
-                    if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                for (const [x2, y2] of neighborIterator(x1, y1)) {
                     if (MINE_DATA[x2][y2] === MINE_ENUM) {
                         count++;
                     }
                 }
                 VIEW_DATA[x1][y1] = count;
                 if (count === 0) {
-                    for (const [dx, dy] of OFFSETS) {
-                        const x2 = x1 + dx;
-                        const y2 = y1 + dy;
-                        if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                    for (const [x2, y2] of neighborIterator(x1, y1)) {
                         if (VIEW_DATA[x2][y2] === CLEAR_ENUM) {
                             candidates.push([x2, y2]);
                         }
@@ -203,23 +192,7 @@
             }
         }
 
-        function getDataSlice(x0, y0, x1, y1) {
-            const data = VIEW_DATA.slice(x0, x1).map((col) => col.slice(y0, y1).map(format));
-            //const column_headers = COLUMN_NAMES.slice(x0, x1);
-            const num_columns = VIEW_DATA.length;
-            const num_rows = VIEW_DATA[0].length;
-        
-            return {
-                num_rows,
-                num_columns,
-                //column_headers,
-                data,
-            };
-        }
-
-        const table = document.getElementsByTagName("regular-table")[0];
-
-        table.addEventListener("regular-table-after-update", () => {
+        function styleListener() {
             for (const td of table.get_tds()) {
                 const meta = table.get_meta(td);
                 const val = VIEW_DATA[meta.x][meta.y];
@@ -236,18 +209,28 @@
                     td.classList.toggle("flag", VIEW_DATA[meta.x][meta.y] === FLAG_ENUM);
                 }
             }
-        });
+        }
 
-        table.setDataModel(getDataSlice);
+        function dataListener(x0, y0, x1, y1) {
+            const data = VIEW_DATA.slice(x0, x1).map((col) => col.slice(y0, y1).map(format));
+            const num_columns = VIEW_DATA.length;
+            const num_rows = VIEW_DATA[0].length;
+        
+            return {
+                num_rows,
+                num_columns,
+                data,
+            };
+        }
 
-        table.addEventListener("click", (event) => {
+        function clickEventListener(event) {
             if (event.target.tagName === "TD") {
                 const meta = table.get_meta(event.target);
                 detonate(meta.x, meta.y);
             }
-        });
+        }
 
-        table.addEventListener("contextmenu", (event) => {
+        function contextMenuEventListener(event) {
             event.preventDefault();
             if (event.target.tagName === "TD") {
                 const meta = table.get_meta(event.target);
@@ -255,10 +238,7 @@
                 if (val > CLEAR_ENUM && val < 9) {
                     const candidates = [];
                     let count = 0;
-                    for (const [dx, dy] of OFFSETS) {
-                        const x2 = meta.x + dx;
-                        const y2 = meta.y + dy;
-                        if (x2 < 0 || x2 >= WIDTH || y2 < 0 || y2 >= HEIGHT) continue;
+                    for (const [x2, y2] of neighborIterator(meta.x, meta.y)) {
                         if (VIEW_DATA[x2][y2] !== FLAG_ENUM) {
                             candidates.push([x2, y2]);
                         } else {
@@ -275,9 +255,15 @@
                 }
                 table.draw({invalid_viewport: true});
             }
-        });
+        }
+
+        const table = document.getElementsByTagName("regular-table")[0];
+        table.setDataListener(dataListener);
+        table.addStyleListener(styleListener);
+        table.addEventListener("click", clickEventListener);
+        table.addEventListener("contextmenu", contextMenuEventListener);
+        table.draw();
     </script>
 
 </body>
-
 </html>

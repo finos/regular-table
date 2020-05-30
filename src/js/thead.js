@@ -55,7 +55,6 @@ export class RegularHeaderViewModel extends ViewModel {
         }
         const th = this._get_cell("TH", d, cidx);
         if (!th) return;
-        th.setAttribute("colspan", "1");
         return th;
     }
 
@@ -137,6 +136,7 @@ export class RegularHeaderViewModel extends ViewModel {
                     group_meta.vcidx = vcidx;
                     group_meta.size_key = metadata.size_key;
                 }
+                th.removeAttribute("colspan");
             }
             if (colspan > 1) {
                 th.setAttribute("colspan", colspan);

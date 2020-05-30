@@ -148,10 +148,10 @@ like this, containing the `data` slice, as well as the overall dimensions of
 ```
 
 To render this virtual data model to a regular HTML `<table>`, all you need to
-do is register this data model via the `setDataModel()` method:
+do is register this data model via the `setDataListener()` method:
 
 ```javascript
-regularTable.setDataModel(getDataSlice);
+regularTable.setDataListener(getDataSlice);
 ```
 
 This will render your regular HTML `<table>` !  Your DOM will look something
@@ -177,45 +177,6 @@ scroll, more data will be fetched from `getDataSlice()`, and parts of the
     </table>
 
 </regular-table>
-```
-
-## `async` Data Models
-
-With an `async` data model, it's easy to serve `getDataSlice()` remotely
-from `node.js` or re-implement the JSON response protocol in any language.
-Just return a `Promise()` from, or use an `async` function as an argument to,
-`setDataModel()`.  Your `<regular-table>` won't render until the
-`Promise` is resolved, nor will it call your data model function again until
-the current call is resolved or rejected.
-
-Here's an `async` example using a Web Worker, but the same principle
-applies to Web Sockets, `readFile()` or any other asynchronous
-source.  Returning a `Promise` blocks rendering until the Web Worker
-replies:
-
-```javascript
-let callback;
-
-worker.addEventListener("message", event => {
-    callback(event.data);
-});
-
-regularTable.setDataModel((...viewport) => {
-    return new Promise(function (resolve) {    
-        callback = resolve;
-        worker.postMessage(viewport);
-    });
-}); 
-```
-
-This example works by calling a simple remote call wrapper to
-`getDataSlice()` in your Web Worker:
-
-```javascript
-self.addEventListener("message", async (event) => {
-    const response = await getDataSlice.apply(null, event.data);
-    self.postMessage(response);
-});
 ```
 
 ## Column and Row Headers
@@ -408,6 +369,45 @@ to one `<th>` node in the resulting `<table>`:
 </regular-table>
 ```
 
+## `async` Data Models
+
+With an `async` data model, it's easy to serve `getDataSlice()` remotely
+from `node.js` or re-implement the JSON response protocol in any language.
+Just return a `Promise()` from, or use an `async` function as an argument to,
+`setDataListener()`.  Your `<regular-table>` won't render until the
+`Promise` is resolved, nor will it call your data model function again until
+the current call is resolved or rejected.
+
+Here's an `async` example using a Web Worker, but the same principle
+applies to Web Sockets, `readFile()` or any other asynchronous
+source.  Returning a `Promise` blocks rendering until the Web Worker
+replies:
+
+```javascript
+let callback;
+
+worker.addEventListener("message", event => {
+    callback(event.data);
+});
+
+regularTable.setDataListener((...viewport) => {
+    return new Promise(function (resolve) {    
+        callback = resolve;
+        worker.postMessage(viewport);
+    });
+}); 
+```
+
+This example works by calling a simple remote call wrapper to
+`getDataSlice()` in your Web Worker:
+
+```javascript
+self.addEventListener("message", async (event) => {
+    const response = await getDataSlice.apply(null, event.data);
+    self.postMessage(response);
+});
+```
+
 ## Development
 
 First install `dev_dependencies`:
@@ -437,4 +437,5 @@ yarn start
 ## Stats
 
 [![Build Status](https://travis-ci.org/jpmorganchase/regular-table.svg?branch=master)](https://travis-ci.org/jpmorganchase/regular-table)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table) -->
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table) 
+-->

@@ -215,8 +215,8 @@
         }
 
         window.addEventListener("DOMContentLoaded", async function () {
-            await TABLE.setDataModel(file_browser_model);
-            TABLE.addEventListener("regular-table-after-update", file_browser_style);
+            TABLE.setDataListener(file_browser_model);
+            TABLE.addStyleListener(file_browser_style);
             TABLE.addEventListener("click", file_browser_on_click);
             await TABLE.draw();
         });
