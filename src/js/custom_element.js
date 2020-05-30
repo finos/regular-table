@@ -64,7 +64,7 @@ export class RegularViewModel extends RegularViewEventModel {
      * @memberof RegularViewModel
      */
     get_ths() {
-        return this.table_model.body.cells.flat(1);
+        return this.table_model.header.cells.flat(1);
     }
 
     /**
