@@ -61,7 +61,8 @@
         }
 
         const table = document.getElementsByTagName("regular-table")[0];
-        table.setDataModel(test_data_model);
+        table.setDataListener(test_data_model);
+        table.draw();
     </script>
 
 </body>

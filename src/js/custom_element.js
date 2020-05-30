@@ -25,6 +25,7 @@ export class RegularViewModel extends RegularViewEventModel {
         this.register_listeners();
         this.setAttribute("tabindex", "0");
         this._column_sizes = {auto: {}, override: {}, indices: []};
+        this._style_callbacks = new Map();
         this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
         if (!this.table_model) return;
         if (this !== this._sticky_container.parentElement) {
@@ -90,11 +91,13 @@ export class RegularViewModel extends RegularViewEventModel {
         this.reset_viewport();
     }
 
-    async addStyleModel(view) {
-        return this.addEventListener("regular-table-after-update", view);
+    addStyleListener(view) {
+        const key = this._style_callbacks.size;
+        this._style_callbacks.set(key, view);
+        return key;
     }
 
-    async setDataModel(view) {
+    setDataListener(view) {
         let schema = {};
         let config = {
             row_pivots: [],
@@ -102,21 +105,6 @@ export class RegularViewModel extends RegularViewEventModel {
         };
 
         this._invalid_schema = true;
-        const options = this.infer_options(config);
         this._view_cache = {view, config, schema};
-        await this.draw(options);
-    }
-
-    save() {
-        const selected = this._get_selected();
-        if (selected !== undefined) {
-            return {selected};
-        }
-    }
-
-    restore(config) {
-        if (config.selected) {
-            this._set_selected(config.selected);
-        }
     }
 }

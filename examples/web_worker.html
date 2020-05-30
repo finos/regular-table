@@ -71,12 +71,14 @@
             callback(event.data);
         });
 
-        regularTable.setDataModel((...viewport) => {
+        regularTable.setDataListener((...viewport) => {
             return new Promise(function (resolve) {
                 callback = resolve;
                 worker.postMessage(viewport);
             });
         });
+
+        regularTable.draw();
     </script>
 
 </body>

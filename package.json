@@ -17,15 +17,15 @@
     "jsdelivr": "dist/umd/regular-table.js",
     "files": [
         "dist/**/*",
+        "less",
         "babel.config.js"
     ],
     "scripts": {
-        "prebuild": "mkdirp dist/esm dist/css dist/less",
-        "build:static": "cpx \"src/less/*\" dist/less && cpx \"examples/*\" dist/examples",
+        "prebuild": "mkdirp dist/esm dist/css",
         "build:babel": "babel src/js --source-maps --out-dir dist/esm",
         "build:webpack": "webpack --color",
         "build:less": "lessc src/less/material.less dist/css/material.css",
-        "build": "npm-run-all build:static build:babel build:webpack build:less",
+        "build": "npm-run-all build:babel build:webpack build:less",
         "clean": "rimraf dist",
         "lint": "eslint src examples/*.html",
         "fix": "eslint src examples/*.html --fix",

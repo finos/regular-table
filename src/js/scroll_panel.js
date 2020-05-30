@@ -8,7 +8,7 @@
  *
  */
 
-import {css, log_perf, html, isEqual, throttlePromise} from "./utils";
+import {css, log_perf, html, throttlePromise} from "./utils";
 import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DOUBLE_BUFFER_COLUMN} from "./constants";
 
 /**
@@ -274,16 +274,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} args
      * @memberof RegularVirtualTableViewModel
      */
-    _swap_out(args) {
+    async _swap_out(args) {
         if (!this._virtual_scrolling_disabled && this._needs_swap(args)) {
             this._sticky_container.replaceChild(this.table_model.table, this._sticky_container.children[0]);
         }
-        this.dispatchEvent(
-            new CustomEvent("regular-table-after-update", {
-                bubbles: true,
-                detail: this,
-            })
-        );
+        for (const callback of this._style_callbacks.values()) {
+            await callback({detail: this});
+        }
     }
 
     /**
@@ -337,25 +334,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             virtual_panel_px_size = Math.min(BROWSER_MAX_HEIGHT, nrows * row_height * zoom_factor);
         }
         this._virtual_panel.style.height = `${virtual_panel_px_size}px`;
-    }
-
-    /**
-     * Infer options for `draw()` from the previous render state, given a new
-     * perspective `config`.
-     *
-     * @param {*} config
-     * @returns
-     * @memberof RegularVirtualTableViewModel
-     */
-    infer_options(config) {
-        config = Object.assign({}, config);
-        if (!this._view_cache) {
-            return {};
-        }
-        const old_config = Object.assign({}, this._view_cache.config);
-        delete old_config["sort"];
-        delete config["sort"];
-        return {reset_scroll_position: !isEqual(config, old_config)};
     }
 
     /**
@@ -413,7 +391,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
             this._swap_in(swap_args);
             const last_cells = await this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns);
-            this._swap_out(swap_args);
+            await this._swap_out(swap_args);
             this.table_model.autosize_cells(last_cells);
             if (!preserve_width) {
                 this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);

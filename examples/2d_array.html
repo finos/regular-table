@@ -44,7 +44,8 @@
         }
 
         const table = document.getElementsByTagName("regular-table")[0];
-        table.setDataModel(getDataSlice);
+        table.setDataListener(getDataSlice);
+        table.draw();
     </script>
 
 </body>
