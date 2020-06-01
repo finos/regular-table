@@ -50,7 +50,7 @@ export class RegularTableViewModel {
      */
     autosize_cells(last_cells) {
         while (last_cells.length > 0) {
-            const [cell, metadata] = last_cells.shift();
+            const [cell, metadata] = last_cells.pop();
             const offsetWidth = cell.offsetWidth;
             this._column_sizes.row_height = this._column_sizes.row_height || cell.offsetHeight;
             this._column_sizes.indices[metadata.cidx] = offsetWidth;
@@ -99,22 +99,16 @@ export class RegularTableViewModel {
                 id_column,
                 first_col,
             };
-            cont_body = this.body.draw(
-                container_height,
-                column_state,
-                {
-                    ...view_state,
-                    cidx_offset: 0,
-                },
-                true
-            );
+            cont_body = this.body.draw(container_height, column_state, {...view_state, cidx_offset: 0}, true);
             const cont_head = this.header.draw(config, column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), undefined, 0, row_index_length, undefined);
             first_col = false;
             view_state.viewport_width += this._column_sizes.indices[0] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
             view_state.row_height = view_state.row_height || cont_body.row_height;
             cidx = row_headers[0].length;
             if (!preserve_width) {
-                last_cells.push([cont_body.td || cont_head.th, cont_body.metadata || cont_head.metadata]);
+                for (const {td, metadata} of cont_body.tds) {
+                    last_cells.push([td || cont_head.th, metadata || cont_head.metadata]);
+                }
             }
         }
 
@@ -149,7 +143,9 @@ export class RegularTableViewModel {
                 cidx++;
                 dcidx++;
                 if (!preserve_width) {
-                    last_cells.push([cont_body.td || cont_head.th, cont_body.metadata || cont_head.metadata]);
+                    for (const {td, metadata} of cont_body.tds) {
+                        last_cells.push([td || cont_head.th, metadata || cont_head.metadata]);
+                    }
                 }
 
                 if (view_state.viewport_width > container_width) {

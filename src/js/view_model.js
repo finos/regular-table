@@ -43,12 +43,30 @@ export class ViewModel {
         }
     }
 
+    _replace_cell(new_td, ridx, cidx) {
+        const {tr, row_container} = this._get_row(ridx);
+        let td = row_container[cidx];
+        if (td) {
+            tr.removeChild(td);
+            row_container.splice(cidx, 1, undefined);
+        }
+        return td;
+    }
+
     _get_cell(tag = "TD", ridx, cidx) {
         const {tr, row_container} = this._get_row(ridx);
         let td = row_container[cidx];
         if (!td) {
-            td = row_container[cidx] = document.createElement(tag);
-            tr.appendChild(td);
+            if (cidx < row_container.length) {
+                td = row_container[cidx] = document.createElement(tag);
+                tr.insertBefore(
+                    td,
+                    row_container.slice(cidx + 1).find((x) => x)
+                );
+            } else {
+                td = row_container[cidx] = document.createElement(tag);
+                tr.appendChild(td);
+            }
         }
         if (td.tagName !== tag) {
             const new_td = document.createElement(tag);
@@ -78,11 +96,11 @@ export class ViewModel {
         for (let i = 0; i < this.rows.length; i++) {
             const tr = this.rows[i];
             const row_container = this.cells[i];
-            let idx = cidx[i] || cidx;
+            this.cells[i] = row_container.slice(0, cidx[i] || cidx);
+            const idx = this.cells[i].filter((x) => x !== undefined).length;
             while (tr.children[idx]) {
                 tr.removeChild(tr.children[idx]);
             }
-            this.cells[i] = row_container.slice(0, idx);
         }
     }
 
