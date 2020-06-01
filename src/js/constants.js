@@ -13,7 +13,7 @@
 export const METADATA_MAP = new WeakMap();
 
 // Output runtime debug info like FPS.
-export const DEBUG = false;
+export const DEBUG = true;
 
 // Double buffer when the viewport scrolls columns, rows or when the
 // view is recreated.  Reduces render draw-in on some browsers, at the

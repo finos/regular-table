@@ -1,0 +1,108 @@
+<!--
+   
+   Copyright (c) 2020, the Regular Table Authors.
+   
+   This file is part of the Regular Table library, distributed under the terms of
+   the Apache License 2.0.  The full license can be found in the LICENSE file.
+
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <script src="../dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="../dist/css/material.css">
+
+    <style>
+        td {
+            color: #1078d1;
+        }
+
+        #fps {
+            border: 1px solid #CCC;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            bottom: 0;
+            right: 0;
+            padding: 12px;
+            margin: 12px;
+            font-family: "Roboto Mono";
+            font-size: 16px;
+            text-align: center;
+            vertical-align: middle;
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <regular-table></regular-table>
+
+    <div id="fps"></div>
+
+    <script>
+        const NUM_ROWS = 10000;
+        const NUM_COLUMNS = 1000;
+
+        const formatter = new Intl.NumberFormat("en-us");
+
+        const clamp = (x, y, offset = 0) => Math.floor(x / y) * y + offset + "";
+
+        async function test_data_model(x0, y0, x1, y1) {
+            const data = [];
+            const column_headers = [];
+            for (let i = x0; i < x1; i++) {
+                const column = [];
+                data.push(column);
+                column_headers.push([`Group ${clamp(i, 10)}`, `Column ${i}`]);
+                for (let j = y0; j < y1; j++) {
+                    column.push(formatter.format(j + i));
+                }
+            }
+
+            const row_headers = [];
+            for (let j = y0; j < y1; j++) {
+                row_headers.push(["Group " + clamp(j, 10, 0), "Row " + j]);
+            }
+
+            return {
+                num_rows: NUM_ROWS,
+                num_columns: NUM_COLUMNS,
+                row_headers,
+                column_headers,
+                data,
+            };
+        }
+
+        const table = document.getElementsByTagName("regular-table")[0];
+        table.setDataListener(test_data_model);
+        table.draw();
+
+        // Update FPS indicator
+        setInterval(() => {
+            const fps = table.getDrawFPS().real_fps.toFixed(2);
+            window.fps.textContent = `${fps} fps`;
+        }, 1000);
+
+        // Trigger diagonal scroll events in a loop forever.
+        (function run() {
+            table.scrollTop += 20;
+            table.scrollLeft += 10;
+            if (table.scrollLeft === table.scrollWidth - table.offsetWidth) {
+                table.scrollLeft = 0;
+            }
+            if (table.scrollTop === table.scrollHeight - table.offsetHeight) {
+                table.scrollTop = 0;
+            }
+            setTimeout(run);
+        })();
+    </script>
+
+</body>
+
+</html>

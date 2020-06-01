@@ -8,7 +8,6 @@
  *
  */
 
-import {_start_profiling_loop} from "./utils";
 import {RegularViewModel} from "./custom_element";
 
 /******************************************************************************
@@ -18,5 +17,3 @@ import {RegularViewModel} from "./custom_element";
  */
 
 window.customElements.define("regular-table", RegularViewModel);
-
-_start_profiling_loop();

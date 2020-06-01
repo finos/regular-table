@@ -8,8 +8,6 @@
  *
  */
 
-import {DEBUG} from "./constants";
-
 /******************************************************************************
  *
  * Events
@@ -57,25 +55,26 @@ export async function getCellConfig({view, config}, row_idx, col_idx) {
  *
  */
 
-let LOG = [];
+let AVG = 0,
+    TOTAL = 0,
+    START = performance.now();
 
-function log_fps() {
-    const avg = LOG.reduce((x, y) => x + y, 0) / LOG.length;
-    const rfps = LOG.length / 5;
-    const vfps = 1000 / avg;
-    const nframes = LOG.length;
-    console.log(`${avg.toFixed(2)} ms/frame   ${rfps} rfps   ${vfps.toFixed(2)} vfps   (${nframes} frames in 5s)`);
-    LOG = [];
+export function get_draw_fps() {
+    const now = performance.now();
+    const elapsed = now - START;
+    const avg = AVG;
+    const real_fps = (TOTAL * 1000) / elapsed;
+    const virtual_fps = 1000 / avg;
+    const num_frames = TOTAL;
+    AVG = 0;
+    TOTAL = 0;
+    START = now;
+    return {avg, real_fps, virtual_fps, num_frames, elapsed};
 }
 
 export function log_perf(x) {
-    LOG.push(x);
-}
-
-export function _start_profiling_loop() {
-    if (DEBUG) {
-        setInterval(log_fps, 5000);
-    }
+    AVG = (AVG * TOTAL + x) / (TOTAL + 1);
+    TOTAL += 1;
 }
 
 /******************************************************************************
