@@ -313,7 +313,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     scrollTo(x, y, ncols, nrows) {
         const row_height = this._virtual_panel.offsetHeight / nrows;
         this.scrollTop = row_height * y;
-        this.scrollLeft = (x / (this._max_scroll_column() || ncols)) * this.scrollWidth;
+        this.scrollLeft = (x / (this._max_scroll_column() || ncols)) * (this.scrollWidth - this.offsetWidth);
     }
 
     /**

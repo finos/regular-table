@@ -26,7 +26,7 @@ describe("two_billion_rows.html Metadata", () => {
                 column: ["Column 0"],
                 x: 0,
                 y: 0,
-                size_key: "Column 0|undefined",
+                size_key: "0",
                 value: "0",
             });
         });
@@ -51,7 +51,7 @@ describe("two_billion_rows.html Metadata", () => {
                     column: ["Column 16"],
                     x: 16,
                     y: 0,
-                    size_key: "Column 16|undefined",
+                    size_key: "16",
                     value: "16",
                 });
             });
@@ -77,7 +77,7 @@ describe("two_billion_rows.html Metadata", () => {
                     column: ["Column 0"],
                     x: 0,
                     y: 200002,
-                    size_key: "Column 0|undefined",
+                    size_key: "0",
                     value: "200,002",
                 });
             });

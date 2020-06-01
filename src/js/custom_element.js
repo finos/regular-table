@@ -120,7 +120,27 @@ export class RegularViewModel extends RegularViewEventModel {
         return key;
     }
 
-    setDataListener(view) {
+    /**
+     *
+     * @param {Function<Promise<DataResponse>>} dataListener
+     * `dataListener` is called by to request a rectangular section of data
+     * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
+     * object with this structure:
+     * ```
+     *                   column_headers:              num_columns:
+     *                   [["X00", ["X00",  ["X00",    X > 3
+     *                     "X0"],  "X1"],   "X2"]]
+     *
+     * row_headers:      data:
+     * [["Y00", "Y0"]    [["A",   [true,   [0,
+     *  ["Y00", "Y1"]      "B",    false,   1,
+     *  ["Y00", "Y2"]]     "C"],   true]],  2]]
+     *
+     * num_rows:
+     * Y > 3
+     * ```
+     */
+    setDataListener(dataListener) {
         let schema = {};
         let config = {
             row_pivots: [],
@@ -128,6 +148,6 @@ export class RegularViewModel extends RegularViewEventModel {
         };
 
         this._invalid_schema = true;
-        this._view_cache = {view, config, schema};
+        this._view_cache = {view: dataListener, config, schema};
     }
 }

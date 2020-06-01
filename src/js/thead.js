@@ -68,13 +68,13 @@ export class RegularHeaderViewModel extends ViewModel {
         return metadata;
     }
 
-    _draw_th(column, column_name, type, th) {
+    _draw_th(column, column_name, type, th, dcidx) {
         const metadata = this._get_or_create_metadata(th);
         metadata.column_path = column;
         metadata.column_name = column_name;
         metadata.column_type = type;
         metadata.is_column_header = true;
-        metadata.size_key = `${column}|${type}`;
+        metadata.size_key = dcidx + "";
         const auto_width = this._column_sizes.auto[metadata.size_key];
         const override_width = this._column_sizes.override[metadata.size_key];
         if (override_width) {
@@ -100,6 +100,7 @@ export class RegularHeaderViewModel extends ViewModel {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
         if (header_levels === 0) return {};
         let th,
+            metadata,
             column_name,
             is_new_group = false;
         for (let d = 0; d < header_levels; d++) {
@@ -112,7 +113,7 @@ export class RegularHeaderViewModel extends ViewModel {
                     th.setAttribute("colspan", this._group_header_cache[d][2]);
                 } else {
                     th = this._draw_group_th(this._offset_cache, d, column_name, []);
-                    const metadata = this._draw_group(parts, column_name, type, th);
+                    metadata = this._draw_group(parts, column_name, type, th);
                     this._group_header_cache[d] = [metadata, th, 1];
                     is_new_group = true;
                 }
@@ -127,10 +128,9 @@ export class RegularHeaderViewModel extends ViewModel {
                 // Update the group header's metadata such that each group
                 // header has the same metadata coordinates of its rightmost
                 // column.
-                const metadata = this._draw_th(alias || parts, column_name, type, th);
+                metadata = this._draw_th(alias || parts, column_name, type, th, dcidx);
                 metadata.vcidx = vcidx;
                 metadata.cidx = cidx;
-                metadata.x = dcidx;
                 for (const [group_meta] of this._group_header_cache) {
                     group_meta.cidx = cidx;
                     group_meta.vcidx = vcidx;
@@ -138,15 +138,15 @@ export class RegularHeaderViewModel extends ViewModel {
                 }
                 th.removeAttribute("colspan");
             }
+            if (metadata) {
+                metadata.x = dcidx;
+                metadata.column_header_y = d;
+            }
             if (colspan > 1) {
                 th.setAttribute("colspan", colspan);
             }
         }
 
-        if (header_levels === 1 && dcidx === undefined) {
-            th.setAttribute("colspan", 1);
-        }
-        const metadata = this._get_or_create_metadata(th);
         this._clean_rows(this._offset_cache.length);
         return {th, metadata};
     }

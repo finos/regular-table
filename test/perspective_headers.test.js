@@ -46,13 +46,7 @@ describe("perspective_headers.html", () => {
                 for (const tr of first_tr) {
                     cell_values.push(await page.evaluate((tr) => tr.innerHTML, tr));
                 }
-                expect(cell_values).toEqual([
-                    '<span class="pd-tree-container"><span class="pd-row-header-icon">remove</span><span class="pd-group-name">TOTAL</span></span>',
-                    '<span class="pd-tree-container"><span class="pd-tree-group"></span><span class="pd-row-header-icon">remove</span><span class="pd-group-name">Central</span></span>',
-                    '<span class="pd-tree-container"><span class="pd-tree-group"></span><span class="pd-tree-group"></span><span class="pd-row-header-icon">remove</span><span class="pd-group-name">Illinois</span></span>',
-                    '<span class="pd-tree-container"><span class="pd-tree-group"></span><span class="pd-tree-group"></span><span class="pd-tree-group"></span><span class="pd-group-name pd-group-leaf">Arlington Heights</span></span>',
-                    '<span class="pd-tree-container"><span class="pd-tree-group"></span><span class="pd-tree-group"></span><span class="pd-tree-group"></span><span class="pd-group-name pd-group-leaf">Aurora</span></span>',
-                ]);
+                expect(cell_values).toEqual(["", "", "", "Central", "", "", "", "Illinois", "", "", "Arlington Heights", "Aurora"]);
             });
         });
     });

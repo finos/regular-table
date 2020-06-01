@@ -33,6 +33,18 @@
             border-right: 1px solid #ddd;
         }
 
+        regular-table tbody th:not(:last-of-type) {
+            vertical-align: top;
+            max-width: 40px;
+            min-width: 40px;
+        }
+
+
+        regular-table tbody th:last-of-type {
+            max-width: 100px;
+            min-width: 100px;
+        }
+
     </style>
 </head>
 
@@ -41,8 +53,6 @@
     <regular-table></regular-table>
 
     <script>
-        const TEMPLATE = document.createElement("template");
-
         const FORMATTERS = {
             datetime: Intl.DateTimeFormat("en-us"),
             date: Intl.DateTimeFormat("en-us"),
@@ -55,24 +65,13 @@
         };
 
         class PerspectiveDataModel {
-            _tree_header_levels(path, is_open, is_leaf) {
-                const tree_levels = path.map(() => '<span class="pd-tree-group"></span>');
-                if (!is_leaf) {
-                    const group_icon = is_open ? "remove" : "add";
-                    const tree_button = `<span class="pd-row-header-icon">${group_icon}</span>`;
-                    tree_levels.push(tree_button);
-                }
-
-                return tree_levels.join("");
-            }
-
-            _tree_header(path, is_leaf, is_open) {
-                const name = path.length === 0 ? "TOTAL" : path[path.length - 1];
-                const header_classes = is_leaf ? "pd-group-name pd-group-leaf" : "pd-group-name";
-                const tree_levels = this._tree_header_levels(path, is_open, is_leaf);
-                const header_text = name;
-                TEMPLATE.innerHTML = `<span class="pd-tree-container">${tree_levels}<span class="${header_classes}">${header_text}</span></span>`;
-                return TEMPLATE.content.firstChild;
+            _tree_header(paths = []) {
+                return paths.map((path) =>
+                    path
+                        .slice(0, path.length - 1)
+                        .fill("")
+                        .concat(path[path.length - 1])
+                );
             }
         
             _format(parts, val) {
@@ -83,7 +82,7 @@
                 return FORMATTERS[type]?.format(val) || val;
             }
 
-            async getData(x0, y0, x1, y1) {
+            async dataListener(x0, y0, x1, y1) {
                 let columns = {};
                 if (x1 - x0 > 0 && y1 - y0 > 0) {
                     columns = await this.view.to_columns({
@@ -106,13 +105,13 @@
                 return {
                     num_rows: this._num_rows,
                     num_columns: this._column_paths.length,
-                    row_headers: (columns.__ROW_PATH__ || []).map((x) => [this._tree_header(x, x.length === 3, true)]),
+                    row_headers: this._tree_header(columns.__ROW_PATH__),
                     column_headers,
                     data,
                 };
             }
 
-            applyStyle({detail: regularTable}) {
+            styleListener({detail: regularTable}) {
                 for (const td of regularTable.querySelectorAll("td, thead tr:last-child th")) {
                     const metadata = regularTable.get_meta(td);
                     let type;
@@ -184,12 +183,12 @@
                 columns: ["Sales", "Profit"],
             });
 
-            const data_model = new window.PerspectiveDataModel();
-            await data_model.set_view(table, view);
+            const model = new window.PerspectiveDataModel();
+            await model.set_view(table, view);
 
             const regular = document.getElementsByTagName("regular-table")[0];
-            regular.addStyleListener(data_model.applyStyle.bind(data_model));
-            regular.setDataListener(data_model.getData.bind(data_model));
+            regular.addStyleListener(model.styleListener.bind(model));
+            regular.setDataListener(model.dataListener.bind(model));
             await regular.draw();
         });
     </script>
