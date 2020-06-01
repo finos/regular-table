@@ -10,14 +10,13 @@
 #
 
 A regular Javascript library for the browser, `regular-table` exports
-a single [Custom
-Element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
+a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
 named `<regular-table>`,
 which renders a regular HTML `<table>` to a `fixed` position within a scollable
 viewport.  Only visible cells are rendered and queried from a natively `async`
 virtual data model, making `regular-table` ideal for enormous or remote data
-sets.  Use it to build Data Grids,
-Spreadsheets, Pivot Tables, File Trees, or anytime you need:
+sets.  Use it to build Data Grids, Spreadsheets, Pivot Tables, File Trees, or
+anytime you need:
 
 * Just a regular `<table>`.
 * Virtually rendered for high-performance.
@@ -122,14 +121,10 @@ this rectangular `slice` of `DATA`:
 
 ```javascript
 function getDataSlice(x0, y0, x1, y1) {
-    const data = DATA.slice(x0, x1).map(col => col.slice(y0, y1));
-    const num_columns = DATA.length;
-    const num_rows = DATA[0].length;
-  
     return {
-        num_rows,
-        num_columns,
-        data
+        num_rows: num_rows = DATA[0].length,
+        num_columns: DATA.length,
+        data: DATA.slice(x0, x1).map(col => col.slice(y0, y1))
     };
 }
 ```
@@ -181,7 +176,7 @@ scroll, more data will be fetched from `getDataSlice()`, and parts of the
 </regular-table>
 ```
 
-## Column and Row Headers
+### Column and Row Headers
 
 `regular-table` can also generate Hierarchial Row and Column Headers, using
 `<th>` elements which layout in a `fixed` position within the virtual table.
@@ -222,16 +217,11 @@ const COLUMN_HEADERS = [
 ];
 
 function getDataSlice(x0, y0, x1, y1) {
-    const data = DATA.slice(x0, x1).map(col => col.slice(y0, y1));
-    const column_headers = COLUMN_NAMES.slice(x0, x1);
-    const num_columns = DATA.length;
-    const num_rows = DATA[0].length;
-  
     return {
-        column_headers, 
-        num_rows,
-        num_columns,
-        data
+        column_headers: COLUMN_NAMES.slice(x0, x1), 
+        num_rows: DATA[0].length,
+        num_columns: DATA.length,
+        data: DATA.slice(x0, x1).map(col => col.slice(y0, y1));
     };
 }
 ```
@@ -280,7 +270,7 @@ Resulting HTML:
 </regular-table>
 ```
 
-##  Hierarchial/Group Headers
+###  Hierarchial/Group Headers
 
 `regular-table` supports multiple `<tr>` of `<th>`, and also uses `colspan` and
 `rowspan` to merge simple consecutive names, which allows description of simple

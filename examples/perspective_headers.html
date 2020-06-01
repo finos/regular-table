@@ -83,7 +83,7 @@
                 return FORMATTERS[type]?.format(val) || val;
             }
 
-            async getData(x0, y0, x1, y1) {
+            async dataListener(x0, y0, x1, y1) {
                 let columns = {};
                 if (x1 - x0 > 0 && y1 - y0 > 0) {
                     columns = await this.view.to_columns({
@@ -112,7 +112,7 @@
                 };
             }
 
-            applyStyle({detail: regularTable}) {
+            styleListener({detail: regularTable}) {
                 for (const td of regularTable.querySelectorAll("td, thead tr:last-child th")) {
                     const metadata = regularTable.get_meta(td);
                     let type;
@@ -184,12 +184,12 @@
                 columns: ["Sales", "Profit"],
             });
 
-            const data_model = new window.PerspectiveDataModel();
-            await data_model.set_view(table, view);
+            const model = new window.PerspectiveDataModel();
+            await model.set_view(table, view);
 
             const regular = document.getElementsByTagName("regular-table")[0];
-            regular.addStyleListener(data_model.applyStyle.bind(data_model));
-            regular.setDataListener(data_model.getData.bind(data_model));
+            regular.addStyleListener(model.styleListener.bind(model));
+            regular.setDataListener(model.dataListener.bind(model));
             await regular.draw();
         });
     </script>

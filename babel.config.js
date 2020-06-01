@@ -8,8 +8,6 @@ module.exports = {
                     node: "12",
                     ios: "13",
                 },
-                useBuiltIns: "usage",
-                corejs: 3,
             },
         ],
     ],
@@ -21,4 +19,5 @@ module.exports = {
         "./scripts/babel-plugin-html-template.js",
         "./scripts/babel-plugin-css-template.js",
     ],
+    sourceMaps: true,
 };

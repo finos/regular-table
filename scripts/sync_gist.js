@@ -19,7 +19,7 @@ for (const file in hashes) {
 
         // Retarget source assets to jsdelivr
         let source = fs.readFileSync(`examples/${file}.html`).toString();
-        source = source.replace(/\.\.\/node_modules\//g, `https://cdn.jsdelivr.net/npm/@${pkg.version}/`);
+        source = source.replace(/\.\.\/node_modules\//g, `https://cdn.jsdelivr.net/npm/`);
         source = source.replace(/\.\.\//g, `https://cdn.jsdelivr.net/npm/regular-table@${pkg.version}/`);
 
         fs.writeFileSync(`dist/${hashes[file]}/index.html`, source);

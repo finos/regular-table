@@ -21,18 +21,17 @@
         "babel.config.js"
     ],
     "scripts": {
-        "prebuild": "mkdirp dist/esm dist/css",
-        "build:babel": "babel src/js --source-maps --out-dir dist/esm",
-        "build:webpack": "webpack --color",
+        "build:babel": "babel src/js --out-dir dist/esm",
+        "build:webpack": "webpack",
         "build:less": "lessc src/less/material.less dist/css/material.css",
-        "build": "npm-run-all build:babel build:webpack build:less",
+        "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
         "lint": "eslint src examples/*.html",
-        "fix": "eslint src examples/*.html --fix",
-        "test": "yarn jest --verbose",
+        "fix": "yarn lint --fix",
+        "test": "jest --noStackTrace",
         "start": "http-server",
-        "watch:babel": "babel src/js --source-maps --watch --out-dir dist/esm",
-        "watch:webpack": "webpack --watch --color",
+        "watch:babel": "babel src/js --watch --out-dir dist/esm",
+        "watch:webpack": "webpack --watch",
         "watch": "npm-run-all -p watch:*"
     },
     "publishConfig": {
