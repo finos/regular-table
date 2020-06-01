@@ -11,6 +11,7 @@
 import {METADATA_MAP} from "./constants";
 import {RegularTableViewModel} from "./table";
 import {RegularViewEventModel} from "./events";
+import {get_draw_fps} from "./utils";
 
 /**
  * Regular's "public" API.  See the `superstore-custom-grid.html` simple
@@ -91,9 +92,31 @@ export class RegularViewModel extends RegularViewEventModel {
         this.reset_viewport();
     }
 
-    addStyleListener(view) {
+    /**
+     * Get performance statistics about this `<regular-table>`.  Calling this
+     * method resets the internal state, which makes it convenient to measure
+     * performance at regular intervals (see example).
+     * @returns {*} An object with performance statistics about calls to
+     * `draw()`, with the following keys:
+     * * `avg` - Avergage milliseconds per call
+     * * `real_fps` - `num_frames` / `elapsed`
+     * * `virtual_fps` - `elapsed` / `avg`
+     * * `num_frames` - Number of frames rendered
+     * * `elapsed` - Number of milliseconds since last call to `getDrawFPS()`
+     * @example
+     * const table = document.getElementById("my_regular_table");
+     * setInterval(() => {
+     *     const {real_fps} = table.getDrawFPS();
+     *     console.log(`Measured ${fps} fps`)
+     * });
+     */
+    getDrawFPS() {
+        return get_draw_fps();
+    }
+
+    addStyleListener(styleListener) {
         const key = this._style_callbacks.size;
-        this._style_callbacks.set(key, view);
+        this._style_callbacks.set(key, styleListener);
         return key;
     }
 
