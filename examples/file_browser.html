@@ -184,20 +184,6 @@
             };
         }
 
-        function styleColumnSortArrows(sort, ths) {
-            const sort_obj = Object.fromEntries(sort);
-            for (const th of ths) {
-                let col = th.firstElementChild.textContent;
-                if (!col) {
-                    col = "path";
-                    th.firstElementChild.textContent = col;
-                }
-
-                const sort_dir = sort_obj[col];
-                th.className = sort_dir ? `rt-sort-${sort_dir}` : "";
-            }
-        }
-
         function updateSort(sort, column_name, multi) {
             const current_idx = sort.findIndex((x) => x[0] === column_name);
             if (current_idx > -1) {
@@ -222,7 +208,23 @@
             return sort;
         }
 
-        function sortFileSystemContentsList(contents_list, sort, ths, column_name, multi) {
+        function _flattenContents(contents, sorter, contents_list) {
+            if (!contents) {
+                // bail
+                return contents_list;
+            }
+
+            for (const subcontents of sorter ? contents.contents?.sort(sorter) : contents.contents) {
+                contents_list.push(subcontents);
+                if (subcontents.is_open) {
+                    _flattenContents(subcontents, sorter, contents_list);
+                }
+            }
+
+            return contents_list;
+        }
+
+        function getSortedContents(root, sort, expand, column_name, multi) {
             // update sort orders, if requested
             if (column_name) {
                 sort = updateSort(sort, column_name, multi);
@@ -231,27 +233,27 @@
                 sort = sort.length > 0 ? sort : [["path", "asc"]];
             }
 
-            // sort the data
-            contents_list.sort(contentsSorterClosure(sort));
+            const sorter = contentsSorterClosure(sort);
 
-            // style column header sort icons
-            styleColumnSortArrows(sort, ths);
-
-            return sort;
+            // get contents, then sort/flatten and return them
+            const contents = window.getFileSystemContents(root, expand);
+            return [_flattenContents(contents, sorter, []), sort];
         }
 
-        window.sortFileSystemContentsList = sortFileSystemContentsList;
+        window.getSortedContents = getSortedContents;
     </script>
 
     <script>
         const COLUMN_HEADERS = ["modified", "kind", "writable"];
         const DATE_FORMATTER = new Intl.DateTimeFormat("en-us");
-        let SORT;
+        let ROOT = [];
         const TABLE = document.getElementsByTagName("regular-table")[0];
         const TEMPLATE = document.createElement("template");
-        const VIEW_STATE = window.getFileSystemContents([], true).contents;
 
-        // Splice out the contents of the collapsed node and any expanded subnodes
+        // set initial sort while also creating the root contents
+        let [VIEW_STATE, SORT] = window.getSortedContents(ROOT, [["path", "asc"]], true);
+
+        // splice out the contents of the collapsed node and any expanded subnodes
         async function collapse(rix) {
             VIEW_STATE[rix].is_open = false;
             const contents = window.getFileSystemContents(VIEW_STATE[rix].path);
@@ -266,8 +268,9 @@
 
         async function expand(rix) {
             VIEW_STATE[rix].is_open = true;
-            const contents = window.getFileSystemContents(VIEW_STATE[rix].path, true);
-            VIEW_STATE.splice(rix + 1, 0, ...contents.contents);
+
+            const [contents_list] = window.getSortedContents(VIEW_STATE[rix].path, SORT, true);
+            VIEW_STATE.splice(rix + 1, 0, ...contents_list);
         }
 
         function tree_header_levels(path, is_open, is_leaf) {
@@ -311,6 +314,14 @@
         }
 
         function file_browser_style() {
+            // style the column header sort carets
+            const sort_obj = Object.fromEntries(SORT);
+            for (const th of TABLE.get_ths()) {
+                const sort_dir = sort_obj[th.firstElementChild.textContent || "path"];
+                th.className = sort_dir ? `rt-sort-${sort_dir}` : "";
+            }
+
+            // style the browser's filetype icons
             const trs = TABLE.querySelectorAll("tr");
             for (const tr of trs) {
                 const {children} = tr;
@@ -333,7 +344,7 @@
                 const column_name = metadata.column_name || "path";
                 const multi = event.shiftKey;
 
-                SORT = window.sortFileSystemContentsList(VIEW_STATE, [...SORT], TABLE.get_ths(), column_name, multi);
+                [VIEW_STATE, SORT] = window.getSortedContents(ROOT, SORT, false, column_name, multi);
                 TABLE.draw({invalid_viewport: true});
             }
         }
@@ -354,10 +365,6 @@
             TABLE.addClickListener(file_browser_on_sort_click);
             TABLE.addClickListener(file_browser_on_tree_click);
             TABLE.addStyleListener(file_browser_style);
-            await TABLE.draw();
-
-            // do initial sort
-            SORT = window.sortFileSystemContentsList(VIEW_STATE, [["path", "asc"]], TABLE.get_ths());
             await TABLE.draw();
         });
     </script>

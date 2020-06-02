@@ -143,9 +143,9 @@ describe("file_browser.html", () => {
                 const first_tr = await page.$(first_tr_selector);
                 const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent.trim()), first_tr);
                 expect(cell_values).toEqual([
-                    "file_89.txt",
-                    "4/9/1972",
-                    "text",
+                    "add jig/",
+                    "1/10/1972",
+                    "dir",
                     "false"
                 ]);
             });
