@@ -74,8 +74,8 @@ describe("file_browser.html", () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent.trim()), first_tr);
             expect(cell_values).toEqual([
-                "file_69.txt",
-                "3/21/1971",
+                "file_76.txt",
+                "3/28/1971",
                 "text",
                 "false",
             ]);
