@@ -58,25 +58,30 @@ export class RegularHeaderViewModel extends ViewModel {
         return th;
     }
 
-    _draw_group(column, column_name, type, th) {
+    _draw_group(column, column_name, th) {
         const metadata = this._get_or_create_metadata(th);
         metadata.column_path = column;
         metadata.column_name = column_name;
-        metadata.column_type = type;
         metadata.is_column_header = false;
         th.className = "";
         return metadata;
     }
 
-    _draw_th(column, column_name, type, th, dcidx) {
+    _draw_th(column, column_name, th, cidx, size_key) {
         const metadata = this._get_or_create_metadata(th);
         metadata.column_path = column;
         metadata.column_name = column_name;
-        metadata.column_type = type;
         metadata.is_column_header = true;
-        metadata.size_key = dcidx + "";
-        const auto_width = this._column_sizes.auto[metadata.size_key];
-        const override_width = this._column_sizes.override[metadata.size_key];
+        metadata.size_key = size_key.length ? size_key[0] : size_key; // FIXME
+
+        let auto_width, override_width;
+        if (size_key.length > 1) {
+            auto_width = size_key.reduce((total, row_header) => this._column_sizes.auto[row_header] + total, 0);
+            override_width = size_key.reduce((total, row_header) => this._column_sizes.override[row_header] + total, 0);
+        } else {
+            auto_width = this._column_sizes.auto[metadata.size_key];
+            override_width = this._column_sizes.override[metadata.size_key];
+        }
         if (override_width) {
             th.classList.toggle("pd-cell-clip", auto_width > override_width);
             th.style.minWidth = override_width + "px";
@@ -96,7 +101,7 @@ export class RegularHeaderViewModel extends ViewModel {
     _group_header_cache = [];
     _offset_cache = [];
 
-    draw(config, alias, parts, type, cidx, colspan, dcidx) {
+    draw(config, alias, parts, colspan, cidx, dcidx, size_key) {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
         if (header_levels === 0) return {};
         let th,
@@ -113,7 +118,7 @@ export class RegularHeaderViewModel extends ViewModel {
                     th.setAttribute("colspan", this._group_header_cache[d][2]);
                 } else {
                     th = this._draw_group_th(this._offset_cache, d, column_name, []);
-                    metadata = this._draw_group(parts, column_name, type, th);
+                    metadata = this._draw_group(parts, column_name, th);
                     this._group_header_cache[d] = [metadata, th, 1];
                     is_new_group = true;
                 }
@@ -121,22 +126,20 @@ export class RegularHeaderViewModel extends ViewModel {
                 if (is_new_group) {
                     this._redraw_previous(this._offset_cache, d);
                 }
-                const vcidx = this._offset_cache[d];
                 const sort_dir = config.sort?.filter((x) => x[0] === column_name).map((x) => x[1]);
                 th = this._draw_group_th(this._offset_cache, d, column_name, sort_dir);
 
                 // Update the group header's metadata such that each group
                 // header has the same metadata coordinates of its rightmost
                 // column.
-                metadata = this._draw_th(alias || parts, column_name, type, th, dcidx);
-                metadata.vcidx = vcidx;
+                metadata = this._draw_th(alias || parts, column_name, th, cidx, size_key);
                 metadata.cidx = cidx;
                 for (const [group_meta] of this._group_header_cache) {
                     group_meta.cidx = cidx;
-                    group_meta.vcidx = vcidx;
                     group_meta.size_key = metadata.size_key;
                 }
                 th.removeAttribute("colspan");
+                th.dataset.sizeKey = metadata.size_key;
             }
             if (metadata) {
                 metadata.x = dcidx;

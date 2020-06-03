@@ -37,7 +37,7 @@
         regular-table tbody th {
             text-align: center;
         }
-        regular-table tbody th:nth-child(2),
+        regular-table tbody th:last-of-type,
         regular-table thead tr:first-child th
         {
             border-right: 1px solid white;
@@ -60,10 +60,10 @@
             color: white;
             font-family: monospace;
         }
-        tbody th:first-child {
+        tbody th[rowspan] {
             vertical-align: top;
             border-bottom: 1px solid white;
-            border-right: 0px !important;
+            /* border-right: 0px !important; */
         }
         regular-table {
             position: absolute;

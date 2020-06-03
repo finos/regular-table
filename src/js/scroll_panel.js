@@ -197,7 +197,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     _max_scroll_column(num_columns) {
         let width = 0;
         if (this._view_cache.config.row_pivots.length > 0) {
-            width = this._column_sizes.indices[0];
+            for (const w of this._column_sizes.indices.slice(0, this._view_cache.config.row_pivots.length)) {
+                width += w;
+            }
         }
         let max_scroll_column = num_columns;
         while (width < this._container_size.width && max_scroll_column >= 0) {
