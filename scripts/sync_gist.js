@@ -14,20 +14,50 @@ const hashes = {
 
 for (const file in hashes) {
     try {
-        child_process.execSync(`git clone https://gist.github.com/${hashes[file]}.git dist/${hashes[file]}`);
+        // Create project in a tmp directory
+        if (fs.existsSync(`dist/${hashes[file]}`)) {
+            console.log(`dist/${hashes[file]} exists, skipping checkout`);
+        } else {
+            child_process.execSync(`git clone https://gist.github.com/${hashes[file]}.git dist/${hashes[file]}`);
+        }
         fs.copyFileSync(`images/${file}.preview.png`, `dist/${hashes[file]}/preview.png`);
         fs.copyFileSync(`images/${file}.thumbnail.png`, `dist/${hashes[file]}/thumbnail.png`);
+
+        if (!fs.existsSync(`dist/${hashes[file]}/.block`)) {
+            fs.writeFileSync(`dist/${hashes[file]}/.block`, "license: apache-2.0");
+        }
 
         // Retarget source assets to jsdelivr
         let source = fs.readFileSync(`examples/${file}.html`).toString();
         source = source.replace(/\.\.\/node_modules\//g, `https://cdn.jsdelivr.net/npm/`);
         source = source.replace(/\.\.\//g, `https://cdn.jsdelivr.net/npm/regular-table@${pkg.version}/`);
 
-        fs.writeFileSync(`dist/${hashes[file]}/index.html`, source);
+        // Remove inline license
+        source = source.replace(/<!--(.|\n)*?-->/, "");
+
+        // Generate the README.md
+        let [readme] = /<!--((.|\n)*?)-->/.exec(source);
+        source = source.replace(/<!--(.|\n)*?-->/, "");
+        readme = readme
+            .replace(/(<!--|-->)/g, "")
+            .trim()
+            .replace(/^    /gm, "");
+
+        // Write
+        fs.writeFileSync(`dist/${hashes[file]}/README.md`, readme);
+        fs.writeFileSync(`dist/${hashes[file]}/index.html`, source.trim());
+
+        // Update git
         process.chdir(`dist/${hashes[file]}`);
-        child_process.execSync(`git add thumbnail.png preview.png index.html`);
+        child_process.execSync(`git add thumbnail.png preview.png index.html .block README.md`);
         console.log(child_process.execSync(`git status`).toString());
         console.log(child_process.execSync(`git commit -am"Auto update via sync_gist" --amend`).toString());
+
+        // Run sub command
+        const command = process.argv.slice(2);
+        if (command.length > 0) {
+            console.log(child_process.execSync(command.join(" ")).toString());
+        }
         process.chdir("../..");
     } catch (e) {
         console.error(`${file} dist failed!`, e);
