@@ -19,11 +19,11 @@ console.assert(["none", "rowspan", "rowspan_hide", "rowspan_leading"].indexOf(RO
  * @class RegularBodyViewModel
  */
 export class RegularBodyViewModel extends ViewModel {
-    _draw_td(tagName, ridx, val, id, cidx, {column_name}, {ridx_offset, cidx_offset}) {
+    _draw_td(tagName, ridx, val, id, cidx, {column_name}, {ridx_offset}) {
         const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
         metadata.id = id;
-        metadata.cidx = cidx + cidx_offset;
+        metadata.ridx = ridx;
         metadata.column = column_name;
         metadata.y = ridx + ridx_offset;
         const override_width = this._column_sizes.override[metadata.size_key];
@@ -72,7 +72,7 @@ export class RegularBodyViewModel extends ViewModel {
         return prev_i;
     }
 
-    draw(container_height, column_state, view_state, th = false, dcidx) {
+    draw(container_height, column_state, view_state, th = false, dcidx, cidx_offset, size_key) {
         const {cidx, column_data, id_column} = column_state;
         let {row_height} = view_state;
         let ridx = 0;
@@ -99,7 +99,7 @@ export class RegularBodyViewModel extends ViewModel {
                     }
                     if (obj) {
                         obj.metadata.row_header_x = i;
-                        obj.metadata.size_key = `R${i}`;
+                        obj.metadata.size_key = i;
                     }
                     cidx_++;
                 }
@@ -108,7 +108,9 @@ export class RegularBodyViewModel extends ViewModel {
             } else {
                 obj = this._draw_td("TD", ridx++, val, id, cidx, column_state, view_state);
                 obj.metadata.x = dcidx;
-                obj.metadata.size_key = dcidx + "";
+                obj.metadata.x0 = cidx_offset;
+                obj.metadata.size_key = size_key;
+                obj.metadata.cidx = cidx;
                 prev = [[val, obj, 1]];
             }
 

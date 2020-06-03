@@ -24,10 +24,12 @@ describe("two_billion_rows.html Metadata", () => {
             expect(JSON.parse(meta)).toEqual({
                 cidx: 0,
                 column: ["Column 0"],
-                x: 0,
-                y: 0,
-                size_key: "0",
+                ridx: 0,
+                size_key: 0,
                 value: "0",
+                x: 0,
+                x0: 0,
+                y: 0,
             });
         });
 
@@ -47,12 +49,14 @@ describe("two_billion_rows.html Metadata", () => {
                     return JSON.stringify(table.get_meta(document.querySelector("td")));
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
-                    cidx: 16,
+                    cidx: 0,
                     column: ["Column 16"],
-                    x: 16,
-                    y: 0,
-                    size_key: "16",
+                    ridx: 0,
+                    size_key: 16,
                     value: "16",
+                    x: 16,
+                    x0: 16,
+                    y: 0,
                 });
             });
         });
@@ -75,10 +79,12 @@ describe("two_billion_rows.html Metadata", () => {
                 expect(JSON.parse(meta)).toEqual({
                     cidx: 0,
                     column: ["Column 0"],
-                    x: 0,
-                    y: 200002,
-                    size_key: "0",
+                    ridx: 0,
+                    size_key: 0,
                     value: "200,002",
+                    x: 0,
+                    x0: 0,
+                    y: 200002,
                 });
             });
         });
