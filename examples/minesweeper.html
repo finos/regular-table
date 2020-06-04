@@ -203,7 +203,7 @@
 
         function styleListener() {
             for (const td of table.get_tds()) {
-                const meta = table.get_meta(td);
+                const meta = table.getMeta(td);
                 const val = VIEW_DATA[meta.x][meta.y];
                 const numeric = parseInt(val);
                 td.className = "";
@@ -234,7 +234,7 @@
 
         function clickEventListener(event) {
             if (event.target.tagName === "TD") {
-                const meta = table.get_meta(event.target);
+                const meta = table.getMeta(event.target);
                 detonate(meta.x, meta.y);
             }
         }
@@ -242,7 +242,7 @@
         function contextMenuEventListener(event) {
             event.preventDefault();
             if (event.target.tagName === "TD") {
-                const meta = table.get_meta(event.target);
+                const meta = table.getMeta(event.target);
                 const val = VIEW_DATA[meta.x][meta.y];
                 if (val > CLEAR_ENUM && val < 9) {
                     const candidates = [];

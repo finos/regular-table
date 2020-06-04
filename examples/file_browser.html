@@ -210,7 +210,7 @@
 
         function file_browser_on_click(event) {
             if (event.target.tagName === "SPAN" && event.target.className === "pd-row-header-icon") {
-                const metadata = TABLE.get_meta(event.target.parentElement.parentElement);
+                const metadata = TABLE.getMeta(event.target.parentElement.parentElement);
                 if (VIEW_STATE[metadata.y].is_open) {
                     collapse(metadata.y);
                 } else {
