@@ -15,11 +15,11 @@ describe("two_billion_rows.html Metadata", () => {
         await page.waitFor("regular-table table tbody tr td");
     });
 
-    describe("get_meta()", () => {
+    describe("getMeta()", () => {
         test("returns the correct value for (0,0)", async () => {
             const table = await page.$("regular-table");
             const meta = await page.evaluate((table) => {
-                return JSON.stringify(table.get_meta(document.querySelector("td")));
+                return JSON.stringify(table.getMeta(document.querySelector("td")));
             }, table);
             expect(JSON.parse(meta)).toEqual({
                 cidx: 0,
@@ -46,7 +46,7 @@ describe("two_billion_rows.html Metadata", () => {
             test("returns the correct value for (0,0)", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.get_meta(document.querySelector("td")));
+                    return JSON.stringify(table.getMeta(document.querySelector("td")));
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     cidx: 0,
@@ -74,7 +74,7 @@ describe("two_billion_rows.html Metadata", () => {
             test("returns the correct value for (0,0)", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.get_meta(document.querySelector("td")));
+                    return JSON.stringify(table.getMeta(document.querySelector("td")));
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     cidx: 0,

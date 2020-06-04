@@ -121,7 +121,7 @@
         const table = document.getElementsByTagName("regular-table")[0];
 
         function write(active_cell) {
-            const meta = table.get_meta(active_cell);
+            const meta = table.getMeta(active_cell);
             if (meta) {
                 let text = active_cell.textContent;
                 if (text[0] === "=") {
@@ -134,7 +134,7 @@
         }
 
         function increment(active_cell) {
-            const meta = table.get_meta(active_cell);
+            const meta = table.getMeta(active_cell);
             const rows = Array.from(table.querySelectorAll("tbody tr"));
             const next_row = rows[meta.ridx + 1];
             if (next_row) {

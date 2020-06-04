@@ -9,10 +9,10 @@
 
 #
 
-A regular Javascript library for the browser, `regular-table` exports
-a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
+A Javascript library for the browser, `regular-table` exports
+a [custom element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
 named `<regular-table>`,
-which renders a regular HTML `<table>` to a `fixed` position within a scollable
+which renders a regular HTML `<table>` to a `sticky` position within a scollable
 viewport.  Only visible cells are rendered and queried from a natively `async`
 virtual data model, making `regular-table` ideal for enormous or remote data
 sets.  Use it to build Data Grids, Spreadsheets, Pivot Tables, File Trees, or
@@ -21,7 +21,7 @@ anytime you need:
 * Just a regular `<table>`.
 * Virtually rendered for high-performance.
 * `async` data model handles slow, remote, enormous, and/or distributed backends.
-* Easy to style, works with any vanilla CSS for `<table>`.
+* Easy to style, works with any regular CSS for `<table>`.
 * Small bundle size, no dependencies.
 
 ## Examples
@@ -55,7 +55,7 @@ import "regular-table";
 import "regular-table/dist/css/material.css";
 ```
 
-## Custom Element
+## `<regular-table>` Custom Element
 
 `regular-table` exports no symbols, only the `<regular-table>` Custom Element 
 which is registered as a module import side-effect.  Once loaded,
@@ -81,7 +81,7 @@ const App = () => (<regular-table></regular-table>);
 ReactDOM.render(<App />, document.getElementById("root"));
 ```
 
-## Virtual Data Model
+## `.setDataListener()` Virtual Data Model
 
 Let's start with with a simple data model, a two dimensional `Array`.  This one
 is very small at 3 columns x 6 rows, but even for very small data sets,
@@ -98,7 +98,8 @@ const DATA = [
 ```
 
 When clipped by the scrollable viewport, you may end up with a `<table>` of just
-a rectangular region of `DATA`:
+a rectangular region of `DATA`, rather than the entire set.  A simple viewport
+2x2 may yield this `<table>`:
 
 <table>
 <tbody>
@@ -113,26 +114,6 @@ a rectangular region of `DATA`:
 </tbody>
 </table>
 
-Here's a simple _virtual_ data model for this example, the function
-`getDataSlice()`.  This function is called by your `<regular-table>` whenever it
-needs more data, with coordinate arguments, `(x0, y0)` to `(x1, y1)`.  Only
-this region is needed to render the viewport, so `getDataSlice()` returns 
-this rectangular `slice` of `DATA`:
-
-```javascript
-function getDataSlice(x0, y0, x1, y1) {
-    return {
-        num_rows: num_rows = DATA[0].length,
-        num_columns: DATA.length,
-        data: DATA.slice(x0, x1).map(col => col.slice(y0, y1))
-    };
-}
-```
-
-For the window (0, 0) to (2, 2), `getDataSlice()` would generate an Object
-like this, containing the `data` slice, as well as the overall dimensions of 
-`DATA` itself ( `num_rows`, `num_columns`), for sizing the scroll area.
-
 ```json
 {
     "num_rows": 26,
@@ -144,10 +125,27 @@ like this, containing the `data` slice, as well as the overall dimensions of
 }
 ```
 
-To render this virtual data model to a regular HTML `<table>`, all you need to
-do is register this data model via the `setDataListener()` method:
+Here's a an implementation for this simple _virtual_ data model,
+the function `getDataSlice()`.  This function is called by your 
+`<regular-table>` whenever it needs more data, with coordinate arguments,
+`(x0, y0)` to `(x1, y1)`.  Only
+this region is needed to render the viewport, so `getDataSlice()` returns 
+this rectangular `slice` of `DATA`.  For the window (0, 0) to (2, 2),
+`getDataSlice()` would generate an Object as above, containing the `data` slice,
+as well as the overall dimensions of 
+`DATA` itself ( `num_rows`, `num_columns`), for sizing the scroll area.  To
+render this virtual data model to a regular HTML `<table>`, register this data
+model via the `setDataListener()` method:
 
 ```javascript
+function getDataSlice(x0, y0, x1, y1) {
+    return {
+        num_rows: num_rows = DATA[0].length,
+        num_columns: DATA.length,
+        data: DATA.slice(x0, x1).map(col => col.slice(y0, y1))
+    };
+}
+
 regularTable.setDataListener(getDataSlice);
 ```
 
@@ -182,7 +180,9 @@ scroll, more data will be fetched from `getDataSlice()`, and parts of the
 `<th>` elements which layout in a `fixed` position within the virtual table.
 It can generate Column Headers (within the `<thead>`), or Row Headers (the first
 children of each `tbody tr`), via the `column_headers` and `row_headers`
-properties (respectively) of your data model's `Response` object.
+properties (respectively) of your data model's `Response` object.  This can be
+renderered with `column_headers`, a two dimensional `Array` which must be of 
+length `x1 - x0`, one `Array` for every column in your `data` window.
 
 
 <table>
@@ -204,30 +204,6 @@ properties (respectively) of your data model's `Response` object.
 </tbody>
 </table>
 
-This can be renderered with `column_headers`, a two dimensional `Array` which
-must be of length `x1 - x0`.
-one `Array` for every column in your `data` window.  A modified
-`getDataSlice()` which describes this `<table>`:
-
-```javascript
-const COLUMN_HEADERS = [
-    ["Column 1 (number)"], 
-    ["Column 2 (string)"],
-    ["Column 3 (boolean)"],
-];
-
-function getDataSlice(x0, y0, x1, y1) {
-    return {
-        column_headers: COLUMN_NAMES.slice(x0, x1), 
-        num_rows: DATA[0].length,
-        num_columns: DATA.length,
-        data: DATA.slice(x0, x1).map(col => col.slice(y0, y1));
-    };
-}
-```
-
-Samples response:
-
 ```json
 {
     "num_rows": 26,
@@ -243,34 +219,7 @@ Samples response:
 }
 ```
 
-Resulting HTML:
-
-```html
-<regular-table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Column 1 (number)</th>
-                <th>Column 2 (string)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>0</td>
-                <td>A</td>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td>B</td>
-            </tr>
-        </tbody>
-    </table>
-
-</regular-table>
-```
-
-###  Hierarchial/Group Headers
+###   Hierarchial/Group Headers
 
 `regular-table` supports multiple `<tr>` of `<th>`, and also uses `colspan` and
 `rowspan` to merge simple consecutive names, which allows description of simple
@@ -303,8 +252,6 @@ Row and Column Group Hierarchies such as this:
 </tbody>
 </table>
 
-A sample response object that renders this `<table>` would look like this:
-
 ```json
 {
     "num_rows": 26,
@@ -324,42 +271,10 @@ A sample response object that renders this `<table>` would look like this:
 }
 ```
 
-Note that  in the rendered HTML below, for these Row and Column `Array`,
+Note that in the rendered HTML, for these Row and Column `Array`,
 repeated elements in a sequence will be automatically merged via `rowspan` and
 `colspan` attributes.  In this example, e.g. `"Rowgroup 1"` will only output
-to one `<th>` node in the resulting `<table>`:
-
-```html
-<regular-table>
-
-    <table>
-        <thead>
-            <tr>
-                <th colspan="2" rowspan="2"></th>
-                <th colspan="2">Colgroup 1</th>
-            </tr>
-            <tr>
-                <th>Column 1</th>
-                <th>Column 2</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th rowspan="2">Rowgroup 1</th>
-                <th>Row 1</th>
-                <td>0</td>
-                <td>A</td>
-            </tr>
-            <tr>
-                <th>Row 2</th>
-                <td>1</td>
-                <td>B</td>
-            </tr>
-        </tbody>
-    </table>
-
-</regular-table>
-```
+to one `<th>` node in the resulting `<table>`.
 
 ## `async` Data Models
 
@@ -368,14 +283,14 @@ from `node.js` or re-implement the JSON response protocol in any language.
 Just return a `Promise()` from, or use an `async` function as an argument to,
 `setDataListener()`.  Your `<regular-table>` won't render until the
 `Promise` is resolved, nor will it call your data model function again until
-the current call is resolved or rejected.
-
-Here's an `async` example using a Web Worker, but the same principle
-applies to Web Sockets, `readFile()` or any other asynchronous
-source.  Returning a `Promise` blocks rendering until the Web Worker
-replies:
+the current call is resolved or rejected.  The following `async` example uses a
+Web Worker, but the same principle applies to Web Sockets, `readFile()` or any
+other asynchronous source.  Returning a `Promise` blocks rendering until the Web
+Worker replies:
 
 ```javascript
+// Browser
+
 let callback;
 
 worker.addEventListener("message", event => {
@@ -390,10 +305,9 @@ regularTable.setDataListener((...viewport) => {
 }); 
 ```
 
-This example works by calling a simple remote call wrapper to
-`getDataSlice()` in your Web Worker:
-
 ```javascript
+// Web Worker
+
 self.addEventListener("message", async (event) => {
     const response = await getDataSlice.apply(null, event.data);
     self.postMessage(response);
