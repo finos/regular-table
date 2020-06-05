@@ -8,6 +8,7 @@ module.exports = {
                     node: "12",
                     ios: "13",
                 },
+                modules: process.env.BABEL_MODULE || false,
             },
         ],
     ],

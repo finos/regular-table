@@ -10,9 +10,9 @@
         "node": ">=10.18.1"
     },
     "license": "Apache-2.0",
-    "main": "dist/esm/index.js",
-    "module": "dist/esm/index.js",
-    "browser": "dist/esm/index.js",
+    "main": "dist/umd/regular-table.js",
+    "module": "dist/umd/regular-table.js",
+    "browser": "dist/umd/regular-table.js",
     "unpkg": "dist/umd/regular-table.js",
     "jsdelivr": "dist/umd/regular-table.js",
     "files": [
@@ -21,8 +21,7 @@
         "babel.config.js"
     ],
     "scripts": {
-        "build:babel": "babel src/js --out-dir dist/esm",
-        "build:webpack": "webpack",
+        "build:rollup": "rollup -c rollup.config.js",
         "build:less": "lessc src/less/material.less dist/css/material.css",
         "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
@@ -32,30 +31,27 @@
         "test": "jest --noStackTrace",
         "start": "http-server",
         "watch:babel": "babel src/js --watch --out-dir dist/esm",
-        "watch:webpack": "webpack --watch",
+        "watch:webpack": "rollup -c rollup.config.js --watch",
         "watch": "npm-run-all -p watch:*"
     },
     "publishConfig": {
         "access": "public"
     },
     "dependencies": {
-        "core-js": "^3.6.4",
-        "papaparse": "5.2.0",
-        "superscript-number": "^1.0.0"
+        "core-js": "^3.6.4"
     },
     "devDependencies": {
-        "@babel/cli": "^7.8.4",
         "@babel/core": "^7.9.0",
         "@babel/plugin-proposal-class-properties": "^7.8.3",
         "@babel/plugin-proposal-decorators": "^7.8.3",
         "@babel/plugin-proposal-optional-chaining": "^7.9.0",
         "@babel/preset-env": "^7.9.0",
         "@finos/perspective": "=0.5.0",
+        "@rollup/plugin-babel": "^5.0.2",
         "babel-eslint": "^10.1.0",
-        "babel-loader": "^8.1.0",
         "babel-plugin-lodash": "^3.3.4",
         "babel-plugin-transform-custom-element-classes": "^0.1.0",
-        "cpx": "^1.5.0",
+        "clean-css": "^4.2.3",
         "eslint": "^7.1.0",
         "eslint-plugin-html": "^6.0.2",
         "eslint-plugin-prettier": "^3.1.3",
@@ -69,10 +65,12 @@
         "puppeteer": "^3.1.0",
         "react": "15",
         "react-dom": "15",
+        "rollup": "^2.13.1",
+        "rollup-plugin-filesize": "^9.0.0",
+        "rollup-plugin-sourcemaps": "^0.6.2",
+        "rollup-plugin-terser": "^6.1.0",
         "source-map-explorer": "^2.4.2",
         "source-map-loader": "^0.2.4",
-        "superstore-arrow": "^1.0.0",
-        "webpack": "^4.43.0",
-        "webpack-cli": "^3.3.11"
+        "superstore-arrow": "^1.0.0"
     }
 }
