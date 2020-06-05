@@ -48,16 +48,6 @@ export class RegularHeaderViewModel extends ViewModel {
         return th;
     }
 
-    _redraw_previous(offset_cache, d) {
-        const cidx = offset_cache[d] - 1;
-        if (cidx < 0) {
-            return;
-        }
-        const th = this._get_cell("TH", d, cidx);
-        if (!th) return;
-        return th;
-    }
-
     _draw_group(column, column_name, th) {
         const metadata = this._get_or_create_metadata(th);
         metadata.column_path = column;
@@ -74,23 +64,20 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.is_column_header = true;
         metadata.size_key = size_key.length ? size_key[0] : size_key; // FIXME
 
-        let auto_width, override_width;
-        if (size_key.length > 1) {
-            auto_width = size_key.reduce((total, row_header) => this._column_sizes.auto[row_header] + total, 0);
-            override_width = size_key.reduce((total, row_header) => this._column_sizes.override[row_header] + total, 0);
-        } else {
-            auto_width = this._column_sizes.auto[metadata.size_key];
-            override_width = this._column_sizes.override[metadata.size_key];
+        if (!(size_key.length > 1)) {
+            const override_width = this._column_sizes.override[metadata.size_key];
+            const auto_width = this._column_sizes.auto[metadata.size_key];
+            if (override_width) {
+                th.classList.toggle("pd-cell-clip", auto_width > override_width);
+                th.style.minWidth = override_width + "px";
+                th.style.maxWidth = override_width + "px";
+            } else if (auto_width) {
+                th.classList.remove("pd-cell-clip");
+                th.style.maxWidth = "";
+                th.style.minWidth = auto_width + "px";
+            }
         }
-        if (override_width) {
-            th.classList.toggle("pd-cell-clip", auto_width > override_width);
-            th.style.minWidth = override_width + "px";
-            th.style.maxWidth = override_width + "px";
-        } else if (auto_width) {
-            th.classList.remove("pd-cell-clip");
-            th.style.maxWidth = "";
-            th.style.minWidth = auto_width + "px";
-        }
+
         return metadata;
     }
 
@@ -104,10 +91,7 @@ export class RegularHeaderViewModel extends ViewModel {
     draw(config, alias, parts, colspan, cidx, dcidx, size_key) {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
         if (header_levels === 0) return {};
-        let th,
-            metadata,
-            column_name,
-            is_new_group = false;
+        let th, metadata, column_name;
         for (let d = 0; d < header_levels; d++) {
             column_name = parts[d] ? parts[d] : "";
             this._offset_cache[d] = this._offset_cache[d] || 0;
@@ -115,17 +99,16 @@ export class RegularHeaderViewModel extends ViewModel {
                 if (this._group_header_cache?.[d]?.[0]?.column_name === column_name) {
                     th = this._group_header_cache[d][1];
                     this._group_header_cache[d][2] += 1;
+                    if (colspan === 1) {
+                        this._group_header_cache[d][0].row_header_x = size_key;
+                    }
                     th.setAttribute("colspan", this._group_header_cache[d][2]);
                 } else {
                     th = this._draw_group_th(this._offset_cache, d, column_name, []);
                     metadata = this._draw_group(parts, column_name, th);
                     this._group_header_cache[d] = [metadata, th, 1];
-                    is_new_group = true;
                 }
             } else {
-                if (is_new_group) {
-                    this._redraw_previous(this._offset_cache, d);
-                }
                 const sort_dir = config.sort?.filter((x) => x[0] === column_name).map((x) => x[1]);
                 th = this._draw_group_th(this._offset_cache, d, column_name, sort_dir);
 
@@ -142,11 +125,11 @@ export class RegularHeaderViewModel extends ViewModel {
                 th.dataset.sizeKey = metadata.size_key;
             }
             if (metadata) {
-                metadata.x = dcidx;
+                metadata.x = cidx;
                 metadata.column_header_y = d;
-            }
-            if (colspan > 1) {
-                th.setAttribute("colspan", colspan);
+                if (colspan === 1) {
+                    metadata.row_header_x = size_key;
+                }
             }
         }
 

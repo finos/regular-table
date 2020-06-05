@@ -23,29 +23,50 @@
     <script src="../dist/umd/regular-table.js"></script>
     <link rel='stylesheet' href="../dist/css/material.css">
     <style>
-        .pd-align-right {
+        /* Type Styles */
+        .psp-align-right {
             text-align: right;
         }
-        .pd-align-left {
+        .psp-align-left {
             text-align: left;
         }
-
-        /* Header elements that end a leaf group */
-        tr td[colspan="1"], tr th[colspan="1"] {
+        .psp-positive {
+            color: #1078d1;
+        }
+        .psp-negative {
+            color: #de3838;
+        }
+        /* Tree Styles */
+        .psp-tree-header {
+           background-image: linear-gradient(to right, transparent 9px, #eee 10px, transparent 11px);
+        }
+        .psp-tree-label:before {
+            content: "remove";
+            color: #ccc;
+            font-family: "Material Icons";
+            margin-top: 4px;
+            margin-right: 12px;
+        }
+        .psp-tree-label:hover:before {
+            text-shadow: 0px 0px 5px #1078d1;
+        }
+        .psp-tree-edge {
             border-right: 1px solid #ddd;
         }
-
-        /* Border separating frozen row-indices columns from data columns */
-        tbody th:last-of-type {
+        .psp-tree-edge:not(.psp-tree-leaf) {
+            pointer-events: none;
+        }
+        .psp-tree-indent {
+            min-width: 20px;
+            max-width: 20px;
+        }
+        .psp-tree-leaf {
+            padding-left: 24px;
+        }
+        /* Header Styles */
+        .psp-header-border {
             border-right: 1px solid #ddd;
         }
-
-        regular-table tbody th:not(:last-of-type) {
-            vertical-align: top;
-            max-width: 40px;
-            min-width: 40px;
-        }
-
     </style>
 </head>
 
@@ -65,22 +86,35 @@
             }),
         };
 
-        class PerspectiveDataModel {
-            _tree_header(paths = []) {
-                return paths.map((path) =>
-                    path
-                        .slice(0, path.length - 1)
-                        .fill("")
-                        .concat(path[path.length - 1])
-                );
+        function* _tree_header(paths = []) {
+            for (let path of paths) {
+                path = ["TOTAL", ...path];
+                yield path
+                    .slice(0, path.length - 1)
+                    .fill("")
+                    .concat(path[path.length - 1]);
             }
-        
+        }
+
+        class PerspectiveDataModel {
             _format(parts, val) {
                 if (val === null) {
                     return "-";
                 }
                 const type = this._schema[parts[parts.length - 1]] || "string";
                 return FORMATTERS[type]?.format(val) || val;
+            }
+
+            async _set_view(table, view) {
+                this.view = view;
+                this.table_schema = await table.schema();
+                this._config = await view.get_config();
+                this._num_rows = await view.num_rows();
+                this._schema = await view.schema();
+                this._column_paths = await view.column_paths();
+                this._column_paths = this._column_paths.filter((path) => {
+                    return path !== "__ROW_PATH__" && path !== "__ID__";
+                });
             }
 
             async dataListener(x0, y0, x1, y1) {
@@ -106,52 +140,57 @@
                 return {
                     num_rows: this._num_rows,
                     num_columns: this._column_paths.length,
-                    row_headers: this._tree_header(columns.__ROW_PATH__),
+                    row_headers: Array.from(_tree_header(columns.__ROW_PATH__)),
                     column_headers,
                     data,
                 };
             }
 
-            styleListener({detail: regularTable}) {
+            typeStyleListener({detail: regularTable}) {
                 for (const td of regularTable.querySelectorAll("td, thead tr:last-child th")) {
                     const metadata = regularTable.getMeta(td);
-                    let type;
                     if (metadata.x >= 0) {
                         const column_path = this._column_paths[metadata.x];
                         const column_path_parts = column_path.split("|");
-                        type = this._schema[column_path_parts[column_path_parts.length - 1]];
-                    } else {
-                        type = "string";
-                    }
-                    if (type === "integer" || type === "float") {
-                        td.classList.toggle("pd-align-right", true);
-                        td.classList.toggle("pd-align-left", false);
-                        if (parseFloat(metadata.value) > 0) {
-                            td.classList.add("pd-positive");
-                            td.classList.toggle("pd-negative", false);
-                        } else if (parseFloat(metadata.value) < 0) {
-                            td.classList.add("pd-negative");
-                            td.classList.toggle("pd-positive", false);
-                        }
-                    } else {
-                        td.classList.toggle("pd-positive", false);
-                        td.classList.toggle("pd-negative", false);
-                        td.classList.toggle("pd-align-right", false);
-                        td.classList.toggle("pd-align-left", true);
+                        const type = this._schema[column_path_parts[column_path_parts.length - 1]];
+                        const is_numeric = type === "integer" || type === "float";
+                        const float_val = is_numeric && parseFloat(metadata.value);
+                        td.classList.toggle("psp-align-right", is_numeric);
+                        td.classList.toggle("psp-align-left", !is_numeric);
+                        td.classList.toggle("psp-positive", float_val > 0);
+                        td.classList.toggle("psp-negative", float_val < 0);
                     }
                 }
             }
 
-            async set_view(table, view) {
-                this.view = view;
-                this.table_schema = await table.schema();
-                this._config = await view.get_config();
-                this._num_rows = await view.num_rows();
-                this._schema = await view.schema();
-                this._column_paths = await view.column_paths();
-                this._column_paths = this._column_paths.filter((path) => {
-                    return path !== "__ROW_PATH__" && path !== "__ID__";
-                });
+            treeStyleListener({detail: regularTable}) {
+                for (const td of regularTable.querySelectorAll("tbody th")) {
+                    const metadata = regularTable.getMeta(td);
+                    const is_empty = !!metadata.value && metadata.value.trim().length > 0;
+                    const is_leaf = metadata.row_header_x >= this._config.row_pivots.length;
+                    td.classList.toggle("psp-tree-header", metadata.value === "");
+                    td.classList.toggle("psp-tree-label", is_empty && !is_leaf);
+                    td.classList.toggle("psp-tree-leaf", is_empty && is_leaf);
+                    td.classList.toggle("psp-tree-edge", metadata.row_header_x === this._config.row_pivots.length);
+                    td.classList.toggle("psp-tree-indent", metadata.row_header_x < this._config.row_pivots.length);
+                }
+            }
+
+            groupHeaderStyleListener({detail: regularTable}) {
+                for (const td of regularTable.querySelectorAll("thead tr:not(:last-child) th")) {
+                    const metadata = regularTable.getMeta(td);
+                    let needs_border = metadata.row_header_x === this._config.row_pivots.length || metadata.x >= 0;
+                    td.classList.toggle("psp-header-border", needs_border);
+                }
+            }
+
+            columnHeaderStyleListener({detail: regularTable}) {
+                for (const td of regularTable.querySelectorAll("thead tr:last-child th")) {
+                    const metadata = regularTable.getMeta(td);
+                    let needs_border = metadata.row_header_x === this._config.row_pivots.length;
+                    needs_border = needs_border || (metadata.x + 1) % this._config.columns.length === 0;
+                    td.classList.toggle("psp-header-border", needs_border);
+                }
             }
         }
 
@@ -185,10 +224,13 @@
             });
 
             const model = new window.PerspectiveDataModel();
-            await model.set_view(table, view);
+            await model._set_view(table, view);
 
             const regular = document.getElementsByTagName("regular-table")[0];
-            regular.addStyleListener(model.styleListener.bind(model));
+            regular.addStyleListener(model.typeStyleListener.bind(model));
+            regular.addStyleListener(model.treeStyleListener.bind(model));
+            regular.addStyleListener(model.groupHeaderStyleListener.bind(model));
+            regular.addStyleListener(model.columnHeaderStyleListener.bind(model));
             regular.setDataListener(model.dataListener.bind(model));
             await regular.draw();
         });

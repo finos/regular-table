@@ -10,7 +10,7 @@
 
 import {ViewModel} from "./view_model";
 
-const ROW_HEADER_RENDER_MODE = "rowspan_leading";
+const ROW_HEADER_RENDER_MODE = "rowspan";
 console.assert(["none", "rowspan", "rowspan_hide", "rowspan_leading"].indexOf(ROW_HEADER_RENDER_MODE) > -1, "Invalid ROW_HEADER_RENDERER_MODE");
 
 /**
@@ -46,7 +46,6 @@ export class RegularBodyViewModel extends ViewModel {
         }
 
         metadata.value = val;
-        metadata.row_path = id;
         return {td, metadata};
     }
 
@@ -56,8 +55,11 @@ export class RegularBodyViewModel extends ViewModel {
             obj = this._draw_td("TH", ridx, row_header, id, cidx_, column_state, view_state);
             obj.td.style.display = "";
             obj.td.removeAttribute("rowspan");
+            obj.metadata.row_header = prev_i[1].metadata.row_header;
+            obj.metadata.row_header_x = i;
+            obj.metadata.size_key = i;
             return [row_header, obj, 1];
-        } else if (ROW_HEADER_RENDER_MODE === "rowspan") {
+        } else if (ROW_HEADER_RENDER_MODE === "rowspan_hide") {
             obj = this._draw_td("TH", ridx, row_header, id, cidx_, column_state, view_state);
             prev_i[1].td.setAttribute("rowspan", prev_i[2] + 1);
             obj.td.style.display = "none";
@@ -95,11 +97,10 @@ export class RegularBodyViewModel extends ViewModel {
                         obj = this._draw_td("TH", ridx, row_header, id, cidx_, column_state, view_state);
                         obj.td.style.display = "";
                         obj.td.removeAttribute("rowspan");
-                        row.push([row_header, obj, 1]);
-                    }
-                    if (obj) {
+                        obj.metadata.row_header = val;
                         obj.metadata.row_header_x = i;
                         obj.metadata.size_key = i;
+                        row.push([row_header, obj, 1]);
                     }
                     cidx_++;
                 }

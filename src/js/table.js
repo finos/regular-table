@@ -104,22 +104,20 @@ export class RegularTableViewModel {
                 first_col,
             };
             cont_body = this.body.draw(container_height, column_state, {...view_state, cidx_offset: 0}, true, undefined, undefined, cidx + cidx_offset);
-            const cont_head = this.header.draw(
-                config,
-                column_name,
-                Array(view_cache.config.column_pivots.length + 1).fill(""),
-                row_index_length,
-                undefined,
-                undefined,
-                Array.from(Array(row_index_length).keys())
-            );
+            const cont_heads = [];
+            for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
+                cont_heads.push(this.header.draw(config, column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), 1, undefined, undefined, i));
+            }
             first_col = false;
-            view_state.viewport_width += this._column_sizes.indices[0] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
+            view_state.viewport_width +=
+                this._column_sizes.indices[0] || cont_body.tds.reduce((total, {td}) => total + td.offsetWidth, 0) || cont_heads.reduce((total, {th}) => total + th.offsetWidth, 0);
             view_state.row_height = view_state.row_height || cont_body.row_height;
             cidx = row_headers[0].length;
             if (!preserve_width) {
-                for (const {td, metadata} of cont_body.tds) {
-                    last_cells.push([td || cont_head.th, metadata || cont_head.metadata]);
+                for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
+                    const {td, metadata} = cont_body.tds[i];
+                    const {th, metadata: hmetadata} = cont_heads[i];
+                    last_cells.push([td || th, metadata || hmetadata]);
                 }
             }
         }
