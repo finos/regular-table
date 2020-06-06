@@ -15,7 +15,7 @@ describe("web_worker.html", () => {
 
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/react.html");
+            await page.goto("http://localhost:8081/dist/examples/react.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 

@@ -15,7 +15,7 @@ describe("scrolling", () => {
 
     describe("scrolls down", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
@@ -44,6 +44,7 @@ describe("scrolling", () => {
 
     describe("scrolls right", () => {
         beforeAll(async () => {
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = 0;
@@ -73,7 +74,7 @@ describe("scrolling", () => {
 
     describe("scrolls via scrollTo() method", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 

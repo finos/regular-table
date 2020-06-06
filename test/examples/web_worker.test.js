@@ -16,7 +16,7 @@ describe("web_worker.html", () => {
     // TODO don't run these, they depend on unpkg.com
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/web_worker.html");
+            await page.goto("http://localhost:8081/dist/examples/web_worker.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 
@@ -35,7 +35,7 @@ describe("web_worker.html", () => {
 
     describe("scrolls down", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/web_worker.html");
+            await page.goto("http://localhost:8081/dist/examples/web_worker.html");
             const table = await page.$("regular-table");
             await page.waitFor("regular-table table tbody tr td");
             await page.evaluate(async (table) => {

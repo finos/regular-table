@@ -194,8 +194,6 @@ window.customElements.define("regular-table", RegularTableElement);
  * in the DOM.
  * @property {number} size_key - The unique index of this column within a full
  * `<table>`, which is `x` + (Total Row Header Columns).
- * @property {number} size_key - The unique index of this column within a full
- * `<table>`, which is `x` + (Total Row Header Columns).
  * @property {Array<object>} [row_header] - The `Array` for this `y` in
  * `DataResponse.row_headers`, if it was provided.
  * @property {Array<object>} [column_header] - The `Array` for this `x` in
