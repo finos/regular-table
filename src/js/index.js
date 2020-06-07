@@ -78,13 +78,29 @@ class RegularTableElement extends RegularViewEventModel {
      * your `StyleListener` is invoked, use this method to look up additional
      * `MetaData` about any `HTMLTableCellElement` in the rendered `<table>`.
      *
-     * @param {HTMLTableCellElement} element - The child element of this
-     * `<regular-table>` for which to look up metadata.
-     * @returns {MetaData} The
-     * metadata associated with the element.
+     * @param {HTMLTableCellElement|MetaData} element - The child element
+     * of this `<regular-table>` for which to look up metadata, or a
+     * coordinates-like object to refer to metadata by logical position.
+     * @returns {MetaData} The metadata associated with the element.
+     * @example
+     * const elems = document.querySelector("td:last-child td:last_child");
+     * const metadata = table.getMeta(elems);
+     * console.log(`Viewport corner is ${metadata.x}, ${metadata.y}`);
+     * @example
+     * const header = table.getMeta({row_header_x: 1, dy: 3}).row_header;
      */
     getMeta(element) {
-        return METADATA_MAP.get(element);
+        if (element instanceof HTMLElement) {
+            return METADATA_MAP.get(element);
+        } else if (element.row_header_x >= 0) {
+            const is_valid = element.row_header_x < this._view_cache.config.row_pivots.length;
+            return is_valid && this.table_model.body.cells[element.dy]?.[element.row_header_x];
+        } else if (element.column_header_y >= 0) {
+            const is_valid = element.column_header_y < this._view_cache.config.column_pivots.length;
+            return is_valid && this.table_model.body.cells[element.column_header_y]?.[element.dy];
+        } else {
+            return this.table_model.body.cells[element.dy]?.[element.dx];
+        }
     }
 
     /**
