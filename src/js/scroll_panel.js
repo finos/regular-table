@@ -394,6 +394,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             this._invalid_schema = false;
         }
 
+        // polyfill `overflow: overlay` by adding scrollbar dims to table_clip
+        this._table_clip.style.height = `calc(100% + ${this.offsetHeight - this.clientHeight}px)`;
+        this._table_clip.style.width = `calc(100% + ${this.offsetWidth - this.clientWidth}px)`;
+
         if (DEBUG) {
             log_perf(performance.now() - __debug_start_time__);
         }
