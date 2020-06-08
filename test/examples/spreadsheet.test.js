@@ -39,6 +39,11 @@ describe("spreadsheet.html", () => {
             expect(cell_values).toEqual(["", "", "Hello, World!", "", ""]);
         });
 
+        test("next cell has focus", async () => {
+            const contents = await page.evaluate(() => document.activeElement.textContent);
+            expect(contents).toEqual("");
+        });
+
         describe("on scroll", () => {
             beforeAll(async () => {
                 const table = await page.$("regular-table");
