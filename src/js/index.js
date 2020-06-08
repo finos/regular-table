@@ -178,23 +178,27 @@ window.customElements.define("regular-table", RegularTableElement);
  *
  * @typedef MetaData
  * @type {object}
- * @property {number} [x] - The `x` index within `DataResponse.data`, this
- * property is only generated for `<th>` from `column_headers`.
- * @property {number} [y] - The `y` index within `DataResponse.data`, this
- * property is only generated for `<th>` from `row_headers`.
- * @property {number} [column_header_y] - The `y` index within
+ * @property {number} [x] - The `x` index in your virtual data model.
+ * property is only generated for `<td>`, `<th>` from `row_headers`.
+ * @property {number} [y] - The `y` index in your virtual data model.
+ * property is only generated for `<td>`, `<th>` from `row_headers`.
+ * @property {number} [x0] - The `x` index of the viewport origin in
+ * your data model, e.g. what was passed to `x0` when your
+ * `dataListener` was invoked.
+ * @property {number} [y0] - The `y` index of the viewport origin in
+ * your data model, e.g. what was passed to `x0` when your
+ * `dataListener` was invoked.
+ * @property {number} [dx] - The `x` index in `DataResponse.data`, this
+ * property is only generated for `<td>`, and `<th>` from `column_headers`.
+ * @property {number} [dy] - The `y` index in `DataResponse.data`, this
+ * property is only generated for `<td>`, `<th>` from `row_headers`.
+ * @property {number} [column_header_y] - The `y` index in
  * `DataResponse.column_headers[x]`, this property is only generated for `<th>`
  * from `column_headers`.
- * @property {number} [column_header_x] - The `x` index within
+ * @property {number} [column_header_x] - The `x` index in
  * `DataResponse.row_headers[y]`, this property is only generated for `<th>`
  * from `row_headers`.
- * @property {number} [cidx] - The index within this element's parent `<tr>`,
- * which is a different value than `size_key` because `cidx` does not account
- * for the virtual window offset and thus references this element's real index
- * in the DOM.
- * @property {number} size_key - The unique index of this column within a full
- * `<table>`, which is `x` + (Total Row Header Columns).
- * @property {number} size_key - The unique index of this column within a full
+ * @property {number} size_key - The unique index of this column in a full
  * `<table>`, which is `x` + (Total Row Header Columns).
  * @property {Array<object>} [row_header] - The `Array` for this `y` in
  * `DataResponse.row_headers`, if it was provided.
