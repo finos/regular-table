@@ -33,6 +33,13 @@ anytime you need:
 |minesweeper|file_browser|spreadsheet|
 |[![minesweeper](https://bl.ocks.org/texodus/raw/96a9ed60d0250f7d3187c0fed5f5b78c/thumbnail.png)](https://bl.ocks.org/texodus/96a9ed60d0250f7d3187c0fed5f5b78c)|[![file_browser](https://bl.ocks.org/texodus/raw/a7b7588c899e3953dd8580e81c51b3f9/thumbnail.png)](https://bl.ocks.org/texodus/a7b7588c899e3953dd8580e81c51b3f9)|[![spreadsheet](https://bl.ocks.org/texodus/raw/3e0e3d6f8bf8b47294a7847b402b55fb/thumbnail.png)](https://bl.ocks.org/texodus/3e0e3d6f8bf8b47294a7847b402b55fb)|
 
+## Documentation
+
+What follows functions as a quick-start guide, and will explain the basics of
+the Virtual Data Models, Styling and Interaction APIs.  Complete API docs can
+be found [here](https://github.com/jpmorganchase/regular-table/blob/master/api.md),
+and many advanced examples can be found in the [`examples` directory](https://github.com/jpmorganchase/regular-table/tree/masterexamples)
+
 - [Installation](#installation)
 - [`<regular-table>` Custom Element](#regular-table-custom-element)
 - [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
@@ -41,6 +48,7 @@ anytime you need:
   - [`async` Data Models](#async-data-models)
 - [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
 - [`.addEventListener()` Interaction](#addeventlistener-interaction)
+- [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
 - [Development](#development)
 
 ## Installation
@@ -404,8 +412,18 @@ table.addStyleListener(() => {
 })
 ```
 
-Advanced examples can be found in the [`examples`](https://github.com/jpmorganchase/regular-table/tree/masterexamples)
+Advanced examples can be found in the [`examples`](https://github.com/jpmorganchase/regular-table/tree/master/examples)
 directory, and in the [`bl.ocks` example gallery](https://github.com/jpmorganchase/regular-table#examples).
+
+## Pivots, Filters, Sorts, and Column Expressions with `perspective`
+
+`regular-table` is natively compatible with [`perspective`](https://github.com/finos/perspective/),
+a WebAssembly streaming visualization engine.  By using a `persective.Table` as a
+Virtual Data Nodel, it becomes simple to achieve user-driven row and
+column pivots, filters, sorts, and column expressions, as well as charts
+and persistent layouts, from high-frequency updating data. 
+
+<!-- add examples when perspective 0.5.1 is released -->
 
 ## Development
 

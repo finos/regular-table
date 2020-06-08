@@ -16,6 +16,7 @@ describe("scrolling", () => {
     describe("scrolls down", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
+            await page.waitFor("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
