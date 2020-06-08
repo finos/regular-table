@@ -31,5 +31,4 @@ script:
   - yarn clean
 
   # dev build will run as part of `yarn test`
-  - yarn build:less
   - yarn test
