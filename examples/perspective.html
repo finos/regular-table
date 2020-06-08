@@ -33,6 +33,10 @@
             border-right: 1px solid #ddd;
         }
 
+        .row-selected {
+            background-color: rgba(255,0,0,0.2)
+        }
+
     </style>
 </head>
 
@@ -179,6 +183,24 @@
             const regular = document.getElementsByTagName("regular-table")[0];
             regular.addStyleListener(data_model.applyStyle.bind(data_model));
             regular.setDataListener(data_model.getData.bind(data_model));
+
+            const selected_rows = [];
+
+            regular.addEventListener("mousedown", (event) => {
+                const meta = regular.getMeta(event.target);
+                if (meta && meta.y >= 0) {
+                    selected_rows.push(meta.y);
+                    regular.draw();
+                }
+            });
+
+            regular.addStyleListener(() => {
+                for (const td of regular.querySelectorAll("td")) {
+                    const meta = regular.getMeta(td);
+                    td.classList.toggle("row-selected", selected_rows.includes(meta.y));
+                }
+            });
+        
             await regular.draw();
         });
     </script>

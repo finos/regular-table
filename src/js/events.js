@@ -37,7 +37,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     async _on_scroll(event) {
         event.stopPropagation();
         event.returnValue = false;
-        await this.draw();
+        await this.draw({invalid_viewport: false});
         this.dispatchEvent(new CustomEvent("regular-table-scroll"));
     }
 
@@ -92,7 +92,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 td.style.maxWidth = "";
                 td.classList.remove("pd-cell-clip");
             }
-            await this.draw({invalid_viewport: true});
+            await this.draw();
         }
     }
 
@@ -142,7 +142,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             document.removeEventListener("mouseup", up);
             const override_width = this._column_sizes.override[metadata.size_key];
             this._column_sizes.indices[metadata.size_key] = override_width;
-            await this.draw({invalid_viewport: true});
+            await this.draw();
         };
         document.addEventListener("mousemove", move);
         document.addEventListener("mouseup", up);
@@ -168,7 +168,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         // If the column is smaller, new columns may need to be fetched, so
         // redraw, else just update the DOM widths as if redrawn.
         if (diff < 0) {
-            await this.draw({invalid_viewport: true, preserve_width: true});
+            await this.draw({preserve_width: true});
         } else {
             th.style.minWidth = override_width + "px";
             th.style.maxWidth = override_width + "px";
