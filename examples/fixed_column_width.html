@@ -110,7 +110,7 @@
         function isFixed(cellElement) {
             // Use regular-table api to get cell metadata.
             const metadata = tableApi.getMeta(cellElement);
-            const name = getColumnName(metadata.cidx);
+            const name = getColumnName(metadata.x);
             return name.includes("Fixed");
         }
 
