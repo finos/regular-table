@@ -136,9 +136,9 @@
         function increment(active_cell) {
             const meta = table.getMeta(active_cell);
             const rows = Array.from(table.querySelectorAll("tbody tr"));
-            const next_row = rows[meta.ridx + 1];
+            const next_row = rows[meta.y - meta.y0 + 1];
             if (next_row) {
-                const td = next_row.children[meta.cidx];
+                const td = next_row.children[meta.x + 1];
                 td.focus();
             }
         }
