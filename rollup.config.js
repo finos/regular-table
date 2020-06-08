@@ -1,7 +1,7 @@
-import {terser} from "rollup-plugin-terser";
+import babel from "@rollup/plugin-babel";
 import filesize from "rollup-plugin-filesize";
 import sourcemaps from "rollup-plugin-sourcemaps";
-import babel from "@rollup/plugin-babel";
+import {terser} from "rollup-plugin-terser";
 
 export default {
     input: "src/js/index.js",
@@ -10,8 +10,8 @@ export default {
             exclude: "node_modules/**",
             babelHelpers: "bundled",
         }),
-        sourcemaps(),
         filesize(),
+        sourcemaps(),
         terser(),
     ],
     watch: {
