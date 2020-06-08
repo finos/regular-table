@@ -150,7 +150,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const relative_nrows = !reset_scroll_position ? this._nrows || 0 : nrows;
         const scroll_rows = Math.max(0, relative_nrows + (header_levels - virtual_panel_row_height));
         let start_row = Math.ceil(scroll_rows * percent_scroll);
-        let end_row = start_row + virtual_panel_row_height + 1;
+        let end_row = Math.ceil(start_row + virtual_panel_row_height + 1);
         return {start_row, end_row};
     }
 
@@ -167,7 +167,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const percent_left = this.scrollLeft / total_scroll_width;
         const max_scroll_column = this._max_scroll_column(num_columns) + 0.5;
         let start_col = Math.floor(max_scroll_column * percent_left);
-        let end_col = start_col + (this.table_model.num_columns() || 1) + 1;
+        const vis_cols = this.table_model.num_columns() || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
+        let end_col = start_col + vis_cols + 1;
         return {start_col, end_col};
     }
 

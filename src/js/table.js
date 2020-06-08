@@ -64,8 +64,8 @@ export class RegularTableViewModel {
     async draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
-        let {data, row_headers, column_headers, __id_column: id_column} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
-        const {start_row: ridx_offset = 0, start_col: cidx_offset = 0} = viewport;
+        let {data, row_headers, column_headers} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+        const {start_row: ridx_offset = 0, start_col: x0 = 0} = viewport;
 
         // pad row_headers for embedded renderer
         // TODO maybe dont need this - perspective compat
@@ -85,12 +85,12 @@ export class RegularTableViewModel {
             viewport_width: 0,
             selected_id,
             ridx_offset,
-            cidx_offset,
+            x0: x0,
             row_height: this._column_sizes.row_height,
         };
 
         let cont_body,
-            cidx = 0,
+            _virtual_x = 0,
             last_cells = [],
             first_col = true;
         if (row_headers?.length > 0) {
@@ -100,26 +100,27 @@ export class RegularTableViewModel {
                 column_name,
                 cidx: 0,
                 column_data: row_headers,
-                id_column,
+                row_headers,
                 first_col,
             };
-            cont_body = this.body.draw(container_height, column_state, {...view_state, cidx_offset: 0}, true, undefined, undefined, cidx + cidx_offset);
-            const cont_head = this.header.draw(
-                config,
-                column_name,
-                Array(view_cache.config.column_pivots.length + 1).fill(""),
-                row_index_length,
-                undefined,
-                undefined,
-                Array.from(Array(row_index_length).keys())
-            );
+            const size_key = _virtual_x + x0;
+            cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key, _virtual_x);
+            const cont_heads = [];
+            for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
+                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), 1, undefined, i, x0, i));
+            }
             first_col = false;
-            view_state.viewport_width += this._column_sizes.indices[0] || cont_body.td?.offsetWidth || cont_head.th.offsetWidth;
+            view_state.viewport_width +=
+                // TODO correctly memoize this value
+                //this._column_sizes.indices.sli ||
+                cont_body.tds.reduce((total, {td}) => total + td.offsetWidth, 0) || cont_heads.reduce((total, {th}) => total + th.offsetWidth, 0);
             view_state.row_height = view_state.row_height || cont_body.row_height;
-            cidx = row_headers[0].length;
+            _virtual_x = row_headers[0].length;
             if (!preserve_width) {
-                for (const {td, metadata} of cont_body.tds) {
-                    last_cells.push([td || cont_head.th, metadata || cont_head.metadata]);
+                for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
+                    const {td, metadata} = cont_body.tds[i];
+                    const {th, metadata: hmetadata} = cont_heads[i];
+                    last_cells.push([td || th, metadata || hmetadata]);
                 }
             }
         }
@@ -142,17 +143,20 @@ export class RegularTableViewModel {
                 const column_data = data[dcidx];
                 const column_state = {
                     column_name,
-                    cidx,
+                    cidx: _virtual_x,
                     column_data,
-                    id_column,
+                    row_headers,
                     first_col,
                 };
-                const cont_head = this.header.draw(config, undefined, column_name, undefined, dcidx + cidx_offset, dcidx, cidx + cidx_offset);
-                cont_body = this.body.draw(container_height, column_state, view_state, false, dcidx + cidx_offset, cidx_offset, cidx + cidx_offset);
+
+                const x = dcidx + x0;
+                const size_key = _virtual_x + x0;
+                const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x);
+                cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, _virtual_x);
                 first_col = false;
-                view_state.viewport_width += this._column_sizes.indices[cidx + cidx_offset] || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || cont_head.th.offsetWidth;
+                view_state.viewport_width += this._column_sizes.indices[_virtual_x + x0] || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || cont_head.th.offsetWidth;
                 view_state.row_height = view_state.row_height || cont_body.row_height;
-                cidx++;
+                _virtual_x++;
                 dcidx++;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
@@ -167,7 +171,7 @@ export class RegularTableViewModel {
 
             return last_cells;
         } finally {
-            this.body.clean({ridx: cont_body?.ridx || 0, cidx});
+            this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
             this.header.clean();
         }
     }

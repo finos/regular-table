@@ -83,11 +83,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             await new Promise(setTimeout);
             delete this._column_sizes.override[metadata.size_key];
             delete this._column_sizes.auto[metadata.size_key];
-            delete this._column_sizes.indices[metadata.cidx];
+            delete this._column_sizes.indices[metadata.size_key];
             element.style.minWidth = "";
             element.style.maxWidth = "";
             for (const row of this.table_model.body.cells) {
-                const td = row[metadata.cidx];
+                const td = row[metadata._virtual_x];
                 td.style.minWidth = "";
                 td.style.maxWidth = "";
                 td.classList.remove("pd-cell-clip");
@@ -134,14 +134,14 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      */
     _on_resize_column(event, element, metadata) {
         const start = event.pageX;
-        element = this.table_model.header.get_column_header(metadata.vcidx);
-        const width = this._column_sizes.indices[metadata.cidx];
+        element = this.table_model.header.get_column_header(metadata._virtual_x);
+        const width = this._column_sizes.indices[metadata.size_key];
         const move = (event) => this._on_resize_column_move(event, element, start, width, metadata);
         const up = async () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
             const override_width = this._column_sizes.override[metadata.size_key];
-            this._column_sizes.indices[metadata.cidx] = override_width;
+            this._column_sizes.indices[metadata.size_key] = override_width;
             await this.draw({invalid_viewport: true});
         };
         document.addEventListener("mousemove", move);
@@ -162,7 +162,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     async _on_resize_column_move(event, th, start, width, metadata) {
         await new Promise(setTimeout);
         const diff = event.pageX - start;
-        const override_width = width + diff;
+        const override_width = Math.max(1, width + diff);
         this._column_sizes.override[metadata.size_key] = override_width;
 
         // If the column is smaller, new columns may need to be fetched, so
@@ -174,7 +174,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             th.style.maxWidth = override_width + "px";
             const auto_width = this._column_sizes.auto[metadata.size_key];
             for (const row of this.table_model.body.cells) {
-                const td = row[metadata.vcidx];
+                const td = row[metadata._virtual_x];
                 td.style.maxWidth = td.style.minWidth = override_width + "px";
                 td.classList.toggle("pd-cell-clip", auto_width > override_width);
             }

@@ -35,7 +35,7 @@ describe("perspective_headers.html", () => {
             test("with the correct bottom grouped header", async () => {
                 const first_tr = await page.$("regular-table thead tr:last-child");
                 const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-                expect(cell_values).toEqual(["    ", " Sales   "]);
+                expect(cell_values).toEqual(["   ", "   ", "   ", "   ", " Sales  "]);
             });
         });
 
@@ -46,7 +46,7 @@ describe("perspective_headers.html", () => {
                 for (const tr of first_tr) {
                     cell_values.push(await page.evaluate((tr) => tr.innerHTML, tr));
                 }
-                expect(cell_values).toEqual(["", "", "", "Central", "", "", "", "Illinois", "", "", "Arlington Heights", "Aurora"]);
+                expect(cell_values).toEqual(["TOTAL", "", "", "", "", "Central", "", "Illinois", "", "Arlington Heights", "Aurora"]);
             });
         });
     });
