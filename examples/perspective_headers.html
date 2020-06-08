@@ -183,7 +183,7 @@
                 }
                 this._num_rows = await this._view.num_rows();
                 this._num_columns = await this._view.num_columns();
-                regularTable.draw({invalid_viewport: true});
+                regularTable.draw();
             } else if (event.target.classList.contains("psp-header-leaf")) {
                 console.log("sort!");
             }

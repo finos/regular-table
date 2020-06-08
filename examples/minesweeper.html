@@ -182,7 +182,7 @@
             } else {
                 clear([[x, y]]);
             }
-            await table.draw({invalid_viewport: true});
+            await table.draw();
         }
 
         function format(x) {
@@ -262,7 +262,7 @@
                 } else if (val === CLEAR_ENUM) {
                     VIEW_DATA[meta.x][meta.y] = FLAG_ENUM;
                 }
-                table.draw({invalid_viewport: true});
+                table.draw();
             }
         }
 

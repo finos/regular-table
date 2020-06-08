@@ -25,7 +25,7 @@
         "build:less": "lessc src/less/material.less dist/css/material.css",
         "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
-        "docs": "jsdoc2md src/js/index.js --separators --heading-depth 1 > API.md",
+        "docs": "jsdoc2md src/js/index.js --separators --heading-depth 1 > api.md",
         "lint": "eslint src examples/*.html",
         "fix": "yarn lint --fix",
         "test": "jest --noStackTrace",

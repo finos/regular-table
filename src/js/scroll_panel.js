@@ -354,14 +354,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} [options]
      * @param {boolean} [options.reset_scroll_position=false]
      * @param {boolean} [options.preserve_width=false]
-     * @param {boolean} [options.invalid_viewport=false]
+     * @param {boolean} [options.invalid_viewport=true]
      * @returns
      * @memberof RegularVirtualTableViewModel
      */
     @throttlePromise
     async draw(options = {}) {
         const __debug_start_time__ = DEBUG && performance.now();
-        const {reset_scroll_position = false, preserve_width = false, invalid_viewport = false} = options;
+        const {reset_scroll_position = false, preserve_width = false, invalid_viewport = true} = options;
 
         if (reset_scroll_position) {
             this.reset_scroll();
