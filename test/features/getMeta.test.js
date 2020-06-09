@@ -147,16 +147,16 @@ describe("getMeta()", () => {
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 0", "Column 0"],
-                    row_header: ["Group 30", "Row 37"],
+                    row_header: ["Group 40", "Row 40"],
                     dx: 0,
                     dy: 0,
                     size_key: 2,
                     _virtual_x: 2,
-                    value: "37",
+                    value: "40",
                     x: 0,
                     x0: 0,
-                    y: 37,
-                    y0: 37,
+                    y: 40,
+                    y0: 40,
                 });
             });
 
@@ -166,13 +166,13 @@ describe("getMeta()", () => {
                     return JSON.stringify(table.getMeta(document.querySelector("tbody th")));
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
-                    row_header: ["Group 30", "Row 37"],
+                    row_header: ["Group 40", "Row 40"],
                     size_key: 0,
                     _virtual_x: 0,
-                    value: "Group 30",
+                    value: "Group 40",
                     row_header_x: 0,
-                    y: 37,
-                    y0: 37,
+                    y: 40,
+                    y0: 40,
                 });
             });
 

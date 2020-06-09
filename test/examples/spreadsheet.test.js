@@ -93,7 +93,7 @@ describe("spreadsheet.html", () => {
             for (const tr of first_tr) {
                 cell_values.push(await page.evaluate((tr) => tr.innerHTML, tr));
             }
-            expect(cell_values).toEqual(["", "", "", "", "", "", "1", "", "", "2", "3", "", "", "", ""]);
+            expect(cell_values).toEqual(["", "", "", "", "", "", "", "", "1", "", "", "", "2", "3", "", "", "", "", "", ""]);
         });
 
         describe("on scroll", () => {
@@ -111,7 +111,7 @@ describe("spreadsheet.html", () => {
                 for (const tr of first_tr) {
                     cell_values.push(await page.evaluate((tr) => tr.innerHTML, tr));
                 }
-                expect(cell_values).toEqual(["", "", "", "1", "", "", "2", "3", "", "", "", "", "", "", ""]);
+                expect(cell_values).toEqual(["", "", "", "", "1", "", "", "", "2", "3", "", "", "", "", "", "", "", "", "", ""]);
             });
         });
     });
