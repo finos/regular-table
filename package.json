@@ -1,6 +1,6 @@
 {
     "name": "regular-table",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "A regular `<table>`, for an async and virtual data model.",
     "repository": {
         "type": "git",
