@@ -10,7 +10,7 @@
 
 describe("web_worker.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 200, height: 100});
+        await page.setViewport({width: 250, height: 100});
     });
 
     // TODO don't run these, they depend on unpkg.com
@@ -29,7 +29,7 @@ describe("web_worker.html", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["0", "1", "2"]);
+            expect(cell_values).toEqual(["0", "1", "2", "3"]);
         });
     });
 
@@ -47,7 +47,7 @@ describe("web_worker.html", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["200,002", "200,003", "200,004"]);
+            expect(cell_values).toEqual(["200,002", "200,003", "200,004", "200,005"]);
         });
     });
 });

@@ -15,7 +15,18 @@
 @row-height: 19px;
 
 regular-table {
-    padding: 12px;
+    padding-top: 12px;
+    padding-left: 12px;
+    padding-bottom: 0;
+    padding-right: 0;
+
+    // firefox scrollbar styling
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
+}
+
+regular-table:hover {
+    scrollbar-color: rgba(0,0,0,0.3) transparent;
 }
 
 regular-table, :host {
@@ -31,7 +42,7 @@ regular-table, :host {
         left: 0;
         right: 0;
         bottom: 0;
-        overflow: hidden;    
+        overflow: hidden;
     }
 
     th {
@@ -174,7 +185,7 @@ regular-table, :host {
         flex: 1;
         height: 100%;
     }
-    
+
     th span.pd-group-name {
         text-align: left;
     }
@@ -193,21 +204,32 @@ regular-table, :host {
         cursor: col-resize;
     }
 
-    &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+    // webkit (chrome, safari, etc) scrollbar styling
+
+    &::-webkit-scrollbar,
+    &::-webkit-scrollbar-corner {
+        background-color: transparent;
+        height: 12px;
+        width: 12px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-clip: content-box;
+        background-color: rgba(0,0,0,0);
+        border-radius: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb:horizontal {
+        border-bottom: 2px solid transparent;
+        border-top: 2px solid transparent;
+    }
+
+    &::-webkit-scrollbar-thumb:vertical {
+        border-left: 2px solid transparent;
+        border-right: 2px solid transparent;
     }
 
     &:hover::-webkit-scrollbar-thumb {
         background-color: rgba(0,0,0,0.3);
-    }
-
-    &::-webkit-scrollbar-thumb {
-        border-radius: 4px;
-        background-color: rgba(0,0,0,0);
-    }
-
-    &::-webkit-scrollbar-corner {
-        background-color: rgba(0,0,0,0);
     }
 }

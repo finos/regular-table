@@ -115,7 +115,7 @@ describe("two_billion_rows.html", () => {
         test("with the correct # of rows", async () => {
             const tbody = await page.$("regular-table tbody");
             const num_rows = await page.evaluate((tbody) => tbody.children.length, tbody);
-            expect(num_rows).toEqual(5);
+            expect(num_rows).toEqual(2);
         });
 
         test("with the first row's cell test correct", async () => {

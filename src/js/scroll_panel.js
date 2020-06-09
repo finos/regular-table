@@ -144,13 +144,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const {height} = this._container_size;
         const row_height = this._column_sizes.row_height || 19;
         const header_levels = this._view_cache.config.column_pivots.length + 1;
-        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.offsetHeight);
+        // TODO use cached height?
+        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.clientHeight);
         const percent_scroll = this.scrollTop / total_scroll_height;
         const virtual_panel_row_height = height / row_height;
         const relative_nrows = !reset_scroll_position ? this._nrows || 0 : nrows;
         const scroll_rows = Math.max(0, relative_nrows + (header_levels - virtual_panel_row_height));
         let start_row = Math.ceil(scroll_rows * percent_scroll);
-        let end_row = Math.ceil(start_row + virtual_panel_row_height + 1);
+        let end_row = Math.min(Math.ceil(start_row + virtual_panel_row_height), nrows);
         return {start_row, end_row};
     }
 
@@ -316,7 +317,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     scrollTo(x, y, ncols, nrows) {
         const row_height = this._virtual_panel.offsetHeight / nrows;
         this.scrollTop = row_height * y;
-        this.scrollLeft = (x / (this._max_scroll_column() || ncols)) * (this.scrollWidth - this.offsetWidth);
+        // TODO use cached?
+        this.scrollLeft = (x / (this._max_scroll_column() || ncols)) * (this.scrollWidth - this.clientWidth);
     }
 
     /**
@@ -332,8 +334,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         if (this._virtual_scrolling_disabled) {
             virtual_panel_px_size = nrows * row_height + header_height;
         } else {
-            const {height} = this._container_size;
-            const zoom_factor = this.offsetHeight / (height - header_height);
+            //const {height} = this._container_size;
+            // TODO use cached height?
+            const zoom_factor = this.clientHeight / (this._table_clip.offsetHeight - header_height);
             virtual_panel_px_size = Math.min(BROWSER_MAX_HEIGHT, nrows * row_height * zoom_factor);
         }
         this._virtual_panel.style.height = `${virtual_panel_px_size}px`;
@@ -373,8 +376,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             this._container_size = {width: Infinity, height: Infinity};
         } else {
             this._container_size = (!this._invalid_schema && !invalid_viewport && this._container_size) || {
-                width: this._table_clip.offsetWidth,
-                height: this._table_clip.offsetHeight,
+                width: this._table_clip.clientWidth,
+                height: this._table_clip.clientHeight,
             };
         }
 

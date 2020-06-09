@@ -10,7 +10,7 @@
 
 describe("scrolling", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 250, height: 200});
+        await page.setViewport({width: 260, height: 200});
     });
 
     describe("scrolls down", () => {
@@ -33,13 +33,13 @@ describe("scrolling", () => {
         test("with the correct # of columns", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const num_cells = await page.evaluate((first_tr) => first_tr.children.length, first_tr);
-            expect(num_cells).toEqual(4);
+            expect(num_cells).toEqual(5);
         });
 
         test("with the first row's <td> test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.querySelectorAll("td")).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["37", "38"]);
+            expect(cell_values).toEqual(["40", "41", "42"]);
         });
     });
 

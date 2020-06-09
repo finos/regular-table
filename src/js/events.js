@@ -54,9 +54,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         }
         event.preventDefault();
         event.returnValue = false;
-        const {offsetWidth, offsetHeight, scrollTop, scrollLeft} = this;
-        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - offsetHeight);
-        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - offsetWidth);
+        const {clientWidth, clientHeight, scrollTop, scrollLeft} = this;
+        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
+        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
         this.scrollTop = Math.min(total_scroll_height, scrollTop + event.deltaY);
         this.scrollLeft = Math.min(total_scroll_width, scrollLeft + event.deltaX);
         this._on_scroll(event);
