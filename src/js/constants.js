@@ -24,4 +24,5 @@ export const DOUBLE_BUFFER_RECREATE = false;
 
 // The largest size virtual <div> in (px) that Chrome can support without
 // glitching.
-export const BROWSER_MAX_HEIGHT = 10000000;
+const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+export const BROWSER_MAX_HEIGHT = isFirefox ? 5000000 : 10000000;
