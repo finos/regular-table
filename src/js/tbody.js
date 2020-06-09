@@ -19,10 +19,11 @@ console.assert(["none", "rowspan", "rowspan_hide", "rowspan_leading"].indexOf(RO
  * @class RegularBodyViewModel
  */
 export class RegularBodyViewModel extends ViewModel {
-    _draw_td(tagName, ridx, val, cidx, {column_name}, {ridx_offset}) {
+    _draw_td(tagName, ridx, val, cidx, {column_name}, {ridx_offset}, size_key) {
         const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
         metadata.y = ridx + ridx_offset;
+        metadata.size_key = size_key;
         if (tagName === "TD") {
             metadata.column_header = column_name;
         }
@@ -94,12 +95,11 @@ export class RegularBodyViewModel extends ViewModel {
                     if (prev && prev[i][0] === row_header) {
                         row.push(this._merge_th(trailing, prev[i], i, ridx, row_header, cidx_, column_state, view_state));
                     } else {
-                        obj = this._draw_td("TH", ridx, row_header, cidx_, column_state, view_state);
+                        obj = this._draw_td("TH", ridx, row_header, cidx_, column_state, view_state, i);
                         obj.td.style.display = "";
                         obj.td.removeAttribute("rowspan");
                         obj.metadata.row_header = val;
                         obj.metadata.row_header_x = i;
-                        obj.metadata.size_key = i;
                         obj.metadata.x0 = x0;
                         obj.metadata.y0 = view_state.ridx_offset;
                         obj.metadata._virtual_x = i;
@@ -110,14 +110,13 @@ export class RegularBodyViewModel extends ViewModel {
                 prev = row;
                 ridx++;
             } else {
-                obj = this._draw_td("TD", ridx++, val, cidx, column_state, view_state);
+                obj = this._draw_td("TD", ridx++, val, cidx, column_state, view_state, size_key);
                 obj.metadata.x = x;
                 obj.metadata.x0 = x0;
                 obj.metadata.row_header = id || {test: 2};
                 obj.metadata.y0 = view_state.ridx_offset;
                 obj.metadata.dx = x - x0;
                 obj.metadata.dy = obj.metadata.y - obj.metadata.y0;
-                obj.metadata.size_key = size_key;
                 obj.metadata._virtual_x = _virtual_x;
                 prev = [[val, obj, 1]];
             }

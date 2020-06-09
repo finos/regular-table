@@ -111,9 +111,7 @@ export class RegularTableViewModel {
             }
             first_col = false;
             view_state.viewport_width +=
-                // TODO correctly memoize this value
-                //this._column_sizes.indices.sli ||
-                cont_body.tds.reduce((total, {td}) => total + td.offsetWidth, 0) || cont_heads.reduce((total, {th}) => total + th.offsetWidth, 0);
+                cont_body.tds.reduce((total, {td}, i) => total + (this._column_sizes.indices[i] || td.offsetWidth), 0) || cont_heads.reduce((total, {th}) => total + th.offsetWidth, 0);
             view_state.row_height = view_state.row_height || cont_body.row_height;
             _virtual_x = row_headers[0].length;
             if (!preserve_width) {
