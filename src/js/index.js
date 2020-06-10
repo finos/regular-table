@@ -87,19 +87,19 @@ class RegularTableElement extends RegularViewEventModel {
      * const metadata = table.getMeta(elems);
      * console.log(`Viewport corner is ${metadata.x}, ${metadata.y}`);
      * @example
-     * const header = table.getMeta({row_header_x: 1, dy: 3}).row_header;
+     * const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
      */
     getMeta(element) {
         if (element instanceof HTMLElement) {
             return METADATA_MAP.get(element);
         } else if (element.row_header_x >= 0) {
             const is_valid = element.row_header_x < this._view_cache.config.row_pivots.length;
-            return is_valid && this.table_model.body.cells[element.dy]?.[element.row_header_x];
+            return is_valid && this.table_model.body.cells[element.y]?.[element.row_header_x];
         } else if (element.column_header_y >= 0) {
             const is_valid = element.column_header_y < this._view_cache.config.column_pivots.length;
-            return is_valid && this.table_model.body.cells[element.column_header_y]?.[element.dy];
+            return is_valid && this.table_model.body.cells[element.column_header_y]?.[element.y];
         } else {
-            return this.table_model.body.cells[element.dy]?.[element.dx];
+            return this.table_model.body.cells[element.y]?.[element.dx];
         }
     }
 
