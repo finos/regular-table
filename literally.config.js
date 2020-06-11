@@ -2,7 +2,7 @@ const fs = require("fs");
 const pkg = JSON.parse(fs.readFileSync("package.json").toString());
 
 module.exports = {
-    files: ["examples/2d_array.md"],
+    files: ["examples/*.md"],
     output: "dist/examples",
     format: "html",
     retarget: [
