@@ -15,7 +15,7 @@ describe("spreadsheet.html", () => {
 
     describe("Makes a simple edit", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/spreadsheet.html");
+            await page.goto("http://localhost:8081/dist/examples/spreadsheet.html");
             await page.waitFor("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
@@ -66,7 +66,7 @@ describe("spreadsheet.html", () => {
 
     describe("Evaluates an expression", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/spreadsheet.html");
+            await page.goto("http://localhost:8081/dist/examples/spreadsheet.html");
             await page.waitFor("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
