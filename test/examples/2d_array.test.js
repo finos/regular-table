@@ -15,7 +15,7 @@ describe("2d_array.html", () => {
 
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/2d_array.html");
+            await page.goto("http://localhost:8081/dist/examples/2d_array.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 
@@ -40,15 +40,16 @@ describe("2d_array.html", () => {
 
     describe("scrolls via scrollTo() method", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/2d_array.html");
+            await page.goto("http://localhost:8081/dist/examples/2d_array.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 
         test("to (0, 1)", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
+                table._invalid_schema = true;
                 table.scrollTo(0, 1, 3, 26);
-                await table.draw();
+                await table.draw({invalid_viewport: true});
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
@@ -58,12 +59,13 @@ describe("2d_array.html", () => {
         test("to (0, 4)", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
+                table._invalid_schema = true;
                 table.scrollTo(0, 4, 3, 26);
-                await table.draw();
+                await table.draw({invalid_viewport: true});
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["4", "E", "true"]);
+            expect(cell_values).toEqual(["3", "D", "false"]);
         });
     });
 });
