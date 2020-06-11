@@ -23,12 +23,6 @@ install:
   - yarn
 
 script:
-  # lint first, no point running tests just to fail on lint
   - yarn lint
-
-  # test production build
   - yarn build
-  - yarn clean
-
-  # dev build will run as part of `yarn test`
   - yarn test
