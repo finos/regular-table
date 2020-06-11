@@ -1,7 +1,5 @@
 const fs = require("fs");
 const child_process = require("child_process");
-const rimraf = require("rimraf");
-const pkg = JSON.parse(fs.readFileSync("package.json").toString());
 
 const hashes = {
     two_billion_rows: "483a42e7b877043714e18bea6872b039",
@@ -20,32 +18,9 @@ for (const file in hashes) {
         } else {
             child_process.execSync(`git clone https://gist.github.com/${hashes[file]}.git dist/${hashes[file]}`);
         }
-        fs.copyFileSync(`images/${file}.preview.png`, `dist/${hashes[file]}/preview.png`);
-        fs.copyFileSync(`images/${file}.thumbnail.png`, `dist/${hashes[file]}/thumbnail.png`);
 
-        if (!fs.existsSync(`dist/${hashes[file]}/.block`)) {
-            fs.writeFileSync(`dist/${hashes[file]}/.block`, "license: apache-2.0");
-        }
-
-        // Retarget source assets to jsdelivr
-        let source = fs.readFileSync(`examples/${file}.html`).toString();
-        source = source.replace(/\.\.\/node_modules\//g, `https://cdn.jsdelivr.net/npm/`);
-        source = source.replace(/\.\.\//g, `https://cdn.jsdelivr.net/npm/regular-table@${pkg.version}/`);
-
-        // Remove inline license
-        source = source.replace(/<!--(.|\n)*?-->/, "");
-
-        // Generate the README.md
-        let [readme] = /<!--((.|\n)*?)-->/.exec(source);
-        source = source.replace(/<!--(.|\n)*?-->/, "");
-        readme = readme
-            .replace(/(<!--|-->)/g, "")
-            .trim()
-            .replace(/^    /gm, "");
-
-        // Write
-        fs.writeFileSync(`dist/${hashes[file]}/README.md`, readme);
-        fs.writeFileSync(`dist/${hashes[file]}/index.html`, source.trim());
+        // Run literally for this project
+        child_process.execSync(`yarn literally --format block --output dist/${hashes[file]} examples/${file}.md`);
 
         // Update git
         process.chdir(`dist/${hashes[file]}`);
@@ -62,7 +37,6 @@ for (const file in hashes) {
     } catch (e) {
         console.error(`${file} dist failed!`, e);
     } finally {
-        rimraf(`dist/${hashes[file]}`, () => console.log(`Cleaned ${hashes[file]}`));
     }
 }
 

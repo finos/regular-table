@@ -2,7 +2,8 @@
     "parser": "babel-eslint",
     "plugins": [
         "prettier",
-        "html"
+        "html",
+        "markdown"
     ],
     "env": {
         "browser": true,
@@ -17,6 +18,15 @@
         "context": true,
         "jestPuppeteer": true
     },
+    "overrides": [{
+        "files": ["**/*.md"],
+        "rules": {
+            "no-undef": "off",
+            "no-unused-vars": "off",
+            "no-console": "off",
+            "padded-blocks": "off"
+        }
+    }],
     "parserOptions": {
         "ecmaVersion": 2018,
         "ecmaFeatures": {},

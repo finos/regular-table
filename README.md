@@ -38,7 +38,7 @@ anytime you need:
 What follows functions as a quick-start guide, and will explain the basics of
 the Virtual Data Models, Styling and Interaction APIs.  Complete API docs can
 be found [here](https://github.com/jpmorganchase/regular-table/blob/master/api.md),
-and many advanced examples can be found in the [`examples` directory](https://github.com/jpmorganchase/regular-table/tree/masterexamples)
+and many advanced examples can be found in the [`examples` directory](https://github.com/jpmorganchase/regular-table/tree/masterexamples).
 
 - [Installation](#installation)
 - [`<regular-table>` Custom Element](#regular-table-custom-element)
@@ -95,7 +95,7 @@ document.body.appendChild(regularTable);
 an example for [React/JSX](https://reactjs.org/):
 
 ```javascript
-const App = () => (<regular-table></regular-table>);
+const App = () => <regular-table></regular-table>;
 ReactDOM.render(<App />, document.getElementById("root"));
 ```
 
@@ -109,9 +109,9 @@ indirectly.
 
 ```javascript
 const DATA = [
-    [0, 1, 2, 3, 4, 5], 
+    [0, 1, 2, 3, 4, 5],
     ["A", "B", "C", "D", "E", "F"],
-    [true, false, true, false, true, false]
+    [true, false, true, false, true, false],
 ];
 ```
 
@@ -158,9 +158,9 @@ model via the `setDataListener()` method:
 ```javascript
 function getDataSlice(x0, y0, x1, y1) {
     return {
-        num_rows: num_rows = DATA[0].length,
+        num_rows: (num_rows = DATA[0].length),
         num_columns: DATA.length,
-        data: DATA.slice(x0, x1).map(col => col.slice(y0, y1))
+        data: DATA.slice(x0, x1).map((col) => col.slice(y0, y1)),
     };
 }
 
@@ -311,16 +311,16 @@ Worker replies:
 
 let callback;
 
-worker.addEventListener("message", event => {
+worker.addEventListener("message", (event) => {
     callback(event.data);
 });
 
 regularTable.setDataListener((...viewport) => {
-    return new Promise(function (resolve) {    
+    return new Promise(function (resolve) {
         callback = resolve;
         worker.postMessage(viewport);
     });
-}); 
+});
 ```
 
 ```javascript
@@ -365,7 +365,7 @@ table.addStyleListener(() => {
     for (const th of table.querySelectorAll("tbody th")) {
         style_th(th);
     }
-})
+});
 ```
 
 Once you've selected the `<td>` and `<th>` you want to paint, `getMeta()`
@@ -396,7 +396,7 @@ select:
 ```javascript
 const selected_rows = [];
 
-table.addEventListener("mousedown", event => {
+table.addEventListener("mousedown", (event) => {
     const meta = table.getMeta(event.target);
     if (meta && meta.y >= 0) {
         selected_rows.push(meta.y);
@@ -409,7 +409,7 @@ table.addStyleListener(() => {
         const meta = table.getMeta(td);
         td.classList.toggle("row-selected", selected_rows.includes(meta.y));
     }
-})
+});
 ```
 
 Advanced examples can be found in the [`examples`](https://github.com/jpmorganchase/regular-table/tree/master/examples)

@@ -15,7 +15,7 @@ describe("two_billion_rows.html", () => {
 
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 
@@ -40,7 +40,7 @@ describe("two_billion_rows.html", () => {
 
     describe("scrolls down", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
@@ -63,7 +63,7 @@ describe("two_billion_rows.html", () => {
 
     describe("scrolls right", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollLeft = 1000;
@@ -86,7 +86,7 @@ describe("two_billion_rows.html", () => {
 
     describe("scrolls via scrollTo() method", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 
@@ -104,7 +104,7 @@ describe("two_billion_rows.html", () => {
 
     describe("scrolls down beyond bottom threshold", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = table.scrollHeight + 100000;
@@ -127,7 +127,7 @@ describe("two_billion_rows.html", () => {
 
     describe("scrolls rights beyond right border threshold", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/examples/two_billion_rows.html");
+            await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollLeft = table.scrollWidth + 100000;
