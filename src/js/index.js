@@ -123,6 +123,25 @@ class RegularTableElement extends RegularViewEventModel {
     }
 
     /**
+     * Call this method to set the `scrollLeft` and `scrollTop` for this
+     * `<regular-table>` by calculating the position of this `scrollLeft`
+     * and `scrollTop` relative to the underlying widths of its columns
+     * and heights of its rows.
+     * @memberof RegularTableElement
+     * @param {number} x - The left most `x` index column to scroll into view.
+     * @param {number} y - The top most `y` index row to scroll into view.
+     * @param {number} ncols - Total number of columns in the data model.
+     * @param {number} nrows - Total number of rows in the data model.
+     * @example
+     * table.scrollTo(1, 3, 10, 30);
+     */
+    scrollTo(x, y, ncols, nrows) {
+        const row_height = this._virtual_panel.offsetHeight / nrows;
+        this.scrollTop = row_height * y;
+        this.scrollLeft = (x / (this._max_scroll_column(ncols) || ncols)) * (this.scrollWidth - this.clientWidth);
+    }
+
+    /**
      * Call this method to set `DataListener` for this `<regular-table>`,
      * which will be called whenever a new data slice is needed to render.
      * Calls to `draw()` will fail if no `DataListener` has been set

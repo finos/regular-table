@@ -176,10 +176,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Calculates the minimum possible starting column index for which the last
      * column is completely visible (e.g. not occluded by the container clip).
-     * This is assumed to be the # of columns unil the column widths are
+     * This is assumed to be the # of columns until the column widths are
      * calculated as they are scrolled into view by the user, which requires
      * special synchronization with _update_virtual_panel_width`
-     * as the scrollable width will changes as the user scrolls left to right.
+     * as the scrollable width will change as the user scrolls left to right.
      *
      * Once `_column_sizes.indices` has enough column widths populated from
      * user scrolling, it calulates the cumulative sum of column widths from
@@ -312,13 +312,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 this.scrollLeft = percent_left * virtual_width;
             }
         }
-    }
-
-    scrollTo(x, y, ncols, nrows) {
-        const row_height = this._virtual_panel.offsetHeight / nrows;
-        this.scrollTop = row_height * y;
-        // TODO use cached?
-        this.scrollLeft = (x / (this._max_scroll_column() || ncols)) * (this.scrollWidth - this.clientWidth);
     }
 
     /**

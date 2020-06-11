@@ -63,6 +63,7 @@ relevent DOM method e.g. `document.createElement("perspective-viewer")` or
 * [RegularTableElement](#RegularTableElement) ⇐ <code>HTMLElement</code>
     * [.getMeta(element)](#RegularTableElement+getMeta) ⇒ [<code>MetaData</code>](#MetaData)
     * [.getDrawFPS()](#RegularTableElement+getDrawFPS) ⇒ [<code>Performance</code>](#Performance)
+    * [.scrollTo(x, y, ncols, nrows)](#RegularTableElement+scrollTo)
     * [.setDataListener(dataListener)](#RegularTableElement+setDataListener)
 
 
@@ -112,6 +113,30 @@ setInterval(() => {
     const {real_fps} = table.getDrawFPS();
     console.log(`Measured ${fps} fps`)
 });
+```
+
+* * *
+
+<a name="RegularTableElement+scrollTo"></a>
+
+## regularTableElement.scrollTo(x, y, ncols, nrows)
+Call this method to set the `scrollLeft` and `scrollTop` for this
+`<regular-table>` by calculating the position of this `scrollLeft`
+and `scrollTop` relative to the underlying widths of its columns
+and heights of its rows.
+
+**Kind**: instance method of [<code>RegularTableElement</code>](#RegularTableElement)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| x | <code>number</code> | The left most `x` index column to scroll into view. |
+| y | <code>number</code> | The top most `y` index row to scroll into view. |
+| ncols | <code>number</code> | Total number of columns in the data model. |
+| nrows | <code>number</code> | Total number of rows in the data model. |
+
+**Example**  
+```js
+table.scrollTo(1, 3, 10, 30);
 ```
 
 * * *
