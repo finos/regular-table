@@ -34,7 +34,6 @@
 </head>
 
 <body>
-
     <regular-table></regular-table>
 
     <script>
@@ -49,6 +48,9 @@
             );
         })();
 
+        const num_rows = window.DATA[0].length;
+        const num_columns = window.DATA.length;
+
         window.dataListener = function(x0, y0, x1, y1) {
             return {
                 num_rows,
@@ -58,57 +60,21 @@
                 data: window.DATA.slice(x0, x1).map((col) => col.slice(y0, y1)),
             };
         }
-
     </script>
-
 
     <script>
         
     const table = document.getElementsByTagName("regular-table")[0];
-    const num_rows = window.DATA[0].length;
-    const num_columns = window.DATA.length;
 
     let xIndex = 0;
     let yIndex = 0;
     
-    // TODO - this shouldn't be!
-    const scrollRightStep = 3;
-    function step(active_cell, x, y) {
-        const meta = table.getMeta(active_cell);
+    // add click event in grid set x y 
 
-        // new coordinates to focus
-        if (meta.x + x < num_columns && 0 <= meta.x + x) {
-            xIndex = meta.x + x;
-        }
-        if (meta.y + y < num_rows && 0 <= meta.y + y) {
-            yIndex = meta.y + y;
-        }
-
-        // scroll x axis if necessary
-        const columns = table.querySelectorAll("regular-table tbody tr:first-child td");
-        if (meta.x0 + columns.length <= xIndex) {
-            table.scrollTo(meta.x0 + scrollRightStep, meta.y0, num_columns, num_rows);
-        } else if (xIndex < meta.x0 && 0 < meta.x0 - 1) {
-            table.scrollTo(meta.x0 - 1,  meta.y0, num_columns, num_rows);
-        }
-
-        // scroll y axis if necessary
-        const rows = table.querySelectorAll("regular-table tbody tr");
-        if (meta.y0 + rows.length <= yIndex) {
-            table.scrollTo(meta.x0, meta.y0 + 1, num_columns, num_rows);
-        } else if (yIndex < meta.y0 && 0 < meta.y0 - 1) {
-            table.scrollTo(meta.x0, meta.y0 - 1, num_columns, num_rows);
-        }
-
-        // ensure redraw
-        table.draw();
-    }
-
-    table.setDataListener(window.dataListener);
-
-    table.addStyleListener(() => {
-        for (const td of table.get_tds()) {
-            td.setAttribute("contenteditable", true);
+    const updateFocus = () => {
+        const tds = table.querySelectorAll("regular-table tbody tr td");
+        for (const td of tds) {
+            td.setAttribute("contenteditable", true); // TODO css style
             const meta = table.getMeta(td);
             if (meta.x === xIndex && meta.y === yIndex) {
                 td.focus();
@@ -116,7 +82,54 @@
                 td.blur();
             }
         }
-    });
+    }
+
+    // TODO split function
+    function step(active_cell, dx, dy) {
+
+        // TODO - this shouldn't be!
+        const scrollStep = 4; // if scroll * 2 > num rows or columns theres a problem
+        const meta = table.getMeta(active_cell);
+
+        if (meta.x + dx < num_columns && 0 <= meta.x + dx) {
+            xIndex = meta.x + dx;
+        }
+        if (dx !== 0) {
+            // scroll x axis if necessary
+            const columns = table.querySelectorAll("regular-table tbody tr:first-child td");
+            if (meta.x0 + columns.length <= xIndex + scrollStep) {
+                table.scrollTo(meta.x0 + 2, meta.y0, num_columns, num_rows);
+            } else if (xIndex - scrollStep < meta.x0) {
+                if (0 < meta.x0 - 1) {
+                    table.scrollTo(meta.x0 - 1,  meta.y0, num_columns, num_rows);
+                } else {
+                    table.scrollTo(0, meta.y0, num_columns, num_rows);
+                }
+            }
+        }
+
+        if (meta.y + dy < num_rows && 0 <= meta.y + dy) {
+            yIndex = meta.y + dy;
+        }
+        if (dy !== 0) {
+            // scroll y axis if necessary
+            const rows = table.querySelectorAll("regular-table tbody tr");
+            if (meta.y0 + rows.length <= yIndex + scrollStep) {
+                table.scrollTo(meta.x0, meta.y0 + 1, num_columns, num_rows);
+            } else if (yIndex - scrollStep + 2 < meta.y0) {
+                if (0 < meta.y0 - 1) {
+                    table.scrollTo(meta.x0, meta.y0 - 1, num_columns, num_rows);
+                } else {
+                    table.scrollTo(meta.x0, 0, num_columns, num_rows);
+                }
+            }
+        }
+        updateFocus();
+    }
+
+    table.setDataListener(window.dataListener);
+
+    table.addStyleListener(updateFocus);
 
     table.addEventListener("keydown", (event) => {
         const target = document.activeElement;
@@ -139,6 +152,7 @@
                 break;
         }
     });
+
     table.draw();
     </script>
 </body>
