@@ -73,8 +73,6 @@ export const html = (strings, ...args) =>
         .filter((a) => !!a)
         .join("");
 
-export const css = html;
-
 const invertPromise = () => {
     let _resolve;
     const promise = new Promise((resolve) => {

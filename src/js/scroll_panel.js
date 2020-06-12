@@ -8,8 +8,10 @@
  *
  */
 
-import {css, log_perf, html, throttlePromise} from "./utils";
+import {log_perf, html, throttlePromise} from "./utils";
 import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DOUBLE_BUFFER_COLUMN} from "./constants";
+
+import container_css from "../less/container.less";
 
 /**
  * Handles the virtual scroll pane, as well as the double buffering
@@ -64,7 +66,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     create_shadow_dom() {
         this.attachShadow({mode: "open"});
         const slot = `<slot></slot>`;
-        const container_css = css`src/less/container.less`;
         this.shadowRoot.innerHTML = html`
             <style>
                 ${container_css}

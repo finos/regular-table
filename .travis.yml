@@ -23,6 +23,6 @@ install:
   - yarn
 
 script:
+  - yarn lint
   - yarn build
   - yarn test
-  - yarn lint

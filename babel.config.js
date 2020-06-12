@@ -18,7 +18,6 @@ module.exports = {
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-proposal-optional-chaining",
         "./scripts/babel-plugin-html-template.js",
-        "./scripts/babel-plugin-css-template.js",
     ],
     sourceMaps: true,
 };
