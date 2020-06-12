@@ -184,9 +184,28 @@
             }
         }
 
+        function reset_tree_autosize(table) {
+            for (const size_key of Object.keys(table.table_model._column_sizes.auto)) {
+                if (size_key <= this._config.row_pivots.length) {
+                    table.table_model._column_sizes.auto[size_key] = undefined;
+                }
+            }
+        }
+        
         /// sort
 
-        function increment_sort(column_name) {
+        async function sortHandler(regularTable, event) {
+            const meta = regularTable.getMeta(event.target);
+            const column_name = meta.column_header[meta.column_header.length - 1];
+            const sort_method = event.shiftKey ? append_sort : override_sort;
+            const sort = sort_method.call(this, column_name);
+            this._view = this._table.view({...this._config, sort: sort});
+            await create_view_cache(this._table, this._view, this);
+            reset_tree_autosize.call(this, regularTable);
+            await regularTable.draw();
+        }
+
+        function append_sort(column_name) {
             const sort = [];
             let found = false;
             for (const sort_term of this._config.sort) {
@@ -194,7 +213,7 @@
                 if (_column_name === column_name) {
                     found = true;
                     const term = create_sort.call(this, column_name, _sort_dir);
-                    if (sort) {
+                    if (term) {
                         sort.push(term);
                     }
                 } else {
@@ -207,22 +226,6 @@
             return sort;
         }
 
-        const sort_increment_order_no_pivot = {desc: "asc", asc: undefined};
-        const sort_increment_order_column_pivot = {desc: "asc", asc: "col desc", "col desc": "col asc", "col asc": undefined};
-        
-        function create_sort(column_name, sort_dir) {
-            let order;
-            if (this._config.column_pivots.length > 0) {
-                order = sort_increment_order_column_pivot;
-            } else {
-                order = sort_increment_order_no_pivot;
-            }
-            const inc_sort_dir = sort_dir ? order[sort_dir] : "desc";
-            if (inc_sort_dir) {
-                return [column_name, inc_sort_dir];
-            }
-        }
-
         function override_sort(column_name) {
             for (const [_column_name, _sort_dir] of this._config.sort) {
                 if (_column_name === column_name) {
@@ -232,21 +235,18 @@
             }
             return [[column_name, "desc"]];
         }
-
-        async function sortHandler(regularTable, event) {
-            const meta = regularTable.getMeta(event.target);
-            const column_name = meta.column_header[meta.column_header.length - 1];
-            let sort;
-            if (event.shiftKey) {
-                sort = increment_sort.call(this, column_name);
-            } else {
-                sort = override_sort.call(this, column_name);
+        
+        function create_sort(column_name, sort_dir) {
+            const is_col_sortable = this._config.column_pivots.length > 0;
+            const order = is_col_sortable ? ROW_COL_SORT_ORDER : ROW_SORT_ORDER;
+            const inc_sort_dir = sort_dir ? order[sort_dir] : "desc";
+            if (inc_sort_dir) {
+                return [column_name, inc_sort_dir];
             }
-
-            this._view = this._table.view({...this._config, sort: sort});
-            await create_view_cache(this._table, this._view, this);
-            await regularTable.draw();
         }
+
+        const ROW_SORT_ORDER = {desc: "asc", asc: undefined};
+        const ROW_COL_SORT_ORDER = {desc: "asc", asc: "col desc", "col desc": "col asc", "col asc": undefined};
 
         async function expandCollapseHandler(regularTable, event) {
             const meta = regularTable.getMeta(event.target);
@@ -260,11 +260,7 @@
             } else {
                 this._view.expand(meta.y);
             }
-            for (const size_key of Object.keys(regularTable.table_model._column_sizes.auto)) {
-                if (size_key <= this._config.row_pivots.length) {
-                    regularTable.table_model._column_sizes.auto[size_key] = undefined;
-                }
-            }
+            reset_tree_autosize.call(this, regularTable);
             this._num_rows = await this._view.num_rows();
             this._num_columns = await this._view.num_columns();
             regularTable.draw();
@@ -337,7 +333,7 @@
          *
          */
 
-        const URL = "../node_modules/superstore-arrow/superstore.arrow";
+        const URL = "/node_modules/superstore-arrow/superstore.arrow";
         const perspective = window.perspective;
 
         const datasource = async () => {
