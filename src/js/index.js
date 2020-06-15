@@ -229,7 +229,13 @@ window.customElements.define("regular-table", RegularTableElement);
  * your data model, e.g. what was passed to `x0` when your
  * `dataListener` was invoked.
  * @property {number} [y0] - The `y` index of the viewport origin in
- * your data model, e.g. what was passed to `x0` when your
+ * your data model, e.g. what was passed to `y0` when your
+ * `dataListener` was invoked.
+ * @property {number} [x1] - The `x` index of the viewport corner in
+ * your data model, e.g. what was passed to `x1` when your
+ * `dataListener` was invoked.
+ * @property {number} [y1] - The `y` index of the viewport origin in
+ * your data model, e.g. what was passed to `y1` when your
  * `dataListener` was invoked.
  * @property {number} [dx] - The `x` index in `DataResponse.data`, this
  * property is only generated for `<td>`, and `<th>` from `column_headers`.

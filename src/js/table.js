@@ -68,7 +68,7 @@ export class RegularTableViewModel {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
         let {data, row_headers, column_headers} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
-        const {start_row: ridx_offset = 0, start_col: x0 = 0} = viewport;
+        const {start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0} = viewport;
 
         // pad row_headers for embedded renderer
         // TODO maybe dont need this - perspective compat
@@ -88,6 +88,8 @@ export class RegularTableViewModel {
             selected_id,
             ridx_offset,
             x0: x0,
+            x1: x1,
+            y1: y1,
             row_height: this._column_sizes.row_height,
             row_headers_length: this._row_headers_length,
         };

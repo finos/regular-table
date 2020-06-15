@@ -89,6 +89,7 @@ export class RegularBodyViewModel extends ViewModel {
                         obj.metadata.row_header_x = i;
                         obj.metadata.x0 = x0;
                         obj.metadata.y0 = view_state.ridx_offset;
+                        obj.metadata.y1 = view_state.y1;
                         obj.metadata._virtual_x = i;
                         ridx_offset[i] = 1;
                         cidx_offset[ridx] = 1;
@@ -99,8 +100,10 @@ export class RegularBodyViewModel extends ViewModel {
                     obj = this._draw_td("TD", ridx++, val, cidx, column_state, view_state, size_key);
                     obj.metadata.x = x;
                     obj.metadata.x0 = x0;
+                    obj.metadata.x1 = view_state.x1;
                     obj.metadata.row_header = id || {test: 2};
                     obj.metadata.y0 = view_state.ridx_offset;
+                    obj.metadata.y1 = view_state.y1;
                     obj.metadata.dx = x - x0;
                     obj.metadata.dy = obj.metadata.y - obj.metadata.y0;
                     obj.metadata._virtual_x = _virtual_x;
