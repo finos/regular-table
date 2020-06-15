@@ -5,7 +5,7 @@ There is already a step-by-step procedure showing how to display a [2d_array](ht
 
 For understanding the visualization of a 3D array, the first thing is to have a sample data with three dimensions. The sample 3D data can created as follows:
 
-```javascript
+```
 const DATA = [
   [
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
@@ -139,7 +139,7 @@ const tables = document.getElementsByTagName("tables")[0];
 
 A global variable is also declared for tracking the particular table of the dimension, here it is `num_table`.
 
-```javascript
+```
 var num_table; //Global variable to track the dimension number
 
 function dataListener(x0, y0, x1, y1) {
@@ -153,7 +153,7 @@ function dataListener(x0, y0, x1, y1) {
 
 Further, for creating multiple tables for each dimension, the following function is created:
 
-```javascript
+```
 function createTables() {
   var num_tables = DATA.length;
   for (var i = 0; i < num_tables; i++) {
