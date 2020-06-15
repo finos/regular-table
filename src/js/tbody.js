@@ -10,8 +10,8 @@
 
 import {ViewModel} from "./view_model";
 
-const ROW_HEADER_RENDER_MODE = "rowspan";
-console.assert(["none", "rowspan", "rowspan_hide", "rowspan_leading"].indexOf(ROW_HEADER_RENDER_MODE) > -1, "Invalid ROW_HEADER_RENDERER_MODE");
+// const ROW_HEADER_RENDER_MODE = "rowspan";
+// console.assert(["none", "rowspan", "colspan"].indexOf(ROW_HEADER_RENDER_MODE) > -1, "Invalid ROW_HEADER_RENDERER_MODE");
 
 /**
  * <tbody> view model.
@@ -50,85 +50,72 @@ export class RegularBodyViewModel extends ViewModel {
         return {td, metadata};
     }
 
-    _merge_th(trailing, prev_i, i, ridx, row_header, cidx_, column_state, view_state) {
-        let obj;
-        if (ROW_HEADER_RENDER_MODE === "none" || (ROW_HEADER_RENDER_MODE === "rowspan_leading" && i > trailing)) {
-            obj = this._draw_td("TH", ridx, row_header, cidx_, column_state, view_state);
-            obj.td.style.display = "";
-            obj.td.removeAttribute("rowspan");
-            obj.metadata.row_header = prev_i[1].metadata.row_header;
-            obj.metadata.row_header_x = i;
-            obj.metadata.size_key = i;
-            return [row_header, obj, 1];
-        } else if (ROW_HEADER_RENDER_MODE === "rowspan_hide") {
-            obj = this._draw_td("TH", ridx, row_header, cidx_, column_state, view_state);
-            prev_i[1].td.setAttribute("rowspan", prev_i[2] + 1);
-            obj.td.style.display = "none";
-            prev_i[2] += 1;
-        } else if (ROW_HEADER_RENDER_MODE === "rowspan" || ROW_HEADER_RENDER_MODE === "rowspan_leading") {
-            prev_i[1].td.setAttribute("rowspan", prev_i[2] + 1);
-            this._replace_cell(undefined, ridx, cidx_);
-            prev_i[2] += 1;
-        } else {
-            throw new Error(`Unknown render mode`);
-        }
-        return prev_i;
-    }
-
     draw(container_height, column_state, view_state, th = false, x, x0, size_key, _virtual_x) {
         const {cidx, column_data, row_headers} = column_state;
         let {row_height} = view_state;
+        let metadata;
+        const ridx_offset = [],
+            tds = [];
         let ridx = 0;
-        let metadata, prev;
-        for (const val of column_data) {
-            const id = row_headers?.[ridx];
-            const row = [];
-            let obj;
-            if (th) {
-                let cidx_ = cidx;
-                let trailing = val.length;
-                while (val[trailing] === undefined && trailing > 0) {
-                    trailing--;
-                }
-                for (let i = 0; i < val.length; i++) {
+        const cidx_offset = [];
+        for (let i = 0; i < (th ? view_state.row_headers_length : 1); i++) {
+            ridx = 0;
+
+            for (const val of column_data) {
+                const id = row_headers?.[ridx];
+                let obj;
+                if (th) {
                     const row_header = val[i];
-                    if (prev && prev[i][0] === row_header) {
-                        row.push(this._merge_th(trailing, prev[i], i, ridx, row_header, cidx_, column_state, view_state));
+                    const prev_row = this._fetch_cell(ridx - (ridx_offset[i] || 1), cidx + i);
+                    const prev_row_metadata = this._get_or_create_metadata(prev_row);
+
+                    const prev_col = this._fetch_cell(ridx, cidx + i - (cidx_offset[ridx] || 1));
+                    const prev_col_metadata = this._get_or_create_metadata(prev_col);
+
+                    if (prev_col && (prev_col_metadata.value === row_header || row_header === undefined) && !prev_col.hasAttribute("rowspan")) {
+                        cidx_offset[ridx] = cidx_offset[ridx] ? cidx_offset[ridx] + 1 : 2;
+                        prev_col.setAttribute("colspan", cidx_offset[ridx]);
+                        this._replace_cell(undefined, ridx, cidx + i);
+                    } else if (prev_row && prev_row_metadata.value === row_header && !prev_row.hasAttribute("colspan")) {
+                        ridx_offset[i] = ridx_offset[i] ? ridx_offset[i] + 1 : 2;
+                        prev_row.setAttribute("rowspan", ridx_offset[i]);
+                        this._replace_cell(undefined, ridx, cidx + i);
                     } else {
-                        obj = this._draw_td("TH", ridx, row_header, cidx_, column_state, view_state, i);
+                        obj = this._draw_td("TH", ridx, row_header, cidx + i, column_state, view_state, i);
                         obj.td.style.display = "";
                         obj.td.removeAttribute("rowspan");
+                        obj.td.removeAttribute("colspan");
                         obj.metadata.row_header = val;
                         obj.metadata.row_header_x = i;
                         obj.metadata.x0 = x0;
                         obj.metadata.y0 = view_state.ridx_offset;
                         obj.metadata._virtual_x = i;
-                        row.push([row_header, obj, 1]);
+                        ridx_offset[i] = 1;
+                        cidx_offset[ridx] = 1;
+                        tds[i] = obj;
                     }
-                    cidx_++;
+                    ridx++;
+                } else {
+                    obj = this._draw_td("TD", ridx++, val, cidx, column_state, view_state, size_key);
+                    obj.metadata.x = x;
+                    obj.metadata.x0 = x0;
+                    obj.metadata.row_header = id || {test: 2};
+                    obj.metadata.y0 = view_state.ridx_offset;
+                    obj.metadata.dx = x - x0;
+                    obj.metadata.dy = obj.metadata.y - obj.metadata.y0;
+                    obj.metadata._virtual_x = _virtual_x;
+                    tds[0] = obj;
                 }
-                prev = row;
-                ridx++;
-            } else {
-                obj = this._draw_td("TD", ridx++, val, cidx, column_state, view_state, size_key);
-                obj.metadata.x = x;
-                obj.metadata.x0 = x0;
-                obj.metadata.row_header = id || {test: 2};
-                obj.metadata.y0 = view_state.ridx_offset;
-                obj.metadata.dx = x - x0;
-                obj.metadata.dy = obj.metadata.y - obj.metadata.y0;
-                obj.metadata._virtual_x = _virtual_x;
-                prev = [[val, obj, 1]];
-            }
 
-            metadata = obj.metadata;
-            row_height = row_height || prev[prev.length - 1][1].td.offsetHeight;
-            if (ridx * row_height > container_height) {
-                break;
+                metadata = obj ? obj.metadata : metadata;
+                row_height = row_height || obj.td.offsetHeight;
+                if (ridx * row_height > container_height) {
+                    break;
+                }
             }
         }
         this._clean_rows(ridx);
-        return {tds: prev.map((x) => x[1]), ridx, metadata, row_height};
+        return {tds, ridx, metadata, row_height};
     }
 
     clean({ridx, cidx}) {
