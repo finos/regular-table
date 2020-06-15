@@ -19,11 +19,14 @@
         "dist/css/*.css",
         "dist/umd/*",
         "src/less/*.less",
-        "babel.config.js"
+        "babel.config.js",
+        "index.d.ts"
     ],
+    "types": "index.d.ts",
     "scripts": {
         "build:examples": "literally -c literally.config.js",
         "build:rollup": "rollup -c rollup.config.js",
+        "build:ts": "tsc",
         "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
         "docs": "jsdoc2md src/js/index.js --separators > api.md",
@@ -33,6 +36,7 @@
         "test": "jest --noStackTrace",
         "watch:examples": "literally --watch",
         "watch:rollup": "rollup -c rollup.config.js --watch",
+        "watch:ts": "tsc --watch",
         "watch": "npm-run-all -p watch:*"
     },
     "publishConfig": {
@@ -46,6 +50,7 @@
         "@babel/preset-env": "^7.9.0",
         "@finos/perspective": "=0.5.0",
         "@rollup/plugin-babel": "^5.0.2",
+        "@types/react": "^16.9.36",
         "babel-eslint": "^10.1.0",
         "babel-plugin-lodash": "^3.3.4",
         "babel-plugin-transform-custom-element-classes": "^0.1.0",
@@ -77,6 +82,7 @@
         "rollup-plugin-terser": "^6.1.0",
         "source-map-explorer": "^2.4.2",
         "source-map-loader": "^0.2.4",
-        "superstore-arrow": "^1.0.0"
+        "superstore-arrow": "^1.0.0",
+        "typescript": "^3.9.5"
     }
 }

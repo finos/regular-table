@@ -27,7 +27,14 @@ import {get_draw_fps} from "./utils";
  *
  * @extends HTMLElement
  */
-class RegularTableElement extends RegularViewEventModel {
+export class RegularTableElement extends RegularViewEventModel {
+    /**
+     * For internal use by the Custom Elements API: "Invoked each time the
+     * custom element is appended into a document-connected element".
+     * Ref: https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements#Using_the_lifecycle_callbacks
+     *
+     * @memberof RegularTableElement
+     */
     connectedCallback() {
         this.create_shadow_dom();
         this.register_listeners();
@@ -60,6 +67,11 @@ class RegularTableElement extends RegularViewEventModel {
         this._end_col = undefined;
     }
 
+    /**
+     * Reset the scroll position of this regular table back to the origin.
+     *
+     * @memberof RegularTableElement
+     */
     reset_scroll() {
         this._column_sizes.indices = [];
         this.scrollTop = 0;
@@ -67,6 +79,24 @@ class RegularTableElement extends RegularViewEventModel {
         this.reset_viewport();
     }
 
+    /**
+     * Adds a style listener callback. The style listeners are called
+     * whenever the <table> is re-rendered, such as through API invocations
+     * of draw() and user-initiated events such as scrolling. Within this
+     * optionally async callback, you can select <td>, <th>, etc. elements
+     * via regular DOM API methods like querySelectorAll().
+     *
+     * @memberof RegularTableElement
+     * @param {function({detail: RegularTableElement}): void} styleListener - A
+     * (possibly async) function that styles the inner <table>.
+     * @returns {number} The index of the added listener.
+     * @example
+     * table.addStyleListener(() => {
+     *     for (const td of table.querySelectorAll("td")) {
+     *         td.setAttribute("contenteditable", true);
+     *     }
+     * });
+     */
     addStyleListener(styleListener) {
         const key = this._style_callbacks.size;
         this._style_callbacks.set(key, styleListener);
@@ -78,7 +108,8 @@ class RegularTableElement extends RegularViewEventModel {
      * your `StyleListener` is invoked, use this method to look up additional
      * `MetaData` about any `HTMLTableCellElement` in the rendered `<table>`.
      *
-     * @param {HTMLTableCellElement|MetaData} element - The child element
+     * @memberof RegularTableElement
+     * @param {HTMLTableCellElement|Partial<MetaData>} element - The child element
      * of this `<regular-table>` for which to look up metadata, or a
      * coordinates-like object to refer to metadata by logical position.
      * @returns {MetaData} The metadata associated with the element.
