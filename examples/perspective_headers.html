@@ -19,9 +19,9 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <script src="../node_modules/@finos/perspective/dist/umd/perspective.js"></script>
-    <script src="../dist/umd/regular-table.js"></script>
-    <link rel='stylesheet' href="../dist/css/material.css">
+    <script src="/node_modules/@finos/perspective/dist/umd/perspective.js"></script>
+    <script src="/dist/umd/regular-table.js"></script>
+    <link rel='stylesheet' href="/dist/css/material.css">
     <style>
         regular-table table {
             user-select: none;
@@ -40,8 +40,20 @@
             color: #de3838;
         }
         /* Tree Styles */
-        .psp-tree-header {
+        tbody th:last-of-type {
+            border-right: 1px solid #ddd;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        tbody th:empty {
            background-image: linear-gradient(to right, transparent 9px, #eee 10px, transparent 11px);
+           background-repeat: no-repeat;
+           min-width: 20px;
+           max-width: 20px;
+        }
+        .psp-tree-label {
+            max-width: 0px;
+            min-width: 0px;
         }
         .psp-tree-label:before {
             color: #ccc;
@@ -57,16 +69,6 @@
         .psp-tree-label:hover:before {
             color: #1078d1;
             text-shadow: 0px 0px 5px #1078d1;
-        }
-        .psp-tree-edge {
-            border-right: 1px solid #ddd;
-        }
-        .psp-tree-edge:not(.psp-tree-leaf):not(.psp-tree-label) {
-            pointer-events: none;
-        }
-        .psp-tree-indent {
-            min-width: 20px;
-            max-width: 20px;
         }
         .psp-tree-leaf {
             padding-left: 24px;
@@ -152,18 +154,15 @@
 
         function treeStyleListener(regularTable) {
             for (const td of regularTable.querySelectorAll("tbody th")) {
-                const header_depth = regularTable._view_cache.config.row_pivots.length - 1;
                 const metadata = regularTable.getMeta(td);
-                const is_empty = !!metadata.value && metadata.value.trim().length > 0;
+                const is_not_empty = !!metadata.value && metadata.value.trim().length > 0;
                 const is_leaf = metadata.row_header_x >= this._config.row_pivots.length;
-                const next = !!regularTable.getMeta({row_header_x: metadata.row_header_x + 1, y: metadata.y + 1});
-                td.classList.toggle("psp-tree-header", metadata.value === "");
-                td.classList.toggle("psp-tree-label", is_empty && !is_leaf);
-                td.classList.toggle("psp-tree-label-expand", is_empty && !is_leaf && !next);
-                td.classList.toggle("psp-tree-label-collapse", is_empty && !is_leaf && next);
-                td.classList.toggle("psp-tree-leaf", is_empty && is_leaf);
-                td.classList.toggle("psp-tree-edge", metadata.row_header_x === header_depth);
-                td.classList.toggle("psp-tree-indent", metadata.row_header_x < header_depth);
+                const next = regularTable.getMeta({dx: 0, dy: metadata.y - metadata.y0 + 1});
+                const is_collapse = next && next.row_header && typeof next.row_header[metadata.row_header_x + 1] !== "undefined";
+                td.classList.toggle("psp-tree-label", is_not_empty && !is_leaf);
+                td.classList.toggle("psp-tree-label-expand", is_not_empty && !is_leaf && !is_collapse);
+                td.classList.toggle("psp-tree-label-collapse", is_not_empty && !is_leaf && is_collapse);
+                td.classList.toggle("psp-tree-leaf", is_not_empty && is_leaf);
             }
         }
 
@@ -183,14 +182,6 @@
                 }
             }
         }
-
-        function reset_tree_autosize(table) {
-            for (const size_key of Object.keys(table.table_model._column_sizes.auto)) {
-                if (size_key <= this._config.row_pivots.length) {
-                    table.table_model._column_sizes.auto[size_key] = undefined;
-                }
-            }
-        }
         
         /// sort
 
@@ -201,7 +192,6 @@
             const sort = sort_method.call(this, column_name);
             this._view = this._table.view({...this._config, sort: sort});
             await create_view_cache(this._table, this._view, this);
-            reset_tree_autosize.call(this, regularTable);
             await regularTable.draw();
         }
 
@@ -260,7 +250,6 @@
             } else {
                 this._view.expand(meta.y);
             }
-            reset_tree_autosize.call(this, regularTable);
             this._num_rows = await this._view.num_rows();
             this._num_columns = await this._view.num_columns();
             regularTable.draw();
@@ -274,13 +263,15 @@
             }
         }
 
-        function* _tree_header(paths = []) {
+        function* _tree_header(paths = [], depth) {
             for (let path of paths) {
                 path = ["TOTAL", ...path];
-                yield path
+                path = path
                     .slice(0, path.length - 1)
                     .fill("")
                     .concat(path[path.length - 1]);
+                path.length = depth;
+                yield path;
             }
         }
 
@@ -307,7 +298,7 @@
             return {
                 num_rows: this._num_rows,
                 num_columns: this._column_paths.length,
-                row_headers: Array.from(_tree_header(columns.__ROW_PATH__)),
+                row_headers: Array.from(_tree_header(columns.__ROW_PATH__, this._config.row_pivots.length + 1)),
                 column_headers,
                 data,
             };

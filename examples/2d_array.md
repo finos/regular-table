@@ -17,9 +17,9 @@ indirectly.
 
 ```javascript
 const DATA = [
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
     ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"],
-    Array.from(Array(26).keys()).map((x) => x % 2 === 0),
+    Array.from(Array(15).keys()).map((value) => value % 2 === 0),
 ];
 ```
 
@@ -52,18 +52,18 @@ a rectangular region of `DATA`, rather than the entire set.  A simple viewport
 ```
 
 Here's a an implementation for this simple _virtual_ data model,
-the function `getDataSlice()`.  This function is called by your 
+the function `dataListener()`.  This function is called by your 
 `<regular-table>` whenever it needs more data, with coordinate arguments,
 `(x0, y0)` to `(x1, y1)`.  Only this region is needed to render the viewport,
-so `getDataSlice()` returns this rectangular `slice` of `DATA`.  For the window
-(0, 0) to (2, 2), `getDataSlice()` would generate an Object as above,
+so `dataListener()` returns this rectangular `slice` of `DATA`.  For the window
+(0, 0) to (2, 2), `dataListener()` would generate an Object as above,
 containing the `data` slice, as well as the overall dimensions of `DATA` itself
 ( `num_rows`, `num_columns`), for sizing the scroll area.  To render this
 virtual data model to a regular HTML `<table>`, register this data model via
 the `setDataListener()` method:
 
 ```javascript
-function getDataSlice(x0, y0, x1, y1) {
+function dataListener(x0, y0, x1, y1) {
     return {
         num_rows: DATA[0].length,
         num_columns: DATA.length,
@@ -75,8 +75,16 @@ function getDataSlice(x0, y0, x1, y1) {
 You can register and invoke this table thusly:
 
 ```javascript
-window.regularTable.setDataListener(getDataSlice);
-window.regularTable.draw();
+function init() {
+    window.regularTable.setDataListener(dataListener);
+    window.regularTable.draw();
+}
+```
+
+... which we'll do on the Window `"load"` event.
+
+```html
+<script>window.addEventListener("load", () => init())</script>
 ```
 
 # Appendix (Dependencies)

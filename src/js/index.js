@@ -90,16 +90,22 @@ class RegularTableElement extends RegularViewEventModel {
      * const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
      */
     getMeta(element) {
-        if (element instanceof HTMLElement) {
+        if (typeof element === "undefined") {
+            return;
+        } else if (element instanceof HTMLElement) {
             return METADATA_MAP.get(element);
         } else if (element.row_header_x >= 0) {
-            const is_valid = element.row_header_x < this._view_cache.config.row_pivots.length;
-            return is_valid && this.table_model.body.cells[element.y]?.[element.row_header_x];
+            if (element.row_header_x < this._view_cache.config.row_pivots.length) {
+                const td = this.table_model.body.cells[element.y]?.[element.row_header_x];
+                return this.getMeta(td);
+            }
         } else if (element.column_header_y >= 0) {
-            const is_valid = element.column_header_y < this._view_cache.config.column_pivots.length;
-            return is_valid && this.table_model.body.cells[element.column_header_y]?.[element.y];
+            if (element.column_header_y < this._view_cache.config.column_pivots.length) {
+                const td = this.table_model.body.cells[element.column_header_y]?.[element.y];
+                return this.getMeta(td);
+            }
         } else {
-            return this.table_model.body.cells[element.y]?.[element.dx];
+            return this.getMeta(this.table_model.body.cells[element.dy]?.[element.dx + this.table_model._row_headers_length]);
         }
     }
 
@@ -194,6 +200,24 @@ window.customElements.define("regular-table", RegularTableElement);
  * `HTMLTableCellElement`, use this object to map rendered `<th>` or `<td>`
  * elements back to your `data`, `row_headers` or `column_headers` within
  * listener functions for `addStyleListener()` and `addEventListener()`.
+ * @example
+ *
+ * MetaData                     (x = 0, column_header_y = 0))
+ *                              *-------------------------------------+
+ *                              |                                     |
+ *                              |                                     |
+ *                              +-------------------------------------+
+ * (row_header_x = 0, y = 0)    (x = 0, y = 0)
+ * *------------------------+   *-------------------------------------+
+ * |                        |   |                                     |
+ * |                        |   |      (x0, y0)                       |
+ * |                        |   |      *---------------*              |
+ * |                        |   |      |               |              |
+ * |                        |   |      |     * (x, y)  |              |
+ * |                        |   |      |               |              |
+ * |                        |   |      *---------------* (x1, y1)     |
+ * |                        |   |                                     |
+ * +------------------------+   +-------------------------------------+
  *
  * @typedef MetaData
  * @type {object}

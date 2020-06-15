@@ -175,8 +175,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             const auto_width = this._column_sizes.auto[metadata.size_key];
             for (const row of this.table_model.body.cells) {
                 const td = row[metadata._virtual_x];
-                td.style.maxWidth = td.style.minWidth = override_width + "px";
-                td.classList.toggle("pd-cell-clip", auto_width > override_width);
+                if (td) {
+                    td.style.maxWidth = td.style.minWidth = override_width + "px";
+                    td.classList.toggle("pd-cell-clip", auto_width > override_width);
+                }
             }
         }
     }

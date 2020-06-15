@@ -34,7 +34,9 @@ export class ViewModel {
     }
 
     _get_or_create_metadata(td) {
-        if (METADATA_MAP.has(td)) {
+        if (td === undefined) {
+            return {};
+        } else if (METADATA_MAP.has(td)) {
             return METADATA_MAP.get(td);
         } else {
             const metadata = {};
@@ -51,6 +53,14 @@ export class ViewModel {
             row_container.splice(cidx, 1, undefined);
         }
         return td;
+    }
+
+    _fetch_cell(ridx, cidx) {
+        if (ridx < 0 || cidx < 0) {
+            return;
+        }
+        const {row_container} = this._get_row(ridx);
+        return row_container[cidx];
     }
 
     _get_cell(tag = "TD", ridx, cidx) {

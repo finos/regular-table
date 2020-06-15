@@ -58,6 +58,9 @@ export class RegularTableViewModel {
             if (offsetWidth && !is_override) {
                 this._column_sizes.auto[metadata.size_key] = offsetWidth;
             }
+            if (cell.style.minWidth === "0px") {
+                cell.style.minWidth = `${offsetWidth}px`;
+            }
         }
     }
 
@@ -69,11 +72,10 @@ export class RegularTableViewModel {
 
         // pad row_headers for embedded renderer
         // TODO maybe dont need this - perspective compat
-        let row_index_length = 0;
         if (row_headers) {
-            row_index_length = row_headers.reduce((max, x) => Math.max(max, x.length), 0);
+            this._row_headers_length = row_headers.reduce((max, x) => Math.max(max, x.length), 0);
             row_headers = row_headers.map((x) => {
-                x.length = row_index_length;
+                x.length = this._row_headers_length;
                 return x;
             });
         }
@@ -87,6 +89,7 @@ export class RegularTableViewModel {
             ridx_offset,
             x0: x0,
             row_height: this._column_sizes.row_height,
+            row_headers_length: this._row_headers_length,
         };
 
         let cont_body,
@@ -110,15 +113,14 @@ export class RegularTableViewModel {
                 cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), 1, undefined, i, x0, i));
             }
             first_col = false;
-            view_state.viewport_width +=
-                cont_body.tds.reduce((total, {td}, i) => total + (this._column_sizes.indices[i] || td.offsetWidth), 0) || cont_heads.reduce((total, {th}) => total + th.offsetWidth, 0);
+            view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
             view_state.row_height = view_state.row_height || cont_body.row_height;
             _virtual_x = row_headers[0].length;
             if (!preserve_width) {
                 for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                    const {td, metadata} = cont_body.tds[i];
+                    const {td, metadata} = cont_body.tds[i] || {};
                     const {th, metadata: hmetadata} = cont_heads[i];
-                    last_cells.push([td || th, metadata || hmetadata]);
+                    last_cells.push([th || td, hmetadata || metadata]);
                 }
             }
         }
@@ -158,7 +160,7 @@ export class RegularTableViewModel {
                 dcidx++;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
-                        last_cells.push([td || cont_head.th, metadata || cont_head.metadata]);
+                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata]);
                     }
                 }
 
