@@ -220,8 +220,11 @@ table.addEventListener("keypress", (event) => {
     const target = document.activeElement;
     if (event.keyCode === 13) {
         event.preventDefault();
-        write(target);
-        moveSelection(target, 0, 1);
+        if (event.shiftKey) {
+            moveSelection(target, 0, -1);
+        } else {
+            moveSelection(target, 0, 1);
+        }
     }
 });
 
@@ -235,6 +238,15 @@ table.addEventListener("keyup", (event) => {
 table.addEventListener("keydown", (event) => {
     const target = document.activeElement;
     switch (event.keyCode) {
+        // tab
+        case 9:
+            event.preventDefault();
+            if (event.shiftKey) {
+                moveSelection(target, -1, 0);
+            } else {
+                moveSelection(target, 1, 0);
+            }
+            break;
         // left arrow
         case 37:
             moveSelection(target, -1, 0);
