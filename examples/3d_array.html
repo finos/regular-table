@@ -48,9 +48,7 @@
     <script>
 
         /* 
-        
             A random 3-dimensional data is created for implementing the regular-table concept for 3D array
-
         */
 
         const DATA = [
@@ -117,7 +115,7 @@
         ];
 
         // Global variables declared, to be used later
-        
+
         var num_table;                                                      // Current table-dimension number
         const tables = document.getElementsByTagName("tables")[0];          // Select the tag tables
 
@@ -130,9 +128,7 @@
         }
 
         /*
-
             The createTables() function takes the 3D array data and displays individual 2D array of individual dimensions
-
         */
 
         function createTables() {
@@ -140,17 +136,17 @@
             for (var i = 0; i < num_tables; i++) {
 
                 // Dimension or table number
-                
+
                 num_table = i;
 
                 // The <p> tag along with table number is displayed
-                
+
                 var num_table_text = document.createElement("p");
                 num_table_text.innerHTML = "Table " + i;
                 tables.appendChild(num_table_text);
 
                 // The corresponding <regular-table> element are created
-                
+
                 var regular_table = document.createElement("regular-table");
                 regular_table.setAttribute("tabindex", num_table);
                 regular_table.style.top = (20 * (num_table + 1)) + (250 * (num_table)) + "px";
