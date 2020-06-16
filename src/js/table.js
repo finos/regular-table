@@ -24,6 +24,7 @@ export class RegularTableViewModel {
     constructor(table_clip, column_sizes, element) {
         element.innerHTML = html`
             <table cellspacing="0">
+                <colgroup></colgroup>
                 <thead></thead>
                 <tbody></tbody>
             </table>

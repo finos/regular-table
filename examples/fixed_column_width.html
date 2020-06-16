@@ -94,12 +94,16 @@
 
         // Get Regular Table element.
         const tableApi = document.getElementsByTagName("regular-table")[0];
+
+        const tableElement = tableApi.querySelector("table");
+
+        const colgroupElement = tableElement.querySelector("colgroup");
+
         const FIXED_CLASS = "fixed";
 
         // Clear previous cell manipulations done by this api.
         function clear(cellElement) {
-            cellElement.classList.remove(FIXED_CLASS);
-            cellElement.style.minWidth = "";
+            colgroupElement.innerHTML = '';
         }
 
         function getColumnName(index) {
@@ -119,14 +123,19 @@
             cellElement.classList.add(FIXED_CLASS);
         }
 
+        function addColToColgroup(isFixed) {
+            const colElement = document.createElement("col");
+            if (isFixed) setFixedClass(colElement);
+            colgroupElement.appendChild(colElement);
+        }
+
         // Set fixed min-width to cells when appropiate.
         function styleListener() {
             const ths = tableApi.querySelectorAll("thead th");
-            const tds = tableApi.querySelectorAll("tbody td");
+            clear();
             // Iterate over all rendered cells.
-            for (const cellElement of [...ths, ...tds]) {
-                clear(cellElement);
-                if (isFixed(cellElement)) setFixedClass(cellElement);
+            for (const cellElement of ths) {
+                addColToColgroup(isFixed(cellElement));
             }
         }
 
@@ -145,8 +154,9 @@
     <style>
         /* Set fixed width for cells. */
         .fixed {
-            min-width: 100px !important;
             max-width: 100px !important;
+            min-width: 100px !important;
+            width: 100px !important;
         }
         /* Disable default header text selection. */
         thead tr th {
