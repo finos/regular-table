@@ -25,9 +25,19 @@ import {get_draw_fps} from "./utils";
  * relevent DOM method e.g. `document.createElement("perspective-viewer")` or
  * `document.getElementsByTagName("perspective-viewer")`.
  *
+ * @public
  * @extends HTMLElement
  */
 class RegularTableElement extends RegularViewEventModel {
+    /**
+     * For internal use by the Custom Elements API: "Invoked each time the
+     * custom element is appended into a document-connected element".
+     * Ref: https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements#Using_the_lifecycle_callbacks
+     *
+     * @internal
+     * @private
+     * @memberof RegularTableElement
+     */
     connectedCallback() {
         this.create_shadow_dom();
         this.register_listeners();
@@ -41,6 +51,13 @@ class RegularTableElement extends RegularViewEventModel {
         }
     }
 
+    /**
+     * Reset the viewport of this regular table.
+     *
+     * @internal
+     * @private
+     * @memberof RegularTableElement
+     */
     _reset_viewport() {
         this._start_row = undefined;
         this._end_row = undefined;
@@ -48,6 +65,13 @@ class RegularTableElement extends RegularViewEventModel {
         this._end_col = undefined;
     }
 
+    /**
+     * Reset the scroll position of this regular table back to the origin.
+     *
+     * @internal
+     * @private
+     * @memberof RegularTableElement
+     */
     _reset_scroll() {
         this._column_sizes.indices = [];
         this.scrollTop = 0;
@@ -55,6 +79,14 @@ class RegularTableElement extends RegularViewEventModel {
         this._reset_viewport();
     }
 
+    /**
+     * Reset column autosizing, such that column sizes will be recalculated
+     * on the next draw() call.
+     *
+     * @internal
+     * @private
+     * @memberof RegularTableElement
+     */
     _resetAutoSize() {
         this._column_sizes.auto = {};
         this._column_sizes.override = {};
@@ -66,6 +98,25 @@ class RegularTableElement extends RegularViewEventModel {
         }
     }
 
+    /**
+     * Adds a style listener callback. The style listeners are called
+     * whenever the <table> is re-rendered, such as through API invocations
+     * of draw() and user-initiated events such as scrolling. Within this
+     * optionally async callback, you can select <td>, <th>, etc. elements
+     * via regular DOM API methods like querySelectorAll().
+     *
+     * @public
+     * @memberof RegularTableElement
+     * @param {function({detail: RegularTableElement}): void} styleListener - A
+     * (possibly async) function that styles the inner <table>.
+     * @returns {number} The index of the added listener.
+     * @example
+     * table.addStyleListener(() => {
+     *     for (const td of table.querySelectorAll("td")) {
+     *         td.setAttribute("contenteditable", true);
+     *     }
+     * });
+     */
     addStyleListener(styleListener) {
         const key = this._style_callbacks.size;
         this._style_callbacks.set(key, styleListener);
@@ -77,7 +128,9 @@ class RegularTableElement extends RegularViewEventModel {
      * your `StyleListener` is invoked, use this method to look up additional
      * `MetaData` about any `HTMLTableCellElement` in the rendered `<table>`.
      *
-     * @param {HTMLTableCellElement|MetaData} element - The child element
+     * @public
+     * @memberof RegularTableElement
+     * @param {HTMLTableCellElement|Partial<MetaData>} element - The child element
      * of this `<regular-table>` for which to look up metadata, or a
      * coordinates-like object to refer to metadata by logical position.
      * @returns {MetaData} The metadata associated with the element.
@@ -113,6 +166,7 @@ class RegularTableElement extends RegularViewEventModel {
      * method resets the internal state, which makes it convenient to measure
      * performance at regular intervals (see example).
      *
+     * @public
      * @memberof RegularTableElement
      * @returns {Performance} Performance data aggregated since the last
      * call to `getDrawFPS()`.
@@ -132,6 +186,8 @@ class RegularTableElement extends RegularViewEventModel {
      * `<regular-table>` by calculating the position of this `scrollLeft`
      * and `scrollTop` relative to the underlying widths of its columns
      * and heights of its rows.
+     *
+     * @public
      * @memberof RegularTableElement
      * @param {number} x - The left most `x` index column to scroll into view.
      * @param {number} y - The top most `y` index row to scroll into view.
@@ -151,6 +207,7 @@ class RegularTableElement extends RegularViewEventModel {
      * which will be called whenever a new data slice is needed to render.
      * Calls to `draw()` will fail if no `DataListener` has been set
      *
+     * @public
      * @memberof RegularTableElement
      * @param {DataListener} dataListener
      * `dataListener` is called by to request a rectangular section of data

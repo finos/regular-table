@@ -28,14 +28,14 @@ groups of rows via `row_headers`, for example a file structure like so:
 
 ```json
 [
-    ["Dir_1"], 
+    ["Dir_1"],
     ["Dir_1", "Dir_2"],
     ["Dir_1", "Dir_2", "File_1"],
     ["Dir_1", "File_2"]
 ]
 ```
 
-This will render _group-like_ row headers, with the consecutive `"Dir_1"` and 
+This will render _group-like_ row headers, with the consecutive `"Dir_1"` and
 `"Dir_2"` elements merged via `rowspan`.  The resulting headers visually
 indicate all content on the right-hand side belong to the directory.   This is
 exactly what column headers do, but it is not very like a file-tree; each
@@ -57,7 +57,7 @@ can instead replace the consecutive duplicates with `""`.
 
 ```json
 [
-    ["Dir_1"], 
+    ["Dir_1"],
     ["", "Dir_2"],
     ["", "", "File_1"],
     ["", "File_2"]
@@ -92,7 +92,7 @@ function new_path(n, name) {
 }
 ```
 
-## File System 
+## File System
 
 We can use a regular 2D Array, row oriented, for the file system listing state
 itself, including file metadata like `size` and the open/closed state of
@@ -211,7 +211,7 @@ function styleListener() {
 ## UI
 
 When directory rows are clicked, generate new directory contents at the `td`
-metadata's `y` coordinate in `DATA` and redraw.  
+metadata's `y` coordinate in `DATA` and redraw.
 
 ```javascript
 // TODO `resetAutoSize()` is not documented - this is currently required to
@@ -240,7 +240,7 @@ function init() {
     regularTable.addStyleListener(styleListener);
     regularTable.addEventListener("mousedown", mousedownListener);
     regularTable.addEventListener("scroll", () => {
-        regularTable.resetAutoSize();
+        regularTable._resetAutoSize();
     });
     regularTable.draw();
 }
