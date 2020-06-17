@@ -20,7 +20,7 @@ describe("scrollTo", () => {
     afterEach(async () => {
         const table = await page.$("regular-table");
         await page.evaluate(async (table) => {
-            table.reset_scroll();
+            table.scrollTop = 0;
             await table.draw();
         }, table);
     });
