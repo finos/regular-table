@@ -41,30 +41,29 @@ class RegularTableElement extends RegularViewEventModel {
         }
     }
 
-    get_tds() {
-        return this.table_model.body.cells.flat(1);
-    }
-
-    get_ths() {
-        return this.table_model.header.cells.flat(1);
-    }
-
-    clear() {
-        this._sticky_container.innerHTML = "<table></table>";
-    }
-
-    reset_viewport() {
+    _reset_viewport() {
         this._start_row = undefined;
         this._end_row = undefined;
         this._start_col = undefined;
         this._end_col = undefined;
     }
 
-    reset_scroll() {
+    _reset_scroll() {
         this._column_sizes.indices = [];
         this.scrollTop = 0;
         this.scrollLeft = 0;
-        this.reset_viewport();
+        this._reset_viewport();
+    }
+
+    _resetAutoSize() {
+        this._column_sizes.auto = {};
+        this._column_sizes.override = {};
+        this._column_sizes.indices = [];
+
+        for (const th of this.table_model.header.cells[this.table_model.header.cells.length - 1]) {
+            th.style.minWidth = "";
+            th.style.maxWidth = "";
+        }
     }
 
     addStyleListener(styleListener) {
