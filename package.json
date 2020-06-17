@@ -15,11 +15,13 @@
     "browser": "dist/umd/regular-table.js",
     "unpkg": "dist/umd/regular-table.js",
     "jsdelivr": "dist/umd/regular-table.js",
+    "types": "index.d.ts",
     "files": [
         "dist/css/*.css",
         "dist/umd/*",
         "src/less/*.less",
-        "babel.config.js"
+        "babel.config.js",
+        "index.d.ts"
     ],
     "scripts": {
         "build:examples": "literally -c literally.config.js",
@@ -46,6 +48,7 @@
         "@babel/preset-env": "^7.9.0",
         "@finos/perspective": "=0.5.0",
         "@rollup/plugin-babel": "^5.0.2",
+        "@types/react": "^16.9.38",
         "babel-eslint": "^10.1.0",
         "babel-plugin-lodash": "^3.3.4",
         "babel-plugin-transform-custom-element-classes": "^0.1.0",
