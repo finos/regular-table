@@ -38,7 +38,7 @@ describe("2d_array.html", () => {
         });
     });
 
-    describe("scrolls via scrollTo() method", () => {
+    describe("scrolls via scrollToCell() method", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/2d_array.html");
             await page.waitFor("regular-table table tbody tr td");
@@ -48,7 +48,7 @@ describe("2d_array.html", () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table._invalid_schema = true;
-                table.scrollTo(0, 1, 3, 26);
+                table.scrollToCell(0, 1, 3, 26);
                 await table.draw({invalid_viewport: true});
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
@@ -60,7 +60,7 @@ describe("2d_array.html", () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table._invalid_schema = true;
-                table.scrollTo(0, 4, 3, 26);
+                table.scrollToCell(0, 4, 3, 26);
                 await table.draw({invalid_viewport: true});
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");

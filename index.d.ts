@@ -79,26 +79,22 @@ declare module 'regular-table' {
          */
         getDrawFPS(): Performance;
 
-
-        // TODO: Deal with scrollTo typescript error. Issue due to fact that
-        // scrollTo shadows base HTMLElement.scrollTo method
-        //
-        // /**
-        //  * Call this method to set the `scrollLeft` and `scrollTop` for this
-        //  * `<regular-table>` by calculating the position of this `scrollLeft`
-        //  * and `scrollTop` relative to the underlying widths of its columns
-        //  * and heights of its rows.
-        //  *
-        //  * @public
-        //  * @memberof RegularTableElement
-        //  * @param {number} x - The left most `x` index column to scroll into view.
-        //  * @param {number} y - The top most `y` index row to scroll into view.
-        //  * @param {number} ncols - Total number of columns in the data model.
-        //  * @param {number} nrows - Total number of rows in the data model.
-        //  * @example
-        //  * table.scrollTo(1, 3, 10, 30);
-        //  */
-        // scrollTo(x: number, y: number, ncols: number, nrows: number): void;
+        /**
+         * Call this method to set the `scrollLeft` and `scrollTop` for this
+         * `<regular-table>` by calculating the position of this `scrollLeft`
+         * and `scrollTop` relative to the underlying widths of its columns
+         * and heights of its rows.
+         *
+         * @public
+         * @memberof RegularTableElement
+         * @param {number} x - The left most `x` index column to scroll into view.
+         * @param {number} y - The top most `y` index row to scroll into view.
+         * @param {number} ncols - Total number of columns in the data model.
+         * @param {number} nrows - Total number of rows in the data model.
+         * @example
+         * table.scrollToCell(1, 3, 10, 30);
+         */
+        scrollToCell(x: number, y: number, ncols: number, nrows: number): void;
 
         /**
          * Call this method to set `DataListener` for this `<regular-table>`,

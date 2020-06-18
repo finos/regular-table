@@ -194,9 +194,9 @@ class RegularTableElement extends RegularViewEventModel {
      * @param {number} ncols - Total number of columns in the data model.
      * @param {number} nrows - Total number of rows in the data model.
      * @example
-     * table.scrollTo(1, 3, 10, 30);
+     * table.scrollToCell(1, 3, 10, 30);
      */
-    scrollTo(x, y, ncols, nrows) {
+    scrollToCell(x, y, ncols, nrows) {
         const row_height = this._virtual_panel.offsetHeight / nrows;
         this.scrollTop = row_height * y;
         this.scrollLeft = (x / (this._max_scroll_column(ncols) || ncols)) * (this.scrollWidth - this.clientWidth);

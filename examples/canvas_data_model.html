@@ -1,7 +1,7 @@
 <!--
-   
+
    Copyright (c) 2020, the Regular Table Authors.
-   
+
    This file is part of the Regular Table library, distributed under the terms of
    the Apache License 2.0.  The full license can be found in the LICENSE file.
 
@@ -64,7 +64,7 @@
             max-width: 20px !important;
             padding: 0px;
         }
-        regular-table th {           
+        regular-table th {
             color: white;
             font-family: monospace;
         }
@@ -130,7 +130,7 @@
             context.drawImage(ref_image, 0, 0, ref_image.width, ref_image.height);
             scroll_container.removeChild(ref_image);
             scroll_container.appendChild(canvas);
-        
+
             table.addStyleListener(() => {
                 const tds = table.querySelectorAll("td");
                 for (const td of tds) {
@@ -142,7 +142,7 @@
             const column_names = Array.from(Array(canvas.width).keys());
             const formatter = new Intl.NumberFormat("en-us");
             const clamp = (x, y) => formatter.format(Math.floor(x / y) * y);
-        
+
             table.setDataListener((x0, y0, x1, y1) => {
                 const data = [];
                 for (let i = x0; i < x1; i++) {
@@ -188,7 +188,7 @@
                 table.style.top = `${Math.min(top_scroll_limit, y + 20)}px`;
                 table.style.left = `${Math.min(left_scroll_limit, x + 20)}px`;
             }
-            table.scrollTo(x, y, canvas.width, canvas.height);
+            table.scrollToCell(x, y, canvas.width, canvas.height);
         });
     </script>
 
