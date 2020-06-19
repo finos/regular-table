@@ -4,7 +4,7 @@ const child_process = require("child_process");
 const hashes = {
     two_billion_rows: "483a42e7b877043714e18bea6872b039",
     canvas_data_model: "4c6537e23dff3c8f97c316559cef012e",
-    perspective_headers: "d92520387cb7aa5752dad7286cbb89c9",
+    perspective: "d92520387cb7aa5752dad7286cbb89c9",
     minesweeper: "96a9ed60d0250f7d3187c0fed5f5b78c",
     file_browser: "a7b7588c899e3953dd8580e81c51b3f9",
     spreadsheet: "3e0e3d6f8bf8b47294a7847b402b55fb",
