@@ -84,7 +84,7 @@ describe("two_billion_rows.html", () => {
         });
     });
 
-    describe("scrolls via scrollTo() method", () => {
+    describe("scrolls via scrollToCell() method", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
             await page.waitFor("regular-table table tbody tr td");
@@ -93,7 +93,7 @@ describe("two_billion_rows.html", () => {
         test.skip("https://github.com/jpmorganchase/regular-table/issues/15", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                table.scrollTo(0, 250500, 1000, 2000000000);
+                table.scrollToCell(0, 250500, 1000, 2000000000);
                 await table.draw();
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
