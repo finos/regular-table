@@ -65,7 +65,7 @@
         "jest-puppeteer": "^4.4.0",
         "jsdoc-to-markdown": "^6.0.1",
         "less": "^3.9.0",
-        "literally-cli": "^0.0.4",
+        "literally-cli": "^0.0.6",
         "marked-ast-markdown": "^2.1.0",
         "npm-run-all": "^4.1.3",
         "prettier": "^2.0.5",

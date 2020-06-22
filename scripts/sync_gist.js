@@ -1,5 +1,6 @@
 const fs = require("fs");
 const child_process = require("child_process");
+const glob = require("glob");
 
 const hashes = {
     two_billion_rows: "483a42e7b877043714e18bea6872b039",
@@ -20,7 +21,7 @@ for (const file in hashes) {
         }
 
         // Run literally for this project
-        child_process.execSync(`yarn literally --format block --output dist/${hashes[file]} examples/${file}.md`);
+        console.log(child_process.execSync(`yarn literally --format block --output dist/${hashes[file]} examples/${file}.md`).toString());
 
         // Update git
         process.chdir(`dist/${hashes[file]}`);
@@ -44,7 +45,8 @@ let output = `||||
 |:--|:--|:--|
 `;
 let titles = "",
-    links = "";
+    links = "",
+    list = "";
 for (let i = 0; i < Object.keys(hashes).length; i++) {
     if (i % 3 === 0) {
         if (i !== 0) {
@@ -53,9 +55,17 @@ for (let i = 0; i < Object.keys(hashes).length; i++) {
         titles = "|";
         links = "|";
     }
-    titles += Object.keys(hashes)[i] + "|";
-    links += `[![${Object.keys(hashes)[i]}](https://bl.ocks.org/texodus/raw/${hashes[Object.keys(hashes)[i]]}/thumbnail.png)](https://bl.ocks.org/texodus/${hashes[Object.keys(hashes)[i]]})|`;
+    const title = Object.keys(hashes)[i];
+    const hash = hashes[title];
+    titles += title + "|";
+    links += `[![${title}](https://bl.ocks.org/texodus/raw/${hash}/thumbnail.png)](https://bl.ocks.org/texodus/${hash})|`;
 }
 
-output += titles + "\n" + links + "\n";
-console.log(output);
+glob("examples/**/*.md", (_, files) => {
+    for (let title of files) {
+        title = title.replace(/examples\//, "");
+        list += `- [${title}](examples/${title})\n`;
+    }
+    output += titles + "\n" + links + "\n\n" + list;
+    console.log(output);
+});

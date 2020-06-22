@@ -353,40 +353,41 @@ async function create_view_cache(table, view, extend = {}) {
 
 ## Perspective
 
-```javascript
-const URL = "/node_modules/superstore-arrow/superstore.arrow";
-const perspective = window.perspective;
+```html
+<script>
+    const URL = "/node_modules/superstore-arrow/superstore.arrow";
+    
+    const datasource = async () => {
+        const request = fetch(URL);
+        const worker = window.perspective.worker();
+        const response = await request;
+        const buffer = await response.arrayBuffer();
+        return worker.table(buffer);
+    };
 
-const datasource = async () => {
-    const request = fetch(URL);
-    const worker = perspective.worker();
-    const response = await request;
-    const buffer = await response.arrayBuffer();
-    return worker.table(buffer);
-};
+    window.addEventListener("load", async function () {
+        const table = await datasource();
+        const view = table.view({
+            row_pivots: ["Region", "State", "City"],
+            column_pivots: ["Category", "Sub-Category"],
+            columns: ["Sales", "Profit"],
+        });
 
-window.addEventListener("load", async function () {
-    const table = await datasource();
-    const view = table.view({
-        row_pivots: ["Region", "State", "City"],
-        column_pivots: ["Category", "Sub-Category"],
-        columns: ["Sales", "Profit"],
+        const model = await create_view_cache(table, view);
+
+        const regular = document.getElementsByTagName("regular-table")[0];
+        regular.setDataListener(dataListener.bind(model));
+
+        regular.addStyleListener(typeStyleListener.bind(model, regular));
+        regular.addStyleListener(treeStyleListener.bind(model, regular));
+        regular.addStyleListener(groupHeaderStyleListener.bind(model, regular));
+        regular.addStyleListener(columnHeaderStyleListener.bind(model, regular));
+
+        regular.addEventListener("mousedown", mousedownListener.bind(model, regular));
+
+        await regular.draw();
     });
-
-    const model = await create_view_cache(table, view);
-
-    const regular = document.getElementsByTagName("regular-table")[0];
-    regular.setDataListener(dataListener.bind(model));
-
-    regular.addStyleListener(typeStyleListener.bind(model, regular));
-    regular.addStyleListener(treeStyleListener.bind(model, regular));
-    regular.addStyleListener(groupHeaderStyleListener.bind(model, regular));
-    regular.addStyleListener(columnHeaderStyleListener.bind(model, regular));
-
-    regular.addEventListener("mousedown", mousedownListener.bind(model, regular));
-
-    await regular.draw();
-});
+</script>
 ```
 
 ## CSS

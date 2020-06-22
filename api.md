@@ -1,4 +1,4 @@
-# Classes
+## Classes
 
 <dl>
 <dt><a href="#RegularTableElement">RegularTableElement</a> ⇐ <code>HTMLElement</code></dt>
@@ -13,7 +13,7 @@ relevent DOM method e.g. <code>document.createElement(&quot;perspective-viewer&q
 </dd>
 </dl>
 
-# Typedefs
+## Typedefs
 
 <dl>
 <dt><a href="#Performance">Performance</a> : <code>object</code></dt>
@@ -45,7 +45,7 @@ region (as opposed to returning <code>void</code> as a standard event listener).
 
 <a name="RegularTableElement"></a>
 
-# RegularTableElement ⇐ <code>HTMLElement</code>
+## RegularTableElement ⇐ <code>HTMLElement</code>
 The `<regular-table>` custom element.
 
 This module has no exports, but importing it has a side effect: the
@@ -59,29 +59,60 @@ relevent DOM method e.g. `document.createElement("perspective-viewer")` or
 
 **Kind**: global class  
 **Extends**: <code>HTMLElement</code>  
+**Access**: public  
 
 * [RegularTableElement](#RegularTableElement) ⇐ <code>HTMLElement</code>
+    * [.addStyleListener(styleListener)](#RegularTableElement+addStyleListener) ⇒ <code>number</code>
     * [.getMeta(element)](#RegularTableElement+getMeta) ⇒ [<code>MetaData</code>](#MetaData)
     * [.getDrawFPS()](#RegularTableElement+getDrawFPS) ⇒ [<code>Performance</code>](#Performance)
-    * [.scrollTo(x, y, ncols, nrows)](#RegularTableElement+scrollTo)
+    * [.scrollToCell(x, y, ncols, nrows)](#RegularTableElement+scrollToCell)
     * [.setDataListener(dataListener)](#RegularTableElement+setDataListener)
 
 
 * * *
 
+<a name="RegularTableElement+addStyleListener"></a>
+
+### regularTableElement.addStyleListener(styleListener) ⇒ <code>number</code>
+Adds a style listener callback. The style listeners are called
+whenever the <table> is re-rendered, such as through API invocations
+of draw() and user-initiated events such as scrolling. Within this
+optionally async callback, you can select <td>, <th>, etc. elements
+via regular DOM API methods like querySelectorAll().
+
+**Kind**: instance method of [<code>RegularTableElement</code>](#RegularTableElement)  
+**Returns**: <code>number</code> - The index of the added listener.  
+**Access**: public  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| styleListener | <code>function</code> | A (possibly async) function that styles the inner <table>. |
+
+**Example**  
+```js
+table.addStyleListener(() => {
+    for (const td of table.querySelectorAll("td")) {
+        td.setAttribute("contenteditable", true);
+    }
+});
+```
+
+* * *
+
 <a name="RegularTableElement+getMeta"></a>
 
-## regularTableElement.getMeta(element) ⇒ [<code>MetaData</code>](#MetaData)
+### regularTableElement.getMeta(element) ⇒ [<code>MetaData</code>](#MetaData)
 Returns the `MetaData` object associated with a `<td>` or `<th>`.  When
 your `StyleListener` is invoked, use this method to look up additional
 `MetaData` about any `HTMLTableCellElement` in the rendered `<table>`.
 
 **Kind**: instance method of [<code>RegularTableElement</code>](#RegularTableElement)  
 **Returns**: [<code>MetaData</code>](#MetaData) - The metadata associated with the element.  
+**Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| element | <code>HTMLTableCellElement</code> \| [<code>MetaData</code>](#MetaData) | The child element of this `<regular-table>` for which to look up metadata, or a coordinates-like object to refer to metadata by logical position. |
+| element | <code>HTMLTableCellElement</code> \| [<code>Partial.&lt;MetaData&gt;</code>](#MetaData) | The child element of this `<regular-table>` for which to look up metadata, or a coordinates-like object to refer to metadata by logical position. |
 
 **Example**  
 ```js
@@ -91,14 +122,14 @@ console.log(`Viewport corner is ${metadata.x}, ${metadata.y}`);
 ```
 **Example**  
 ```js
-const header = table.getMeta({row_header_x: 1, dy: 3}).row_header;
+const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
 ```
 
 * * *
 
 <a name="RegularTableElement+getDrawFPS"></a>
 
-## regularTableElement.getDrawFPS() ⇒ [<code>Performance</code>](#Performance)
+### regularTableElement.getDrawFPS() ⇒ [<code>Performance</code>](#Performance)
 Get performance statistics about this `<regular-table>`.  Calling this
 method resets the internal state, which makes it convenient to measure
 performance at regular intervals (see example).
@@ -106,6 +137,7 @@ performance at regular intervals (see example).
 **Kind**: instance method of [<code>RegularTableElement</code>](#RegularTableElement)  
 **Returns**: [<code>Performance</code>](#Performance) - Performance data aggregated since the last
 call to `getDrawFPS()`.  
+**Access**: public  
 **Example**  
 ```js
 const table = document.getElementById("my_regular_table");
@@ -117,15 +149,16 @@ setInterval(() => {
 
 * * *
 
-<a name="RegularTableElement+scrollTo"></a>
+<a name="RegularTableElement+scrollToCell"></a>
 
-## regularTableElement.scrollTo(x, y, ncols, nrows)
+### regularTableElement.scrollToCell(x, y, ncols, nrows)
 Call this method to set the `scrollLeft` and `scrollTop` for this
 `<regular-table>` by calculating the position of this `scrollLeft`
 and `scrollTop` relative to the underlying widths of its columns
 and heights of its rows.
 
 **Kind**: instance method of [<code>RegularTableElement</code>](#RegularTableElement)  
+**Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -136,19 +169,20 @@ and heights of its rows.
 
 **Example**  
 ```js
-table.scrollTo(1, 3, 10, 30);
+table.scrollToCell(1, 3, 10, 30);
 ```
 
 * * *
 
 <a name="RegularTableElement+setDataListener"></a>
 
-## regularTableElement.setDataListener(dataListener)
+### regularTableElement.setDataListener(dataListener)
 Call this method to set `DataListener` for this `<regular-table>`,
 which will be called whenever a new data slice is needed to render.
 Calls to `draw()` will fail if no `DataListener` has been set
 
 **Kind**: instance method of [<code>RegularTableElement</code>](#RegularTableElement)  
+**Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -169,7 +203,7 @@ table.setDataListener((x0, y0, x1, y1) => {
 
 <a name="Performance"></a>
 
-# Performance : <code>object</code>
+## Performance : <code>object</code>
 An object with performance statistics about calls to
 `draw()` from some time interval (captured in milliseconds by the
 `elapsed` proprty).
@@ -190,7 +224,7 @@ An object with performance statistics about calls to
 
 <a name="MetaData"></a>
 
-# MetaData : <code>object</code>
+## MetaData : <code>object</code>
 An object describing virtual rendering metadata about an
 `HTMLTableCellElement`, use this object to map rendered `<th>` or `<td>`
 elements back to your `data`, `row_headers` or `column_headers` within
@@ -204,7 +238,9 @@ listener functions for `addStyleListener()` and `addEventListener()`.
 | [x] | <code>number</code> | The `x` index in your virtual data model. property is only generated for `<td>`, `<th>` from `row_headers`. |
 | [y] | <code>number</code> | The `y` index in your virtual data model. property is only generated for `<td>`, `<th>` from `row_headers`. |
 | [x0] | <code>number</code> | The `x` index of the viewport origin in your data model, e.g. what was passed to `x0` when your `dataListener` was invoked. |
-| [y0] | <code>number</code> | The `y` index of the viewport origin in your data model, e.g. what was passed to `x0` when your `dataListener` was invoked. |
+| [y0] | <code>number</code> | The `y` index of the viewport origin in your data model, e.g. what was passed to `y0` when your `dataListener` was invoked. |
+| [x1] | <code>number</code> | The `x` index of the viewport corner in your data model, e.g. what was passed to `x1` when your `dataListener` was invoked. |
+| [y1] | <code>number</code> | The `y` index of the viewport origin in your data model, e.g. what was passed to `y1` when your `dataListener` was invoked. |
 | [dx] | <code>number</code> | The `x` index in `DataResponse.data`, this property is only generated for `<td>`, and `<th>` from `column_headers`. |
 | [dy] | <code>number</code> | The `y` index in `DataResponse.data`, this property is only generated for `<td>`, `<th>` from `row_headers`. |
 | [column_header_y] | <code>number</code> | The `y` index in `DataResponse.column_headers[x]`, this property is only generated for `<th>` from `column_headers`. |
@@ -213,12 +249,31 @@ listener functions for `addStyleListener()` and `addEventListener()`.
 | [row_header] | <code>Array.&lt;object&gt;</code> | The `Array` for this `y` in `DataResponse.row_headers`, if it was provided. |
 | [column_header] | <code>Array.&lt;object&gt;</code> | The `Array` for this `x` in `DataResponse.column_headers`, if it was provided. |
 
+**Example**  
+```js
+MetaData                     (x = 0, column_header_y = 0))
+                             *-------------------------------------+
+                             |                                     |
+                             |                                     |
+                             +-------------------------------------+
+(row_header_x = 0, y = 0)    (x = 0, y = 0)
+*------------------------+   *-------------------------------------+
+|                        |   |                                     |
+|                        |   |      (x0, y0)                       |
+|                        |   |      *---------------*              |
+|                        |   |      |               |              |
+|                        |   |      |     * (x, y)  |              |
+|                        |   |      |               |              |
+|                        |   |      *---------------* (x1, y1)     |
+|                        |   |                                     |
++------------------------+   +-------------------------------------+
+```
 
 * * *
 
 <a name="DataResponse"></a>
 
-# DataResponse : <code>object</code>
+## DataResponse : <code>object</code>
 The `DataResponse` object describes a rectangular region of a virtual
 data set, and some associated metadata.  `<regular-table>` will use this
 object to render the `<table>`, though it may make multiple requests for
@@ -261,7 +316,7 @@ implement a `DataListener`.
 
 <a name="DataListener"></a>
 
-# DataListener ⇒ [<code>Promise.&lt;DataResponse&gt;</code>](#DataResponse)
+## DataListener ⇒ [<code>Promise.&lt;DataResponse&gt;</code>](#DataResponse)
 The `DataListener` is similar to a normal event listener function.
 Unlike a normal event listener, it takes regular arguments (not an
 `Event`); and returns a `Promise` for a `DataResponse` object for this

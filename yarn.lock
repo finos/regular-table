@@ -5201,10 +5201,10 @@ linkify-it@^2.0.0:
   dependencies:
     uc.micro "^1.0.1"
 
-literally-cli@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/literally-cli/-/literally-cli-0.0.4.tgz#81338f6c211877350f52c66653874a1141db0c36"
-  integrity sha512-wDwvlxowLgll72Plls221Mr8dgckaqZNBI8rVHp+GIDmvuKhh+NI8Yy02wBlaZ4Rf8yy8SsEkAYuFInuWmayfg==
+literally-cli@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/literally-cli/-/literally-cli-0.0.6.tgz#b7430e45b8c8d628a3b28de98a268b9798f63f14"
+  integrity sha512-fOiUpZ36HtUhGx2KQoOGbkoMsqX8gykRADrd84aY4pfovWbzEv2F6OTw80XhOekqMfsndAs+23p9sbhnliC1sw==
   dependencies:
     chalk "^4.1.0"
     commander "^5.1.0"
