@@ -140,11 +140,51 @@ function compile(input) {
 ## User Interaction
 
 ```javascript
+
+const SELECTED_POSITION = {x: 0, y: 0};
+```
+
+We will need a way to track the `SELECTED_POSITION` in the `regular-table` 
+with the `x` and `y` coordinates currently focused so that we can scroll 
+to another distant part of the table and back with our selection preserved.
+We can default it to the origin.
+
+```javascript
+
+const updateFocus = () => {
+    const tds = table.querySelectorAll("td");
+    for (const td of tds) {
+        const meta = table.getMeta(td);
+        if (meta.x === SELECTED_POSITION.x && meta.y === SELECTED_POSITION.y) {
+            td.focus();
+        }
+    }
+};
+
+table.addEventListener("click", (event) => {
+    const meta = table.getMeta(event.target);
+    SELECTED_POSITION.x = meta.x;
+    SELECTED_POSITION.y = meta.y;
+    updateFocus();
+});
+
+```
+
+We will use `updateFocus` either directly or by adding it as a style listener below
+to refocus the `td` on our `SELECTED_POSITION` whenever the `regular-table`s `draw()` 
+completes - due to scrolling or key navigation.
+
+We'll need to ensure that on click the cell target is selected and has `focus()`.
+
+```javascript
+
 table.addStyleListener(() => {
     for (const td of table.querySelectorAll("td")) {
         td.setAttribute("contenteditable", true);
     }
 });
+
+table.addStyleListener(updateFocus);
 
 table.draw();
 ```
@@ -180,8 +220,11 @@ table.addEventListener("keypress", (event) => {
     const target = document.activeElement;
     if (event.keyCode === 13) {
         event.preventDefault();
-        write(target);
-        increment(target);
+        if (event.shiftKey) {
+            moveSelection(target, 0, -1);
+        } else {
+            moveSelection(target, 0, 1);
+        }
     }
 });
 
@@ -191,20 +234,80 @@ table.addEventListener("keyup", (event) => {
         highlight(target);
     }
 });
+
+table.addEventListener("keydown", (event) => {
+    const target = document.activeElement;
+    switch (event.keyCode) {
+        // tab
+        case 9:
+            event.preventDefault();
+            if (event.shiftKey) {
+                moveSelection(target, -1, 0);
+            } else {
+                moveSelection(target, 1, 0);
+            }
+            break;
+        // left arrow
+        case 37:
+            moveSelection(target, -1, 0);
+            break;
+        // up arrow
+        case 38:
+            moveSelection(target, 0, -1);
+            break;
+        // right arrow
+        case 39:
+            moveSelection(target, 1, 0);
+            break;
+        // down arrow
+        case 40:
+            moveSelection(target, 0, 1);
+            break;
+    }
+});
 ```
 
-This also makes use of `increment()`, which uses some simple metadata-math
-to look up the cell in the next row of this column, and `focus()` it.
+These key handlers also make use of `moveSelection()`, which uses some
+simple metadata-math to look up the next cell in either the `x` or `y`
+direction and update the `SELECTED_POSITION` - scrolling the table if 
+necessary and providing a small buffer to the edge of the visible table.
 
 ```javascript
-function increment(active_cell) {
+const SCROLL_AHEAD = 4;
+
+function moveSelection(active_cell, dx, dy) {
     const meta = table.getMeta(active_cell);
-    const rows = Array.from(table.querySelectorAll("tbody tr"));
-    const next_row = rows[meta.y - meta.y0 + 1];
-    if (next_row) {
-        const td = next_row.children[meta.x + 1];
-        td.focus();
+
+    if (dx !== 0) {
+        if (meta.x + dx < NUM_COLUMNS && 0 <= meta.x + dx) {
+            SELECTED_POSITION.x = meta.x + dx;
+        }
+        if (meta.x1 <= SELECTED_POSITION.x + SCROLL_AHEAD) {
+            table.scrollToCell(meta.x0 + 2, meta.y0, NUM_COLUMNS, NUM_ROWS);
+        } else if (SELECTED_POSITION.x - SCROLL_AHEAD < meta.x0) {
+            if (0 < meta.x0 - 1) {
+                table.scrollToCell(meta.x0 - 1, meta.y0, NUM_COLUMNS, NUM_ROWS);
+            } else {
+                table.scrollToCell(0, meta.y0, NUM_COLUMNS, NUM_ROWS);
+            }
+        }
     }
+
+    if (dy !== 0) {
+        if (meta.y + dy < NUM_ROWS && 0 <= meta.y + dy) {
+            SELECTED_POSITION.y = meta.y + dy;
+        }
+        if (meta.y1 <= SELECTED_POSITION.y + SCROLL_AHEAD) {
+            table.scrollToCell(meta.x0, meta.y0 + 1, NUM_COLUMNS, NUM_ROWS);
+        } else if (SELECTED_POSITION.y - SCROLL_AHEAD + 2 < meta.y0) {
+            if (0 < meta.y0 - 1) {
+                table.scrollToCell(meta.x0, meta.y0 - 1, NUM_COLUMNS, NUM_ROWS);
+            } else {
+                table.scrollToCell(meta.x0, 0, NUM_COLUMNS, NUM_ROWS);
+            }
+        }
+    }
+    updateFocus();
 }
 ```
 
