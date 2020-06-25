@@ -8,7 +8,7 @@
  *
  */
 
-describe("web_worker.html", () => {
+describe("react.html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
     });
