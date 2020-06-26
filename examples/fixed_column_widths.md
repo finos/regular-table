@@ -4,17 +4,15 @@ This example shows how to set up columns with fixed widths in
 [`regular-table`](https://github.com/jpmorganchase/regular-table) just using
 Javascript and CSS rules.
 
-The default behaviour that regular-table implements for this feature includes:
-* The default width of the cells corresponding to a column is calculated
-taking into account the size of the content of the visible cells for that column.
-* It is only possible to increase the width of a cell up to the size of the
-content currently visible for that column.
-* It is possible to manually shrink the column width up to the limit of 10 pixels.
-* Column widths are calculated by the library using the max-width css rule. Which
-means that settings the max-width from a css rule will lead to a fixed width
-behavior for the cells of that column.
+By default `<regular-table>` sets each column's width based on the content width
+of each of that column's cells. Currently, each column's width will not increase
+past the max width of the column's content, but you can manually shrink the column 
+width up to the limit of 10 pixels.
+Column widths are calculated by the library using the max-width css rule meaning
+that setting the `max-width` from a css rule will lead to a fixed width behavior
+for the cells of that column.
 
-We need a `<regular-table>` with an `id` that will be accessible on the window
+To start, we need a `<regular-table>` with an `id` that will be accessible on the window
 object using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
 
 ```html
@@ -23,33 +21,84 @@ object using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-d
 
 ## Styling
 
-description here
+Then some `css` to define our `.fixed` `min-width` and `max-width`.
+We'll also need to disable default header text selection and handle overflow conditions
+that would otherwise cause some ugly content rendering.
 
 ```css
-.fixed {
+regular-table tr th.fixed-column-width, regular-table tr td.fixed-column-width {
     min-width: 100px !important;
     max-width: 100px !important;
 }
 
-thead tr th {
+regular-table thead tr th {
     user-select: none;
 }
 
-tr th, tr td {
+regular-table tr th, regular-table tr td {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 ```
 
-## Data Model
+## `StyleListener`
 
-description here
+In our `fixColumnWidths()` function, we apply a `StyleListener` to the `<regular-table>`
+that iterates through each of the visible cells and adding or removing the
+`FIXED_COLUMN_WIDTH_CLASS` based on our `isFixed()` param.
+
+The `isFixed()` parameter supplied should be a predicate function that
+given a the `table` and a `cell` determines if the cell is in a fixed column by
+returning `true` or `false`.
 
 ``` javascript
-class CreateDataModel {
-    constructor(baseColumns, columnCount, cellCount) {
-        this._baseColumns = baseColumns;
+const FIXED_COLUMN_WIDTH_CLASS = "fixed-column-width";
+
+const fixColumnWidths = (table, isFixed) => {
+    function clear(cell) {
+        cell.classList.remove(FIXED_COLUMN_WIDTH_CLASS);
+        cell.style.minWidth = "";
+    }
+
+    function styleListener() {
+        const ths = table.querySelectorAll("thead th");
+        const tds = table.querySelectorAll("tbody td");
+        for (const cell of [...ths, ...tds]) {
+            clear(cell);
+            if (isFixed(table, cell)) {
+                cell.classList.add(FIXED_COLUMN_WIDTH_CLASS);
+            }
+        }
+    }
+
+    table.addStyleListener(styleListener);
+    return table;
+};
+```
+
+We'll need a predicate to pass in as an argument to `fixColumnWidths()` that
+will determine if the cell passed in `isFixed()`.
+For the purposes of this example, we'll check to see if the given cell's value 
+contains `"Fixed"`, but this function could reference the `DataModel` or some other 
+logic to make its decision.
+
+``` javascript
+function isFixed(table, cell) {
+    const value = table.getMeta(cell).value;
+    return value.includes("Fixed");
+}
+```
+
+## DataModel
+
+Our `DataModel` will generate a data set with alternating `"Fixed"` and `"Not Set"`
+values ensuring a mix of columns for testing in our example.
+
+``` javascript
+class DataModel {
+    constructor(columnCount, cellCount) {
+        this._baseColumns = ["Fixed", "Not Set"];
         this._columnCount = columnCount;
         this._cellCount = cellCount;
         this._dataset = this._createDataset();
@@ -95,73 +144,22 @@ class CreateDataModel {
         };
     };
 }
-
-const baseColumns = ["Fixed", "Not Set"];
-const columnCount = 20;
-const cellCount = 1000;
-
-const dataModel = new CreateDataModel(baseColumns, columnCount, cellCount);
 ```
+Within our `init()` we will create a `DataModel` and call `setDataListener()` with its `DataListener`, giving our example a reasonable amount of data to test.
 
-## Behavior
-
-description here
-
-``` javascript
-const FIXED_CLASS = "fixed";
-
-// Clear previous cell manipulations done by this api.
-function clear(cellElement) {
-    cellElement.classList.remove(FIXED_CLASS);
-    cellElement.style.minWidth = "";
-}
-
-function getColumnName(index) {
-    return dataModel.columns[index].key;
-}
-
-// Check if cell should apply fixed min-width.
-function isFixed(cellElement) {
-    // Use regular-table api to get cell metadata.
-    const metadata = window.fixedColumnWidthsRegularTable.getMeta(cellElement);
-    const name = getColumnName(metadata.x);
-    return name.includes("Fixed");
-}
-
-// Add "fixed" class to cell element.
-function setFixedClass(cellElement) {
-    cellElement.classList.add(FIXED_CLASS);
-}
-
-// Set fixed min-width to cells when appropiate.
-function styleListener() {
-    const ths = window.fixedColumnWidthsRegularTable.querySelectorAll("thead th");
-    const tds = window.fixedColumnWidthsRegularTable.querySelectorAll("tbody td");
-    // Iterate over all rendered cells.
-    for (const cellElement of [...ths, ...tds]) {
-        clear(cellElement);
-        if (isFixed(cellElement)) setFixedClass(cellElement);
-    }
-}
-
-```
-
-With our `init()` we will call `generateDataListener()` to create a `DataListener`
-and call `setDataListener()` with it giving our example a reasonable amount of
-data to test.
-
-Next we'll call our .... `#fixedColumnWidthsRegularTable`
-and then invoke `draw()` - checking that the `#fixedColumnWidthsRegularTable`
-exists first.
+Next we'll call our `fixColumnWidths()` function with the `#fixedColumnWidthsRegularTable`
+and our `isFixed()` predicate to decorate `<regular-table>` with our `StyleListener`
+and then invoke `draw()`.
 
 This will all be fired on `"load"`.
 
 ```javascript
 function init() {
-    if (window.fixedColumnWidthsRegularTable) {
-        window.fixedColumnWidthsRegularTable.setDataListener(dataModel.dataListener);
-        window.fixedColumnWidthsRegularTable.addStyleListener(styleListener);
-        window.fixedColumnWidthsRegularTable.draw();
+    const table = window.fixedColumnWidthsRegularTable;
+    if (table) {
+        const dataModel = new DataModel(20, 1000);
+        table.setDataListener(dataModel.dataListener);
+        fixColumnWidths(table, isFixed).draw();
     }
 }
 
