@@ -60,7 +60,7 @@ const REVERSE_STRIPES_CLASS = "reverse-stripes";
 
 const alternateStripes = (table) => {
     table.addStyleListener(() => {
-        const tds = table.querySelectorAll("tbody td");
+        const tds = table.querySelectorAll("tbody tr:nth-of-type(1) td");
         const meta = table.getMeta(tds[0]);
 
         if (meta) {
@@ -78,15 +78,40 @@ const alternateStripes = (table) => {
 
 ```
 
-Lets set up an `init()` to use the `dataListener` from 
-`two_billion_rows` 
-to `setDataListener()`, call our `alternateStripes()` function and then invoke 
-`draw()`. We'll check that the `#stripedRegularTable` exists first.
+## Virtual Data Model
+
+To see the stripes scroll and test out our example, we'll need a large
+enough data set. The `generateDataListener()` function takes a
+`num_rows` and `num_columns` and generates a test `DataListener` making use of
+the `range()` and `formatter()` utility functions from `two_billion_rows`
+example included in the dependencies below.
+
+```javascript
+function generateDataListener(num_rows, num_columns) {
+    return function dataListener(x0, y0, x1, y1) {
+        return {
+            num_rows,
+            num_columns,
+            row_headers: range(y0, y1, group_header.bind(null, "Row")),
+            column_headers: range(x0, x1, group_header.bind(null, "Column")),
+            data: range(x0, x1, (x) => range(y0, y1, (y) => formatter.format(x + y))),
+        };
+    };
+}
+```
+
+Lets set up an `init()` to use `generateDataListener()` to create a 10k row
+data set and call `setDataListener()` with it.
+Next we'll call our `alternateStripes()` function passing in the `#stripedRegularTable`
+and then invoke `draw()` - checking that the `#stripedRegularTable` exists first.
+
+All of this will be invoked on `"load"`.
 
 ```javascript
 function init() {
     if (window.stripedRegularTable) {
-        window.stripedRegularTable.setDataListener(window.dataListener);
+        const dataListener = generateDataListener(10000, 50);
+        window.stripedRegularTable.setDataListener(dataListener);
         alternateStripes(window.stripedRegularTable);
         window.stripedRegularTable.draw();
     }
