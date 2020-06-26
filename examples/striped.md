@@ -129,7 +129,7 @@ The usual suspects.
 <link rel='stylesheet' href="/dist/css/material.css">
 ```
 
-Borrow a data model from `two_billion_rows`.
+Borrow utility functions from the `two_billion_rows` example.
 
 ```html
 <script src="/dist/examples/two_billion_rows.js"></script>
