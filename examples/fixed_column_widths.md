@@ -42,7 +42,7 @@ regular-table tr th, regular-table tr td {
 }
 ```
 
-## `StyleListener`
+## Adding a `StyleListener` with `fixColumnWidths()`
 
 In our `fixColumnWidths()` function, we apply a `StyleListener` to the `<regular-table>`
 that iterates through each of the visible cells and adding or removing the
