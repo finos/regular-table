@@ -17,8 +17,7 @@
     "jsdelivr": "dist/umd/regular-table.js",
     "types": "index.d.ts",
     "files": [
-        "dist/css/*.css",
-        "dist/umd/*",
+        "dist/**/*",
         "src/less/*.less",
         "babel.config.js",
         "index.d.ts"
