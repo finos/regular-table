@@ -40,8 +40,6 @@ the Virtual Data Models, Styling and Interaction APIs.  Complete API docs can
 be found [here](https://github.com/jpmorganchase/regular-table/blob/master/api.md),
 and many advanced examples can be found in the [`examples` directory](https://github.com/jpmorganchase/regular-table/tree/master/examples).
 
-- [Examples](#examples)
-- [Documentation](#documentation)
 - [Installation](#installation)
 - [`<regular-table>` Custom Element](#regular-table-custom-element)
 - [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
