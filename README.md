@@ -40,6 +40,8 @@ the Virtual Data Models, Styling and Interaction APIs.  Complete API docs can
 be found [here](https://github.com/jpmorganchase/regular-table/blob/master/api.md),
 and many advanced examples can be found in the [`examples` directory](https://github.com/jpmorganchase/regular-table/tree/master/examples).
 
+- [Examples](#examples)
+- [Documentation](#documentation)
 - [Installation](#installation)
 - [`<regular-table>` Custom Element](#regular-table-custom-element)
 - [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
@@ -388,7 +390,7 @@ function style_th(th) {
 
 ## `.addEventListener()` Interaction
 
-`<regular-table>` is a nornal `HTMLElement`!  Use the `regular-table` API
+`<regular-table>` is a normal `HTMLElement`!  Use the `regular-table` API
 in concert with regular DOM API methods that work on other `HTMLElement`
 to create advanced functionality, such as this example of virtual row
 select:
