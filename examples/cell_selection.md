@@ -76,7 +76,7 @@ const addCellSelection = (table) => {
             CELL_SELECTIONS = [];
         }
         const meta = table.getMeta(event.target);
-        if (meta.x !== undefined && meta.y !== undefined) {
+        if (meta && meta.x !== undefined && meta.y !== undefined) {
             downCoord = {x: meta.x, y: meta.y};
         }
     });

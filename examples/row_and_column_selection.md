@@ -105,7 +105,10 @@ const addSelectionStyleListener = (table) => {
         for (const th of rowThs) {
             const meta = table.getMeta(th);
 
-            const selected = meta.row_header.find((h) => SELECTED_ROW_HEADERS.indexOf(h) !== -1);
+            const selected = SELECTED_ROW_HEADERS.find((h) => {
+                const index = meta.row_header.indexOf(h);
+                return index !== -1 && index <= meta.row_header_x;
+            });
             if (selected) {
                 th.classList.add(ROW_SELECTED_CLASS);
             } else {
@@ -118,7 +121,10 @@ const addSelectionStyleListener = (table) => {
             const meta = table.getMeta(th);
 
             if (typeof meta.column_header.find === "function") {
-                const selected = meta.column_header.find((h) => SELECTED_COLUMN_HEADERS.indexOf(h) !== -1);
+                const selected = SELECTED_COLUMN_HEADERS.find((h) => {
+                    const index = meta.column_header.indexOf(h);
+                    return index !== -1 && index <= meta.column_header_y;
+                });
                 if (selected) {
                     th.classList.add(COLUMN_SELECTED_CLASS);
                 } else {
@@ -134,12 +140,16 @@ const addRowAndColumnSelection = (table) => {
         const meta = table.getMeta(e.target);
 
         if (meta) {
+            if (!event.ctrlKey && !event.metaKey) {
+                SELECTED_ROW_HEADERS = [];
+                SELECTED_COLUMN_HEADERS = [];
+            }
             if (typeof meta.column_header_y !== "undefined") {
                 columnHeaderClickCallback(e, table, meta);
-            }
-
-            if (typeof meta.row_header_x !== "undefined") {
+            } else if (typeof meta.row_header_x !== "undefined") {
                 rowHeaderClickCallback(e, table, meta);
+            } else {
+                table.draw();
             }
         }
     });
