@@ -1,4 +1,4 @@
-# Cell Selection
+# Row, Column and Cell Selection
 
 ... desc
 
