@@ -29,21 +29,19 @@ regular-table tbody tr td.cell-selected {
 ... desc
 
 ```javascript
-let CELL_SELECTION_START = {};
-let CELL_SELECTION_END = {};
+let CELL_SELECTIONS = [];
 
 const CELL_SELECTED_CLASS = "cell-selected";
 
-const drawCellSelection = (table, cellSelectionEnd = CELL_SELECTION_END) => {
+const drawCellSelection = (table, downCoord, upCoord) => {
     const tds = table.querySelectorAll("tbody td");
-    if (CELL_SELECTION_START.x !== undefined && CELL_SELECTION_START.y !== undefined && cellSelectionEnd.x !== undefined && cellSelectionEnd.y !== undefined) {
-        const x0 = Math.min(CELL_SELECTION_START.x, cellSelectionEnd.x);
-        const x1 = Math.max(CELL_SELECTION_START.x, cellSelectionEnd.x);
-        const y0 = Math.min(CELL_SELECTION_START.y, cellSelectionEnd.y);
-        const y1 = Math.max(CELL_SELECTION_START.y, cellSelectionEnd.y);
+    if (downCoord.x !== undefined && downCoord.y !== undefined && upCoord.x !== undefined && upCoord.y !== undefined) {
+        const x0 = Math.min(downCoord.x, upCoord.x);
+        const x1 = Math.max(downCoord.x, upCoord.x);
+        const y0 = Math.min(downCoord.y, upCoord.y);
+        const y1 = Math.max(downCoord.y, upCoord.y);
 
         for (const td of tds) {
-            td.classList.remove(CELL_SELECTED_CLASS);
             const meta = table.getMeta(td);
             if (x0 <= meta.x && meta.x <= x1) {
                 if (y0 <= meta.y && meta.y <= y1) {
@@ -54,36 +52,52 @@ const drawCellSelection = (table, cellSelectionEnd = CELL_SELECTION_END) => {
     }
 };
 
+const redrawCellSelections = (table, cellSelections = CELL_SELECTIONS) => {
+    const tds = table.querySelectorAll("tbody td");
+    for (const td of tds) {
+        td.classList.remove(CELL_SELECTED_CLASS);
+    }
+
+    for (const cs of cellSelections) {
+        drawCellSelection(table, cs[0], cs[1]);
+    }
+};
+
 const addCellSelectionStyleListener = (table) => {
-    table.addStyleListener(() => drawCellSelection(table));
+    table.addStyleListener(() => redrawCellSelections(table));
 };
 
 const addCellSelection = (table) => {
-    let isMouseDown = false;
-    table.addEventListener("mousedown", (e) => {
-        isMouseDown = true;
-        const meta = table.getMeta(e.target);
+    let downCoord = {};
+
+    table.addEventListener("mousedown", (event) => {
+        downCoord = {};
+        if (!event.ctrlKey && !event.metaKey) {
+            CELL_SELECTIONS = [];
+        }
+        const meta = table.getMeta(event.target);
         if (meta.x !== undefined && meta.y !== undefined) {
-            CELL_SELECTION_START = {x: meta.x, y: meta.y};
+            downCoord = {x: meta.x, y: meta.y};
         }
     });
 
-    table.addEventListener("mouseover", (e) => {
-        if (isMouseDown) {
-            const meta = table.getMeta(e.target);
+    table.addEventListener("mouseover", (event) => {
+        if (downCoord.x !== undefined) {
+            const meta = table.getMeta(event.target);
             if (meta && meta.x !== undefined && meta.y !== undefined) {
-                drawCellSelection(table, {x: meta.x, y: meta.y});
+                redrawCellSelections(table, CELL_SELECTIONS.concat([[downCoord, {x: meta.x, y: meta.y}]]));
             }
         }
     });
 
-    table.addEventListener("mouseup", (e) => {
-        const meta = table.getMeta(e.target);
-        if (meta.x !== undefined && meta.y !== undefined) {
-            CELL_SELECTION_END = {x: meta.x, y: meta.y};
+    table.addEventListener("mouseup", (event) => {
+        const meta = table.getMeta(event.target);
+        if (downCoord.x !== undefined && meta.x !== undefined && meta.y !== undefined) {
+            const upCoord = {x: meta.x, y: meta.y};
+            CELL_SELECTIONS.push([downCoord, upCoord]);
+            redrawCellSelections(table);
         }
-        isMouseDown = false;
-        table.draw();
+        downCoord = {};
     });
 
     addCellSelectionStyleListener(table);
