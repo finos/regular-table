@@ -133,12 +133,14 @@ const addRowAndColumnSelection = (table) => {
     table.addEventListener("click", (e) => {
         const meta = table.getMeta(e.target);
 
-        if (typeof meta.column_header_y !== "undefined") {
-            columnHeaderClickCallback(e, table, meta);
-        }
+        if (meta) {
+            if (typeof meta.column_header_y !== "undefined") {
+                columnHeaderClickCallback(e, table, meta);
+            }
 
-        if (typeof meta.row_header_x !== "undefined") {
-            rowHeaderClickCallback(e, table, meta);
+            if (typeof meta.row_header_x !== "undefined") {
+                rowHeaderClickCallback(e, table, meta);
+            }
         }
     });
 
