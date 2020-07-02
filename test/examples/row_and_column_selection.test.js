@@ -36,6 +36,7 @@ describe("row_and_column_selection.html", () => {
     describe("initial view", () => {
         test("includes no selection", async () => {
             expect(await selectedRows()).toEqual([]);
+            expect(await selectedColumns()).toEqual([]);
         });
     });
 
