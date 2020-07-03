@@ -25,22 +25,20 @@ Sounds like the bulk of the logic belongs in a `"click"` `EventListener`, so our
 It will also be responsible for adding the `StyleListener` to ensure the selection shows correctly as the `table` scrolls.
 ```javascript
 const addRowMouseSelection = (table) => {
-    table.addEventListener("click", (e) => {
+    table.addEventListener("click", async (e) => {
         const meta = table.getMeta(e.target);
-
         if (meta) {
             if (!event.ctrlKey && !event.metaKey) {
                 MOUSE_SELECTED_ROW_HEADERS = [];
             }
             if (typeof meta.row_header_x !== "undefined") {
                 rowHeaderClickCallback(e, table, meta);
-            } else {
-                table.draw();
             }
+            await table.draw();
         }
     });
 
-    addSelectionStyleListener(table);
+    addRowSelectionStyleListener(table);
     return table;
 };
 ```
@@ -82,7 +80,7 @@ const rowHeaderClickCallback = (event, table, meta) => {
     table.draw();
 };
 
-const addSelectionStyleListener = (table) => {
+const addRowSelectionStyleListener = (table) => {
     table.addStyleListener(() => {
         const tds = table.querySelectorAll("tbody td");
 
