@@ -10,7 +10,7 @@ accessible on the window object using [`window.${id}`](https://stackoverflow.com
 <regular-table id="cellSelectionRegularTable"></regular-table>
 ```
 
-## Adding the behavior and  `StyleListener` with `addCellSelection()`
+## `addCellSelection()`
 
 Lets start by making the cell selection behavior available via a single function,
 `addCellSelection()`, that takes a `<regular-table>` and applies our behavior.
@@ -21,13 +21,13 @@ button down, move the mouse to another cell and then release, resulting in a tab
 showing the selected region.
 
 In order to record the selected region, we will need the location of the cell when
-the `mousedown` event is triggered and the location of the cell on `mouseup` which
+the `"mousedown"` event is triggered and the location of the cell on `"mouseup"` which
 we will add as a coordinate pair to a collection of `CELL_SELECTIONS`.
 By holding the `ctrlKey` or `metaKey` while making selections, 
 our users can make multiple `CELL_SELECTIONS` show at once.
 
-Lets also add a `mouseover` `EventListener` to paint the selection as the user
-moves the mouse - showing the region that would be selected on `mouseup`.
+Lets also add a `"mouseover"` `EventListener` to paint the selection as the user
+moves the mouse - showing the region that would be selected on `"mouseup"`.
 
 Finally, we'll need to ensure that the selection paints correctly as it scrolls
 in and out of the visible table using a `StyleListener` that we will define later.
@@ -55,7 +55,7 @@ Now for each of our mouse listeners, we'll need the `table` passed in from `addC
 so we will define each as a higher-order function creating a closure and keeping
 the `table` argument available.
 
-First we can create a `mousedown` `EventListener` by calling `getMousedownListener()` with the table. The listener function `return`ed will look up the coordinates of the `event.target` using `getMeta()` and update the `CURRENT_MOUSEDOWN_COORDINATES`.
+First we can create a `"mousedown"` `EventListener` by calling `getMousedownListener()` with the table. The listener function `return`ed will look up the coordinates of the `event.target` using `getMeta()` and update the `CURRENT_MOUSEDOWN_COORDINATES`.
 
 It's also responsible for clearing the previous `CELL_SELECTIONS` if the user isn't holding the `ctrl` or `metaKey`.
 
@@ -71,7 +71,7 @@ const getMousedownListener = (table) => (event) => {
     }
 };
 ```
-The `EventListener` returned for `mouseover` first checks that a valid `CURRENT_MOUSEDOWN_COORDINATES`
+The `EventListener` returned for `"mouseover"` first checks that a valid `CURRENT_MOUSEDOWN_COORDINATES`
 is set and then reapplies the cell selection with the `event.target`'s coordinates
  as the final coordinate pair - rendering the current potential selection.
 ```javascript
@@ -86,7 +86,7 @@ const getMouseoverListener = (table) => (event) => {
     }
 };
 ```
-Similarly, on `mouseup` we will need to capture the coordinates of the `event.target` and `push()` this new selection into `CELL_SELECTIONS`.
+Similarly, on `"mouseup"` we will need to capture the coordinates of the `event.target` and `push()` this new selection into `CELL_SELECTIONS`.
 
 With our `CELL_SELECTIONS` up to date, we will reapply the cell selection then clear the `CURRENT_MOUSEDOWN_COORDINATES`.
 ```javascript
