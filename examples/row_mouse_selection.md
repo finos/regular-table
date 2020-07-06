@@ -3,13 +3,14 @@
 This example adds row selection to a [`<regular-table>`](https://github.com/jpmorganchase/regular-table),
 allowing the user to select rows via mouse clicks.
 
+**_Quick Note:_** The implementation of this behaviour is mostly symmetric to the `column_mouse_selection` example.
+
 We'll need a `<regular-table>` with an `id` accessible on the window using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
 
 ```html
 <regular-table id="rowMouseSelectionRegularTable"></regular-table>
 ```
 ## `addRowMouseSelection()`
-
 Before we get started, lets think about the feature. We expect that when we `"click"`
 on the row header then the row shows as selected.
 In this example, the rows are grouped as well, and when the
@@ -26,17 +27,17 @@ It will also be responsible for adding the `StyleListener` to ensure the selecti
 shows correctly as the `table` scrolls.
 ```javascript
 const addRowMouseSelection = (table) => {
-    const clickListener = async (event) => {
+    const clickListener = (event) => {
         const meta = table.getMeta(event.target);
         if (!event.ctrlKey && !event.metaKey) {
             MOUSE_SELECTED_ROW_HEADERS = [];
         }
-        const rowHeaderWasClicked = meta && typeof meta.row_header_x !== "undefined";
-        if (rowHeaderWasClicked) {
+        const headerWasClicked = meta && typeof meta.row_header_x !== "undefined";
+        if (headerWasClicked) {
             const newHeader = meta.row_header[meta.row_header_x];
             MOUSE_SELECTED_ROW_HEADERS = getNewHeaderSelections(MOUSE_SELECTED_ROW_HEADERS, newHeader, meta, event);
         }
-        await table.draw();
+        table.draw();
     };
 
     table.addEventListener("click", clickListener);
@@ -46,7 +47,7 @@ const addRowMouseSelection = (table) => {
 ```
 Our internal `clickListener()` first checks to see if the event is a single selection
 and if so, clears `MOUSE_SELECTED_ROW_HEADERS` before new selections are made.
-Then it checks if the `rowHeaderWasClicked` before updating the `MOUSE_SELECTED_ROW_HEADERS`
+Then it checks if the `headerWasClicked` before updating the `MOUSE_SELECTED_ROW_HEADERS`
 with the new header selection. Finally, we'll call `draw()` on the `table` ensuring
 the new selection shows.
 
@@ -55,7 +56,6 @@ If the `metaKey` or `ctrlKey` are pressed, we'll consider the interaction to be
 `inMultiSelectMode`, and the new selection will be added or removed from the `currentSelection`
 collection. Otherwise, we'll return a new `currentSelection` that replaces the entire
 collection.
-
 ```javascript
 const getNewHeaderSelections = (currentSelection, newHeader, meta, event) => {
     const inMultiSelectMode = event.ctrlKey || event.metaKey;
@@ -128,6 +128,7 @@ in our approach is how we determine if the element `isSelected`.
 ```javascript
 const reapplyRowTHSelection = (table) => {
     const elements = table.querySelectorAll("tbody th");
+
     for (const el of elements) {
         const meta = table.getMeta(el);
 
