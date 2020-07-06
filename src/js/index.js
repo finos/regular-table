@@ -300,7 +300,7 @@ window.customElements.define("regular-table", RegularTableElement);
  * @property {number} [column_header_y] - The `y` index in
  * `DataResponse.column_headers[x]`, this property is only generated for `<th>`
  * from `column_headers`.
- * @property {number} [column_header_x] - The `x` index in
+ * @property {number} [row_header_x] - The `x` index in
  * `DataResponse.row_headers[y]`, this property is only generated for `<th>`
  * from `row_headers`.
  * @property {number} size_key - The unique index of this column in a full

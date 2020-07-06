@@ -64,7 +64,6 @@ describe("row_mouse_selection.html", () => {
             });
 
             test("selects the row header", async () => {
-                await page.screenshot({path: "screenshot.png"});
                 expect(await selectedRows()).toEqual(["Row 0"]);
             });
         });
