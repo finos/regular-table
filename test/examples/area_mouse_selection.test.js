@@ -8,9 +8,9 @@
  *
  */
 
-describe("cell_selection.html", () => {
+describe("area_mouse_selection.html", () => {
     const selectedCellValues = async () => {
-        const selectedCells = await page.$$("regular-table tbody tr td.cell-selected");
+        const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-area");
         const selectedValues = [];
         for (const td of selectedCells) {
             selectedValues.push(await page.evaluate((td) => td.innerHTML, td));
@@ -20,13 +20,13 @@ describe("cell_selection.html", () => {
 
     beforeAll(async () => {
         await page.setViewport({width: 2500, height: 2500});
-        await page.goto("http://localhost:8081/dist/examples/cell_selection.html");
+        await page.goto("http://localhost:8081/dist/examples/area_mouse_selection.html");
         await page.waitFor("regular-table table tbody tr td");
     });
 
     describe("initial view", () => {
         test("includes no selection", async () => {
-            const selectedCells = await page.$$("regular-table tbody tr td.cell-selected");
+            const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-area");
             expect(selectedCells.length).toEqual(0);
         });
     });
@@ -45,12 +45,12 @@ describe("cell_selection.html", () => {
                 td.dispatchEvent(event);
             }, tds[0]);
 
-            const selectedCells = await page.$$("regular-table tbody tr td.cell-selected");
+            const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-area");
             expect(selectedCells.length).toEqual(1);
         });
     });
 
-    describe("selecting cells", () => {
+    describe("selecting an area", () => {
         test("selects along a row", async () => {
             const row1Tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
 

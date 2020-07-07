@@ -1,4 +1,4 @@
-# Row, Column and Cell Selection
+# Row, Column and Area Mouse Selection
 
 ... desc
 
@@ -27,7 +27,7 @@ regular-table tbody tr td.mouse-selected-column, regular-table tr th.mouse-selec
     background-color: rgb(0, 0, 255, 0.15); /* blue */
 }
 
-regular-table tbody tr td.cell-selected {
+regular-table tbody tr td.mouse-selected-area {
     background-color: rgb(255, 0, 0, 0.25); /* red */
 }
 
@@ -35,15 +35,15 @@ regular-table tbody tr td.mouse-selected-row.mouse-selected-column, regular-tabl
     background-color: rgb(50, 205, 50, 0.33); /* green */
 }
 
-regular-table tbody tr td.cell-selected.mouse-selected-row {
+regular-table tbody tr td.mouse-selected-area.mouse-selected-row {
     background-color: rgb(255, 165, 0, 0.33); /* orange */
 }
 
-regular-table tbody tr td.cell-selected.mouse-selected-column {
+regular-table tbody tr td.mouse-selected-area.mouse-selected-column {
     background-color: rgb(128, 0, 128, 0.33); /* violet */
 }
 
-regular-table tbody tr td.cell-selected.mouse-selected-column.mouse-selected-row {
+regular-table tbody tr td.mouse-selected-area.mouse-selected-column.mouse-selected-row {
     background-color: rgb(183, 65, 14, 0.33); /* rust */
 }
 ```
@@ -57,7 +57,7 @@ window.addEventListener("load", () => {
     const table = window.selectionCopyPasteRegularTable;
     if (table) {
         table.setDataListener(window.dataListener);
-        addCellSelection(table);
+        addAreaMouseSelection(table);
         addRowMouseSelection(table);
         addColumnMouseSelection(table);
         table.draw();
@@ -80,5 +80,5 @@ Borrow a data model from `two_billion_rows`.
 <script src="/dist/examples/two_billion_rows.js"></script>
 <script src="/dist/examples/row_mouse_selection.js"></script>
 <script src="/dist/examples/column_mouse_selection.js"></script>
-<script src="/dist/examples/cell_selection.js"></script>
+<script src="/dist/examples/area_mouse_selection.js"></script>
 ```
