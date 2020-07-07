@@ -3,7 +3,7 @@
 This example adds column selection to a [`<regular-table>`](https://github.com/jpmorganchase/regular-table),
 allowing the user to select columns via mouse clicks.
 
-**_Quick Note:_** The implementation of this behaviour is mostly symmetric to the
+**_Quick Note:_** The implementation of this behavior is mostly symmetric to the
 `row_mouse_selection` example. There's actually so much overlap we will reuse its
 `getNewHeaderSelections()` function.
 ```html
@@ -83,7 +83,7 @@ Our `reapplyColumnTDSelection()` function is nearly the same implementation as
 our `reapplyRowTDSelection()` - checking the `MetaData` of each `td` and adding or
 removing the class if a `column_header` matches a `MOUSE_SELECTED_COLUMN_HEADERS`.
 
-This could be refactored to DRY up the examples but the legibility of the examples suffer.
+This could be refactored to DRY up some duplication but the legibility of the examples suffer.
 ```javascript
 const reapplyColumnTDSelection = (table) => {
     const elements = table.querySelectorAll("tbody td");
@@ -99,27 +99,38 @@ const reapplyColumnTDSelection = (table) => {
         }
     }
 };
-
+```
+For our implementation of `reapplyColumnTHSelection()`, we will split out the `isColumnHeaderSelected()`
+function which encapsulates the primary difference in the functions that reapply
+our `MOUSE_SELECTED_COLUMN_CLASS`.
+```javascript
 const reapplyColumnTHSelection = (table) => {
     const elements = table.querySelectorAll("thead th");
 
     for (const el of elements) {
         const meta = table.getMeta(el);
 
-        if (typeof meta.column_header.find === "function") {
-            const selected = MOUSE_SELECTED_COLUMN_HEADERS.find((h) => {
-                const index = meta.column_header.indexOf(h);
-                return index !== -1 && index <= meta.column_header_y;
-            });
-            if (selected) {
-                el.classList.add(MOUSE_SELECTED_COLUMN_CLASS);
-            } else {
-                el.classList.remove(MOUSE_SELECTED_COLUMN_CLASS);
-            }
+        if (isColumnHeaderSelected(meta)) {
+            el.classList.add(MOUSE_SELECTED_COLUMN_CLASS);
+        } else {
+            el.classList.remove(MOUSE_SELECTED_COLUMN_CLASS);
         }
     }
 };
 
+```
+In `isColumnHeaderSelected()`, we'll make use of the `MetaData` object passed in to
+look up the `column_header_y`, the index of this `th`'s `column_header` value and
+compare it to the index of each of the `MOUSE_SELECTED_COLUMN_HEADERS`.
+
+If any of the indexes are equal, this `th` is column selected - if the `column_header_y`
+is greater than the selected header's index, its group is selected.
+```javascript
+const isColumnHeaderSelected = (meta) =>
+    MOUSE_SELECTED_COLUMN_HEADERS.find((h) => {
+        const index = meta.column_header.indexOf(h);
+        return index !== -1 && index <= meta.column_header_y;
+    });
 ```
 Now to kick off our example on `"load"` by adding an `EvenListener` that will set
 our `table`'s `DataListener` from `two_billion_rows`, `addColumnMouseSelection()`

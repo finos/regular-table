@@ -3,7 +3,7 @@
 This example adds row selection to a [`<regular-table>`](https://github.com/jpmorganchase/regular-table),
 allowing the user to select rows via mouse clicks.
 
-**_Quick Note:_** The implementation of this behaviour is mostly symmetric to the `column_mouse_selection` example.
+**_Quick Note:_** The implementation of this behavior is mostly symmetric to the `column_mouse_selection` example.
 
 We'll need a `<regular-table>` with an `id` accessible on the window using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
 
@@ -32,7 +32,7 @@ const addRowMouseSelection = (table) => {
         if (!event.ctrlKey && !event.metaKey) {
             MOUSE_SELECTED_ROW_HEADERS = [];
         }
-        const headerWasClicked = meta && typeof meta.row_header_x !== "undefined";
+        const headerWasClicked = meta && typeof meta.row_header_x !== "undefined" && meta.row_header;
         if (headerWasClicked) {
             const newHeader = meta.row_header[meta.row_header_x];
             MOUSE_SELECTED_ROW_HEADERS = getNewHeaderSelections(MOUSE_SELECTED_ROW_HEADERS, newHeader, meta, event);
@@ -146,7 +146,7 @@ Our `MetaData` object contains a few helpful fields we can use to ensure that ou
 Our `meta`'s `row_header_x` tells us the index of this `th`'s header in the `Array`
 of `row_header`s it belongs to. We can then compare the index of each selected
 header in `row_header` and know if this column is selected _(the indexes are equal)_
-or if its group is selected  _(`row_header_x` is less than the selected header's
+or if its group is selected  _(`row_header_x` is greater than the selected header's
 index)_.
 ```javascript
 const isRowHeaderSelected = (meta) =>
