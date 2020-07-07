@@ -74,9 +74,9 @@ function dataListener(x0, y0, x1, y1) {
 
 # Game Logic
 
-The basic unit of calvulating player moves is `getNeighbors()`, a generator
+The basic unit of calculating player moves is `getNeighbors()`, a generator
 function which yields the coordinates of all neighboring cells which are
-members of a `Set()`.  We'll use this to implement a bread-first search which
+members of a `Set()`.  We'll use this to implement a breadth-first search which
 respects the game rules, board edges, etc.
 
 ```javascript
