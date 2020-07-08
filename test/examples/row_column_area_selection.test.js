@@ -36,7 +36,7 @@ describe("row_column_area_selection.html", () => {
         return selectedValues;
     };
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         await page.setViewport({width: 2500, height: 2500});
         await page.goto("http://localhost:8081/dist/examples/row_column_area_selection.html");
         await page.waitFor("regular-table table tbody tr td");
