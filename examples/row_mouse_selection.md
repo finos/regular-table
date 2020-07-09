@@ -16,42 +16,20 @@ on the row header then the row shows as selected.
 In this example, the rows are grouped as well, and when the
 group is selected then rows under the group should show as selected too.
 
-We'll need to keep track of the selected row headers for later use.
-{
-    value: string,
-    row_header_x: int,
-    row_header: Array(string),
-    y0: int
-    y1: int
-}
-```javascript
-let MOUSE_SELECTED_ROW_HEADERS = [];
-```
+We'll also allow the user to make multiple selections when holding down the `ctrl` or `metaKey`.
+
 Sounds like the bulk of the logic belongs in a `"click"` `EventListener`, so our
 `addRowMouseSelection()` should take a `table` and add a `clickListener()`. 
 
 It will also be responsible for adding the `StyleListener` to ensure the selection
 shows correctly as the `table` scrolls.
 ```javascript
-const getY1 = (meta) => {
-    if (meta.row_header_x !== meta.row_header.length - 1) {
-        const value1 = meta.row_header[meta.row_header_x];
-        const y = meta.y || meta.y0;
-        const visibleRowHeaders = dataListener2(0, y, 0, 100).row_headers.map((h, idx) => [y + idx, h]);
-        const finalHeader = visibleRowHeaders.find(([_, row_headers]) => row_headers[meta.row_header_x] !== value1);
-        return finalHeader[0] - 1;
-    } else {
-        return meta.y || meta.y === 0 ? meta.y : meta.y1;
-    }
-};
-
-const addRowMouseSelection = (table) => {
+const addRowMouseSelection = (table, dl) => {
     const clickListener = (event) => {
         const meta = table.getMeta(event.target);
         const headerWasClicked = meta && typeof meta.row_header_x !== "undefined" && meta.row_header;
         if (headerWasClicked) {
-            const newHeader = {value: meta.row_header[meta.row_header_x], row_header_x: meta.row_header_x, y0: meta.y, y1: getY1(meta), row_header: meta.row_header};
-            MOUSE_SELECTED_ROW_HEADERS = getNewHeaderSelections(MOUSE_SELECTED_ROW_HEADERS, newHeader, event);
+            MOUSE_SELECTED_ROW_HEADERS = newRowHeaderSelections(MOUSE_SELECTED_ROW_HEADERS, meta, event, dl);
         } else if (!event.ctrlKey && !event.metaKey) {
             MOUSE_SELECTED_ROW_HEADERS = [];
         }
@@ -59,27 +37,136 @@ const addRowMouseSelection = (table) => {
     };
 
     table.addEventListener("click", clickListener);
-    addRowSelectionStyleListener(table);
+    addRowSelectionStyleListener(table, dl);
     return table;
 };
 ```
-Our internal `clickListener()` first checks to see if the event is a single selection
-and if so, clears `MOUSE_SELECTED_ROW_HEADERS` before new selections are made.
-Then it checks if the `headerWasClicked` before updating the `MOUSE_SELECTED_ROW_HEADERS`
-with the new header selection. Finally, we'll call `draw()` on the `table` ensuring
-the new selection shows.
+Our internal `clickListener()` will need to keep track of the information that
+describes our row selection. The properties we're interested in will overlap
+a bit with the `MetaData` `object` and we'll refer to an `object` with the below
+properties as a `RowSelection`.
+| Name | Type | Description |
+| --- | --- | --- |
+| [y0] | `number` | The `y` index that begins the selection. |
+| [y1] | `number` | The `y` index that ends the selection. |
+| [row_header_y] | `number` | The `y` of this header's `row_header`.|
+| [row_header] | <code>Array.&lt;object&gt;</code> | The `Array` of headers associated with this selection. |
+| [dy] | `number` | The `y` index in `DataResponse.data`, this property is only generated for `<td>`, `<th>` from `row_headers`. |
 
-There are a number of conditions to consider when we `getNewHeaderSelections()`.
-If the `metaKey` or `ctrlKey` are pressed, we'll consider the interaction to be
-`inMultiSelectMode`, and the new selection will be added or removed from the `currentSelection`
-collection. Otherwise, we'll return a new `currentSelection` that replaces the entire
-collection.
+We'll add them to a collection, say `MOUSE_SELECTED_ROW_HEADERS`.
 ```javascript
-const createRowRangeSelection = (currentSelections, newHeader) => {
+let MOUSE_SELECTED_ROW_HEADERS = [];
+```
+In our `clickListener()`, we'll check if the `headerWasClicked` and if so, we can update the `MOUSE_SELECTED_ROW_HEADERS` with the `newRowHeaderSelections()`.
+
+If the `ctrlKey` and `metaKey` aren't pressed then our user isn't multi-selecting,
+and we should clear the prior selections.
+
+Finally, we'll call `draw()` on the `table` ensuring the new selection shows.
+
+### When creating `newRowHeaderSelections()`
+If the `metaKey` or `ctrlKey` are pressed, we'll consider the interaction to be
+`inMultiSelectMode` and add or remove selections - otherwise, we'll return a new
+selection that replaces the entire collection. 
+
+We'll define our helper function, `targetRowSelection()`, later .. with the help of our
+`DataListener`, it take a `MetaData` `object` and generates a `RowSelection`.
+```javascript
+const newRowHeaderSelections = (currentSelections, meta, event, dl) => {
+    const inMultiSelectMode = event.ctrlKey || event.metaKey;
+    const targetSelection = targetRowSelection(meta, dl);
+
+    if (inMultiSelectMode) {
+        return newMultiSelectRowHeaders(targetSelection, dl, currentSelections);
+    } else {
+        return newSingleSelectRowHeaders(targetSelection, dl, currentSelections);
+    }
+};
+```
+In `newSingleSelectRowHeaders()`, we'll need to define three different behaviors -
+single selection, deselection and range selection.
+
+Most spreadsheets will allow the end user to select a range of rows, so we'll
+consider selections made with the `shiftKey` a range selection.
+Without the `shiftKey`, we'll `return` the single row selection or deselect it if
+a matching selection already exists by returning empty.
+
+Don't worry, we'll walk through the implementation of the helper functions shortly.
+```javascript
+const newSingleSelectRowHeaders = (targetSelection, dl, currentSelections) => {
+    const matches = matchingRowSelections(currentSelections, targetSelection);
+
+    if (matches.length > 0) {
+        return [];
+    } else {
+        if (event.shiftKey) {
+            return [createRowRangeSelection(currentSelections, targetSelection, dl)];
+        } else {
+            return [targetSelection];
+        }
+    }
+};
+```
+Our multi-select implementation is slightly more complicated when we find a match.
+If the user clicks on an already selected row header `inMultiSelectMode` we want
+to simply remove the selection, but if the selection is a range, we'll need to split
+the range into two row selections, removing the `targetSelection`.
+```javascript
+const newMultiSelectRowHeaders = (targetSelection, dl, currentSelections) => {
+    const matches = matchingRowSelections(currentSelections, targetSelection);
+
+    if (matches.length > 0) {
+        let newSelection = rejectMatchingRowSelections(currentSelections, targetSelection);
+        return splitRangeMatches(newSelection, targetSelection);
+    } else {
+        if (event.shiftKey) {
+            return currentSelections.concat(createRowRangeSelection(currentSelections, targetSelection, dl));
+        } else {
+            return currentSelections.concat(targetSelection);
+        }
+    }
+};
+```
+...
+```javascript
+const lastIndexOfRowGroup = (dl, {row_header_x, value, y}) => {
+    const {num_rows} = dl(0, 0, 1, 1);
+    let idx;
+    const chunk = 100;
+    let y0 = y;
+    let y1 = Math.min(y + chunk, num_rows);
+    do {
+        const rowHeaderSlice = dl(0, y0, 0, y1).row_headers.map((h, idx) => [y + idx, h]);
+        const result = rowHeaderSlice.find(([_, row_headers]) => row_headers[row_header_x] !== value);
+        if (result) {
+            [idx] = result;
+        } else {
+            y0 = Math.min(y0 + chunk, num_rows);
+            y1 = Math.min(y1 + chunk, num_rows);
+        }
+    } while (idx === undefined && y1 < num_rows);
+    return idx === undefined ? num_rows : idx - 1;
+};
+
+const targetRowSelection = (meta, dl) => {
+    const target = {...meta};
+    target.y0 = meta.y;
+
+    const isRowGroup = meta.row_header_x !== meta.row_header.length - 1;
+    if (isRowGroup) {
+        target.y1 = lastIndexOfRowGroup(dl, meta);
+    } else {
+        target.y1 = meta.y;
+    }
+
+    return target;
+};
+
+const createRowRangeSelection = (currentSelections, newHeader, dl) => {
     const lastSelection = currentSelections[currentSelections.length - 1];
     if (lastSelection) {
-        const y0 = Math.min(newHeader.y0, lastSelection.y0, getY1(newHeader), getY1(lastSelection));
-        const y1 = Math.max(newHeader.y0, lastSelection.y0, getY1(newHeader), getY1(lastSelection));
+        const y0 = Math.min(newHeader.y0, lastSelection.y0, newHeader.y1, lastSelection.y1);
+        const y1 = Math.max(newHeader.y0, lastSelection.y0, newHeader.y1, lastSelection.y1);
         const row_header_x = Math.min(newHeader.row_header_x, lastSelection.row_header_x);
         newHeader.y0 = y0;
         newHeader.y1 = y1;
@@ -92,8 +179,8 @@ const splitRangeMatches = (selections, newHeader) => {
         const row_header_x = Math.max(newHeader.row_header_x, s.row_header_x);
         const matchesRangeSelection = s.y0 <= newHeader.y0 && newHeader.y1 <= s.y1 && s.y0 !== s.y1;
         if (matchesRangeSelection) {
-            const firstSplit = {value: s.value, row_header_x, y0: s.y0, y1: newHeader.y0 - 1, row_header: s.row_header};
-            const secondSplit = {value: s.value, row_header_x, y0: newHeader.y1 + 1, y1: s.y1, row_header: s.row_header};
+            const firstSplit = {row_header_x, y0: s.y0, y1: newHeader.y0 - 1, row_header: s.row_header};
+            const secondSplit = {row_header_x, y0: newHeader.y1 + 1, y1: s.y1, row_header: s.row_header};
             return [firstSplit, secondSplit].filter((s) => s.y0 <= s.y1);
         } else {
             return s;
@@ -101,42 +188,16 @@ const splitRangeMatches = (selections, newHeader) => {
     });
 };
 
-const filterMatchingSelections = (selections, {y, y0, y1}) => {
+const matchingRowSelections = (selections, {y, y0, y1}) => {
     const _y = y ? y : Math.min(y0, y1);
     return selections.filter((s) => s.y0 <= _y && _y <= s.y1);
 };
 
-const getNewHeaderSelections = (currentSelections, newHeader, event) => {
-    const inMultiSelectMode = event.ctrlKey || event.metaKey;
-    const matches = filterMatchingSelections(currentSelections, newHeader);
-
-    let newHeaderSelection = currentSelections;
-
-    if (inMultiSelectMode) {
-        if (matches.length > 0) {
-            const y = Math.min(newHeader.y0, newHeader.y1);
-            newHeaderSelection = currentSelections.filter(({y0, y1}) => !(y0 == y && y == y1));
-            newHeaderSelection = splitRangeMatches(newHeaderSelection, newHeader);
-        } else {
-            if (event.shiftKey) {
-                newHeaderSelection.push(createRowRangeSelection(currentSelections, newHeader));
-            } else {
-                newHeaderSelection.push(newHeader);
-            }
-        }
-    } else {
-        if (event.shiftKey) {
-            newHeaderSelection = [createRowRangeSelection(currentSelections, newHeader)];
-        } else {
-            if (matches.length > 0) {
-                newHeaderSelection = [];
-            } else {
-                newHeaderSelection = [newHeader];
-            }
-        }
-    }
-    return newHeaderSelection;
+const rejectMatchingRowSelections = (selections, {y, y0, y1}) => {
+    const _y = y ? y : Math.min(y0, y1);
+    return selections.filter(({y0, y1}) => !(y0 == _y && _y == y1));
 };
+
 ```
 ## Styling
 Lets style our `mouse-selected-row` - in this example we'll use a light yellow.
@@ -157,9 +218,9 @@ is styled correctly by reapplying our `MOUSE_SELECTED_ROW_CLASS` class to the co
 ```javascript
 const MOUSE_SELECTED_ROW_CLASS = "mouse-selected-row";
 
-const addRowSelectionStyleListener = (table) => {
+const addRowSelectionStyleListener = (table, dl) => {
     table.addStyleListener(() => {
-        const ys = reapplyRowTHSelection(table);
+        const ys = reapplyRowTHSelection(table, dl);
         reapplyRowTDSelection(table, ys);
     });
 };
@@ -188,17 +249,13 @@ const reapplyRowTDSelection = (table, ys) => {
 Similarly, we can reapply the selection class to our `th`s. The only real difference
 in our approach is how we determine if the element `isSelected`.
 ```javascript
-
-
-const dataListener2 = generateDataListener(200, 50);
-
-const reapplyRowTHSelection = (table) => {
+const reapplyRowTHSelection = (table, dl) => {
     const elements = table.querySelectorAll("tbody th");
     let selectedYs = [];
 
     if (elements.length > 0) {
         const meta0 = table.getMeta(elements[0]);
-        const visibleRowHeaders = dataListener2(0, meta0.y0, 0, meta0.y1 + 1).row_headers.map((h, idx) => [meta0.y0 + idx, h]);
+        const visibleRowHeaders = dl(0, meta0.y0, 0, meta0.y1 + 1).row_headers.map((h, idx) => [meta0.y0 + idx, h]);
         for (const el of elements) {
             const meta = table.getMeta(el);
 
@@ -223,7 +280,7 @@ or if its group is selected  _(`row_header_x` is greater than the selected heade
 index)_.
 ```javascript
 function generateDataListener(num_rows, num_columns) {
-    return function dataListener(x0, y0, x1, y1) {
+    return function dl(x0, y0, x1, y1) {
         return {
             num_rows,
             num_columns,
@@ -235,11 +292,11 @@ function generateDataListener(num_rows, num_columns) {
 }
 
 const isRowHeaderSelected = (meta, visibleRowHeaders) => {
-    const matches = filterMatchingSelections(MOUSE_SELECTED_ROW_HEADERS, meta);
+    const matches = matchingRowSelections(MOUSE_SELECTED_ROW_HEADERS, meta);
     const isGroupMatch = () => {
         return MOUSE_SELECTED_ROW_HEADERS.find((m) => {
-            const matchingGroupValues = visibleRowHeaders.filter(([idx]) => m.y0 <= idx && idx <= m.y1).map(([_, values]) => values[m.row_header_x]);
-            const matchingGroupIndexes = visibleRowHeaders.filter(([idx, values]) => matchingGroupValues.indexOf(values[m.row_header_x]) !== -1).map(([idx]) => idx);
+            const matchingGroupValues = visibleRowHeaders.filter(([idx]) => m.y0 <= idx && idx <= m.y1).map(([_, row_headers]) => row_headers[m.row_header_x]);
+            const matchingGroupIndexes = visibleRowHeaders.filter(([idx, row_headers]) => matchingGroupValues.indexOf(row_headers[m.row_header_x]) !== -1).map(([idx]) => idx);
             return m.row_header_x < meta.row_header_x && matchingGroupIndexes.indexOf(meta.y) !== -1;
         });
     };
@@ -255,8 +312,9 @@ our `table`'s `DataListener` (borrowed from the `two_billion_rows` example),
 window.addEventListener("load", () => {
     const table = window.rowMouseSelectionRegularTable;
     if (table) {
-        table.setDataListener(dataListener2);
-        addRowMouseSelection(table, dataListener2).draw();
+        const dl = generateDataListener(200, 50);
+        table.setDataListener(dl);
+        addRowMouseSelection(table, dl).draw();
     }
 });
 ```

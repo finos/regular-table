@@ -38,7 +38,7 @@ const addColumnMouseSelection = (table) => {
         const headerWasClicked = meta && typeof meta.column_header_y !== "undefined";
         if (headerWasClicked) {
             const newHeader = meta.column_header[meta.column_header_y];
-            MOUSE_SELECTED_COLUMN_HEADERS = getNewHeaderSelections(MOUSE_SELECTED_COLUMN_HEADERS, newHeader, meta, event);
+            MOUSE_SELECTED_COLUMN_HEADERS = newRowHeaderSelections(MOUSE_SELECTED_COLUMN_HEADERS, newHeader, meta, event);
         }
         table.draw();
     };

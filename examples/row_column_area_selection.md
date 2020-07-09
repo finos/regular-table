@@ -70,7 +70,7 @@ window.addEventListener("load", () => {
     const table = window.allTheMouseSelectionRegularTable;
     if (table) {
         addAreaMouseSelection(table);
-        addRowMouseSelection(table);
+        addRowMouseSelection(table, window.dataListener);
         addColumnMouseSelection(table);
         table.setDataListener(window.dataListener);
         table.draw();
