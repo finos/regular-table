@@ -53,6 +53,12 @@ Lets turn off the `user-select` style for this example too.
 regular-table tbody tr td {
     user-select: none;
 }
+regular-table tbody tr th {
+    user-select: none;
+}
+regular-table thead tr th {
+    user-select: none;
+}
 ```
 
 ## Adding the Behaviors
@@ -71,7 +77,7 @@ window.addEventListener("load", () => {
     if (table) {
         addAreaMouseSelection(table);
         addRowMouseSelection(table, window.dataListener);
-        addColumnMouseSelection(table);
+        addColumnMouseSelection(table, window.dataListener);
         table.setDataListener(window.dataListener);
         table.draw();
     }

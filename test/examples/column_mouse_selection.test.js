@@ -45,9 +45,12 @@ describe("column_mouse_selection.html", () => {
         });
 
         describe("selecting the first column group", () => {
-            test("includes the group and the rows", async () => {
-                const ths = await page.$$("regular-table thead th");
+            let ths;
+            beforeEach(async () => {
+                ths = await page.$$("regular-table thead th");
+            });
 
+            test("includes the group and the rows", async () => {
                 await page.evaluate(async (th) => {
                     const event = new MouseEvent("click", {bubbles: true});
                     th.dispatchEvent(event);
@@ -55,10 +58,24 @@ describe("column_mouse_selection.html", () => {
 
                 expect(await selectedColumns()).toEqual(["Group 0", "Column 0", "Column 1", "Column 2", "Column 3", "Column 4", "Column 5", "Column 6", "Column 7", "Column 8", "Column 9"]);
             });
+
+            test("splitting the group with ctrl", async () => {
+                expect(await selectedColumns()).toEqual(["Group 0", "Column 0", "Column 1", "Column 2", "Column 3", "Column 4", "Column 5", "Column 6", "Column 7", "Column 8", "Column 9"]);
+
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                    th.dispatchEvent(event);
+                }, ths[9]);
+
+                expect(await selectedColumns()).toEqual(["Column 0", "Column 1", "Column 3", "Column 4", "Column 5", "Column 6", "Column 7", "Column 8", "Column 9"]);
+            });
         });
 
         describe("selecting one column", () => {
             beforeEach(async () => {
+                await page.goto("http://localhost:8081/dist/examples/column_mouse_selection.html");
+                await page.waitFor("regular-table table tbody tr td");
+
                 const ths = await page.$$("regular-table thead tr:nth-of-type(2) th");
 
                 await page.evaluate(async (th) => {
@@ -78,6 +95,62 @@ describe("column_mouse_selection.html", () => {
 
             test("includes the column", async () => {
                 expect(await selectedColumns()).toEqual(["Column 2"]);
+            });
+        });
+
+        describe("selecting a column range", () => {
+            let ths;
+
+            beforeEach(async () => {
+                await page.goto("http://localhost:8081/dist/examples/column_mouse_selection.html");
+                await page.waitFor("regular-table table tbody tr td");
+                ths = await page.$$("regular-table thead th");
+            });
+
+            test("selects the columns' headers and cells", async () => {
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                    th.dispatchEvent(event);
+                }, ths[9]);
+
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                    th.dispatchEvent(event);
+                }, ths[11]);
+
+                await page.waitFor("regular-table td.mouse-selected-column");
+                expect(await selectedColumns()).toEqual(["Column 2", "Column 3", "Column 4"]);
+            });
+        });
+
+        describe("splitting a row range", () => {
+            let ths;
+            beforeEach(async () => {
+                await page.goto("http://localhost:8081/dist/examples/column_mouse_selection.html");
+                await page.waitFor("regular-table table tbody tr td");
+                ths = await page.$$("regular-table thead th");
+            });
+
+            test("selects the columns' headers and cells", async () => {
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                    th.dispatchEvent(event);
+                }, ths[17]);
+
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                    th.dispatchEvent(event);
+                }, ths[13]);
+
+                await page.waitFor("regular-table td.mouse-selected-column");
+                expect(await selectedColumns()).toEqual(["Column 6", "Column 7", "Column 8", "Column 9", "Column 10"]);
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                    th.dispatchEvent(event);
+                }, ths[15]);
+
+                await page.waitFor("regular-table td.mouse-selected-column");
+                expect(await selectedColumns()).toEqual(["Column 6", "Column 7", "Column 9", "Column 10"]);
             });
         });
 

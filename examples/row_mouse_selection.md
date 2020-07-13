@@ -43,15 +43,14 @@ const addRowMouseSelection = (table, dl) => {
 ```
 Our internal `clickListener()` will need to keep track of the information that
 describes our row selection. The properties we're interested in will overlap
-a bit with the `MetaData` `object` and we'll refer to an `object` with the below
+a bit with the `MetaData` `object`, and we'll refer to an `object` with the below
 properties as a `RowSelection`.
 | Name | Type | Description |
 | --- | --- | --- |
 | [y0] | `number` | The `y` index that begins the selection. |
 | [y1] | `number` | The `y` index that ends the selection. |
-| [row_header_y] | `number` | The `y` of this header's `row_header`.|
+| [row_header_x] | `number` | The `y` of this header's `row_header`.|
 | [row_header] | <code>Array.&lt;object&gt;</code> | The `Array` of headers associated with this selection. |
-| [dy] | `number` | The `y` index in `DataResponse.data`, this property is only generated for `<td>`, `<th>` from `row_headers`. |
 
 We'll add them to a collection, say `MOUSE_SELECTED_ROW_HEADERS`.
 ```javascript
@@ -128,7 +127,7 @@ by iterating throught the `MOUSE_SELECTED_ROW_HEADERS` and returning all `RowSel
 who's rows intersect...
 ```javascript
 const matchingRowSelections = ({y, y0, y1}) => {
-    const _y = y ? y : Math.min(y0, y1);
+    const _y = y !== undefined ? y : Math.min(y0, y1);
     return MOUSE_SELECTED_ROW_HEADERS.filter((s) => s.y0 <= _y && _y <= s.y1);
 };
 ```
@@ -175,7 +174,7 @@ const newMultiSelectRowHeaders = (targetSelection, dl) => {
     }
 };
 ```
-Lets write a complement to our `matchingRowSelections()` that returns all the
+We can write a complement to our `matchingRowSelections()` that returns all the
 `RowSelection`s that don't match the input's row.
 ```javascript
 const rejectMatchingRowSelections = ({y, y0, y1}) => {
@@ -184,7 +183,7 @@ const rejectMatchingRowSelections = ({y, y0, y1}) => {
 };
 ```
 And we'll need a way to split all the matching range `RowSelection`s. This one's
-a bit dense, but lets walk through it. 
+a bit dense, but let's walk through it. 
 
 We iterate through the `selections` and find matches based on the overlap of `y0`s and
 `y1`s similar to our `matchingRowSelections()` helper. If it's a matching range
@@ -236,7 +235,7 @@ const lastIndexOfRowGroup = (dl, {row_header_x, value, y}) => {
 };
 ```
 ## Styling
-Lets style our `mouse-selected-row` - in this example we'll use a light yellow.
+Let's style our `mouse-selected-row` - in this example we'll use a light yellow.
 ```css
 regular-table tbody tr td.mouse-selected-row, regular-table tr th.mouse-selected-row {
     background-color: #ffffbb; /* yellow */
@@ -311,7 +310,7 @@ two-dimensional `Array` of the form `[index, ["Group 0", "Row 0"]]`.
 First we'll `filter()` the row headers to those that intersect with the `selection`'s
 range, then we'll extract the `row_header` that matches our `selection`'s `row_header_x`.
 The resulting `matchingGroupValues` will look something like `["Group 0", "Group 10", ...]`.
-Next we find the indexes of each value that matches our `selection` and compare.
+Next, we find the indexes of each value that matches our `selection` and compare.
 ```javascript
 const isRowHeaderSelected = (meta, visibleRowHeaders) => {
     const matches = matchingRowSelections(meta);
@@ -322,7 +321,8 @@ const isRowHeaderSelected = (meta, visibleRowHeaders) => {
             return selection.row_header_x < meta.row_header_x && matchingGroupValues.indexOf(meta.y) !== -1;
         });
     };
-    const isDirectMatch = () => !!matches.find((m) => m.row_header_x == meta.row_header_x);
+    const isDirectMatch = () => !!matches.find((m) => m.row_header_x === meta.row_header_x);
+
     return isDirectMatch() || isGroupMatch();
 };
 ```
