@@ -63,21 +63,22 @@ let AREA_CLIPBOARD_COPY_SELECTIONS = [];
 let AREA_CLIPBOARD_PASTE_SELECTIONS = [];
 let AREA_CLIPBOARD_COPIED_DATA = [];
 
-const arraysEq = (arr1, arr2) => {
-    if (!Array.isArray(arr1) || !Array.isArray(arr2) || arr1.length !== arr2.length) return false;
-    for (var i = 0; i < arr1.length; i++) {
-        if (Array.isArray(arr1[i]) && Array.isArray(arr2[i]) && arraysEq(arr1[i], arr2[i])) {
-            // skip
-        } else if (arr1[i] !== arr2[i]) {
+const eqArray = (a1, a2) => {
+    if (!Array.isArray(a1) || !Array.isArray(a2) || a1.length !== a2.length) return false;
+    for (var i = 0; i < a1.length; i++) {
+        const eqArrays = Array.isArray(a1[i]) && Array.isArray(a2[i]) && eqArray(a1[i], a2[i]);
+        if (!eqArrays && a1[i] !== a2[i]) {
             return false;
         }
     }
     return true;
 };
 
-const addAreaClipboard = (table, dl, write) => {
-    const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
+const zip = (arr, ...arrs) => arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
 
+const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
+
+const addAreaClipboard = (table, dl, write) => {
     const areaClipboardSelectionData = () => {
         const data = AREA_CLIPBOARD_COPY_SELECTIONS.map(({x0, x1, y0, y1}) => dl(x0, y0, x1 + 1, y1 + 1).data);
         return data.map(transpose);
@@ -99,24 +100,28 @@ const addAreaClipboard = (table, dl, write) => {
         });
     };
 
-    const zip = (arr, ...arrs) => {
-        return arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
-    };
-
-    const copy = () => {
+    const copy = async () => {
         setAreaClipboardSelections();
         AREA_CLIPBOARD_COPIED_DATA = areaClipboardSelectionData();
         const textSelections = AREA_CLIPBOARD_COPIED_DATA.map((area) => {
             return area.map((row) => row.join("\t")).join("\n");
         });
-        navigator.clipboard.writeText(textSelections[0]);
+        try {
+            await navigator.clipboard.writeText(textSelections[0]);
+        } catch (e) {
+            console.error("failed");
+        }
         table.draw();
     };
 
     const parseClipboardTextExcel = async () => {
-        const text = await navigator.clipboard.readText();
-        const rows = text.split(/\r\n|\n|\r/);
-        return rows.length > 0 ? rows.map((r) => r.split("\t")) : r;
+        try {
+            const text = await navigator.clipboard.readText();
+            const rows = text.split(/\r\n|\n|\r/);
+            return rows.length > 0 ? rows.map((r) => r.split("\t")) : r;
+        } catch (e) {
+            console.error("failed");
+        }
     };
 
     const _paste = (data) =>
@@ -134,24 +139,26 @@ const addAreaClipboard = (table, dl, write) => {
                     });
                 });
                 AREA_CLIPBOARD_PASTE_SELECTIONS.push({x0, y0, x1, y1});
-                table.draw();
             }
         });
 
     const paste = async () => {
         AREA_CLIPBOARD_PASTE_SELECTIONS = [];
         const parsedData = await parseClipboardTextExcel();
-        if ((!parsedData || arraysEq(parsedData, AREA_CLIPBOARD_COPIED_DATA[0])) && AREA_CLIPBOARD_COPIED_DATA.length > 1) {
-            _paste(AREA_CLIPBOARD_COPIED_DATA);
+        const useLocalData = eqArray(parsedData, AREA_CLIPBOARD_COPIED_DATA[0]);
+
+        if (!parsedData || useLocalData) {
+            const data = Array.from(Array(MOUSE_SELECTED_AREAS.length).keys()).flatMap(() => AREA_CLIPBOARD_COPIED_DATA);
+            _paste(data);
         } else {
-            const parsedDatas = Array.from(Array(MOUSE_SELECTED_AREAS.length).keys()).map(() => parsedData);
-            _paste(parsedDatas);
+            const data = Array.from(Array(MOUSE_SELECTED_AREAS.length).keys()).map(() => parsedData);
+            _paste(data);
         }
+        await table.draw();
     };
 
-    const cut = () => {
-        copy();
-        console.error("cut - copy");
+    const cut = async () => {
+        await copy();
         for (const {x0, x1, y0, y1} of AREA_CLIPBOARD_COPY_SELECTIONS) {
             for (var x = x0; x < x1 + 1; x++) {
                 for (var y = y0; y < y1 + 1; y++) {
@@ -183,8 +190,6 @@ const addAreaClipboard = (table, dl, write) => {
                     cut();
                 }
                 break;
-            // default:
-            //     console.error(event.keyCode);
         }
     };
 
