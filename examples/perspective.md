@@ -84,7 +84,7 @@ buttons.
 function treeStyleListener(regularTable) {
     for (const td of regularTable.querySelectorAll("tbody th")) {
         const metadata = regularTable.getMeta(td);
-        const is_not_empty = !!metadata.value && metadata.value.trim().length > 0;
+        const is_not_empty = !!metadata.value && metadata.value.toString().trim().length > 0;
         const is_leaf = metadata.row_header_x >= this._config.row_pivots.length;
         const next = regularTable.getMeta({dx: 0, dy: metadata.y - metadata.y0 + 1});
         const is_collapse = next && next.row_header && typeof next.row_header[metadata.row_header_x + 1] !== "undefined";
@@ -138,19 +138,23 @@ Type-specific styles, +/- color and alignment.
 
 ```javascript
 function typeStyleListener(regularTable) {
-    for (const td of regularTable.querySelectorAll("td, thead tr:last-child th")) {
+    for (const td of regularTable.querySelectorAll("td, tbody th, thead tr:last-child th")) {
         const metadata = regularTable.getMeta(td);
+        let type;
         if (metadata.x >= 0) {
             const column_path = this._column_paths[metadata.x];
             const column_path_parts = column_path.split("|");
-            const type = this._schema[column_path_parts[column_path_parts.length - 1]];
-            const is_numeric = type === "integer" || type === "float";
-            const float_val = is_numeric && parseFloat(metadata.value);
-            td.classList.toggle("psp-align-right", is_numeric);
-            td.classList.toggle("psp-align-left", !is_numeric);
-            td.classList.toggle("psp-positive", float_val > 0);
-            td.classList.toggle("psp-negative", float_val < 0);
+            type = this._schema[column_path_parts[column_path_parts.length - 1]];
+        } else {
+            const column_path = this._config.row_pivots[metadata.row_header_x - 1];
+            type = this._table_schema[column_path];
         }
+        const is_numeric = type === "integer" || type === "float";
+        const float_val = is_numeric && parseFloat(metadata.value);
+        td.classList.toggle("psp-align-right", is_numeric);
+        td.classList.toggle("psp-align-left", !is_numeric);
+        td.classList.toggle("psp-positive", float_val > 0);
+        td.classList.toggle("psp-negative", float_val < 0);
     }
 }
 ```
@@ -182,7 +186,7 @@ async function sortHandler(regularTable, event) {
     const sort_method = event.shiftKey ? append_sort : override_sort;
     const sort = sort_method.call(this, column_name);
     this._view = this._table.view({...this._config, sort: sort});
-    await create_view_cache(this._table, this._view, this);
+    await createViewCache(this._table, this._view, this);
     await regularTable.draw();
 }
 
@@ -265,7 +269,15 @@ Type specific formatters.
 
 ```javascript
 const FORMATTERS = {
-    datetime: Intl.DateTimeFormat("en-us"),
+    datetime: Intl.DateTimeFormat("en-us", {
+        week: "numeric",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+    }),
     date: Intl.DateTimeFormat("en-us"),
     integer: Intl.NumberFormat("en-us"),
     float: new Intl.NumberFormat("en-us", {
@@ -275,12 +287,13 @@ const FORMATTERS = {
     }),
 };
 
-function _format(parts, val) {
+function _format(parts, val, use_table_schema = false) {
     if (val === null) {
         return "-";
     }
-    const type = this._schema[parts[parts.length - 1]] || "string";
-    return FORMATTERS[type]?.format(val) || val;
+    const schema = use_table_schema ? this._table_schema : this._schema;
+    const type = schema[parts[parts.length - 1]] || "string";
+    return FORMATTERS[type] ? FORMATTERS[type].format(val) : val;
 }
 ```
 
@@ -288,14 +301,14 @@ Wraps Perspective's default `__ROW_PATH__` format to output a _tree-like_
 `row_headers`.
 
 ```javascript
-function* _tree_header(paths = [], depth) {
+function* _tree_header(paths = [], row_headers) {
     for (let path of paths) {
         path = ["TOTAL", ...path];
-        path = path
-            .slice(0, path.length - 1)
-            .fill("")
-            .concat(path[path.length - 1]);
-        path.length = depth;
+        const last = path[path.length - 1];
+        path = path.slice(0, path.length - 1).fill("");
+        const formatted = _format.call(this, [row_headers[path.length - 1]], last, true);
+        path = path.concat({toString: () => formatted});
+        path.length = row_headers.length + 1;
         yield path;
     }
 }
@@ -328,15 +341,17 @@ async function dataListener(x0, y0, x1, y1) {
     return {
         num_rows: this._num_rows,
         num_columns: this._column_paths.length,
-        row_headers: Array.from(_tree_header(columns.__ROW_PATH__, this._config.row_pivots.length + 1)),
+        row_headers: Array.from(_tree_header.call(this, columns.__ROW_PATH__, this._config.row_pivots)),
         column_headers,
         data,
     };
 }
 ```
 
+Create a model state object.
+
 ```javascript
-async function create_view_cache(table, view, extend = {}) {
+async function createViewCache(table, view, extend = {}) {
     return Object.assign(extend, {
         _view: view,
         _table: table,
@@ -351,31 +366,8 @@ async function create_view_cache(table, view, extend = {}) {
 }
 ```
 
-## Perspective
-
 ```javascript
-const URL = "/node_modules/superstore-arrow/superstore.arrow";
-const perspective = window.perspective;
-
-const datasource = async () => {
-    const request = fetch(URL);
-    const worker = perspective.worker();
-    const response = await request;
-    const buffer = await response.arrayBuffer();
-    return worker.table(buffer);
-};
-
-window.addEventListener("load", async function () {
-    const table = await datasource();
-    const view = table.view({
-        row_pivots: ["Region", "State", "City"],
-        column_pivots: ["Category", "Sub-Category"],
-        columns: ["Sales", "Profit"],
-    });
-
-    const model = await create_view_cache(table, view);
-
-    const regular = document.getElementsByTagName("regular-table")[0];
+async function configureRegularTable(regular, model) {
     regular.setDataListener(dataListener.bind(model));
 
     regular.addStyleListener(typeStyleListener.bind(model, regular));
@@ -386,7 +378,37 @@ window.addEventListener("load", async function () {
     regular.addEventListener("mousedown", mousedownListener.bind(model, regular));
 
     await regular.draw();
-});
+}
+```
+
+## Perspective
+
+```html
+<script>
+    const URL = "/node_modules/superstore-arrow/superstore.arrow";
+    
+    const datasource = async () => {
+        const request = fetch(URL);
+        const worker = window.perspective.worker();
+        const response = await request;
+        const buffer = await response.arrayBuffer();
+        return worker.table(buffer);
+    };
+
+    window.addEventListener("load", async function () {
+        const table = await datasource();
+        const view = table.view({
+            row_pivots: ["Region", "State", "City"],
+            column_pivots: ["Category", "Sub-Category"],
+            columns: ["Sales", "Profit"],
+        });
+
+        const model = await createViewCache(table, view);
+
+        const regular = document.getElementsByTagName("regular-table")[0];
+        await configureRegularTable(regular, model);
+    });
+</script>
 ```
 
 ## CSS

@@ -39,15 +39,18 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      */
     connectedCallback() {
-        this.create_shadow_dom();
-        this.register_listeners();
-        this.setAttribute("tabindex", "0");
-        this._column_sizes = {auto: {}, override: {}, indices: []};
-        this._style_callbacks = new Map();
-        this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
-        if (!this.table_model) return;
-        if (this !== this._sticky_container.parentElement) {
-            this.appendChild(this._sticky_container);
+        if (!this._initialized) {
+            this.create_shadow_dom();
+            this.register_listeners();
+            this.setAttribute("tabindex", "0");
+            this._column_sizes = {auto: {}, override: {}, indices: []};
+            this._style_callbacks = new Map();
+            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
+            if (!this.table_model) return;
+            if (this !== this._sticky_container.parentElement) {
+                this.appendChild(this._sticky_container);
+            }
+            this._initialized = true;
         }
     }
 

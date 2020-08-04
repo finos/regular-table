@@ -51,7 +51,15 @@ export class RegularTableViewModel {
     autosize_cells(last_cells) {
         while (last_cells.length > 0) {
             const [cell, metadata] = last_cells.pop();
-            const offsetWidth = cell.offsetWidth;
+            let offsetWidth;
+            const style = getComputedStyle(cell);
+            if (style.boxSizing !== "border-box") {
+                offsetWidth = cell.clientWidth;
+                offsetWidth -= parseFloat(style.paddingLeft);
+                offsetWidth -= parseFloat(style.paddingRight);
+            } else {
+                offsetWidth = cell.offsetWidth;
+            }
             this._column_sizes.row_height = this._column_sizes.row_height || cell.offsetHeight;
             this._column_sizes.indices[metadata.size_key] = offsetWidth;
             const is_override = this._column_sizes.override.hasOwnProperty(metadata.size_key);

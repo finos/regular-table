@@ -36,20 +36,33 @@ anytime you need:
 ## Documentation
 
 What follows functions as a quick-start guide, and will explain the basics of
-the Virtual Data Models, Styling and Interaction APIs.  Complete API docs can
-be found [here](https://github.com/jpmorganchase/regular-table/blob/master/api.md),
-and many advanced examples can be found in the [`examples` directory](https://github.com/jpmorganchase/regular-table/tree/master/examples).
+the Virtual Data Models, Styling and Interaction APIs.  Complete [API docs](https://github.com/jpmorganchase/regular-table/blob/master/api.md)
+and documented [examples](https://github.com/jpmorganchase/regular-table/tree/master/examples)
+are also available.
 
-- [Installation](#installation)
-- [`<regular-table>` Custom Element](#regular-table-custom-element)
-- [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
-  - [Column and Row Headers](#column-and-row-headers)
-  - [Hierarchial/Group Headers](#hierarchialgroup-headers)
-  - [`async` Data Models](#async-data-models)
-- [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
-- [`.addEventListener()` Interaction](#addeventlistener-interaction)
-- [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
-- [Development](#development)
+- QuickStart
+  - [Installation](#installation)
+  - [`<regular-table>` Custom Element](#regular-table-custom-element)
+  - [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
+    - [Column and Row Headers](#column-and-row-headers)
+    - [Hierarchial/Group Headers](#hierarchialgroup-headers)
+    - [`async` Data Models](#async-data-models)
+  - [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
+  - [`.addEventListener()` Interaction](#addeventlistener-interaction)
+  - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
+  - [Development](#development)
+
+- [API Docs](https://github.com/jpmorganchase/regular-table/blob/master/api.md)
+
+- Annotated Examples
+  - [2d_array.md](examples/2d_array.md)
+  - [canvas_data_model.md](examples/canvas_data_model.md)
+  - [file_browser.md](examples/file_browser.md)
+  - [minesweeper.md](examples/minesweeper.md)
+  - [perspective.md](examples/perspective.md)
+  - [react.md](examples/react.md)
+  - [spreadsheet.md](examples/spreadsheet.md)
+  - [two_billion_rows.md](examples/two_billion_rows.md)
 
 ## Installation
 
