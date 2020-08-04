@@ -335,7 +335,7 @@ table.addEventListener("focusout", (event) => {
 ## Cell Highlighting
 
 Wouldn't it be cool if the spreadsheet highlighted the cells that would be
-including in a slection, _as you type?_  It's no longer a far-fetched dream,
+including in a selection, _as you type?_  It's no longer a far-fetched dream,
 rather `spredsheet.md` already does this!
 
 The `highlight()` function is similar to `compile()`, except in this case, the
