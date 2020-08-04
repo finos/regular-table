@@ -388,7 +388,7 @@ function style_th(th) {
 
 ## `.addEventListener()` Interaction
 
-`<regular-table>` is a nornal `HTMLElement`!  Use the `regular-table` API
+`<regular-table>` is a normal `HTMLElement`!  Use the `regular-table` API
 in concert with regular DOM API methods that work on other `HTMLElement`
 to create advanced functionality, such as this example of virtual row
 select:
