@@ -78,6 +78,10 @@ const zip = (arr, ...arrs) => arr.map((val, i) => arrs.reduce((a, arr) => [...a,
 
 const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
 
+const getSelectedAreas = () => {
+    return MOUSE_SELECTED_AREAS;
+};
+
 const addAreaClipboard = (table, dl, write) => {
     const areaClipboardSelectionData = () => {
         const data = AREA_CLIPBOARD_COPY_SELECTIONS.map(({x0, x1, y0, y1}) => dl(x0, y0, x1 + 1, y1 + 1).data);
@@ -85,19 +89,7 @@ const addAreaClipboard = (table, dl, write) => {
     };
 
     const setAreaClipboardSelections = () => {
-        AREA_CLIPBOARD_COPY_SELECTIONS = MOUSE_SELECTED_AREAS.map(([p1, p2]) => {
-            const x0 = Math.min(p1.x, p2.x);
-            const x1 = Math.max(p1.x, p2.x);
-            const y0 = Math.min(p1.y, p2.y);
-            const y1 = Math.max(p1.y, p2.y);
-
-            return {
-                x0,
-                x1,
-                y0,
-                y1,
-            };
-        });
+        AREA_CLIPBOARD_COPY_SELECTIONS = getSelectedAreas();
     };
 
     const copy = async () => {
@@ -125,10 +117,7 @@ const addAreaClipboard = (table, dl, write) => {
     };
 
     const _paste = (data) =>
-        zip(MOUSE_SELECTED_AREAS, data).map(([area, data]) => {
-            const x0 = Math.min(area[0].x, area[1].x);
-            const y0 = Math.min(area[0].y, area[1].y);
-
+        zip(getSelectedAreas(), data).map(([{x0, y0}, data]) => {
             if (data) {
                 const x1 = x0 + data[0].length - 1;
                 const y1 = y0 + data.length - 1;
@@ -143,15 +132,16 @@ const addAreaClipboard = (table, dl, write) => {
         });
 
     const paste = async () => {
+        console.error("paste");
         AREA_CLIPBOARD_PASTE_SELECTIONS = [];
         const parsedData = await parseClipboardTextExcel();
         const useLocalData = eqArray(parsedData, AREA_CLIPBOARD_COPIED_DATA[0]);
 
         if (!parsedData || useLocalData) {
-            const data = Array.from(Array(MOUSE_SELECTED_AREAS.length).keys()).flatMap(() => AREA_CLIPBOARD_COPIED_DATA);
+            const data = Array.from(Array(getSelectedAreas().length).keys()).flatMap(() => AREA_CLIPBOARD_COPIED_DATA);
             _paste(data);
         } else {
-            const data = Array.from(Array(MOUSE_SELECTED_AREAS.length).keys()).map(() => parsedData);
+            const data = Array.from(Array(getSelectedAreas().length).keys()).map(() => parsedData);
             _paste(data);
         }
         await table.draw();
