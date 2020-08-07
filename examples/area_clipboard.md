@@ -132,7 +132,6 @@ const addAreaClipboard = (table, dl, write) => {
         });
 
     const paste = async () => {
-        console.error("paste");
         AREA_CLIPBOARD_PASTE_SELECTIONS = [];
         const parsedData = await parseClipboardTextExcel();
         const useLocalData = eqArray(parsedData, AREA_CLIPBOARD_COPIED_DATA[0]);
