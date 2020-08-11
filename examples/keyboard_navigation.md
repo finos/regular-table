@@ -1,4 +1,4 @@
-# Clipboard
+# Keyboard Navigation
 
 ...
 
@@ -17,8 +17,16 @@ regular-table thead tr th {
     user-select: none;
 }
 
+regular-table tbody tr td.keyboard-selected-area {
+    background-color: rgb(0, 0, 255, 0.15); /* blue */
+}
+
 regular-table tbody tr td.single-cell-selected {
     background-color: rgb(255, 0, 0, 0.25); /* red */
+}
+
+regular-table tbody tr td.single-cell-selected.keyboard-selected-area {
+    background-color: rgb(128, 0, 128, 0.33); /* violet */
 }
 
 td {
@@ -51,7 +59,7 @@ const reapplyKeyboardArea = (table) => {
     }
 };
 
-const updateFocus = (table, selectAll, editable = true) => {
+const updateFocus = (table, selectAll) => {
     function selectElementContents(el) {
         var range = document.createRange();
         range.selectNodeContents(el);
@@ -63,7 +71,7 @@ const updateFocus = (table, selectAll, editable = true) => {
     const tds = table.querySelectorAll("td");
 
     for (const td of tds) {
-        td.setAttribute("contenteditable", editable);
+        td.setAttribute("contenteditable", true);
         const meta = table.getMeta(td);
 
         if (meta.x === SELECTED_POSITION.x && meta.y === SELECTED_POSITION.y) {
@@ -83,68 +91,75 @@ const getSelection = (table) => {
     return table.querySelector(`td.${SINGLE_CELL_SELECTED_CLASS}`);
 };
 
-const addKeyboardNavigation = (table, write, editable = true) => {
+const addKeyboardNavigation = (table, dl, write, editable = true) => {
     table.addEventListener("scroll", () => {
         const meta = table.getMeta(document.activeElement);
-        if (meta) {
+        if (meta && write) {
             write(meta.x, meta.y, document.activeElement.textContent);
         } else {
-            console.error("no meta for ", document.activeElement.textContent);
         }
     });
 
     table.addEventListener("focusout", (event) => {
         const meta = table.getMeta(event.target);
-        if (meta) {
+        if (meta && write) {
             write(meta.x, meta.y, event.target.textContent);
         } else {
-            console.error("no meta for ", event.target);
         }
     });
 
     const SCROLL_AHEAD = 4;
 
     function moveSelection(active_cell, dx, dy) {
+        const numCols = dl().num_columns;
+        const numRows = dl().num_rows;
+
         const meta = table.getMeta(active_cell);
+
+        const x0 = typeof KEYBOARD_SELECTED_AREA.x0 === "number" ? KEYBOARD_SELECTED_AREA.x0 : SELECTED_POSITION.x;
+        const x1 = typeof KEYBOARD_SELECTED_AREA.x1 === "number" ? KEYBOARD_SELECTED_AREA.x1 : SELECTED_POSITION.x;
+        const y0 = typeof KEYBOARD_SELECTED_AREA.y0 === "number" ? KEYBOARD_SELECTED_AREA.y0 : SELECTED_POSITION.y;
+        const y1 = typeof KEYBOARD_SELECTED_AREA.y1 === "number" ? KEYBOARD_SELECTED_AREA.y1 : SELECTED_POSITION.y;
+
         const areaSelection = {
-            x0: KEYBOARD_SELECTED_AREA.x0 || SELECTED_POSITION.x,
-            x1: KEYBOARD_SELECTED_AREA.x1 || SELECTED_POSITION.x,
-            y0: KEYBOARD_SELECTED_AREA.y0 || SELECTED_POSITION.y,
-            y1: KEYBOARD_SELECTED_AREA.y1 || SELECTED_POSITION.y,
+            x0,
+            x1,
+            y0,
+            y1,
         };
 
         if (dx !== 0) {
-            if (meta.x + dx < NUM_COLUMNS && 0 <= meta.x + dx) {
+            if (meta.x + dx < numCols && 0 <= meta.x + dx) {
                 const x = meta.x + dx;
                 areaSelection.x0 = Math.min(areaSelection.x0, areaSelection.x1, x);
                 areaSelection.x1 = Math.max(areaSelection.x0, areaSelection.x1, x);
                 SELECTED_POSITION.x = x;
             }
             if (meta.x1 <= SELECTED_POSITION.x + SCROLL_AHEAD) {
-                table.scrollToCell(meta.x0 + 2, meta.y0, NUM_COLUMNS, NUM_ROWS);
+                table.scrollToCell(meta.x0 + 2, meta.y0, numCols, numRows);
             } else if (SELECTED_POSITION.x - SCROLL_AHEAD < meta.x0) {
                 if (0 < meta.x0 - 1) {
-                    table.scrollToCell(meta.x0 - 1, meta.y0, NUM_COLUMNS, NUM_ROWS);
+                    table.scrollToCell(meta.x0 - 1, meta.y0, numCols, numRows);
                 } else {
-                    table.scrollToCell(0, meta.y0, NUM_COLUMNS, NUM_ROWS);
+                    table.scrollToCell(0, meta.y0, numCols, numRows);
                 }
             }
         }
 
         if (dy !== 0) {
-            if (meta.y + dy < NUM_ROWS && 0 <= meta.y + dy) {
+            if (meta.y + dy < numRows && 0 <= meta.y + dy) {
                 const y = meta.y + dy;
                 areaSelection.y0 = Math.min(areaSelection.y0, areaSelection.y1, y);
                 areaSelection.y1 = Math.max(areaSelection.y0, areaSelection.y1, y);
                 SELECTED_POSITION.y = y;
             }
             if (meta.y1 <= SELECTED_POSITION.y + SCROLL_AHEAD) {
-                table.scrollToCell(meta.x0, meta.y0 + 1, NUM_COLUMNS, NUM_ROWS);
+                table.scrollToCell(meta.x0, meta.y0 + 1, numCols, numRows);
             } else if (SELECTED_POSITION.y - SCROLL_AHEAD + 2 < meta.y0) {
                 if (0 < meta.y0 - 1) {
-                    table.scrollToCell(meta.x0, meta.y0 - 1, NUM_COLUMNS, NUM_ROWS);
+                    table.scrollToCell(meta.x0, meta.y0 - 1, numCols, numRows);
                 } else {
-                    table.scrollToCell(meta.x0, 0, NUM_COLUMNS, NUM_ROWS);
+                    table.scrollToCell(meta.x0, 0, numCols, numRows);
                 }
             }
         }
@@ -154,6 +169,7 @@ const addKeyboardNavigation = (table, write, editable = true) => {
 
     table.addEventListener("keypress", (event) => {
         const target = getSelection(table);
+
         if (event.keyCode === 13) {
             event.preventDefault();
             if (event.shiftKey) {
@@ -170,8 +186,8 @@ const addKeyboardNavigation = (table, write, editable = true) => {
 
     table.addEventListener("keydown", (event) => {
         const target = getSelection(table);
-        let area;
 
+        let area;
         switch (event.keyCode) {
             // tab
             case 9:
@@ -220,7 +236,7 @@ const addKeyboardNavigation = (table, write, editable = true) => {
                 AREA_CLIPBOARD_COPY_SELECTIONS = [];
                 AREA_CLIPBOARD_PASTE_SELECTIONS = [];
                 AREA_CLIPBOARD_COPIED_DATA = [];
-                table.draw();
+                // table.draw();
             }
 
             KEYBOARD_SELECTED_AREA = {};
@@ -246,16 +262,39 @@ const addKeyboardNavigation = (table, write, editable = true) => {
 
 const addKeyboardNavigationStyleListener = (table) => {
     table.addStyleListener(() => {
-        updateFocus(table, false, false);
+        updateFocus(table, false, true);
     });
 };
 
 function generateDataListener(num_rows, num_columns) {
-    const allData = range(0, num_columns, (x) => range(0, num_rows, (y) => `${x}, ${y}`));
-    return function dl(x0, y0, x1, y1) {
+    function to_column_name(i, letter) {
+        return Array(i).fill(letter).join("");
+    }
+
+    function generate_column_names() {
+        const nums = Array.from(Array(26));
+        const alphabet = nums.map((val, i) => String.fromCharCode(i + 65));
+        let caps = [],
+            i = 1;
+        while (caps.length < num_columns) {
+            caps = caps.concat(alphabet.map((letter) => to_column_name(i, letter)));
+            i++;
+        }
+        return caps;
+    }
+
+    const column_names = generate_column_names();
+
+    const allData = Array(num_columns)
+        .fill()
+        .map(() => Array(num_rows).fill());
+
+    return function dl(x0 = 0, y0 = 0, x1 = 0, y1 = 0) {
         return {
             num_rows,
             num_columns,
+            row_headers: Array.from(Array(Math.ceil(y1) - y0).keys()).map((y) => [`${y + y0}`]),
+            column_headers: column_names.slice(x0, x1).map((x) => [x]),
             data: allData.slice(x0, x1).map((col) => col.slice(y0, y1)),
             allData,
         };
@@ -266,8 +305,11 @@ window.addEventListener("load", () => {
     const table = window.keyboardNavigationRegularTable;
     if (table) {
         const dl = generateDataListener(50, 50);
+        const write = (x, y, value) => {
+            dl().allData[x][y] = value;
+        };
 
-        addKeyboardNavigation(table);
+        addKeyboardNavigation(table, dl, write, true);
         table.setDataListener(dl);
         table.draw();
     }

@@ -9,180 +9,200 @@
  */
 
 describe("keyboard_navigation.html", () => {
-    beforeAll(async () => {
-        await page.setViewport({width: 150, height: 150});
-    });
-
-    describe("Navigating with the arrow keys", () => {
-        const sayHello = async (table) => {
-            await page.evaluate(async (table) => {
+    const writeByReturn = async (table, text) => {
+        await page.evaluate(
+            async (table, text) => {
                 const target = document.activeElement;
-                target.textContent = "Hello, World!";
+                target.textContent = text;
                 const event = document.createEvent("HTMLEvents");
                 event.initEvent("keypress", false, true);
                 event.ctrlKey = true;
                 event.keyCode = 13;
                 table.dispatchEvent(event);
-            }, table);
-        };
+            },
+            table,
+            text
+        );
+    };
 
-        const keypressReturn = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
+    const keypressReturn = async (table, times = 1, shiftKey) => {
+        Array.from(Array(times)).forEach(async () => {
+            await page.evaluate(
+                async (table, shiftKey) => {
                     const event = document.createEvent("HTMLEvents");
                     event.initEvent("keypress", false, true);
                     event.ctrlKey = true;
+                    if (shiftKey) {
+                        event.shiftKey = true;
+                    }
                     event.keyCode = 13;
                     table.dispatchEvent(event);
-                }, table);
-            });
-        };
-
-        const keydownLeftArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 37;
-                    table.dispatchEvent(event);
-                }, table);
-            });
-        };
-
-        const keydownUpArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 38;
-                    table.dispatchEvent(event);
-                }, table);
-            });
-        };
-
-        const keydownRightArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 39;
-                    table.dispatchEvent(event);
-                }, table);
-            });
-        };
-
-        const keydownDownArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 40;
-                    table.dispatchEvent(event);
-                }, table);
-            });
-        };
-
-        beforeEach(async () => {
-            await page.goto("http://localhost:8081/dist/examples/keyboard_navigation.html");
-            await page.waitFor("regular-table table tbody tr td");
+                },
+                table,
+                shiftKey
+            );
         });
+    };
 
+    const keydownTab = async (table, times = 1, shiftKey = false) => {
+        Array.from(Array(times)).forEach(async () => {
+            await page.evaluate(
+                async (table, shiftKey) => {
+                    const event = document.createEvent("HTMLEvents");
+                    event.initEvent("keydown", false, true);
+                    event.keyCode = 9;
+                    if (shiftKey) {
+                        event.shiftKey = true;
+                    }
+                    table.dispatchEvent(event);
+                },
+                table,
+                shiftKey
+            );
+        });
+    };
+
+    const keydownLeftArrow = async (table, times = 1) => {
+        Array.from(Array(times)).forEach(async () => {
+            await page.evaluate(async (table) => {
+                const event = document.createEvent("HTMLEvents");
+                event.initEvent("keydown", false, true);
+                event.keyCode = 37;
+                table.dispatchEvent(event);
+            }, table);
+        });
+    };
+
+    const keydownUpArrow = async (table, times = 1) => {
+        Array.from(Array(times)).forEach(async () => {
+            await page.evaluate(async (table) => {
+                const event = document.createEvent("HTMLEvents");
+                event.initEvent("keydown", false, true);
+                event.keyCode = 38;
+                table.dispatchEvent(event);
+            }, table);
+        });
+    };
+
+    const keydownRightArrow = async (table, times = 1) => {
+        Array.from(Array(times)).forEach(async () => {
+            await page.evaluate(async (table) => {
+                const event = document.createEvent("HTMLEvents");
+                event.initEvent("keydown", false, true);
+                event.keyCode = 39;
+                table.dispatchEvent(event);
+            }, table);
+        });
+    };
+
+    const keydownDownArrow = async (table, times = 1) => {
+        Array.from(Array(times)).forEach(async () => {
+            await page.evaluate(async (table) => {
+                const event = document.createEvent("HTMLEvents");
+                event.initEvent("keydown", false, true);
+                event.keyCode = 40;
+                table.dispatchEvent(event);
+            }, table);
+        });
+    };
+
+    beforeAll(async () => {
+        await page.goto("http://localhost:8081/dist/examples/keyboard_navigation.html");
+        await page.setViewport({width: 500, height: 500});
+        await page.waitFor("regular-table table tbody tr td");
+    });
+
+    describe("Navigating with the keyboard", () => {
         test("initializes with focus on (0,0)", async () => {
             const table = await page.$("regular-table");
-            await sayHello(table);
+            await writeByReturn(table, "1. test origin");
             const tr = await page.$$("regular-table tbody tr:nth-of-type(1) td");
-            const cell_values = [];
-            for (const td of tr) {
-                cell_values.push(await page.evaluate((td) => td.innerHTML, td));
-            }
-            expect(cell_values).toEqual(["Hello, World!", "", "", "", "", ""]);
+            const cellValue = await page.evaluate((td) => td.innerHTML, tr[0]);
+            expect(cellValue).toEqual("1. test origin");
         });
 
-        xtest("scrolls as right arrow is down", async () => {
+        test("moves as right arrow is down", async () => {
             const table = await page.$("regular-table");
             keydownRightArrow(table, 5);
-            await sayHello(table);
+            await writeByReturn(table, "2. right arrow");
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
-            const cells = [];
-            for (const td of tds) {
-                cells.push(await page.evaluate((td) => td.innerHTML, td));
-            }
-            expect(cells).toEqual(["", "", "", "", "", "Hello, World!"]);
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(2) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[5]);
+            expect(cellValue).toEqual("2. right arrow");
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
-            const th_value = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th_value).toEqual("0");
+            const thValue = await page.evaluate((th) => th.innerHTML, ths[0]);
+            expect(thValue).toEqual("0");
         });
 
-        xtest("scrolls as down arrow is down", async () => {
+        test("moves as down arrow is down", async () => {
             const table = await page.$("regular-table");
             keydownDownArrow(table, 5);
-            await sayHello(table);
+            await writeByReturn(table, "3. down arrow");
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
-            const cells = [];
-            for (const td of tds) {
-                cells.push(await page.evaluate((td) => td.innerHTML, td));
-            }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
-
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
-            const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("5");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(8) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[5]);
+            expect(cellValue).toEqual("3. down arrow");
         });
 
-        xtest("scrolls down and back up", async () => {
+        test("moves as up arrow is down", async () => {
             const table = await page.$("regular-table");
-            keydownDownArrow(table, 5);
-            keydownUpArrow(table, 2);
-            await sayHello(table);
+            keydownUpArrow(table, 5);
+            await writeByReturn(table, "4. up arrow");
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
-            const cells = [];
-            for (const td of tds) {
-                cells.push(await page.evaluate((td) => td.innerHTML, td));
-            }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
-
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
-            const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("3");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(4) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[5]);
+            expect(cellValue).toEqual("4. up arrow");
         });
 
-        xtest("scrolls right and back left", async () => {
+        test("moves as left arrow is down", async () => {
             const table = await page.$("regular-table");
-            keydownRightArrow(table, 10);
-            keydownLeftArrow(table, 5);
-            await sayHello(table);
+            keydownLeftArrow(table, 3);
+            await writeByReturn(table, "5. left arrow");
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
-            const cells = [];
-            for (const td of tds) {
-                cells.push(await page.evaluate((td) => td.innerHTML, td));
-            }
-            expect(cells).toEqual(["", "", "", "", "", "Hello, World!"]);
-
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
-            const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("0");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(5) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[2]);
+            expect(cellValue).toEqual("5. left arrow");
         });
 
-        xtest("scrolls as return is pressed", async () => {
+        test("moves as return is pressed", async () => {
             const table = await page.$("regular-table");
-            keypressReturn(table, 5);
-            await sayHello(table);
+            keypressReturn(table);
+            await writeByReturn(table, "6. return");
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
-            const cells = [];
-            for (const td of tds) {
-                cells.push(await page.evaluate((td) => td.innerHTML, td));
-            }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(7) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[2]);
+            expect(cellValue).toEqual("6. return");
+        });
 
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
-            const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("5");
+        test("moves as tab is down", async () => {
+            const table = await page.$("regular-table");
+            keydownTab(table);
+            await writeByReturn(table, "7. tab");
+
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(8) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[3]);
+            expect(cellValue).toEqual("7. tab");
+        });
+
+        test("moves as shift tab is down", async () => {
+            const table = await page.$("regular-table");
+            keydownTab(table, 1, true);
+            await writeByReturn(table, "8. shift tab");
+
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(9) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[2]);
+            expect(cellValue).toEqual("8. shift tab");
+        });
+
+        test("moves as shift return is pressed", async () => {
+            const table = await page.$("regular-table");
+            keypressReturn(table, 2, true);
+            await writeByReturn(table, "9. shift return");
+
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(8) td");
+            const cellValue = await page.evaluate((td) => td.innerHTML, tds[2]);
+            expect(cellValue).toEqual("9. shift return");
         });
     });
 });
