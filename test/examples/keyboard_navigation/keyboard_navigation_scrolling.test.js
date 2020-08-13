@@ -72,8 +72,8 @@ describe("keyboard_navigation.html", () => {
     let table;
 
     beforeAll(async () => {
-        await page.goto("http://localhost:8081/dist/examples/keyboard_navigation.html");
         await page.setViewport({width: 150, height: 150});
+        await page.goto("http://localhost:8081/dist/examples/keyboard_navigation.html");
         await page.waitFor("regular-table table tbody tr td");
         table = await page.$("regular-table");
     });

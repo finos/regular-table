@@ -88,7 +88,7 @@ const updateFocus = (table, selectAll) => {
 };
 
 const getSelection = (table) => {
-    return table.querySelector(`td.${SINGLE_CELL_SELECTED_CLASS}`);
+    return document.activeElement || table.querySelector(`td.${SINGLE_CELL_SELECTED_CLASS}`);
 };
 
 const addKeyboardNavigation = (table, dl, write, editable = true) => {
