@@ -43,7 +43,7 @@ We're going to add the `.reverse-stripes` class for use in our
 }
 ```
 
-## `StyleListener`
+## Adding a `StyleListener` with `alternateStripes()`
 
 Adding a `StyleListener` to the `<regular-table>` in our `alternateStripes()`
 function will ensure that the odd and even styling will alternate depending
@@ -129,7 +129,7 @@ The usual suspects.
 <link rel='stylesheet' href="/dist/css/material.css">
 ```
 
-Borrow a data model from `two_billion_rows`.
+Borrow utility functions from the `two_billion_rows` example.
 
 ```html
 <script src="/dist/examples/two_billion_rows.js"></script>
