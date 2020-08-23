@@ -334,7 +334,8 @@ async function dataListener(x0, y0, x1, y1) {
     const column_headers = [];
     for (const path of this._column_paths.slice(x0, x1)) {
         const path_parts = path.split("|");
-        data.push(columns[path].map((x) => _format.call(this, path_parts, x)));
+        const column = columns[path] || [];
+        data.push(column.map((x) => _format.call(this, path_parts, x)));
         column_headers.push(path_parts);
     }
 
@@ -348,7 +349,11 @@ async function dataListener(x0, y0, x1, y1) {
 }
 ```
 
-Create a model state object.
+Create a model state object.  This object will memoize everything that a
+`regular-table` will need in one place, minimizing recalculation later when
+a re-render is requested.  Because some operations like _sorting_ can actually
+instantiate a view (and this call `createViewCache()` themselves), we must
+memoize both the `Table` and `View` objects.
 
 ```javascript
 async function createViewCache(table, view, extend = {}) {
@@ -369,16 +374,22 @@ async function createViewCache(table, view, extend = {}) {
 ```javascript
 async function configureRegularTable(regular, model) {
     regular.setDataListener(dataListener.bind(model));
-
     regular.addStyleListener(typeStyleListener.bind(model, regular));
     regular.addStyleListener(treeStyleListener.bind(model, regular));
     regular.addStyleListener(groupHeaderStyleListener.bind(model, regular));
     regular.addStyleListener(columnHeaderStyleListener.bind(model, regular));
-
     regular.addEventListener("mousedown", mousedownListener.bind(model, regular));
-
     await regular.draw();
 }
+```
+
+The functions `configureRegularTable()` and `createViewCache()` are all that's
+needed to wire a `Table` to a `regular-table`, so we'll export these for
+convenient inclusion in a module-aware Javascript project.
+
+```javascript
+exports.createViewCache = createViewCache;
+exports.configureRegularTable = configureRegularTable;
 ```
 
 ## Perspective
