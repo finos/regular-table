@@ -20,14 +20,12 @@ import {throttlePromise} from "./utils";
  */
 export class RegularViewEventModel extends RegularVirtualTableViewModel {
     register_listeners() {
+        this.addEventListener("mousedown", this._on_click.bind(this));
+        this.addEventListener("dblclick", this._on_dblclick.bind(this));
         this.addEventListener("scroll", this._on_scroll.bind(this), {
             passive: false,
         });
-        this.addEventListener("mousewheel", this._on_mousewheel.bind(this), {
-            passive: false,
-        });
-        this.addEventListener("mousedown", this._on_click.bind(this));
-        this.addEventListener("dblclick", this._on_dblclick.bind(this));
+        this._register_glitch_scroll_listeners();
     }
 
     /**
@@ -42,8 +40,28 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     }
 
     /**
+     * Modern and mobile browsers implement complex scroll behavior to
+     * implement fancy touch and intertia effects;  these must be intercepted
+     * and disabled to achieve clean virtual scrolling in the presence of a
+     * `fixed` element.
+     *
+     * @memberof RegularViewEventModel
+     */
+    _register_glitch_scroll_listeners() {
+        this.addEventListener("mousewheel", this._on_mousewheel.bind(this), {
+            passive: false,
+        });
+        this.addEventListener("touchstart", this._on_touchstart.bind(this), {
+            passive: false,
+        });
+        this.addEventListener("touchmove", this._on_touchmove.bind(this), {
+            passive: false,
+        });
+    }
+
+    /**
      * Mousewheel must precalculate in addition to `_on_scroll` to prevent
-     * visual artifacts due to scrolling "inertia" on modern browsers/mobile.
+     * visual artifacts due to scrolling "inertia" on modern browsers.
      *
      * @param {*} event
      * @memberof RegularViewModel
@@ -60,6 +78,42 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         this.scrollTop = Math.min(total_scroll_height, scrollTop + event.deltaY);
         this.scrollLeft = Math.min(total_scroll_width, scrollLeft + event.deltaX);
         this._on_scroll(event);
+    }
+
+    /**
+     * Touchmove must precalculate in addition to `_on_scroll` to prevent
+     * visual artifacts due to scrolling "inertia" on mobile browsers.  This has
+     * the unfortunate side-effect of disabling scroll intertia, but the
+     * alternative is a dodgy, glitchy mess.
+     *
+     * @param {*} event
+     * @returns
+     * @memberof RegularViewEventModel
+     */
+    _on_touchmove(event) {
+        if (this._virtual_scrolling_disabled) {
+            return;
+        }
+        event.preventDefault();
+        event.returnValue = false;
+        const {clientWidth, clientHeight, scrollTop, scrollLeft} = this;
+        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
+        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
+        this.scrollTop = Math.min(total_scroll_height, scrollTop + (this._memo_touch_startY - event.touches[0].screenY));
+        this.scrollLeft = Math.min(total_scroll_width, scrollLeft + (this._memo_touch_startX - event.touches[0].screenX));
+        this._on_scroll(event);
+    }
+
+    /**
+     * Memoize `touchstart` positions to calculate deltas, since these are not
+     * generated on `touchmove` events.
+     *
+     * @param {*} event
+     * @memberof RegularViewEventModel
+     */
+    _on_touchstart(event) {
+        this._memo_touch_startY = event.touches[0].screenY;
+        this._memo_touch_startX = event.touches[0].screenX;
     }
 
     /**

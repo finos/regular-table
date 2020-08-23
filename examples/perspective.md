@@ -186,7 +186,7 @@ async function sortHandler(regularTable, event) {
     const sort_method = event.shiftKey ? append_sort : override_sort;
     const sort = sort_method.call(this, column_name);
     this._view = this._table.view({...this._config, sort: sort});
-    await createViewCache(this._table, this._view, this);
+    await createViewCache(regularTable, this._table, this._view, this);
     await regularTable.draw();
 }
 
@@ -356,8 +356,8 @@ instantiate a view (and this call `createViewCache()` themselves), we must
 memoize both the `Table` and `View` objects.
 
 ```javascript
-async function createViewCache(table, view, extend = {}) {
-    return Object.assign(extend, {
+async function createViewCache(regular, table, view, extend = {}) {
+    const model = Object.assign(extend, {
         _view: view,
         _table: table,
         _table_schema: await table.schema(),
@@ -368,12 +368,13 @@ async function createViewCache(table, view, extend = {}) {
             return path !== "__ROW_PATH__" && path !== "__ID__";
         }),
     });
+    regular.setDataListener(dataListener.bind(model));
+    return model;
 }
 ```
 
 ```javascript
 async function configureRegularTable(regular, model) {
-    regular.setDataListener(dataListener.bind(model));
     regular.addStyleListener(typeStyleListener.bind(model, regular));
     regular.addStyleListener(treeStyleListener.bind(model, regular));
     regular.addStyleListener(groupHeaderStyleListener.bind(model, regular));
@@ -414,9 +415,8 @@ exports.configureRegularTable = configureRegularTable;
             columns: ["Sales", "Profit"],
         });
 
-        const model = await createViewCache(table, view);
-
         const regular = document.getElementsByTagName("regular-table")[0];
+        const model = await createViewCache(regular, table, view);
         await configureRegularTable(regular, model);
     });
 </script>
