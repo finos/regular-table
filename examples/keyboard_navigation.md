@@ -104,13 +104,13 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
             if (meta && write) {
                 write(meta.x, meta.y, document.activeElement.textContent);
             }
-            const xMissing = SELECTED_POSITION.x < meta.x || meta.x < SELECTED_POSITION.x;
-            const yMissing = SELECTED_POSITION.y < meta.y || meta.y < SELECTED_POSITION.y;
+            if (meta) {
+                const xMissing = SELECTED_POSITION.x < meta.x || meta.x < SELECTED_POSITION.x;
+                const yMissing = SELECTED_POSITION.y < meta.y || meta.y < SELECTED_POSITION.y;
 
-            console.error("document.activeElement && xMissing && yMissing");
-            console.error(document.activeElement, xMissing, yMissing);
-            if (document.activeElement && (xMissing || yMissing)) {
-                document.activeElement.blur();
+                if (document.activeElement && (xMissing || yMissing)) {
+                    document.activeElement.blur();
+                }
             }
         }
     });
@@ -123,11 +123,9 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
         }
     });
 
-    async function moveSelection(active_cell, dx, dy) {
+    async function moveSelection(meta, dx, dy) {
         const numCols = dl().num_columns;
         const numRows = dl().num_rows;
-
-        const meta = table.getMeta(active_cell);
 
         const x0 = typeof KEYBOARD_SELECTED_AREA.x0 === "number" ? KEYBOARD_SELECTED_AREA.x0 : SELECTED_POSITION.x;
         const x1 = typeof KEYBOARD_SELECTED_AREA.x1 === "number" ? KEYBOARD_SELECTED_AREA.x1 : SELECTED_POSITION.x;
@@ -150,7 +148,11 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
             }
 
             if (meta.x1 <= SELECTED_POSITION.x + 3) {
-                await table.scrollToCell(meta.x0 + 2, meta.y0, numCols, numRows);
+                console.error("initial scroll 1", meta.x0 + 2);
+                const newPos = meta.x0 + 2;
+                await table.scrollToCell(newPos + 1, meta.y0, numCols, numRows);
+                console.error("initial scroll 2", meta.x0 + 2);
+                await table.scrollToCell(newPos, meta.y0, numCols, numRows);
             } else if (SELECTED_POSITION.x < meta.x0) {
                 if (0 < meta.x0 - 1) {
                     await table.scrollToCell(meta.x0 - 1, meta.y0, numCols, numRows);
@@ -183,15 +185,16 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
 
     table.addEventListener("keypress", (event) => {
         const target = getSelection(table);
+        const meta = table.getMeta(target);
 
         if (event.keyCode === 13) {
             event.preventDefault();
             if (event.shiftKey) {
-                moveSelection(target, 0, -1);
+                moveSelection(meta, 0, -1);
                 event.preventDefault();
                 event.stopPropagation();
             } else {
-                moveSelection(target, 0, 1);
+                moveSelection(meta, 0, 1);
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -200,6 +203,7 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
 
     table.addEventListener("keydown", async (event) => {
         const target = getSelection(table);
+        const meta = table.getMeta(target);
 
         let area;
         switch (event.keyCode) {
@@ -207,36 +211,36 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
             case 9:
                 event.preventDefault();
                 if (event.shiftKey) {
-                    moveSelection(target, -1, 0);
+                    moveSelection(meta, -1, 0);
                     event.preventDefault();
                     event.stopPropagation();
                 } else {
-                    moveSelection(target, 1, 0);
+                    moveSelection(meta, 1, 0);
                     event.preventDefault();
                     event.stopPropagation();
                 }
                 break;
             // left arrow
             case 37:
-                area = await moveSelection(target, -1, 0);
+                area = await moveSelection(meta, -1, 0);
                 event.preventDefault();
                 event.stopPropagation();
                 break;
             // up arrow
             case 38:
-                area = await moveSelection(target, 0, -1);
+                area = await moveSelection(meta, 0, -1);
                 event.preventDefault();
                 event.stopPropagation();
                 break;
             // right arrow
             case 39:
-                area = await moveSelection(target, 1, 0);
+                area = await moveSelection(meta, 1, 0);
                 event.preventDefault();
                 event.stopPropagation();
                 break;
             // down arrow
             case 40:
-                area = await moveSelection(target, 0, 1);
+                area = await moveSelection(meta, 0, 1);
                 event.preventDefault();
                 event.stopPropagation();
                 break;
@@ -255,6 +259,33 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
             KEYBOARD_SELECTED_AREA = {};
             reapplyKeyboardArea(table);
         }
+        if (event.keyCode === 39) {
+            const metaAfter = table.getMeta(document.activeElement);
+            const numCols = dl().num_columns;
+            const numRows = dl().num_rows;
+            console.error("metaAfter", metaAfter);
+            console.error("SELECTED_POSITION", SELECTED_POSITION);
+            if (!metaAfter || metaAfter.x < SELECTED_POSITION.x) {
+                console.error("scroll again");
+                const fakeMeta = {x0: meta.x0 + 1, x1: meta.x1 + 1, y0: meta.y0, y1: meta.y1, ...SELECTED_POSITION};
+                await table.scrollToCell(meta.x0 + 3, meta.y0, numCols, numRows);
+                // area = await moveSelection(fakeMeta, 1, 0);
+                updateFocus(table, true, editable);
+
+                const metaAfterAfter = table.getMeta(document.activeElement);
+                console.error("metaAfterAfter", metaAfterAfter);
+                if (!metaAfterAfter || metaAfterAfter.x < SELECTED_POSITION.x) {
+                    console.error("scroll again again");
+                    fakeMeta.x0 = fakeMeta.x0 + 1;
+                    fakeMeta.x1 = fakeMeta.x1 + 1;
+
+                    // console.error("fakeMeta after after", fakeMeta);
+                    // area = await moveSelection(fakeMeta, 1, 0);
+                    await table.scrollToCell(meta.x0 + 4, meta.y0, numCols, numRows);
+                    updateFocus(table, true, editable);
+                }
+            }
+        }
     });
 
     const makeSingleSelect = (event) => {
@@ -270,7 +301,9 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
     table.addEventListener("mousedown", makeSingleSelect);
 
     addKeyboardNavigationStyleListener(table);
-    await resetScrollToCell(table, dl);
+    setTimeout(async function () {
+        resetScrollToCell(table, dl);
+    }, 500);
     return table;
 };
 
@@ -299,9 +332,19 @@ function generateDataListener(num_rows, num_columns) {
 
     const column_names = generate_column_names();
 
+    function randomStr(len) {
+        const arr = "abcdefghijklmnopqrstuvwxyz0123456789";
+        const randLen = Math.ceil(Math.random() * len);
+        var ans = "";
+        for (var i = randLen; i > 0; i--) {
+            ans += arr[Math.floor(Math.random() * arr.length)];
+        }
+        return ans;
+    }
     const allData = Array(num_columns)
         .fill()
-        .map(() => Array(num_rows).fill("jjfjfjfjfjjfjfjjfjjfjfjjfjjfjfj"));
+        .map(() => Array(num_rows).fill(randomStr(100)));
+    // .map(() => Array(num_rows).fill("asdf"));
 
     return function dl(x0 = 0, y0 = 0, x1 = 0, y1 = 0) {
         return {

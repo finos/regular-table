@@ -199,7 +199,7 @@ class RegularTableElement extends RegularViewEventModel {
      * @example
      * table.scrollToCell(1, 3, 10, 30);
      */
-    @throttlePromise
+    // @throttlePromise
     async scrollToCell(x, y, ncols, nrows) {
         console.error("Scroll to - x, y, ncols, nrows");
         console.error(x, y, ncols, nrows);
