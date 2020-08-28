@@ -73,14 +73,18 @@ const getMousedownListener = (table) => (event) => {
 ```
 The `EventListener` returned for `"mouseover"` first checks that a valid `CURRENT_MOUSEDOWN_COORDINATES`
 is set and then reapplies the cell selection with the `event.target`'s coordinates
- as the final coordinate pair - rendering the current potential selection.
+ used to calculate the `potentialSelection`.
 ```javascript
 const getMouseoverListener = (table) => (event) => {
-    if (CURRENT_MOUSEDOWN_COORDINATES.x !== undefined) {
+    if (CURRENT_MOUSEDOWN_COORDINATES && CURRENT_MOUSEDOWN_COORDINATES.x !== undefined) {
         const meta = table.getMeta(event.target);
         if (meta && meta.x !== undefined && meta.y !== undefined) {
-            const overCoord = {x: meta.x, y: meta.y};
-            const potentialSelection = [CURRENT_MOUSEDOWN_COORDINATES, overCoord];
+            const potentialSelection = {
+                x0: Math.min(meta.x, CURRENT_MOUSEDOWN_COORDINATES.x),
+                x1: Math.max(meta.x, CURRENT_MOUSEDOWN_COORDINATES.x),
+                y0: Math.min(meta.y, CURRENT_MOUSEDOWN_COORDINATES.y),
+                y1: Math.max(meta.y, CURRENT_MOUSEDOWN_COORDINATES.y),
+            };
             reapplyMouseAreaSelections(table, MOUSE_SELECTED_AREAS.concat([potentialSelection]));
         }
     }
@@ -92,9 +96,14 @@ With our `MOUSE_SELECTED_AREAS` up to date, we will reapply the selection then c
 ```javascript
 const getMouseupListener = (table) => (event) => {
     const meta = table.getMeta(event.target);
-    if (CURRENT_MOUSEDOWN_COORDINATES.x !== undefined && meta.x !== undefined && meta.y !== undefined) {
-        const upCoord = {x: meta.x, y: meta.y};
-        MOUSE_SELECTED_AREAS.push([CURRENT_MOUSEDOWN_COORDINATES, upCoord]);
+    if (CURRENT_MOUSEDOWN_COORDINATES && CURRENT_MOUSEDOWN_COORDINATES.x !== undefined && meta.x !== undefined && meta.y !== undefined) {
+        const selection = {
+            x0: Math.min(meta.x, CURRENT_MOUSEDOWN_COORDINATES.x),
+            x1: Math.max(meta.x, CURRENT_MOUSEDOWN_COORDINATES.x),
+            y0: Math.min(meta.y, CURRENT_MOUSEDOWN_COORDINATES.y),
+            y1: Math.max(meta.y, CURRENT_MOUSEDOWN_COORDINATES.y),
+        };
+        MOUSE_SELECTED_AREAS.push(selection);
         reapplyMouseAreaSelections(table);
     }
     CURRENT_MOUSEDOWN_COORDINATES = {};
@@ -113,27 +122,18 @@ const reapplyMouseAreaSelections = (table, areaSelections = MOUSE_SELECTED_AREAS
     }
 
     for (const as of areaSelections) {
-        applyMouseAreaSelection(table, as[0], as[1]);
+        applyMouseAreaSelection(table, as);
     }
 };
 ```
 Much like our `MetaData` `object`, we will use `x0` and `y0` to describe the upper
 left corner and `x1` and `y1` for the lower right corner in the body of `applyMouseAreaSelection()`.
-We need to select the `min()` `.x` between both up and down coordinates for our `x0` in 
-case the user made their selection in reverse - applying similar logic for defining
-`x1`, `y0` and `y1`. Then we can iterate through the `td`s in the `table` adding 
-the `MOUSE_SELECTED_AREA_CLASS` if the `td`'s metadata falls within the rectangular region
-defined by those coordinates.
+We can iterate through the `td`s in the `table` adding the `MOUSE_SELECTED_AREA_CLASS`
+if the `td`'s metadata falls within the rectangular region defined by those coordinates.
 ```javascript
-
-const applyMouseAreaSelection = (table, mousedownCoord, mouseupCoord) => {
+const applyMouseAreaSelection = (table, {x0, x1, y0, y1}) => {
     const tds = table.querySelectorAll("tbody td");
-    if (mousedownCoord.x !== undefined && mousedownCoord.y !== undefined && mouseupCoord.x !== undefined && mouseupCoord.y !== undefined) {
-        const x0 = Math.min(mousedownCoord.x, mouseupCoord.x);
-        const x1 = Math.max(mousedownCoord.x, mouseupCoord.x);
-        const y0 = Math.min(mousedownCoord.y, mouseupCoord.y);
-        const y1 = Math.max(mousedownCoord.y, mouseupCoord.y);
-
+    if (x0 !== undefined && y0 !== undefined && x1 !== undefined && y1 !== undefined) {
         for (const td of tds) {
             const meta = table.getMeta(td);
             if (x0 <= meta.x && meta.x <= x1) {
