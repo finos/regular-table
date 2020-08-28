@@ -147,14 +147,21 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
                 SELECTED_POSITION.x = x;
             }
 
-            if (meta.x1 <= SELECTED_POSITION.x + 3) {
-                // console.error("initial scroll 1", meta.x0 + 2);
-                // const newPos = meta.x0 + 1;
+            if (meta.x1 <= SELECTED_POSITION.x + 4) {
                 const _x0 = meta.x0;
-                const newPos = _x0 + 1;
-                await table.scrollToCell(newPos + 1, meta.y0, numCols, numRows);
-                console.error("initial scroll 2", meta.x0 + 2);
-                await table.scrollToCell(newPos, meta.y0, numCols, numRows);
+
+                let newMeta = table.getMeta(document.activeElement);
+                let attempts = 0;
+                let newPos = _x0 + 1;
+
+                while ((!newMeta || newMeta.x < SELECTED_POSITION.x) && newPos <= numCols) {
+                    await table.scrollToCell(newPos + 1, meta.y0, numCols, numRows);
+                    await table.scrollToCell(newPos, meta.y0, numCols, numRows);
+                    updateFocus(table, true, editable);
+                    newMeta = table.getMeta(document.activeElement);
+                    attempts += 1;
+                    newPos += 1;
+                }
             } else if (SELECTED_POSITION.x < meta.x0) {
                 if (0 < meta.x0 - 1) {
                     await table.scrollToCell(meta.x0 - 1, meta.y0, numCols, numRows);
@@ -261,35 +268,6 @@ const addKeyboardNavigation = async (table, dl, write, editable = true) => {
 
             KEYBOARD_SELECTED_AREA = {};
             reapplyKeyboardArea(table);
-        }
-        if (event.keyCode === 39) {
-            const metaAfter = table.getMeta(document.activeElement);
-            const numCols = dl().num_columns;
-            const numRows = dl().num_rows;
-            console.error("metaAfter", metaAfter);
-            console.error("SELECTED_POSITION", SELECTED_POSITION);
-            if (!metaAfter || metaAfter.x < SELECTED_POSITION.x) {
-                console.error("scroll again");
-                // const fakeMeta =
-                //     {x0: meta.x0 + 1, x1: meta.x1 + 1, y0: meta.y0, y1:
-                //     meta.y1, ...SELECTED_POSITION};
-                await table.scrollToCell(_x0 + 2, meta.y0, numCols, numRows);
-                // area = await moveSelection(fakeMeta, 1, 0);
-                updateFocus(table, true, editable);
-
-                const metaAfterAfter = table.getMeta(document.activeElement);
-                console.error("metaAfterAfter", metaAfterAfter);
-                if (!metaAfterAfter || metaAfterAfter.x < SELECTED_POSITION.x) {
-                    console.error("scroll again again");
-                    // fakeMeta.x0 = fakeMeta.x0 + 1;
-                    // fakeMeta.x1 = fakeMeta.x1 + 1;
-
-                    // console.error("fakeMeta after after", fakeMeta);
-                    // area = await moveSelection(fakeMeta, 1, 0);
-                    await table.scrollToCell(_x0 + 3, meta.y0, numCols, numRows);
-                    updateFocus(table, true, editable);
-                }
-            }
         }
     });
 
