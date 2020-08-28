@@ -30,8 +30,7 @@ describe("scrollToCell", () => {
             const table = await page.$("regular-table");
 
             await page.evaluate(async (table) => {
-                table.scrollToCell(2, 0, 1000, 1000);
-                await table.draw();
+                await table.scrollToCell(2, 0, 1000, 1000);
             }, table);
 
             const meta = await page.evaluate((table) => {
@@ -44,8 +43,7 @@ describe("scrollToCell", () => {
             const table = await page.$("regular-table");
 
             await page.evaluate(async (table) => {
-                table.scrollToCell(1000, 0, 1000, 1000);
-                await table.draw();
+                await table.scrollToCell(1000, 0, 1000, 1000);
             }, table);
 
             const meta = await page.evaluate((table) => {
@@ -58,8 +56,7 @@ describe("scrollToCell", () => {
             const table = await page.$("regular-table");
 
             await page.evaluate(async (table) => {
-                table.scrollToCell(0, 1, 1000, 1000);
-                await table.draw();
+                await table.scrollToCell(0, 1, 1000, 1000);
             }, table);
 
             const meta = await page.evaluate((table) => {
@@ -71,8 +68,7 @@ describe("scrollToCell", () => {
         test("for scrollToCell position {x: 211, y: 647}", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                table.scrollToCell(211, 647, 1000, 1000);
-                await table.draw();
+                await table.scrollToCell(211, 647, 1000, 1000);
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);

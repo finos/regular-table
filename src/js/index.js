@@ -199,11 +199,7 @@ class RegularTableElement extends RegularViewEventModel {
      * @example
      * table.scrollToCell(1, 3, 10, 30);
      */
-    // @throttlePromise
     async scrollToCell(x, y, ncols, nrows) {
-        console.error("Scroll to - x, y, ncols, nrows");
-        console.error(x, y, ncols, nrows);
-
         const row_height = this._virtual_panel.offsetHeight / nrows;
         this.scrollTop = row_height * y;
         this.scrollLeft = (x / (this._max_scroll_column(ncols) || ncols)) * (this.scrollWidth - this.clientWidth);
