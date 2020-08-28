@@ -140,7 +140,6 @@ function compile(input) {
 ## User Interaction
 
 ```javascript
-
 const SELECTED_POSITION = {x: 0, y: 0};
 ```
 
@@ -150,7 +149,6 @@ to another distant part of the table and back with our selection preserved.
 We can default it to the origin.
 
 ```javascript
-
 const updateFocus = () => {
     const tds = table.querySelectorAll("td");
     for (const td of tds) {
@@ -167,7 +165,6 @@ table.addEventListener("click", (event) => {
     SELECTED_POSITION.y = meta.y;
     updateFocus();
 });
-
 ```
 
 We will use `updateFocus` either directly or by adding it as a style listener below
@@ -177,7 +174,6 @@ completes - due to scrolling or key navigation.
 We'll need to ensure that on click the cell target is selected and has `focus()`.
 
 ```javascript
-
 table.addStyleListener(() => {
     for (const td of table.querySelectorAll("td")) {
         td.setAttribute("contenteditable", true);
@@ -249,18 +245,22 @@ table.addEventListener("keydown", (event) => {
             break;
         // left arrow
         case 37:
+            event.preventDefault();
             moveSelection(target, -1, 0);
             break;
         // up arrow
         case 38:
+            event.preventDefault();
             moveSelection(target, 0, -1);
             break;
         // right arrow
         case 39:
+            event.preventDefault();
             moveSelection(target, 1, 0);
             break;
         // down arrow
         case 40:
+            event.preventDefault();
             moveSelection(target, 0, 1);
             break;
     }
@@ -273,18 +273,20 @@ direction and update the `SELECTED_POSITION` - scrolling the table if
 necessary and providing a small buffer to the edge of the visible table.
 
 ```javascript
-const SCROLL_AHEAD = 4;
-
-function moveSelection(active_cell, dx, dy) {
+async function moveSelection(active_cell, dx, dy) {
     const meta = table.getMeta(active_cell);
-
+    let text = active_cell.textContent;
+    if (text[0] === "=") {
+        text = compile(text);
+    }
+    DATA[meta.x][meta.y] = text;
     if (dx !== 0) {
         if (meta.x + dx < NUM_COLUMNS && 0 <= meta.x + dx) {
             SELECTED_POSITION.x = meta.x + dx;
         }
-        if (meta.x1 <= SELECTED_POSITION.x + SCROLL_AHEAD) {
-            table.scrollToCell(meta.x0 + 2, meta.y0, NUM_COLUMNS, NUM_ROWS);
-        } else if (SELECTED_POSITION.x - SCROLL_AHEAD < meta.x0) {
+        if (meta.x1 - 2 <= SELECTED_POSITION.x) {
+            table.scrollToCell(meta.x0 + 10, meta.y0, NUM_COLUMNS, NUM_ROWS);
+        } else if (SELECTED_POSITION.x < meta.x0) {
             if (0 < meta.x0 - 1) {
                 table.scrollToCell(meta.x0 - 1, meta.y0, NUM_COLUMNS, NUM_ROWS);
             } else {
@@ -297,9 +299,9 @@ function moveSelection(active_cell, dx, dy) {
         if (meta.y + dy < NUM_ROWS && 0 <= meta.y + dy) {
             SELECTED_POSITION.y = meta.y + dy;
         }
-        if (meta.y1 <= SELECTED_POSITION.y + SCROLL_AHEAD) {
+        if (meta.y1 - 1 <= SELECTED_POSITION.y) {
             table.scrollToCell(meta.x0, meta.y0 + 1, NUM_COLUMNS, NUM_ROWS);
-        } else if (SELECTED_POSITION.y - SCROLL_AHEAD + 2 < meta.y0) {
+        } else if (SELECTED_POSITION.y < meta.y0) {
             if (0 < meta.y0 - 1) {
                 table.scrollToCell(meta.x0, meta.y0 - 1, NUM_COLUMNS, NUM_ROWS);
             } else {
@@ -307,7 +309,7 @@ function moveSelection(active_cell, dx, dy) {
             }
         }
     }
-    updateFocus();
+    await table.draw();
 }
 ```
 
