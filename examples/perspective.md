@@ -118,6 +118,7 @@ tbody th:empty {
     color: #ccc;
     font-family: "Material Icons";
     padding-right: 11px;
+    vertical-align: -1px;
 }
 .psp-tree-label-expand:before {
     content: "add"
@@ -254,11 +255,13 @@ async function expandCollapseHandler(regularTable, event) {
     regularTable.draw();
 }
 
-async function mousedownListener(regularTable, event) {
+function mousedownListener(regularTable, event) {
     if (event.target.classList.contains("psp-tree-label") && event.offsetX < 26) {
         expandCollapseHandler.call(this, regularTable, event);
+        event.handled = true;
     } else if (event.target.classList.contains("psp-header-leaf")) {
         sortHandler.call(this, regularTable, event);
+        event.handled = true;
     }
 }
 ```
@@ -326,8 +329,9 @@ async function dataListener(x0, y0, x1, y1) {
             start_col: x0,
             end_row: y1,
             end_col: x1,
-            id: this._config.row_pivots.length > 0,
+            id: true,
         });
+        this._ids = columns.__ID__;
     }
 
     const data = [];
@@ -364,6 +368,7 @@ async function createViewCache(regular, table, view, extend = {}) {
         _config: await view.get_config(),
         _num_rows: await view.num_rows(),
         _schema: await view.schema(),
+        _ids: [],
         _column_paths: (await view.column_paths()).filter((path) => {
             return path !== "__ROW_PATH__" && path !== "__ID__";
         }),
