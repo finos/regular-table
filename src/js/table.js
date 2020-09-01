@@ -22,12 +22,7 @@ import {html} from "./utils";
  */
 export class RegularTableViewModel {
     constructor(table_clip, column_sizes, element) {
-        element.innerHTML = html`
-            <table cellspacing="0">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-        `;
+        this.clear(element);
         const [table] = element.children;
         const [thead, tbody] = table.children;
         this.table = table;
@@ -39,6 +34,15 @@ export class RegularTableViewModel {
 
     num_columns() {
         return this.header._get_row(Math.max(0, this.header.rows?.length - 1 || 0)).row_container.length;
+    }
+
+    clear(element) {
+        element.innerHTML = html`
+            <table cellspacing="0">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        `;
     }
 
     /**

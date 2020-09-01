@@ -46,7 +46,6 @@ class RegularTableElement extends RegularViewEventModel {
             this._column_sizes = {auto: {}, override: {}, indices: []};
             this._style_callbacks = new Map();
             this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
-            if (!this.table_model) return;
             if (this !== this._sticky_container.parentElement) {
                 this.appendChild(this._sticky_container);
             }
@@ -99,6 +98,16 @@ class RegularTableElement extends RegularViewEventModel {
             th.style.minWidth = "";
             th.style.maxWidth = "";
         }
+    }
+
+    /**
+     * Clears the current renderer `<table>`.
+     *
+     * @public
+     * @memberof RegularTableElement
+     */
+    clear() {
+        this.table_model.clear(this._table_clip);
     }
 
     /**
