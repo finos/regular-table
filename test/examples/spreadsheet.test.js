@@ -95,7 +95,7 @@ describe("spreadsheet.html", () => {
             for (const td of tr) {
                 cell_values.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cell_values).toEqual(["Hello, World!", "", "", "", "", ""]);
+            expect(cell_values).toEqual(["Hello, World!", "", ""]);
         });
 
         test("scrolls as right arrow is down", async () => {
@@ -161,7 +161,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["", "", "", "Hello, World!"]);
+            expect(cells).toEqual(["", "", "", "", "", "Hello, World!"]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);

@@ -25,6 +25,7 @@ function columnHeaderStyleListener(regularTable) {
         td.classList.toggle("psp-header-border", needs_border);
         td.classList.toggle("psp-header-group", false);
         td.classList.toggle("psp-header-leaf", true);
+        td.classList.toggle("psp-header-corner", typeof metadata.x === "undefined");
         td.classList.toggle("psp-header-sort-asc", !!sort && sort[1] === "asc");
         td.classList.toggle("psp-header-sort-desc", !!sort && sort[1] === "desc");
         td.classList.toggle("psp-header-sort-col-asc", !!sort && sort[1] === "col asc");
@@ -109,6 +110,7 @@ tbody th:empty {
     background-repeat: no-repeat;
     min-width: 20px;
     max-width: 20px;
+    pointer-events: none;
 }
 .psp-tree-label {
     max-width: 0px;
@@ -129,6 +131,9 @@ tbody th:empty {
 .psp-tree-label:hover:before {
     color: #1078d1;
     text-shadow: 0px 0px 5px #1078d1;
+}
+tr:hover th.psp-tree-leaf, tr:hover th.psp-tree-label  {
+    background: #eee;
 }
 .psp-tree-leaf {
     padding-left: 24px;
@@ -169,10 +174,10 @@ CSS:
 .psp-align-left {
     text-align: left;
 }
-.psp-positive {
+.psp-positive:not(:focus) {
     color: #1078d1;
 }
-.psp-negative {
+.psp-negative:not(:focus) {
     color: #de3838;
 }
 ```
@@ -259,7 +264,7 @@ function mousedownListener(regularTable, event) {
     if (event.target.classList.contains("psp-tree-label") && event.offsetX < 26) {
         expandCollapseHandler.call(this, regularTable, event);
         event.handled = true;
-    } else if (event.target.classList.contains("psp-header-leaf")) {
+    } else if (event.target.classList.contains("psp-header-leaf") && !event.target.classList.contains("psp-header-corner")) {
         sortHandler.call(this, regularTable, event);
         event.handled = true;
     }
