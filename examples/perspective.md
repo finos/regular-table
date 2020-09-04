@@ -132,6 +132,9 @@ tbody th:empty {
     color: #1078d1;
     text-shadow: 0px 0px 5px #1078d1;
 }
+tr:hover th.psp-tree-leaf, tr:hover th.psp-tree-label  {
+    background: #eee;
+}
 .psp-tree-leaf {
     padding-left: 24px;
 }
