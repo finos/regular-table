@@ -142,6 +142,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             element.style.maxWidth = "";
             for (const row of this.table_model.body.cells) {
                 const td = row[metadata._virtual_x];
+                if (!td) {
+                    continue;
+                }
                 td.style.minWidth = "";
                 td.style.maxWidth = "";
                 td.classList.remove("pd-cell-clip");
