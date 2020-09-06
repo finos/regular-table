@@ -185,17 +185,24 @@ CSS:
 
 ## Sort Interaction
 
+When the sort handler is invoked, a new `perspective.View` must be created with
+the specified `sort` property.  However, we don't want to mutate this property
+within the sort handler, since the original view will be specifie as a
+constructor paramater to the `model` object in `createModel()`;  instead we
+can emit the event `"regular-table-psp-sort"` which we can then handle in the
+same scope that declares this `regular-table`.
+
 ```javascript
 async function sortHandler(regularTable, event) {
     const meta = regularTable.getMeta(event.target);
     const column_name = meta.column_header[meta.column_header.length - 1];
     const sort_method = event.shiftKey ? append_sort : override_sort;
     const sort = sort_method.call(this, column_name);
-    this._view = this._table.view({...this._config, sort: sort});
-    await createViewCache(regularTable, this._table, this._view, this);
-    await regularTable.draw();
+    regularTable.dispatchEvent(new CustomEvent("regular-table-psp-sort", {detail: {sort}}));
 }
+```
 
+```javascript
 function append_sort(column_name) {
     const sort = [];
     let found = false;
@@ -361,11 +368,11 @@ async function dataListener(x0, y0, x1, y1) {
 Create a model state object.  This object will memoize everything that a
 `regular-table` will need in one place, minimizing recalculation later when
 a re-render is requested.  Because some operations like _sorting_ can actually
-instantiate a view (and this call `createViewCache()` themselves), we must
+instantiate a view (and this call `createModel()` themselves), we must
 memoize both the `Table` and `View` objects.
 
 ```javascript
-async function createViewCache(regular, table, view, extend = {}) {
+async function createModel(regular, table, view, extend = {}) {
     const model = Object.assign(extend, {
         _view: view,
         _table: table,
@@ -394,12 +401,12 @@ async function configureRegularTable(regular, model) {
 }
 ```
 
-The functions `configureRegularTable()` and `createViewCache()` are all that's
+The functions `configureRegularTable()` and `createModel()` are all that's
 needed to wire a `Table` to a `regular-table`, so we'll export these for
 convenient inclusion in a module-aware Javascript project.
 
 ```javascript
-exports.createViewCache = createViewCache;
+exports.createModel = createModel;
 exports.configureRegularTable = configureRegularTable;
 ```
 
@@ -426,8 +433,15 @@ exports.configureRegularTable = configureRegularTable;
         });
 
         const regular = document.getElementsByTagName("regular-table")[0];
-        const model = await createViewCache(regular, table, view);
+        const model = await createModel(regular, table, view);
         await configureRegularTable(regular, model);
+
+        regular.addEventListener("regular-table-psp-sort", async (event) => {
+            model._view.delete();
+            const view = model._table.view({...model._config, sort: event.detail.sort});
+            await createModel(regular, model._table, view, model);
+            await regular.draw();
+        });
     });
 </script>
 ```

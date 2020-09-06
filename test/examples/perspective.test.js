@@ -53,9 +53,7 @@ describe("perspective.html", () => {
         describe("headers sorted when clicked", () => {
             beforeAll(async () => {
                 await page.click("thead tr:last-child th:last-child");
-                await page.evaluate(async () => {
-                    await document.querySelector("regular-table").draw();
-                });
+                await page.waitFor("regular-table th.psp-header-sort-desc");
             });
 
             test("with the correct column header leaves", async () => {
@@ -80,9 +78,7 @@ describe("perspective.html", () => {
         describe.skip("headers sorted when clicked a 2nd time", () => {
             beforeAll(async () => {
                 await page.click("thead tr:last-child th:last-child");
-                await page.evaluate(async () => {
-                    await document.querySelector("regular-table").draw();
-                });
+                await page.waitFor("regular-table th.psp-header-sort-asc");
             });
 
             test("with the correct column header leaves", async () => {
