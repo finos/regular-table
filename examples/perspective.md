@@ -306,8 +306,8 @@ function _format(parts, val, use_table_schema = false) {
     if (val === null) {
         return "-";
     }
-    const schema = use_table_schema ? this._table_schema : this._schema;
-    const type = schema[parts[parts.length - 1]] || "string";
+    const title = parts[parts.length - 1];
+    const type = (use_table_schema && this._table_schema[title]) || this._schema[title] || "string";
     return FORMATTERS[type] ? FORMATTERS[type].format(val) : val;
 }
 ```
@@ -373,18 +373,29 @@ memoize both the `Table` and `View` objects.
 
 ```javascript
 async function createModel(regular, table, view, extend = {}) {
+    const config = await view.get_config();
+    const [table_schema, table_computed_schema, num_rows, schema, computed_schema, column_paths] = await Promise.all([
+        table.schema(),
+        table.computed_schema(config.computed_columns),
+        view.num_rows(),
+        view.schema(),
+        view.computed_schema(),
+        view.column_paths(),
+    ]);
+
     const model = Object.assign(extend, {
         _view: view,
         _table: table,
-        _table_schema: await table.schema(),
-        _config: await view.get_config(),
-        _num_rows: await view.num_rows(),
-        _schema: await view.schema(),
+        _table_schema: {...table_schema, ...table_computed_schema},
+        _config: config,
+        _num_rows: num_rows,
+        _schema: {...schema, ...computed_schema},
         _ids: [],
-        _column_paths: (await view.column_paths()).filter((path) => {
+        _column_paths: column_paths.filter((path) => {
             return path !== "__ROW_PATH__" && path !== "__ID__";
         }),
     });
+
     regular.setDataListener(dataListener.bind(model));
     return model;
 }
