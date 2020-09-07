@@ -48,6 +48,7 @@ class RegularTableElement extends RegularViewEventModel {
             this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
             if (this !== this._sticky_container.parentElement) {
                 this.appendChild(this._sticky_container);
+                this.appendChild(this._table_staging);
             }
             this._initialized = true;
         }
