@@ -111,7 +111,7 @@ export class RegularBodyViewModel extends ViewModel {
                 }
 
                 metadata = obj ? obj.metadata : metadata;
-                row_height = row_height || obj.td.offsetHeight;
+                row_height = row_height || obj?.td.offsetHeight;
                 if (ridx * row_height > container_height) {
                     break;
                 }

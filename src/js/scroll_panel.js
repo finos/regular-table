@@ -9,7 +9,7 @@
  */
 
 import {log_perf, html, throttlePromise} from "./utils";
-import {DEBUG, BROWSER_MAX_HEIGHT, DOUBLE_BUFFER_RECREATE, DOUBLE_BUFFER_ROW, DOUBLE_BUFFER_COLUMN} from "./constants";
+import {DEBUG, BROWSER_MAX_HEIGHT} from "./constants";
 
 import container_css from "../less/container.less";
 
@@ -76,14 +76,16 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             <div class="pd-scroll-table-clip">
                 ${this._virtual_scrolling_disabled ? "" : slot}
             </div>
-            <div style="position: absolute; visibility: hidden;"></div>
         `;
 
         const sticky_container = document.createElement("div");
         sticky_container.setAttribute("tabindex", "0");
-        const [, virtual_panel, table_clip, table_staging] = this.shadowRoot.children;
+        const [, virtual_panel, table_clip] = this.shadowRoot.children;
         this._sticky_container = sticky_container;
         this._table_clip = table_clip;
+        const table_staging = document.createElement("div");
+        table_staging.setAttribute("style", "display:none");
+        this.appendChild(table_staging);
         this._table_staging = table_staging;
         this._virtual_panel = virtual_panel;
     }
@@ -233,25 +235,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     }
 
     /**
-     * A helper method to determine whether to perform a double-buffer render
-     * based on settings and render type.
-     *
-     * @param {*} {invalid_schema, invalid_row, invalid_column}
-     * @returns
-     * @memberof RegularVirtualTableViewModel
-     */
-    _needs_swap({invalid_row, invalid_column}) {
-        return (DOUBLE_BUFFER_RECREATE && this._invalid_schema) || (DOUBLE_BUFFER_COLUMN && (invalid_column || this._invalid_schema)) || (DOUBLE_BUFFER_ROW && (invalid_row || this._invalid_schema));
-    }
-
-    /**
      * Step 1 of a double-buffer render, swaps in a duplicate table and appends
      * the real table to the hidden shadow DOM for mutation.
      *
-     * @param {*} args
+     * @param {*} invalid
      * @memberof RegularVirtualTableViewModel
      */
-    _swap_in(args) {
+    _swap_in(swap) {
         this.dispatchEvent(
             new CustomEvent("regular-table-before-update", {
                 bubbles: true,
@@ -259,7 +249,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             })
         );
         if (!this._virtual_scrolling_disabled) {
-            if (this._needs_swap(args)) {
+            if (swap) {
                 if (this._sticky_container === this.table_model.table.parentElement) {
                     this._sticky_container.replaceChild(this.table_model.table.cloneNode(true), this.table_model.table);
                 }
@@ -276,11 +266,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * Step 2 of a double-buffer render, swap the original table back into the
      * light DOM.
      *
-     * @param {*} args
+     * @param {*} invalid
      * @memberof RegularVirtualTableViewModel
      */
-    async _swap_out(args) {
-        if (!this._virtual_scrolling_disabled && this._needs_swap(args)) {
+    async _swap_out(swap) {
+        if (!this._virtual_scrolling_disabled && swap) {
             this._sticky_container.replaceChild(this.table_model.table, this._sticky_container.children[0]);
         }
         for (const callback of this._style_callbacks.values()) {
@@ -291,11 +281,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Updates the `virtual_panel` width based on view state.
      *
-     * @param {*} invalid_schema
+     * @param {*} invalid
      * @memberof RegularVirtualTableViewModel
      */
-    _update_virtual_panel_width(invalid_schema, num_columns) {
-        if (invalid_schema) {
+    _update_virtual_panel_width(invalid, num_columns) {
+        if (invalid) {
             if (this._virtual_scrolling_disabled) {
                 this._virtual_panel.style.width = this._column_sizes.indices.reduce((x, y) => x + y, 0) + "px";
             } else {
@@ -351,39 +341,40 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} [options]
      * @param {boolean} [options.reset_scroll_position=false]
      * @param {boolean} [options.preserve_width=false]
-     * @param {boolean} [options.invalid_viewport=true]
+     * @param {boolean} [options.swap=false]
      * @returns
      * @memberof RegularVirtualTableViewModel
      */
     @throttlePromise
     async draw(options = {}) {
         const __debug_start_time__ = DEBUG && performance.now();
-        const {reset_scroll_position = false, preserve_width = false, invalid_viewport = true} = options;
+        const {reset_scroll_position = false, preserve_width = false, invalid_viewport = true, swap = false} = options;
 
         if (reset_scroll_position) {
             this.reset_scroll();
         }
 
+        this._invalid_schema = swap || this._invalid_schema;
+
         const {num_columns, num_rows} = await this._view_cache.view(0, 0, 0, 0);
 
         if (this._virtual_scrolling_disabled) {
             this._container_size = {width: Infinity, height: Infinity};
-        } else {
-            this._container_size = (!this._invalid_schema && !invalid_viewport && this._container_size) || {
+        } else if (this._invalid_schema || invalid_viewport) {
+            this._container_size = {
                 width: this._table_clip.clientWidth,
                 height: this._table_clip.clientHeight,
             };
         }
 
         const viewport = this._calculate_viewport(num_rows, num_columns, reset_scroll_position);
-        const swap_args = this._validate_viewport(viewport);
-        const {invalid_row, invalid_column} = swap_args;
+        const {invalid_row, invalid_column} = this._validate_viewport(viewport);
         this._update_virtual_panel_height(num_rows);
 
         if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
-            this._swap_in(swap_args);
+            this._swap_in(swap);
             const last_cells = await this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns);
-            await this._swap_out(swap_args);
+            await this._swap_out(swap);
             this.table_model.autosize_cells(last_cells);
             if (!preserve_width) {
                 this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);
