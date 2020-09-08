@@ -40,6 +40,9 @@ Accompanying CSS:
 .psp-header-border {
     border-right: 1px solid #ddd;
 }
+.psp-header-border:last-child {
+    border-right-width: 0px;
+}
 .psp-header-sort-desc:after {
     font-family: "Material Icons";
     font-size: 10px;
