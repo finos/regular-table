@@ -84,7 +84,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         this._sticky_container = sticky_container;
         this._table_clip = table_clip;
         const table_staging = document.createElement("div");
-        table_staging.setAttribute("style", "display:none");
+        table_staging.setAttribute("style", "position:absolute;z-index:-1;opacity:0;pointer-event:none;");
         this.appendChild(table_staging);
         this._table_staging = table_staging;
         this._virtual_panel = virtual_panel;
