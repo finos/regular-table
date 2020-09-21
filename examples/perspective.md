@@ -353,7 +353,7 @@ async function dataListener(x0, y0, x1, y1) {
     const column_headers = [];
     for (const path of this._column_paths.slice(x0, x1)) {
         const path_parts = path.split("|");
-        const column = columns[path] || [];
+        const column = columns[path] || new Array(y1 - y0).fill(null);
         data.push(column.map((x) => _format.call(this, path_parts, x)));
         column_headers.push(path_parts);
     }
@@ -420,6 +420,7 @@ needed to wire a `Table` to a `regular-table`, so we'll export these for
 convenient inclusion in a module-aware Javascript project.
 
 ```javascript
+exports.formatters = FORMATTERS;
 exports.createModel = createModel;
 exports.configureRegularTable = configureRegularTable;
 ```
