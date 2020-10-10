@@ -12,7 +12,7 @@
 A Javascript library for the browser, `regular-table` exports
 a [custom element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
 named `<regular-table>`,
-which renders a regular HTML `<table>` to a `sticky` position within a scollable
+which renders a regular HTML `<table>` to a `sticky` position within a scrollable
 viewport.  Only visible cells are rendered and queried from a natively `async`
 virtual data model, making `regular-table` ideal for enormous or remote data
 sets.  Use it to build Data Grids, Spreadsheets, Pivot Tables, File Trees, or
