@@ -248,7 +248,9 @@ class RegularTableElement extends RegularViewEventModel {
     }
 }
 
-window.customElements.define("regular-table", RegularTableElement);
+if (document.createElement("regular-table").constructor === HTMLElement) {
+    window.customElements.define("regular-table", RegularTableElement);
+}
 
 /**
  * An object with performance statistics about calls to
