@@ -321,7 +321,20 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         this._update_virtual_panel_height(num_rows);
 
         if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
-            const last_cells = await this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns);
+            this.dispatchEvent(
+                new CustomEvent("regular-table-before-update", {
+                    bubbles: true,
+                    detail: this,
+                })
+            );
+
+            let last_cells;
+            for await (last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
+                for (const callback of this._style_callbacks.values()) {
+                    await callback({detail: this});
+                }
+            }
+
             this.table_model.autosize_cells(last_cells);
             if (!preserve_width) {
                 this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);
