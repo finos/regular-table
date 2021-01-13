@@ -106,7 +106,6 @@ export class RegularHeaderViewModel extends ViewModel {
                     group_meta.size_key = metadata.size_key;
                 }
                 th.removeAttribute("colspan");
-                th.dataset.sizeKey = metadata.size_key;
             }
             if (metadata) {
                 metadata.x = x;

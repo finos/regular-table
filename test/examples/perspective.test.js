@@ -52,7 +52,7 @@ describe("perspective.html", () => {
 
         describe("headers sorted when clicked", () => {
             beforeAll(async () => {
-                await page.click("thead tr:last-child th:last-child");
+                await page.click("thead tr:last-child th + th:nth-child(5)");
                 await page.waitFor("regular-table th.psp-header-sort-desc");
             });
 
@@ -71,7 +71,7 @@ describe("perspective.html", () => {
                 for (const tr of first_tr) {
                     cell_values.push(await page.evaluate((tr) => tr.innerHTML, tr));
                 }
-                expect(cell_values).toEqual(["TOTAL", "", "West", "", "California", "", "Los Angeles", "San Francisco", "San Diego", "Sacramento", "Anaheim", "Brentwood", "San Jose"]);
+                expect(cell_values).toEqual(["TOTAL", "", "West", "", "California", "", "Los Angeles", "San Francisco", "San Diego", "Anaheim", "Fresno", "Sacramento", "San Jose"]);
             });
         });
 

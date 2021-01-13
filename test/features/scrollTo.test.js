@@ -76,7 +76,7 @@ describe("scrollToCell", () => {
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["Group 640", "Row 647", "858"]);
+            expect(cell_values).toEqual(["Group 640", "Row 647", "858", "859"]);
         });
     });
 });

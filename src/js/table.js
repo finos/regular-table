@@ -76,7 +76,7 @@ export class RegularTableViewModel {
         }
     }
 
-    async draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
+    async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
         let {data, row_headers, column_headers} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
@@ -141,6 +141,7 @@ export class RegularTableViewModel {
 
         try {
             let dcidx = 0;
+            let unknown_column_sizes = [];
             const num_visible_columns = num_columns - viewport.start_col;
             while (dcidx < num_visible_columns) {
                 if (!data[dcidx]) {
@@ -168,22 +169,37 @@ export class RegularTableViewModel {
                 const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x);
                 cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, _virtual_x);
                 first_col = false;
-                view_state.viewport_width += this._column_sizes.indices[_virtual_x + x0] || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || cont_head.th.offsetWidth;
-                view_state.row_height = view_state.row_height || cont_body.row_height;
-                _virtual_x++;
-                dcidx++;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
                         last_cells.push([cont_head.th || td, cont_head.metadata || metadata]);
                     }
                 }
 
+                const last_measured_col_width = this._column_sizes.indices[_virtual_x + x0];
+                if (last_measured_col_width) {
+                    view_state.viewport_width += last_measured_col_width;
+                } else {
+                    view_state.viewport_width += 65;
+                    unknown_column_sizes.push([cont_body.tds, cont_head.th]);
+                }
+
+                view_state.row_height = view_state.row_height || cont_body.row_height;
+                _virtual_x++;
+                dcidx++;
+
                 if (view_state.viewport_width > container_width) {
-                    break;
+                    yield last_cells;
+                    for (const [tds, th] of unknown_column_sizes) {
+                        view_state.viewport_width -= 65;
+                        view_state.viewport_width += tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || th.offsetWidth;
+                    }
+                    if (view_state.viewport_width > container_width) {
+                        return;
+                    }
                 }
             }
 
-            return last_cells;
+            yield last_cells;
         } finally {
             this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
             this.header.clean();

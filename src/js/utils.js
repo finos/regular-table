@@ -106,5 +106,8 @@ export function throttlePromise(target, property, descriptor) {
             return result;
         }
     };
+    descriptor.value.flush = function () {
+        return this[lock];
+    };
     return descriptor;
 }

@@ -129,7 +129,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         let element = event.target;
         while (element.tagName !== "TD" && element.tagName !== "TH") {
             element = element.parentElement;
-            if (!this._sticky_container.contains(element)) {
+            if (!this.contains(element)) {
                 return;
             }
         }
@@ -171,7 +171,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         let element = event.target;
         while (element.tagName !== "TD" && element.tagName !== "TH") {
             element = element.parentElement;
-            if (!this._sticky_container.contains(element)) {
+            if (!this.contains(element)) {
                 return;
             }
         }

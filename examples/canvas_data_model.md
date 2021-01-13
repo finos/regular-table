@@ -68,12 +68,7 @@ regular-table {
     height: 400px;
     pointer-events: none;
 }
-regular-table > div {
-    padding: 0px;
-    border: 1px solid white;
-    border-top-width: 0;
-    border-left-width: 0;
-}
+
 regular-table::-webkit-scrollbar-thumb {
     background-color: #fff !important;
 }
