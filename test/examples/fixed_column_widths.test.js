@@ -74,7 +74,7 @@ describe("fixed_column_widths.html", () => {
         test("ths do not allow text selection", async () => {
             const first_tr = await page.$("regular-table thead tr:first-child");
             const user_selects = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => getComputedStyle(x).getPropertyValue("user-select")), first_tr);
-            expect(user_selects).toEqual(["none", "none", "none", "none"]);
+            expect(user_selects).toEqual(["none", "none", "none", "none", "none", "none"]);
         });
     });
 });

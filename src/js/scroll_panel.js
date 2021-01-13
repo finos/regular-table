@@ -142,7 +142,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const header_levels = this._view_cache.config.column_pivots.length + 1;
         // TODO use cached height?
         const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.clientHeight);
-        const percent_scroll = this.scrollTop / total_scroll_height;
+        const percent_scroll = Math.max(this.scrollTop, 0) / total_scroll_height;
         const virtual_panel_row_height = height / row_height;
         const relative_nrows = !reset_scroll_position ? this._nrows || 0 : nrows;
         const scroll_rows = Math.max(0, relative_nrows + (header_levels - virtual_panel_row_height));

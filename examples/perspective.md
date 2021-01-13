@@ -146,18 +146,21 @@ tr:hover th.psp-tree-leaf, tr:hover th.psp-tree-label  {
 Type-specific styles, +/- color and alignment.
 
 ```javascript
+function get_psp_type(metadata) {
+    if (metadata.x >= 0) {
+        const column_path = this._column_paths[metadata.x];
+        const column_path_parts = column_path.split("|");
+        return this._schema[column_path_parts[column_path_parts.length - 1]];
+    } else {
+        const column_path = this._config.row_pivots[metadata.row_header_x - 1];
+        return this._table_schema[column_path];
+    }
+}
+
 function typeStyleListener(regularTable) {
     for (const td of regularTable.querySelectorAll("td, tbody th, thead tr:last-child th")) {
         const metadata = regularTable.getMeta(td);
-        let type;
-        if (metadata.x >= 0) {
-            const column_path = this._column_paths[metadata.x];
-            const column_path_parts = column_path.split("|");
-            type = this._schema[column_path_parts[column_path_parts.length - 1]];
-        } else {
-            const column_path = this._config.row_pivots[metadata.row_header_x - 1];
-            type = this._table_schema[column_path];
-        }
+        let type = get_psp_type.call(this, metadata);
         const is_numeric = type === "integer" || type === "float";
         const float_val = is_numeric && parseFloat(metadata.value);
         td.classList.toggle("psp-align-right", is_numeric);
@@ -313,6 +316,14 @@ function _format(parts, val, use_table_schema = false) {
     const type = (use_table_schema && this._table_schema[title]) || this._schema[title] || "string";
     return FORMATTERS[type] ? FORMATTERS[type].format(val) : val;
 }
+
+function formatStyleListener(regularTable) {
+    for (const td of regularTable.querySelectorAll("table tbody td")) {
+        const metadata = regularTable.getMeta(td);
+        let type = get_psp_type.call(this, metadata);
+        td.innerHTML = FORMATTERS[type] ? FORMATTERS[type].format(metadata.value) : td.textContent;
+    }
+}
 ```
 
 Wraps Perspective's default `__ROW_PATH__` format to output a _tree-like_
@@ -354,7 +365,7 @@ async function dataListener(x0, y0, x1, y1) {
     for (const path of this._column_paths.slice(x0, x1)) {
         const path_parts = path.split("|");
         const column = columns[path] || new Array(y1 - y0).fill(null);
-        data.push(column.map((x) => _format.call(this, path_parts, x)));
+        data.push(column);
         column_headers.push(path_parts);
     }
 
@@ -406,6 +417,7 @@ async function createModel(regular, table, view, extend = {}) {
 
 ```javascript
 async function configureRegularTable(regular, model) {
+    regular.addStyleListener(formatStyleListener.bind(model, regular));
     regular.addStyleListener(typeStyleListener.bind(model, regular));
     regular.addStyleListener(treeStyleListener.bind(model, regular));
     regular.addStyleListener(groupHeaderStyleListener.bind(model, regular));

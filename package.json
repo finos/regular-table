@@ -62,6 +62,7 @@
         "http-server": "^0.12.3",
         "jest": "^26.0.1",
         "jest-puppeteer": "^4.4.0",
+        "jest-puppeteer-docker": "^1.4.2",
         "jsdoc-to-markdown": "^6.0.1",
         "less": "^3.9.0",
         "literally-cli": "^0.0.7",

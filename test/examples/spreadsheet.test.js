@@ -23,6 +23,7 @@ describe("spreadsheet.html", () => {
                 event.ctrlKey = true;
                 event.keyCode = 13;
                 table.dispatchEvent(event);
+                await table.draw();
             }, table);
         };
 
@@ -34,6 +35,7 @@ describe("spreadsheet.html", () => {
                     event.ctrlKey = true;
                     event.keyCode = 13;
                     table.dispatchEvent(event);
+                    await table.draw();
                 }, table);
             });
         };
@@ -45,6 +47,7 @@ describe("spreadsheet.html", () => {
                     event.initEvent("keydown", false, true);
                     event.keyCode = 37;
                     table.dispatchEvent(event);
+                    await table.draw();
                 }, table);
             });
         };
@@ -56,6 +59,7 @@ describe("spreadsheet.html", () => {
                     event.initEvent("keydown", false, true);
                     event.keyCode = 38;
                     table.dispatchEvent(event);
+                    await table.draw();
                 }, table);
             });
         };
@@ -67,6 +71,7 @@ describe("spreadsheet.html", () => {
                     event.initEvent("keydown", false, true);
                     event.keyCode = 39;
                     table.dispatchEvent(event);
+                    await table.draw();
                 }, table);
             });
         };
@@ -78,6 +83,7 @@ describe("spreadsheet.html", () => {
                     event.initEvent("keydown", false, true);
                     event.keyCode = 40;
                     table.dispatchEvent(event);
+                    await table.draw();
                 }, table);
             });
         };
@@ -108,7 +114,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["", "", "", "", "Hello, World!"]);
+            expect(cells.slice(cells.length - 5)).toEqual(["", "", "", "", "Hello, World!"]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
             const th_value = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -161,7 +167,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["", "", "", "", "", "Hello, World!"]);
+            expect(cells).toEqual(["", "", "", "", "Hello, World!"]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);

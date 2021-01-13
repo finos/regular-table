@@ -209,7 +209,7 @@ class RegularTableElement extends RegularViewEventModel {
         const row_height = this._virtual_panel.offsetHeight / nrows;
         this.scrollTop = row_height * y;
         this.scrollLeft = (x / (this._max_scroll_column(ncols) || ncols)) * (this.scrollWidth - this.clientWidth);
-        await this.draw();
+        await this.draw.flush();
     }
 
     /**
