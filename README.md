@@ -4,7 +4,7 @@
 
 <p align="center">
 <a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-squar"></a>
-<a href="https://app.circleci.com/pipelines/github/jpmorganchase/regular-table"><img alt="CircleCI Status" src="https://circleci.com/gh/jpmorganchase/regular-table.svg?style=svg"></a>
+<a href="https://github.com/jpmorganchase/regular-table/workflows/Build%20Status/badge.svg?branch=master"><img alt="Build Status" src="https://github.com/jpmorganchase/regular-table/actions?query=workflow%3A%22Build+Status"></a>
 </p>
 
 #
