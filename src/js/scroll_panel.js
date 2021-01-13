@@ -78,15 +78,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             </div>
         `;
 
-        const sticky_container = document.createElement("div");
-        sticky_container.setAttribute("tabindex", "0");
         const [, virtual_panel, table_clip] = this.shadowRoot.children;
-        this._sticky_container = sticky_container;
         this._table_clip = table_clip;
-        const table_staging = document.createElement("div");
-        table_staging.setAttribute("style", "position:absolute;z-index:-1;opacity:0;pointer-event:none;");
-        this.appendChild(table_staging);
-        this._table_staging = table_staging;
         this._virtual_panel = virtual_panel;
     }
 
@@ -235,50 +228,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     }
 
     /**
-     * Step 1 of a double-buffer render, swaps in a duplicate table and appends
-     * the real table to the hidden shadow DOM for mutation.
-     *
-     * @param {*} invalid
-     * @memberof RegularVirtualTableViewModel
-     */
-    _swap_in(swap) {
-        this.dispatchEvent(
-            new CustomEvent("regular-table-before-update", {
-                bubbles: true,
-                detail: this,
-            })
-        );
-        if (!this._virtual_scrolling_disabled) {
-            if (swap) {
-                if (this._sticky_container === this.table_model.table.parentElement) {
-                    this._sticky_container.replaceChild(this.table_model.table.cloneNode(true), this.table_model.table);
-                }
-                this._table_staging.appendChild(this.table_model.table);
-            } else {
-                if (this._sticky_container !== this.table_model.table.parentElement) {
-                    this._sticky_container.replaceChild(this.table_model.table, this._sticky_container.children[0]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Step 2 of a double-buffer render, swap the original table back into the
-     * light DOM.
-     *
-     * @param {*} invalid
-     * @memberof RegularVirtualTableViewModel
-     */
-    async _swap_out(swap) {
-        if (!this._virtual_scrolling_disabled && swap) {
-            this._sticky_container.replaceChild(this.table_model.table, this._sticky_container.children[0]);
-        }
-        for (const callback of this._style_callbacks.values()) {
-            await callback({detail: this});
-        }
-    }
-
-    /**
      * Updates the `virtual_panel` width based on view state.
      *
      * @param {*} invalid
@@ -372,9 +321,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         this._update_virtual_panel_height(num_rows);
 
         if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
-            this._swap_in(swap);
             const last_cells = await this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns);
-            await this._swap_out(swap);
             this.table_model.autosize_cells(last_cells);
             if (!preserve_width) {
                 this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);

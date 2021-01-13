@@ -45,11 +45,7 @@ class RegularTableElement extends RegularViewEventModel {
             this.setAttribute("tabindex", "0");
             this._column_sizes = {auto: {}, override: {}, indices: []};
             this._style_callbacks = new Map();
-            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
-            if (this !== this._sticky_container.parentElement) {
-                this.appendChild(this._sticky_container);
-                this.appendChild(this._table_staging);
-            }
+            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
             this._initialized = true;
         }
     }
@@ -108,7 +104,7 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      */
     clear() {
-        this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this._sticky_container);
+        this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
     }
 
     /**
