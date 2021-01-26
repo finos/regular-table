@@ -40,7 +40,15 @@ features = [
   "DomTokenList",
   "CssStyleDeclaration", 
   "HtmlElement",
-  "Node"
+  "Node",
+  "Event",
+  "EventListener",
+  "DocumentFragment",
+  "MouseEvent",
+  "TouchEvent",
+  "TouchList",
+  "Touch",
+  "WheelEvent",
 ]
 
 

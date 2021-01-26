@@ -9,6 +9,9 @@
  */
 
 pub mod constants;
+pub mod events;
+pub mod scroll_panel;
+pub mod table;
 pub mod tbody;
 pub mod thead;
 pub mod utils;
