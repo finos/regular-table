@@ -20,8 +20,7 @@ import {throttlePromise} from "./utils";
  * @extends {RegularVirtualTableViewModel}
  */
 export class RegularViewEventModel extends RegularVirtualTableViewModel {
-    constructor(...args) {
-        super(...args);
+    _set_event_model() {
         this.rust_event_model = new RustRegularViewEventModel();
     }
 

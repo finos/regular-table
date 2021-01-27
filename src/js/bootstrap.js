@@ -14,6 +14,7 @@ class RegularTableElement extends HTMLElement {
         _index = mod;
         this._module = true;
         _rebase_class(this, mod.RegularTableElement.prototype, 2);
+        this._set_event_model();
         f();
     }
 
