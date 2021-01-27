@@ -162,16 +162,16 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 delete this._column_sizes.indices[metadata.size_key];
                 element.style.minWidth = "";
                 element.style.maxWidth = "";
-                // TODO fix
-                // for (const row of this.table_model.body.cells) {
-                //     const td = row[metadata._virtual_x];
-                //     if (!td) {
-                //         continue;
-                //     }
-                //     td.style.minWidth = "";
-                //     td.style.maxWidth = "";
-                //     td.classList.remove("pd-cell-clip");
-                // }
+
+                for (const row of this.querySelectorAll("tbody tr")) {
+                    const td = row.children[metadata._virtual_x];
+                    if (!td) {
+                        continue;
+                    }
+                    td.style.minWidth = "";
+                    td.style.maxWidth = "";
+                    td.classList.remove("pd-cell-clip");
+                }
                 await this.draw();
             }
         }
@@ -265,13 +265,13 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             th.style.maxWidth = override_width + "px";
             const auto_width = this._column_sizes.auto[metadata.size_key];
             // TODO fix
-            // for (const row of this.table_model.body.cells) {
-            //     const td = row[metadata._virtual_x];
-            //     if (td) {
-            //         td.style.maxWidth = td.style.minWidth = override_width + "px";
-            //         td.classList.toggle("pd-cell-clip", auto_width > override_width);
-            //     }
-            // }
+            for (const row of this.querySelectorAll("tbody tr")) {
+                const td = row.children[metadata._virtual_x];
+                if (td) {
+                    td.style.maxWidth = td.style.minWidth = override_width + "px";
+                    td.classList.toggle("pd-cell-clip", auto_width > override_width);
+                }
+            }
         }
     }
 }

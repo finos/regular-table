@@ -7,12 +7,8 @@
  * file.
  *
  */
-use crate::constants::*;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 
-use js_intern::*;
-use js_sys::Reflect;
+use wasm_bindgen::prelude::*;
 use web_sys::{DocumentFragment, HtmlElement, Node};
 
 use crate::tbody::RegularBodyViewModel;

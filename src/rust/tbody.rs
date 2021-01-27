@@ -8,7 +8,7 @@
  *
  */
 
-use crate::constants::*;
+use crate::utils::coerce_str;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
@@ -27,14 +27,6 @@ use crate::view_model;
 #[wasm_bindgen]
 pub struct RegularBodyViewModel {
     view_model: view_model::ViewModel,
-}
-
-thread_local! {
-    static STRING_CTR: js_sys::Function = Reflect::get(&web_sys::window().unwrap(), js_intern!("String")).unwrap().dyn_into().unwrap();
-}
-
-fn coerce_str(js: &JsValue) -> String {
-    STRING_CTR.with(|x| x.call1(&JsValue::UNDEFINED, js)).unwrap().as_string().unwrap()
 }
 
 #[wasm_bindgen]
@@ -155,7 +147,7 @@ impl RegularBodyViewModel {
                     // TODO object equality?
                     if !prev_col.is_undefined() && (_prev_col_metadata_value == row_header || row_header.is_undefined()) && !prev_col.has_attribute("rowspan") {
                         while ridx > cidx_offset.len() {
-                            cidx_offset.push(2);
+                            cidx_offset.push(1);
                         }
 
                         if ridx < cidx_offset.len() {

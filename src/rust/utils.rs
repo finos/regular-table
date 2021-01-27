@@ -8,8 +8,11 @@
  *
  */
 
+use js_intern::*;
+use js_sys::Reflect;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
 
 #[wasm_bindgen]
 pub struct DrawFPS {
@@ -61,4 +64,12 @@ impl DrawFPS {
         self.avg = (self.avg * self.total + x) / (self.total + 1.0);
         self.total += 1.0;
     }
+}
+
+thread_local! {
+    static STRING_CTR: js_sys::Function = Reflect::get(&web_sys::window().unwrap(), js_intern!("String")).unwrap().dyn_into().unwrap();
+}
+
+pub fn coerce_str(js: &JsValue) -> String {
+    STRING_CTR.with(|x| x.call1(&JsValue::UNDEFINED, js)).unwrap().as_string().unwrap()
 }

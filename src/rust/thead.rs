@@ -9,6 +9,7 @@
  */
 
 use crate::constants;
+use crate::utils::coerce_str;
 use js_intern::*;
 use js_sys::Reflect;
 use std::iter::FromIterator;
@@ -117,14 +118,14 @@ impl RegularHeaderViewModel {
             return Ok(JsValue::UNDEFINED.into());
         }
 
-        // TODO wrong - this is nto an array, but we can treat it like one here
+        // TODO wrong - this is not an array, but we can treat it like one here
         let _parts_arr = parts.clone().unchecked_into::<js_sys::Array>();
         let header_levels = _parts_arr.length(); // Reflect::get(&_parts_arr, js_intern!("length"))?.as_f64().unwrap() as usize;
         let mut th: Option<web_sys::HtmlElement> = None;
         let mut metadata: Option<js_sys::Object> = None;
         for d in 0..header_levels {
             let column_name = &if d < _parts_arr.length() && !_parts_arr.get(d).is_undefined() {
-                _parts_arr.get(d).as_string().unwrap()
+                coerce_str(&_parts_arr.get(d))
             } else {
                 "".to_string()
             };

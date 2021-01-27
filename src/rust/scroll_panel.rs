@@ -7,14 +7,8 @@
  * file.
  *
  */
-use crate::constants::*;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 
-use js_intern::*;
-use js_sys::Reflect;
-use web_sys::{HtmlElement, DocumentFragment};
-
+use web_sys::HtmlElement;
 
 pub struct RegularVirtualTableViewModel {
     pub element: HtmlElement,
