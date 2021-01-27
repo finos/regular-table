@@ -91,7 +91,8 @@ export class RegularTableElement extends RegularViewEventModel {
         this._column_sizes.override = {};
         this._column_sizes.indices = [];
 
-        for (const th of this.table_model.header.cells[this.table_model.header.cells.length - 1]) {
+        for (let i = 0; i < this.table_model.header.num_columns(); i++) {
+            const th = this.table_model.header.get_column_header(i);
             th.style.minWidth = "";
             th.style.maxWidth = "";
         }

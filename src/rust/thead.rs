@@ -54,7 +54,7 @@ impl RegularHeaderViewModel {
         th.set_class_name("");
         th.remove_attribute("colspan")?;
         th.style().set_property("min-width", "0")?;
-        th.set_inner_html(&format!("{}<span class=\"pd-column-resize\"></span>", column));
+        th.set_inner_html(&format!(" {}  <span class=\"pd-column-resize\"></span>", column));
         Ok(th)
     }
 
@@ -100,7 +100,7 @@ impl RegularHeaderViewModel {
                 th.style().set_property("min-width", &format!("{}px", auto_width.as_f64().unwrap()))?;
             } else {
                 // TODO bug?
-                th.style().set_property("min-width", "")?;
+                // th.style().set_property("min-width", "")?;
                 th.style().set_property("max-width", "")?;
             }
         }
@@ -175,7 +175,8 @@ impl RegularHeaderViewModel {
                 let _metadata = self._draw_th(if alias.is_undefined() { parts } else { alias }, &JsValue::from_str(column_name), &_th, x, size_key)?;
                 for group_meta in self._group_header_cache.values() {
                     let old_key = Reflect::get(&_metadata, js_intern!("size_key"))?;
-                    Reflect::set(&group_meta?, js_intern!("size_key"), &old_key)?;
+                    let group_meta_first = group_meta?.dyn_into::<js_sys::Array>()?.get(0);
+                    Reflect::set(&group_meta_first, js_intern!("size_key"), &old_key)?;
                 }
                 _th.remove_attribute("colspan")?;
                 th = Some(_th);
@@ -214,8 +215,8 @@ impl RegularHeaderViewModel {
         self.view_model.num_rows()
     }
 
-    pub fn num_hol_columns(&mut self) -> usize {
-        self.view_model.num_hol_columns()
+    pub fn num_columns(&mut self) -> usize {
+        self.view_model.num_columns()
     }
 
     pub fn _fetch_cell(&mut self, ridx: f64, cidx: f64) -> web_sys::HtmlElement {

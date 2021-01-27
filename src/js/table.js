@@ -34,7 +34,7 @@ export class RegularTableViewModel {
     }
 
     num_columns() {
-        return this.header.num_hol_columns();
+        return this.header.num_columns();
     }
 
     clear(element) {

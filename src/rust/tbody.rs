@@ -85,7 +85,7 @@ impl RegularBodyViewModel {
             Node::set_text_content(&td, None);
             let elem_val = &val.clone().unchecked_into::<Node>();
             td.append_child(elem_val)?;
-        } else if val.is_falsy() {
+        } else if val.is_undefined() || val.is_null() {
             Node::set_text_content(&td, None);
         } else {
             Node::set_text_content(&td, Some(&coerce_str(val)));

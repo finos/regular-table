@@ -30,7 +30,7 @@ pub struct RegularTableViewModel {
 #[wasm_bindgen]
 impl RegularTableViewModel {
     pub fn num_columns(&mut self) -> usize {
-        self.header.num_hol_columns()
+        self.header.num_columns()
     }
     pub fn clear(&self, element: HtmlElement) {
         element.set_inner_html("<table cellspacing=\"0\"><thead></thead><tbody></tbody></table>");

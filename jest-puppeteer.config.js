@@ -6,5 +6,6 @@ module.exports = {
         waitOnScheme: {
             resources: ["dist/css/material.css", "dist/umd/regular-table.js"],
         },
+        usedPortAction: "kill",
     },
 };
