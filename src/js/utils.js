@@ -8,33 +8,41 @@
  *
  */
 
+import {DrawFPS} from "../../pkg";
+
 /******************************************************************************
  *
  * Profling
  *
  */
 
-let AVG = 0,
-    TOTAL = 0,
-    START = performance.now();
+const FPS = new DrawFPS();
 
-export function get_draw_fps() {
-    const now = performance.now();
-    const elapsed = now - START;
-    const avg = AVG;
-    const real_fps = (TOTAL * 1000) / elapsed;
-    const virtual_fps = 1000 / avg;
-    const num_frames = TOTAL;
-    AVG = 0;
-    TOTAL = 0;
-    START = now;
-    return {avg, real_fps, virtual_fps, num_frames, elapsed};
-}
+export const get_draw_fps = FPS.get_draw_fps.bind(FPS);
 
-export function log_perf(x) {
-    AVG = (AVG * TOTAL + x) / (TOTAL + 1);
-    TOTAL += 1;
-}
+export const log_perf = FPS.log_perf.bind(FPS);
+
+// let AVG = 0,
+//     TOTAL = 0,
+//     START = performance.now();
+
+// export function get_draw_fps() {
+//     const now = performance.now();
+//     const elapsed = now - START;
+//     const avg = AVG;
+//     const real_fps = (TOTAL * 1000) / elapsed;
+//     const virtual_fps = 1000 / avg;
+//     const num_frames = TOTAL;
+//     AVG = 0;
+//     TOTAL = 0;
+//     START = now;
+//     return {avg, real_fps, virtual_fps, num_frames, elapsed};
+// }
+
+// export function log_perf(x) {
+//     AVG = (AVG * TOTAL + x) / (TOTAL + 1);
+//     TOTAL += 1;
+// }
 
 /******************************************************************************
  *

@@ -25,29 +25,29 @@ export default (args) => {
                 clearScreen: false,
             },
         },
-        {
-            input: "src/js/index.js",
-            output: {
-                sourcemap: true,
-                file: "dist/umd/regular-table.js",
-            },
-            plugins: [
-                babel({
-                    exclude: "node_modules/**",
-                    babelHelpers: "bundled",
-                }),
-                filesize(),
-                watch ? livereload("dist") : terser(),
-                postcss({
-                    inject: false,
-                    sourceMap: watch,
-                    minimize: !watch,
-                }),
-                sourcemaps(),
-            ].filter((x) => x),
-            watch: {
-                clearScreen: false,
-            },
-        },
+        // {
+        //     input: "src/js/index.js",
+        //     output: {
+        //         sourcemap: true,
+        //         file: "dist/umd/regular-table.js",
+        //     },
+        //     plugins: [
+        //         babel({
+        //             exclude: "node_modules/**",
+        //             babelHelpers: "bundled",
+        //         }),
+        //         filesize(),
+        //         watch ? livereload("dist") : terser(),
+        //         postcss({
+        //             inject: false,
+        //             sourceMap: watch,
+        //             minimize: !watch,
+        //         }),
+        //         sourcemaps(),
+        //     ].filter((x) => x),
+        //     watch: {
+        //         clearScreen: false,
+        //     },
+        // },
     ];
 };

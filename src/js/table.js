@@ -8,9 +8,10 @@
  *
  */
 
-import {RegularHeaderViewModel} from "./thead";
-import {RegularBodyViewModel} from "./tbody";
+import {RegularHeaderViewModel, RegularBodyViewModel, set_panic_hook} from "../../pkg";
 import {html} from "./utils";
+
+set_panic_hook();
 
 /**
  * <table> view model.  In order to handle unknown column width when `draw()`
@@ -33,7 +34,7 @@ export class RegularTableViewModel {
     }
 
     num_columns() {
-        return this.header._get_row(Math.max(0, this.header.rows?.length - 1 || 0)).row_container.length;
+        return this.header.num_hol_columns();
     }
 
     clear(element) {
@@ -124,7 +125,7 @@ export class RegularTableViewModel {
             cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key, _virtual_x);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), 1, undefined, i, x0, i));
+                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), true, undefined, i, x0, i));
             }
             first_col = false;
             view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
@@ -166,7 +167,7 @@ export class RegularTableViewModel {
 
                 const x = dcidx + x0;
                 const size_key = _virtual_x + x0;
-                const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x);
+                const cont_head = this.header.draw(undefined, column_name, false, x, size_key, x0, _virtual_x);
                 cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, _virtual_x);
                 first_col = false;
                 if (!preserve_width) {

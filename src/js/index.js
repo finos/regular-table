@@ -28,7 +28,7 @@ import {get_draw_fps} from "./utils";
  * @public
  * @extends HTMLElement
  */
-class RegularTableElement extends RegularViewEventModel {
+export class RegularTableElement extends RegularViewEventModel {
     /**
      * For internal use by the Custom Elements API: "Invoked each time the
      * custom element is appended into a document-connected element".
@@ -157,16 +157,16 @@ class RegularTableElement extends RegularViewEventModel {
             return METADATA_MAP.get(element);
         } else if (element.row_header_x >= 0) {
             if (element.row_header_x < this._view_cache.config.row_pivots.length) {
-                const td = this.table_model.body.cells[element.y]?.[element.row_header_x];
+                const td = this.table_model.body._fetch_cell(element.y, element.row_header_x);
                 return this.getMeta(td);
             }
         } else if (element.column_header_y >= 0) {
             if (element.column_header_y < this._view_cache.config.column_pivots.length) {
-                const td = this.table_model.body.cells[element.column_header_y]?.[element.y];
+                const td = this.table_model.body._fetch_cell(element.column_header_y, element.y);
                 return this.getMeta(td);
             }
         } else {
-            return this.getMeta(this.table_model.body.cells[element.dy]?.[element.dx + this.table_model._row_headers_length]);
+            return this.getMeta(this.table_model.body._fetch_cell(element.dy, element.dx + this.table_model._row_headers_length));
         }
     }
 
@@ -242,10 +242,6 @@ class RegularTableElement extends RegularViewEventModel {
         this._invalid_schema = true;
         this._view_cache = {view: dataListener, config, schema};
     }
-}
-
-if (document.createElement("regular-table").constructor === HTMLElement) {
-    window.customElements.define("regular-table", RegularTableElement);
 }
 
 /**
