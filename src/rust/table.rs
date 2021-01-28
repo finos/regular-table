@@ -9,18 +9,18 @@
  */
 
 use wasm_bindgen::prelude::*;
-use web_sys::{DocumentFragment, HtmlElement, Node};
+use web_sys::HtmlElement;
 
-use crate::tbody::RegularBodyViewModel;
+// use crate::tbody::RegularBodyViewModel;
 use crate::thead::RegularHeaderViewModel;
 
 #[wasm_bindgen]
 pub struct RegularTableViewModel {
-    table: JsValue,
+    // table: JsValue,
     _column_sizes: JsValue,
     header: RegularHeaderViewModel,
-    body: RegularBodyViewModel,
-    fragment: DocumentFragment,
+    // body: RegularBodyViewModel,
+    // fragment: DocumentFragment,
 }
 
 #[wasm_bindgen]
