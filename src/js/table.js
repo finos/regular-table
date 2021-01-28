@@ -9,6 +9,7 @@
  */
 
 import {RegularHeaderViewModel, RegularBodyViewModel, set_panic_hook} from "../../pkg";
+import {RegularTableViewModel as RustRegularTableViewModel} from "../../pkg";
 import {html} from "./utils";
 
 set_panic_hook();
@@ -26,11 +27,14 @@ export class RegularTableViewModel {
         this.clear(element);
         const [table] = element.children;
         const [thead, tbody] = table.children;
+
         this.table = table;
         this._column_sizes = column_sizes;
         this.header = new RegularHeaderViewModel(column_sizes, table_clip, thead);
         this.body = new RegularBodyViewModel(column_sizes, table_clip, tbody);
         this.fragment = document.createDocumentFragment();
+
+        // this.rust_table_view_model = new RustRegularTableViewModel(table_clip, column_sizes, element);
     }
 
     num_columns() {
@@ -75,6 +79,7 @@ export class RegularTableViewModel {
                 cell.style.minWidth = `${offsetWidth}px`;
             }
         }
+        //this.rust_table_view_model.autosize_cells(last_cells);
     }
 
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
@@ -107,10 +112,91 @@ export class RegularTableViewModel {
             row_headers_length: this._row_headers_length,
         };
 
-        let cont_body,
-            _virtual_x = 0,
-            last_cells = [],
-            first_col = true;
+        // let cont_body,
+        //     _virtual_x = 0,
+        //     last_cells = [],
+        //     first_col = true;
+
+        const draw_state = {
+            cont_body: null,
+            first_col: true,
+            _virtual_x: 0,
+        };
+
+        const last_cells = [];
+
+        await this.draw_row_headers(draw_state, last_cells, row_headers, config, view_state, x0, container_height, view_cache, preserve_width);
+
+        try {
+            let dcidx = 0;
+            let unknown_column_sizes = [];
+            const num_visible_columns = num_columns - viewport.start_col;
+            while (dcidx < num_visible_columns) {
+                if (!data[dcidx]) {
+                    let missing_cidx = Math.max(viewport.end_col, 0);
+                    viewport.start_col = missing_cidx;
+                    viewport.end_col = missing_cidx + 1;
+                    const new_col = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+                    data[dcidx] = new_col.data[0];
+                    if (column_headers) {
+                        column_headers[dcidx] = new_col.column_headers?.[0];
+                    }
+                }
+                const column_name = column_headers?.[dcidx] || "";
+                const column_data = data[dcidx];
+                const column_state = {
+                    column_name,
+                    cidx: draw_state._virtual_x,
+                    column_data,
+                    row_headers,
+                    first_col: draw_state.first_col,
+                };
+
+                const x = dcidx + x0;
+                const size_key = draw_state._virtual_x + x0;
+                const cont_head = this.header.draw(undefined, column_name, false, x, size_key, x0, draw_state._virtual_x);
+                draw_state.cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, draw_state._virtual_x);
+                draw_state.first_col = false;
+                if (!preserve_width) {
+                    for (const {td, metadata} of draw_state.cont_body.tds) {
+                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata]);
+                    }
+                }
+
+                const last_measured_col_width = this._column_sizes.indices[draw_state._virtual_x + x0];
+                if (last_measured_col_width) {
+                    view_state.viewport_width += last_measured_col_width;
+                } else {
+                    view_state.viewport_width += 65;
+                    unknown_column_sizes.push([draw_state.cont_body.tds, cont_head.th]);
+                }
+
+                view_state.row_height = view_state.row_height || draw_state.cont_body.row_height;
+                draw_state._virtual_x++;
+                dcidx++;
+
+                if (view_state.viewport_width > container_width) {
+                    yield last_cells;
+                    for (const [tds, th] of unknown_column_sizes) {
+                        view_state.viewport_width -= 65;
+                        view_state.viewport_width += tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || th.offsetWidth;
+                    }
+                    if (view_state.viewport_width > container_width) {
+                        return;
+                    }
+                }
+            }
+
+            yield last_cells;
+        } finally {
+            this.body.clean({ridx: draw_state.cont_body?.ridx || 0, cidx: draw_state._virtual_x});
+            this.header.clean();
+        }
+    }
+
+    async draw_row_headers(draw_state, last_cells, row_headers, config, view_state, x0, container_height, view_cache, preserve_width) {
+        let {cont_body, first_col, _virtual_x} = draw_state;
+
         if (row_headers?.length > 0) {
             const column_name = config.row_pivots.join(",");
 
@@ -140,70 +226,8 @@ export class RegularTableViewModel {
             }
         }
 
-        try {
-            let dcidx = 0;
-            let unknown_column_sizes = [];
-            const num_visible_columns = num_columns - viewport.start_col;
-            while (dcidx < num_visible_columns) {
-                if (!data[dcidx]) {
-                    let missing_cidx = Math.max(viewport.end_col, 0);
-                    viewport.start_col = missing_cidx;
-                    viewport.end_col = missing_cidx + 1;
-                    const new_col = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
-                    data[dcidx] = new_col.data[0];
-                    if (column_headers) {
-                        column_headers[dcidx] = new_col.column_headers?.[0];
-                    }
-                }
-                const column_name = column_headers?.[dcidx] || "";
-                const column_data = data[dcidx];
-                const column_state = {
-                    column_name,
-                    cidx: _virtual_x,
-                    column_data,
-                    row_headers,
-                    first_col,
-                };
-
-                const x = dcidx + x0;
-                const size_key = _virtual_x + x0;
-                const cont_head = this.header.draw(undefined, column_name, false, x, size_key, x0, _virtual_x);
-                cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, _virtual_x);
-                first_col = false;
-                if (!preserve_width) {
-                    for (const {td, metadata} of cont_body.tds) {
-                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata]);
-                    }
-                }
-
-                const last_measured_col_width = this._column_sizes.indices[_virtual_x + x0];
-                if (last_measured_col_width) {
-                    view_state.viewport_width += last_measured_col_width;
-                } else {
-                    view_state.viewport_width += 65;
-                    unknown_column_sizes.push([cont_body.tds, cont_head.th]);
-                }
-
-                view_state.row_height = view_state.row_height || cont_body.row_height;
-                _virtual_x++;
-                dcidx++;
-
-                if (view_state.viewport_width > container_width) {
-                    yield last_cells;
-                    for (const [tds, th] of unknown_column_sizes) {
-                        view_state.viewport_width -= 65;
-                        view_state.viewport_width += tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || th.offsetWidth;
-                    }
-                    if (view_state.viewport_width > container_width) {
-                        return;
-                    }
-                }
-            }
-
-            yield last_cells;
-        } finally {
-            this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
-            this.header.clean();
-        }
+        draw_state.cont_body = cont_body;
+        draw_state.first_col = first_col;
+        draw_state._virtual_x = _virtual_x;
     }
 }

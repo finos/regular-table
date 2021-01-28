@@ -7,15 +7,15 @@
  * file.
  *
  */
+use crate::constants::*;
 
 use js_intern::*;
-use js_sys::Reflect;
+use js_sys::{Object, Reflect};
 use std::cmp::{max, min};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, MouseEvent, Node, TouchEvent, WheelEvent};
 
-use crate::constants::*;
 // use crate::view_model::MetaData;
 // use crate::scroll_panel::RegularVirtualTableViewModel;
 
@@ -144,9 +144,9 @@ impl RegularViewEventModel {
         None
     }
 
-    // pub fn _on_resize_column(&mut self, event: MouseEvent, element: HtmlElement, metadata: MetaData) {
-    //     let start = event.page_x();
-    // }
+    pub fn _on_resize_column(&mut self, event: MouseEvent, element: HtmlElement, metadata: Object) {
+        let start = event.page_x();
+    }
 
     // pub fn _on_resize_column_move(&mut self, event: Event, th: HtmlElement, start: f64, width: f64, metadata: MetaData) {}
 }
