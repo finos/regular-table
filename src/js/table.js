@@ -99,6 +99,9 @@ export class RegularTableViewModel extends RustRegularTableViewModel {
             });
         }
 
+        /**
+         * column_headers && column_leaders[0] ? column_headers[0].length - 1 : 0
+         */
         view_cache.config.column_pivots = Array.from(Array(column_headers?.[0]?.length - 1 || 0).keys());
         view_cache.config.row_pivots = Array.from(Array(row_headers?.[0]?.length || 0).keys());
 
@@ -130,42 +133,42 @@ export class RegularTableViewModel extends RustRegularTableViewModel {
         yield* this.draw_columns(last_cells, data, view, draw_state, view_state, viewport, column_headers, row_headers, num_columns, container_height, container_width, x0, preserve_width);
     }
 
-    async draw_row_headers(draw_state, last_cells, row_headers, config, view_state, x0, container_height, view_cache, preserve_width) {
-        let {cont_body, first_col, _virtual_x} = draw_state;
+    // async draw_row_headers(draw_state, last_cells, row_headers, config, view_state, x0, container_height, view_cache, preserve_width) {
+    //     let {cont_body, first_col, _virtual_x} = draw_state;
 
-        if (row_headers?.length > 0) {
-            const column_name = config.row_pivots.join(",");
+    //     if (row_headers?.length > 0) {
+    //         const column_name = config.row_pivots.join(",");
 
-            const column_state = {
-                column_name,
-                cidx: 0,
-                column_data: row_headers,
-                row_headers,
-                first_col,
-            };
-            const size_key = _virtual_x + x0;
-            cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key, _virtual_x);
-            const cont_heads = [];
-            for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), true, undefined, i, x0, i));
-            }
-            first_col = false;
-            view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
-            view_state.row_height = view_state.row_height || cont_body.row_height;
-            _virtual_x = row_headers[0].length;
-            if (!preserve_width) {
-                for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                    const {td, metadata} = cont_body.tds[i] || {};
-                    const {th, metadata: hmetadata} = cont_heads[i];
-                    last_cells.push([th || td, hmetadata || metadata]);
-                }
-            }
-        }
+    //         const column_state = {
+    //             column_name,
+    //             cidx: 0,
+    //             column_data: row_headers,
+    //             row_headers,
+    //             first_col,
+    //         };
+    //         const size_key = _virtual_x + x0;
+    //         cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key, _virtual_x);
+    //         const cont_heads = [];
+    //         for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
+    //             cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), true, undefined, i, x0, i));
+    //         }
+    //         first_col = false;
+    //         view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
+    //         view_state.row_height = view_state.row_height || cont_body.row_height;
+    //         _virtual_x = row_headers[0].length;
+    //         if (!preserve_width) {
+    //             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
+    //                 const {td, metadata} = cont_body.tds[i] || {};
+    //                 const {th, metadata: hmetadata} = cont_heads[i];
+    //                 last_cells.push([th || td, hmetadata || metadata]);
+    //             }
+    //         }
+    //     }
 
-        draw_state.cont_body = cont_body;
-        draw_state.first_col = first_col;
-        draw_state._virtual_x = _virtual_x;
-    }
+    //     draw_state.cont_body = cont_body;
+    //     draw_state.first_col = first_col;
+    //     draw_state._virtual_x = _virtual_x;
+    // }
 
     async *draw_columns(last_cells, data, view, draw_state, view_state, viewport, column_headers, row_headers, num_columns, container_height, container_width, x0, preserve_width) {
         try {

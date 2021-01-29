@@ -8,12 +8,12 @@
  *
  */
 
-use crate::constants::*;
 use js_intern::*;
 use js_sys::Reflect;
 use std::cell::RefCell;
 use std::cmp::max;
 use std::iter::FromIterator;
+
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::{future_to_promise, JsFuture};
@@ -22,16 +22,16 @@ use web_sys::{DocumentFragment, HtmlElement};
 use crate::tbody::RegularBodyViewModel;
 use crate::thead::RegularHeaderViewModel;
 
-struct viewState {
-    viewport_width: i32,
-    selected_id: JsValue, // can be Option<T>, just need to find out T
-    ridx_offset: i32,
-    x0: i32,
-    x1: i32,
-    y1: i32,
-    row_height: i32,
-    row_headers_length: i32,
-}
+// struct viewState {
+//     viewport_width: i32,
+//     selected_id: JsValue, // can be Option<T>, just need to find out T
+//     ridx_offset: i32,
+//     x0: i32,
+//     x1: i32,
+//     y1: i32,
+//     row_height: i32,
+//     row_headers_length: i32,
+// }
 
 #[wasm_bindgen]
 pub struct RegularTableViewModel {
@@ -45,9 +45,19 @@ pub struct RegularTableViewModel {
 #[wasm_bindgen]
 impl RegularTableViewModel {
     #[wasm_bindgen(constructor)]
-    pub fn new(container: js_sys::Object, column_sizes: js_sys::Object, element: web_sys::HtmlElement) -> RegularTableViewModel {
+    pub fn new(
+        container: js_sys::Object,
+        column_sizes: js_sys::Object,
+        element: web_sys::HtmlElement,
+    ) -> RegularTableViewModel {
         element.set_inner_html("<table cellspacing=\"0\"><thead></thead><tbody></tbody></table>");
-        let table = element.children().item(0).unwrap().dyn_into::<HtmlElement>().unwrap();
+
+        let table = element
+            .children()
+            .item(0)
+            .unwrap()
+            .dyn_into::<HtmlElement>()
+            .unwrap();
         let table_children = table.children();
         let thead = table_children.item(0).unwrap().dyn_into::<HtmlElement>().unwrap();
         let tbody = table_children.item(1).unwrap().dyn_into::<HtmlElement>().unwrap();
@@ -65,13 +75,13 @@ impl RegularTableViewModel {
     }
 
     // #[wasm_bindgen(getter)]
-    // pub fn body(&self) -> *const RegularBodyViewModel {
-    //     Box::into_raw(self.body)
+    // pub fn body(&self) -> RegularBodyViewModel {
+    //     *self.body
     // }
 
     // #[wasm_bindgen(getter)]
-    // pub fn header(&self) -> *const RegularHeaderViewModel {
-    //     Box::into_raw(self.header)
+    // pub fn header(&self) -> RegularHeaderViewModel {
+    //     *self.header
     // }
 
     #[wasm_bindgen(getter)]
@@ -107,14 +117,27 @@ impl RegularTableViewModel {
         while last_cells.length() > 0 {
             let (cell, metadata) = {
                 let item = js_sys::Array::from(&last_cells.pop());
-                (item.get(0).dyn_into::<web_sys::HtmlElement>()?, item.get(1).dyn_into::<js_sys::Object>()?)
+                (
+                    item.get(0).dyn_into::<web_sys::HtmlElement>()?,
+                    item.get(1).dyn_into::<js_sys::Object>()?,
+                )
             };
 
-            let style = web_sys::window().unwrap().get_computed_style(&cell).unwrap().unwrap(); // lol
+            let style = web_sys::window()
+                .unwrap()
+                .get_computed_style(&cell)
+                .unwrap()
+                .unwrap(); // lol
             let offset_width: f64 = match style.get_property_value("box-sizing").ok() {
                 Some(value) if value != "border-box" => {
-                    let padding_left = style.get_property_value("padding-left")?.parse().unwrap_or(0.0);
-                    let padding_right = style.get_property_value("padding-right")?.parse().unwrap_or(0.0);
+                    let padding_left = style
+                        .get_property_value("padding-left")?
+                        .parse()
+                        .unwrap_or(0.0);
+                    let padding_right = style
+                        .get_property_value("padding-right")?
+                        .parse()
+                        .unwrap_or(0.0);
                     (cell.client_width() as f64) - padding_left - padding_right
                 }
                 _ => cell.offset_width() as f64,
@@ -133,7 +156,8 @@ impl RegularTableViewModel {
             let _indices = &Reflect::get(&self._column_sizes, js_intern!("indices"))?;
             Reflect::set(_indices, &_size_key, &JsValue::from_f64(offset_width))?;
             let is_override = {
-                let _override = Reflect::get(&self._column_sizes, js_intern!("override"))?.dyn_into::<js_sys::Object>()?;
+                let _override = Reflect::get(&self._column_sizes, js_intern!("override"))?
+                    .dyn_into::<js_sys::Object>()?;
                 _override.has_own_property(&_size_key)
             };
 
@@ -153,66 +177,175 @@ impl RegularTableViewModel {
         Ok(())
     }
 
-    // pub fn draw(
-    //     &mut self,
-    //     container_size: js_sys::Object,
-    //     view_cache: js_sys::Object,
-    //     selected_id: JsValue,
-    //     preserve_width: bool,
-    //     viewport: js_sys::Object,
-    //     num_columns: i32,
-    // ) -> Result<js_sys::Promise, JsValue> {
-    //     let container_width: i32 = Reflect::get(&container_size, js_intern!("width"))?.as_f64().ok_or_else(|| JsValue::NULL)? as i32;
-    //     let container_height: i32 = Reflect::get(&container_size, js_intern!("height"))?.as_f64().ok_or_else(|| JsValue::NULL)? as i32;
-    //     let view: js_sys::Function = Reflect::get(&view_cache, js_intern!("view"))?.into();
-    //     let config: js_sys::Object = Reflect::get(&view_cache, js_intern!("config"))?.into();
+    pub fn draw(
+        &mut self,
+        container_size: js_sys::Object,
+        view_cache: js_sys::Object,
+        selected_id: JsValue,
+        preserve_width: bool,
+        viewport: js_sys::Object,
+        num_columns: usize,
+    ) -> Result<JsValue, JsValue> {
+        let container_width: usize = Reflect::get(&container_size, js_intern!("width"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::NULL)? as usize;
+        let container_height: usize = Reflect::get(&container_size, js_intern!("height"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::NULL)? as usize;
+        let view: js_sys::Function = Reflect::get(&view_cache, js_intern!("view"))?.into();
+        let config: js_sys::Object = Reflect::get(&view_cache, js_intern!("config"))?.into();
 
-    //     let view_args: js_sys::Array = js_sys::Array::from_iter(
-    //         [js_intern!("start_col"), js_intern!("start_row"), js_intern!("end_col"), js_intern!("end_row")]
-    //             .iter()
-    //             .map(|prop| Reflect::get(&viewport, prop).ok().unwrap()),
-    //     );
-    //     let view_promise: js_sys::Promise = view.apply(&JsValue::UNDEFINED, &view_args)?.into();
-    //     // JS Promise -> Rust Future
-    //     let view_result: JsFuture = JsFuture::from(view_promise);
+        let view_args: js_sys::Array = js_sys::Array::from_iter(
+            [
+                js_intern!("start_col"),
+                js_intern!("start_row"),
+                js_intern!("end_col"),
+                js_intern!("end_row"),
+            ]
+            .iter()
+            .map(|prop| Reflect::get(&viewport, prop).ok().unwrap()),
+        );
 
-    //     Ok(future_to_promise(RegularTableViewModel::_draw_helper(view_result, viewport)))
-    // }
+        // TODO: call this draw helper to resolve the view promise, and then
+        // call draw_row_header and draw_columns
+        self.draw_helper(
+            view.clone(),
+            view_args.clone(),
+            view_cache.clone(),
+            viewport.clone(),
+            self._column_sizes.clone(),
+            selected_id,
+            container_height,
+            preserve_width,
+        );
 
-    // async fn _draw_helper(view: JsFuture, viewport: js_sys::Object) -> Result<JsValue, JsValue> {
-    //     let result = view.await?;
-    //     let data = Reflect::get(&result, js_intern!("data"))?;
-    //     let mut row_headers = Reflect::get(&result, js_intern!("row_headers"))?;
-    //     let column_headers = Reflect::get(&result, js_intern!("column_headers"))?;
+        Ok(JsValue::NULL)
+    }
 
-    //     let ridx_offset = Reflect::get(&viewport, js_intern!("start_row"))?.as_f64().unwrap_or(0.0) as usize;
-    //     let x0 = Reflect::get(&viewport, js_intern!("start_col"))?.as_f64().unwrap_or(0.0) as usize;
-    //     let x1 = Reflect::get(&viewport, js_intern!("end_col"))?.as_f64().unwrap_or(0.0) as usize;
-    //     let y1 = Reflect::get(&viewport, js_intern!("end_row"))?.as_f64().unwrap_or(0.0) as usize;
+    pub fn draw_helper(
+        &self,
+        view: js_sys::Function,
+        view_args: js_sys::Array,
+        view_cache: js_sys::Object,
+        viewport: js_sys::Object,
+        _column_sizes: js_sys::Object,
+        selected_id: JsValue,
+        container_height: usize,
+        preserve_width: bool,
+    ) -> Result<js_sys::Promise, JsValue> {
+        let view_promise: js_sys::Promise = view.apply(&JsValue::UNDEFINED, &view_args)?.into();
+        // JS Promise -> Rust Future
+        let view_result: JsFuture = JsFuture::from(view_promise);
 
-    //     let mut row_headers_array: js_sys::Array = js_sys::Array::new();
-    //     let mut row_headers_length: usize = 0;
+        Ok(future_to_promise(RegularTableViewModel::_draw_helper(
+            RefCell::new(self),
+            view_result,
+            view_cache.clone(),
+            viewport.clone(),
+            _column_sizes.clone(),
+            selected_id.clone(),
+            container_height,
+            preserve_width
+        )))
+    }
 
-    //     if !row_headers.is_undefined() {
-    //         row_headers_array = row_headers.dyn_into::<js_sys::Array>()?;
+    async fn _draw_helper(
+        this: RefCell<RegularTableViewModel>,
+        view: JsFuture,
+        view_cache: js_sys::Object,
+        viewport: js_sys::Object,
+        _column_sizes: js_sys::Object,
+        selected_id: JsValue,
+        container_height: usize,
+        preserve_width: bool,
+    ) -> Result<JsValue, JsValue> {
+        let result = view.await?;
+        let data = Reflect::get(&result, js_intern!("data"))?;
+        let mut row_headers =
+            Reflect::get(&result, js_intern!("row_headers"))?.dyn_into::<js_sys::Array>()?;
+        let column_headers =
+            Reflect::get(&result, js_intern!("column_headers"))?.dyn_into::<js_sys::Array>()?;
 
-    //         let mut _get_max = |max_val: JsValue, x, _, _| {
-    //             let len = Reflect::get(&x, js_intern!("length")).unwrap().as_f64().unwrap_or(0.0) as i32;
-    //             JsValue::from(max(max_val.as_f64().unwrap_or(0.0) as i32, len))
-    //         };
+        let ridx_offset = Reflect::get(&viewport, js_intern!("start_row"))?;
+        let x0 = Reflect::get(&viewport, js_intern!("start_col"))?;
+        let x1 = Reflect::get(&viewport, js_intern!("end_col"))?;
+        let y1 = Reflect::get(&viewport, js_intern!("end_row"))?;
 
-    //         let get_max_ref: &mut dyn FnMut(JsValue, JsValue, u32, js_sys::Array) -> JsValue = &mut _get_max;
-    //         row_headers_length = row_headers_array.reduce(get_max_ref, &JsValue::from(0)).as_f64().unwrap() as usize;
-    //         let mut _map_row_headers = |x: JsValue, _, _| {
-    //             Reflect::set(&x, js_intern!("length"), &JsValue::from(row_headers_length as i32)).unwrap();
-    //             x
-    //         };
-    //         let map_row_headers_ref: &mut dyn FnMut(JsValue, u32, js_sys::Array) -> JsValue = &mut _map_row_headers;
-    //         row_headers_array = row_headers_array.map(map_row_headers_ref);
-    //     }
+        let mut row_headers_length = JsValue::UNDEFINED;
 
-    //     Ok(js_sys::Array::from_iter(vec![data, JsValue::from(row_headers_length as i32)].iter()).into())
-    // }
+        if !row_headers.is_undefined() {
+            let mut _get_max = |max_val: JsValue, x, _, _| {
+                let len = Reflect::get(&x, js_intern!("length"))
+                    .unwrap()
+                    .as_f64()
+                    .unwrap_or(0.0) as i32;
+                JsValue::from(max(max_val.as_f64().unwrap_or(0.0) as i32, len))
+            };
+
+            let get_max_ref: &mut dyn FnMut(JsValue, JsValue, u32, js_sys::Array) -> JsValue =
+                &mut _get_max;
+
+            row_headers_length = row_headers
+                .reduce(get_max_ref, &JsValue::from(0));
+
+            let mut _map_row_headers = |x: JsValue, _, _| {
+                Reflect::set(
+                    &x,
+                    js_intern!("length"),
+                    &row_headers_length,
+                )
+                .unwrap();
+                x
+            };
+            let map_row_headers_ref: &mut dyn FnMut(JsValue, u32, js_sys::Array) -> JsValue =
+                &mut _map_row_headers;
+            row_headers = row_headers.map(map_row_headers_ref);
+        }
+
+        let _cp = column_headers.get(0).dyn_into::<js_sys::Array>()?;
+        let column_pivots = js_sys::Array::new();
+        if !_cp.is_undefined() {
+            column_pivots.fill(&JsValue::UNDEFINED, 0, _cp.length());
+        }
+
+        let _rp = row_headers.get(0).dyn_into::<js_sys::Array>()?;
+        let row_pivots = js_sys::Array::new();
+        if !_rp.is_undefined() {
+            row_pivots.fill(&JsValue::UNDEFINED, 0, _rp.length());
+        }
+
+        let config = Reflect::get(&view_cache, js_intern!("config"))?;
+
+        // we only use column_pivots.length, it seems
+        Reflect::set(&config, js_intern!("column_pivots"), &column_pivots.keys())?;
+        Reflect::set(&config, js_intern!("row_pivots"), &row_pivots.keys())?;
+
+        let view_state = js_sys::Object::new();
+
+        Reflect::set(&view_state, js_intern!("viewport_width"), &JsValue::from(0))?;
+        Reflect::set(&view_state, js_intern!("selected_id"), &selected_id)?;
+        Reflect::set(&view_state, js_intern!("ridx_offset"), &ridx_offset)?;
+        Reflect::set(&view_state, js_intern!("x0"), &x0)?;
+        Reflect::set(&view_state, js_intern!("x1"), &x1)?;
+        Reflect::set(&view_state, js_intern!("y1"), &y1)?;
+        Reflect::set(&view_state, js_intern!("row_headers_length"), &row_headers_length)?;
+
+        let row_height = Reflect::get(&_column_sizes, js_intern!("row_height"))?;
+        Reflect::set(&view_state, js_intern!("row_height"), &row_height)?;
+
+        let draw_state = js_sys::Object::new();
+        
+        Reflect::set(&draw_state, js_intern!("cont_body"), &JsValue::NULL)?;
+        Reflect::set(&draw_state, js_intern!("first_col"), &JsValue::from(true))?;
+        Reflect::set(&draw_state, js_intern!("_virtual_x"), &JsValue::from(0))?;
+
+        let last_cells = js_sys::Array::new();
+
+        Ok(
+            js_sys::Array::from_iter(vec![data, JsValue::from(row_headers_length.as_f64().unwrap_or(0.0) as i32)].iter())
+                .into(),
+        )
+    }
 
     pub fn draw_row_headers(
         self,
@@ -307,4 +440,8 @@ impl RegularTableViewModel {
         }
         Ok(draw_state.into())
     }
+
+    pub fn draw_columns(self) {}
+
+    async fn _draw_columns(this: RefCell<RegularTableViewModel>) {}
 }

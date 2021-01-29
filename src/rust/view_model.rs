@@ -48,12 +48,12 @@ impl ViewModel {
         self.cells.len()
     }
 
-    pub fn num_columns(&mut self) -> usize {
-        if self.rows.len() == 0 {
-            return 0;
+    pub fn num_columns(&self) -> usize {
+        if self.cells.len() == 0 {
+            0
+        } else {
+            self.cells[0].len()
         }
-        let (_, row_container) = self._get_row(self.rows.len() - 1);
-        row_container.len()
     }
 
     pub fn _set_metadata(&self, td: js_sys::Object, metadata: js_sys::Object) {
@@ -168,6 +168,12 @@ impl ViewModel {
 
         let row_container = &mut self.cells[ridx];
         (tr, row_container)
+    }
+
+    pub fn num_hol_columns(&mut self) -> usize {
+        let idx = if self.rows.len() <= 1 { 0 } else { self.rows.len() - 1 };
+        let (_, row_container) = self._get_row(idx);
+        row_container.len()
     }
 
     pub fn _clean_columns_cache(&mut self, cidx: &js_sys::Array) {
