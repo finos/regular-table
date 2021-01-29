@@ -46,6 +46,7 @@ pub struct RegularTableViewModel {
 impl RegularTableViewModel {
     #[wasm_bindgen(constructor)]
     pub fn new(container: js_sys::Object, column_sizes: js_sys::Object, element: web_sys::HtmlElement) -> RegularTableViewModel {
+        element.set_inner_html("<table cellspacing=\"0\"><thead></thead><tbody></tbody></table>");
         let table = element.children().item(0).unwrap().dyn_into::<HtmlElement>().unwrap();
         let table_children = table.children();
         let thead = table_children.item(0).unwrap().dyn_into::<HtmlElement>().unwrap();
@@ -59,19 +60,19 @@ impl RegularTableViewModel {
             _column_sizes: column_sizes.clone(),
         };
 
-        model.clear(element);
+        // model.clear(element);
         model
     }
 
-    #[wasm_bindgen(getter)]
-    pub fn get_body(&self) -> RegularBodyViewModel {
-        *self.body
-    }
+    // #[wasm_bindgen(getter)]
+    // pub fn body(&self) -> *const RegularBodyViewModel {
+    //     Box::into_raw(self.body)
+    // }
 
-    #[wasm_bindgen(getter)]
-    pub fn get_header(&self) -> RegularHeaderViewModel {
-        *self.header
-    }
+    // #[wasm_bindgen(getter)]
+    // pub fn header(&self) -> *const RegularHeaderViewModel {
+    //     Box::into_raw(self.header)
+    // }
 
     #[wasm_bindgen(getter)]
     pub fn get_table(&self) -> HtmlElement {
