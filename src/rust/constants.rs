@@ -40,3 +40,34 @@ impl StaticKey for std::thread::LocalKey<JsValue> {
         self.with(|x| (*x).clone())
     }
 }
+
+// TODO this works but only saves like 5k overall and may impede errors?
+
+// pub trait JSFastUnwrap<T> {
+//     fn unwrap_fast(self) -> T;
+// }
+
+// impl<T> JSFastUnwrap<T> for Option<T> {
+//     #[inline]
+//     fn unwrap_fast(self) -> T {
+//         use std::process;
+//         match self {
+//             Some(t) => t,
+//             None => process::abort(),
+//         }
+//     }
+// }
+
+// impl<T, E> JSFastUnwrap<T> for Result<T, E> {
+//     #[inline]
+//     fn unwrap_fast(self) -> T {
+//         use std::process;
+//         match self {
+//             Ok(t) => t,
+//             Err(e) => {
+//                 // log_str(&formate);
+//                 process::abort()
+//             }
+//         }
+//     }
+// }

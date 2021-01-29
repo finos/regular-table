@@ -8,9 +8,8 @@
  *
  */
 
-import {RegularHeaderViewModel, RegularBodyViewModel, set_panic_hook} from "../../pkg";
+import {set_panic_hook} from "../../pkg";
 import {RegularTableViewModel as RustRegularTableViewModel} from "../../pkg";
-import {html} from "./utils";
 
 set_panic_hook();
 
@@ -22,33 +21,35 @@ set_panic_hook();
  *
  * @class RegularTableViewModel
  */
-export class RegularTableViewModel {
+export class RegularTableViewModel extends RustRegularTableViewModel {
     constructor(table_clip, column_sizes, element) {
-        this.clear(element);
-        const [table] = element.children;
-        const [thead, tbody] = table.children;
+        super(table_clip, column_sizes, element);
+        for (const key of Reflect.ownKeys(RegularTableViewModel.prototype)) {
+            this[key] = RegularTableViewModel.prototype[key];
+        }
+        // this.clear(element);
+        // const [table] = element.children;
+        // const [thead, tbody] = table.children;
 
-        this.table = table;
-        this._column_sizes = column_sizes;
-        this.header = new RegularHeaderViewModel(column_sizes, table_clip, thead);
-        this.body = new RegularBodyViewModel(column_sizes, table_clip, tbody);
-        this.fragment = document.createDocumentFragment();
-
-        // this.rust_table_view_model = new RustRegularTableViewModel(table_clip, column_sizes, element);
+        // this.table = table;
+        // this._column_sizes = column_sizes;
+        // this.header = new RegularHeaderViewModel(column_sizes, table_clip, thead);
+        // this.body = new RegularBodyViewModel(column_sizes, table_clip, tbody);
+        // this.fragment = document.createDocumentFragment();
     }
 
-    num_columns() {
-        return this.header.num_columns();
-    }
+    // num_columns() {
+    //     return this.header.num_columns();
+    // }
 
-    clear(element) {
-        element.innerHTML = html`
-            <table cellspacing="0">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-        `;
-    }
+    // clear(element) {
+    //     element.innerHTML = html`
+    //         <table cellspacing="0">
+    //             <thead></thead>
+    //             <tbody></tbody>
+    //         </table>
+    //     `;
+    // }
 
     /**
      * Calculate amendments to auto size from this render pass.
@@ -57,30 +58,30 @@ export class RegularTableViewModel {
      * @param {*} {columns, column_pivots}
      * @memberof RegularTableViewModel
      */
-    autosize_cells(last_cells) {
-        while (last_cells.length > 0) {
-            const [cell, metadata] = last_cells.pop();
-            let offsetWidth;
-            const style = getComputedStyle(cell);
-            if (style.boxSizing !== "border-box") {
-                offsetWidth = cell.clientWidth;
-                offsetWidth -= parseFloat(style.paddingLeft);
-                offsetWidth -= parseFloat(style.paddingRight);
-            } else {
-                offsetWidth = cell.offsetWidth;
-            }
-            this._column_sizes.row_height = this._column_sizes.row_height || cell.offsetHeight;
-            this._column_sizes.indices[metadata.size_key] = offsetWidth;
-            const is_override = this._column_sizes.override.hasOwnProperty(metadata.size_key);
-            if (offsetWidth && !is_override) {
-                this._column_sizes.auto[metadata.size_key] = offsetWidth;
-            }
-            if (cell.style.minWidth === "0px") {
-                cell.style.minWidth = `${offsetWidth}px`;
-            }
-        }
-        //this.rust_table_view_model.autosize_cells(last_cells);
-    }
+    // autosize_cells(last_cells) {
+    //     while (last_cells.length > 0) {
+    //         const [cell, metadata] = last_cells.pop();
+    //         let offsetWidth;
+    //         const style = getComputedStyle(cell);
+    //         if (style.boxSizing !== "border-box") {
+    //             offsetWidth = cell.clientWidth;
+    //             offsetWidth -= parseFloat(style.paddingLeft);
+    //             offsetWidth -= parseFloat(style.paddingRight);
+    //         } else {
+    //             offsetWidth = cell.offsetWidth;
+    //         }
+    //         this._column_sizes.row_height = this._column_sizes.row_height || cell.offsetHeight;
+    //         this._column_sizes.indices[metadata.size_key] = offsetWidth;
+    //         const is_override = this._column_sizes.override.hasOwnProperty(metadata.size_key);
+    //         if (offsetWidth && !is_override) {
+    //             this._column_sizes.auto[metadata.size_key] = offsetWidth;
+    //         }
+    //         if (cell.style.minWidth === "0px") {
+    //             cell.style.minWidth = `${offsetWidth}px`;
+    //         }
+    //     }
+    //     //this.rust_table_view_model.autosize_cells(last_cells);
+    // }
 
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
