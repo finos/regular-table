@@ -8,14 +8,15 @@
  *
  */
 
-use crate::utils::coerce_str;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-
 use js_intern::*;
 use js_sys::Reflect;
+use std::cell::RefCell;
+use std::rc::Rc;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, Node};
 
+use crate::utils::coerce_str;
 use crate::view_model;
 
 /******************************************************************************
@@ -25,8 +26,9 @@ use crate::view_model;
  */
 
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct RegularBodyViewModel {
-    view_model: view_model::ViewModel,
+    view_model: Rc<RefCell<view_model::ViewModel>>,
 }
 
 #[wasm_bindgen]
@@ -34,17 +36,17 @@ impl RegularBodyViewModel {
     #[wasm_bindgen(constructor)]
     pub fn new(column_sizes: js_sys::Object, container: js_sys::Object, table: HtmlElement) -> RegularBodyViewModel {
         RegularBodyViewModel {
-            view_model: view_model::ViewModel::new(column_sizes, container, table),
+            view_model: Rc::new(RefCell::new(view_model::ViewModel::new(column_sizes, container, table))),
         }
     }
 
     pub fn _draw_td(&mut self, tag_name: &JsValue, ridx: usize, val: &JsValue, cidx: usize, column_name: &JsValue, ridx_offset: usize, size_key: &JsValue) -> Result<js_sys::Object, JsValue> {
-        let td = self.view_model._get_cell(tag_name, ridx, cidx);
-        let metadata = self.view_model._get_or_create_metadata(&td);
+        let td = self.view_model.borrow_mut()._get_cell(tag_name, ridx, cidx);
+        let metadata = self.view_model.borrow_mut()._get_or_create_metadata(&td);
         Reflect::set(&metadata, js_intern!("y"), &JsValue::from_f64((ridx + ridx_offset) as f64))?;
         Reflect::set(&metadata, js_intern!("size_key"), size_key)?;
 
-        let overrides = &Reflect::get(&self.view_model._column_sizes(), js_intern!("override"))?;
+        let overrides = &Reflect::get(&self.view_model.borrow_mut()._column_sizes(), js_intern!("override"))?;
 
         if tag_name == "TD" {
             Reflect::set(&metadata, js_intern!("column_header"), column_name)?;
@@ -52,7 +54,7 @@ impl RegularBodyViewModel {
 
         match Reflect::get(overrides, size_key) {
             Ok(override_width) => {
-                let auto = &Reflect::get(&self.view_model._column_sizes(), js_intern!("auto"))?;
+                let auto = &Reflect::get(&self.view_model.borrow_mut()._column_sizes(), js_intern!("auto"))?;
                 let cond = match Reflect::get(auto, size_key)?.as_f64() {
                     None => false,
                     Some(auto_width) => !override_width.is_undefined() && auto_width > override_width.as_f64().unwrap(),
@@ -133,13 +135,13 @@ impl RegularBodyViewModel {
 
                     let _ridx_offset = if (i as usize) < ridx_offset.len() { ridx_offset[i as usize] } else { 1 } as f64;
                     let _ridx = (f64::from(ridx as u32) - _ridx_offset) as f64;
-                    let prev_row = self.view_model._fetch_cell(_ridx, cidx + i as f64);
-                    let prev_row_metadata = self.view_model._get_or_create_metadata(&prev_row);
+                    let prev_row = self.view_model.borrow_mut()._fetch_cell(_ridx, cidx + i as f64);
+                    let prev_row_metadata = self.view_model.borrow_mut()._get_or_create_metadata(&prev_row);
 
                     let _cidx_offset = if ridx < cidx_offset.len() { cidx_offset[ridx] as usize } else { 1 } as f64;
                     let _cidx = (f64::from(cidx as u32) + (i as f64) - _cidx_offset) as f64;
-                    let prev_col = self.view_model._fetch_cell(ridx as f64, _cidx);
-                    let prev_col_metadata = self.view_model._get_or_create_metadata(&prev_col);
+                    let prev_col = self.view_model.borrow_mut()._fetch_cell(ridx as f64, _cidx);
+                    let prev_col_metadata = self.view_model.borrow_mut()._get_or_create_metadata(&prev_col);
 
                     let _prev_col_metadata_value = Reflect::get(&prev_col_metadata, js_intern!("value")).unwrap_or(JsValue::UNDEFINED);
                     let _prev_row_metadata_value = Reflect::get(&prev_row_metadata, js_intern!("value")).unwrap_or(JsValue::UNDEFINED);
@@ -158,7 +160,7 @@ impl RegularBodyViewModel {
                         }
 
                         prev_col.set_attribute("colspan", &cidx_offset[ridx].to_string())?;
-                        self.view_model._replace_cell(ridx, (cidx as usize) + (i as usize));
+                        self.view_model.borrow_mut()._replace_cell(ridx, (cidx as usize) + (i as usize));
                     } else if !prev_row.is_undefined() && _prev_row_metadata_value == row_header && !prev_row.has_attribute("colspan") {
                         while (i as usize) > ridx_offset.len() {
                             ridx_offset.push(2);
@@ -171,7 +173,7 @@ impl RegularBodyViewModel {
                         }
 
                         prev_row.set_attribute("rowspan", &ridx_offset[i as usize].to_string())?;
-                        self.view_model._replace_cell(ridx, (cidx as usize) + (i as usize));
+                        self.view_model.borrow_mut()._replace_cell(ridx, (cidx as usize) + (i as usize));
                     } else {
                         let _column_state_column_name = Reflect::get(&column_state, js_intern!("column_name"))?;
                         let _view_state_ridx_offset = Reflect::get(&view_state, js_intern!("ridx_offset"))?.as_f64().unwrap() as usize;
@@ -267,7 +269,7 @@ impl RegularBodyViewModel {
             }
         }
 
-        self.view_model._clean_rows(ridx as u32);
+        self.view_model.borrow_mut()._clean_rows(ridx as u32);
 
         let ret_obj = js_sys::Object::new();
         let array = js_sys::Array::new();
@@ -284,12 +286,13 @@ impl RegularBodyViewModel {
     pub fn clean(&mut self, obj: js_sys::Object) -> Result<(), JsValue> {
         let ridx: f64 = Reflect::get(&obj, js_intern!("ridx"))?.as_f64().unwrap();
         let cidx: f64 = Reflect::get(&obj, js_intern!("cidx"))?.as_f64().unwrap();
-        self.view_model._clean_rows(ridx as u32);
-        self.view_model._clean_columns(cidx);
+        let mut _view_model = self.view_model.borrow_mut();
+        _view_model._clean_rows(ridx as u32);
+        _view_model._clean_columns(cidx);
         Ok(())
     }
 
     pub fn _fetch_cell(&mut self, ridx: f64, cidx: f64) -> web_sys::HtmlElement {
-        self.view_model._fetch_cell(ridx, cidx)
+        self.view_model.borrow_mut()._fetch_cell(ridx, cidx)
     }
 }

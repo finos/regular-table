@@ -8,15 +8,16 @@
  *
  */
 
-use crate::constants;
-use crate::utils::coerce_str;
 use js_intern::*;
 use js_sys::Reflect;
+use std::cell::RefCell;
 use std::iter::FromIterator;
-
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
+use crate::constants;
+use crate::utils::coerce_str;
 use crate::view_model;
 
 /******************************************************************************
@@ -26,8 +27,9 @@ use crate::view_model;
  */
 
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct RegularHeaderViewModel {
-    view_model: view_model::ViewModel,
+    view_model: Rc<RefCell<view_model::ViewModel>>,
     _offset_cache: js_sys::Array,
     _group_header_cache: js_sys::Array,
 }
@@ -37,9 +39,9 @@ impl RegularHeaderViewModel {
     #[wasm_bindgen(constructor)]
     pub fn new(column_sizes: js_sys::Object, container: js_sys::Object, table: web_sys::HtmlElement) -> RegularHeaderViewModel {
         RegularHeaderViewModel {
-            view_model: view_model::ViewModel::new(column_sizes, container, table),
             _offset_cache: js_sys::Array::new(),
             _group_header_cache: js_sys::Array::new(),
+            view_model: Rc::new(RefCell::new(view_model::ViewModel::new(column_sizes, container, table))),
         }
     }
 
@@ -50,8 +52,8 @@ impl RegularHeaderViewModel {
             0
         };
 
-        let th = self.view_model._get_cell(js_intern!("TH"), d as usize, cidx);
         self._offset_cache.set(d, JsValue::from_f64((cidx + 1) as f64));
+        let th = self.view_model.borrow_mut()._get_cell(js_intern!("TH"), d as usize, cidx);
         th.set_class_name("");
         th.remove_attribute("colspan")?;
         th.style().set_property("min-width", "0")?;
@@ -80,12 +82,12 @@ impl RegularHeaderViewModel {
 
         if !(_size_key_array.is_ok() && _size_key_array?.length() > 1) {
             let override_width = {
-                let overrides = &Reflect::get(&self.view_model._column_sizes(), js_intern!("override"))?;
+                let overrides = &Reflect::get(&self.view_model.borrow()._column_sizes(), js_intern!("override"))?;
                 Reflect::get(overrides, size_key)?
             };
 
             let auto_width = {
-                let auto = &Reflect::get(&self.view_model._column_sizes(), js_intern!("auto"))?;
+                let auto = &Reflect::get(&self.view_model.borrow()._column_sizes(), js_intern!("auto"))?;
                 Reflect::get(auto, size_key)?
             };
 
@@ -110,14 +112,13 @@ impl RegularHeaderViewModel {
     }
 
     pub fn get_column_header(&mut self, cidx: usize) -> web_sys::HtmlElement {
-        self.view_model._get_cell(js_intern!("TH"), self.view_model.num_rows() - 1, cidx)
+        self.view_model.borrow_mut()._get_cell(js_intern!("TH"), self.view_model.borrow().num_rows() - 1, cidx)
     }
 
     pub fn draw(&mut self, alias: &JsValue, parts: &JsValue, colspan: bool, x: &JsValue, size_key: &JsValue, x0: &JsValue, _virtual_x: &JsValue) -> Result<js_sys::Object, JsValue> {
         if parts.is_undefined() {
             return Ok(JsValue::UNDEFINED.into());
         }
-
         // TODO wrong - this is not an array, but we can treat it like one here
         let _parts_arr = parts.clone().unchecked_into::<js_sys::Array>();
         let header_levels = _parts_arr.length(); // Reflect::get(&_parts_arr, js_intern!("length"))?.as_f64().unwrap() as usize;
@@ -198,7 +199,7 @@ impl RegularHeaderViewModel {
             }
         }
 
-        self.view_model._clean_rows(self._offset_cache.length());
+        self.view_model.borrow_mut()._clean_rows(self._offset_cache.length());
 
         let ret_obj = js_sys::Object::new();
         Reflect::set(&ret_obj, js_intern!("th"), &th.unwrap_or(JsValue::UNDEFINED.into()))?;
@@ -207,24 +208,24 @@ impl RegularHeaderViewModel {
     }
 
     pub fn clean(&mut self) {
-        self.view_model._clean_columns_cache(&self._offset_cache);
+        self.view_model.borrow_mut()._clean_columns_cache(&self._offset_cache);
         self._offset_cache = js_sys::Array::new();
         self._group_header_cache = js_sys::Array::new();
     }
 
     pub fn num_rows(&self) -> usize {
-        self.view_model.num_rows()
+        self.view_model.borrow().num_rows()
     }
 
-    pub fn num_columns(&mut self) -> usize {
-        self.view_model.num_columns()
+    pub fn num_columns(&self) -> usize {
+        self.view_model.borrow_mut().num_columns()
     }
 
     pub fn _fetch_cell(&mut self, ridx: f64, cidx: f64) -> web_sys::HtmlElement {
-        self.view_model._fetch_cell(ridx, cidx)
+        self.view_model.borrow_mut()._fetch_cell(ridx, cidx)
     }
 
     pub fn _get_or_create_metadata(&self, td: &web_sys::HtmlElement) -> js_sys::Object {
-        self.view_model._get_or_create_metadata(td)
+        self.view_model.borrow()._get_or_create_metadata(td)
     }
 }
