@@ -34,7 +34,7 @@
 //     th.style.minWidth = "0";
 //     th.innerHTML = html`
 //         ${column}
-//         <span class="pd-column-resize"></span>
+//         <span class="rt-column-resize"></span>
 //     `;
 
 //     return th;
@@ -59,11 +59,11 @@
 //         const override_width = this._column_sizes.override[metadata.size_key];
 //         const auto_width = this._column_sizes.auto[metadata.size_key];
 //         if (override_width) {
-//             th.classList.toggle("pd-cell-clip", auto_width > override_width);
+//             th.classList.toggle("rt-cell-clip", auto_width > override_width);
 //             th.style.minWidth = override_width + "px";
 //             th.style.maxWidth = override_width + "px";
 //         } else if (auto_width) {
-//             th.classList.remove("pd-cell-clip");
+//             th.classList.remove("rt-cell-clip");
 //             th.style.maxWidth = "";
 //             th.style.minWidth = auto_width + "px";
 //         } else {

@@ -18,9 +18,9 @@ import container_css from "../less/container.less";
  * of the underlying <table>. This DOM structure looks a little like
  * this:
  *
- *     +------------------------+      <- div.pd-scroll-container
- *     | +----------------------|------<- div.pd-virtual-panel
- *     | | +------------------+ |      <- div.pd-scroll-table-clip
+ *     +------------------------+      <- div.rt-scroll-container
+ *     | +----------------------|------<- div.rt-virtual-panel
+ *     | | +------------------+ |      <- div.rt-scroll-table-clip
  *     | | | +----------------|-|--+   <- table             |
  *     | | | | 1  A  Alabama  | |  |                        |
  *     | | | | 2  B  Arizona  | |  |                        |
@@ -38,7 +38,7 @@ import container_css from "../less/container.less";
  *       |                                                  |
  *       +--------------------------------------------------+
  *
- * `overflow: auto` is applied to `.pd-scroll-container`, and `.pd-virtual-pane`
+ * `overflow: auto` is applied to `.rt-scroll-container`, and `.rt-virtual-pane`
  * is sized to match the estimated "virtual" size of the `table`;  estimated,
  * because it's true size can't be known until all columns dimensions are known,
  * which may be deferred in the case of auto-sized tables.
@@ -70,10 +70,10 @@ export class RegularVirtualTableViewModel {
             <style>
                 ${container_css}
             </style>
-            <div class="pd-virtual-panel">
+            <div class="rt-virtual-panel">
                 ${this._virtual_scrolling_disabled ? slot : ""}
             </div>
-            <div class="pd-scroll-table-clip">
+            <div class="rt-scroll-table-clip">
                 ${this._virtual_scrolling_disabled ? "" : slot}
             </div>
         `;

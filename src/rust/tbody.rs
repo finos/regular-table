@@ -60,7 +60,7 @@ impl RegularBodyViewModel {
                     Some(auto_width) => !override_width.is_undefined() && auto_width > override_width.as_f64().unwrap(),
                 };
 
-                td.class_list().toggle_with_force("pd-cell-clip", cond)?;
+                td.class_list().toggle_with_force("rt-cell-clip", cond)?;
                 if !override_width.is_undefined() {
                     let width_str = format!("{}px", override_width.as_f64().unwrap());
                     td.style().set_property("min-width", &width_str)?;
@@ -68,7 +68,7 @@ impl RegularBodyViewModel {
                 }
             }
             Err(_) => {
-                let args = &js_sys::Array::from(&JsValue::from_serde(&["pd-cell-clip"]).unwrap());
+                let args = &js_sys::Array::from(&JsValue::from_serde(&["rt-cell-clip"]).unwrap());
                 td.class_list().remove(args)?;
                 td.style().set_property("min-width", "")?;
                 td.style().set_property("max-width", "")?;

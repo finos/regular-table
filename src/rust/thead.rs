@@ -56,7 +56,7 @@ impl RegularHeaderViewModel {
         th.set_class_name("");
         th.remove_attribute("colspan")?;
         th.style().set_property("min-width", "0")?;
-        th.set_inner_html(&format!(" {}  <span class=\"pd-column-resize\"></span>", column));
+        th.set_inner_html(&format!(" {}  <span class=\"rt-column-resize\"></span>", column));
         Ok(th)
     }
 
@@ -92,12 +92,12 @@ impl RegularHeaderViewModel {
 
             if !override_width.is_undefined() {
                 let cond = !auto_width.is_undefined() && auto_width.as_f64().unwrap() > override_width.as_f64().unwrap();
-                th.class_list().toggle_with_force("pd-cell-clip", cond)?;
+                th.class_list().toggle_with_force("rt-cell-clip", cond)?;
                 let override_width_str = format!("{}px", override_width.as_string().unwrap());
                 th.style().set_property("min-width", &override_width_str)?;
                 th.style().set_property("max-width", &override_width_str)?;
             } else if !auto_width.is_undefined() {
-                th.class_list().remove(&js_sys::Array::from_iter([js_intern!("pd-cell-clip")].iter()))?;
+                th.class_list().remove(&js_sys::Array::from_iter([js_intern!("rt-cell-clip")].iter()))?;
                 th.style().set_property("max-width", "")?;
                 th.style().set_property("min-width", &format!("{}px", auto_width.as_f64().unwrap()))?;
             } else {

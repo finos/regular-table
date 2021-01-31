@@ -34,11 +34,11 @@
 //     const override_width = this._column_sizes.override[metadata.size_key];
 //     if (override_width) {
 //         const auto_width = this._column_sizes.auto[metadata.size_key];
-//         td.classList.toggle("pd-cell-clip", auto_width > override_width);
+//         td.classList.toggle("rt-cell-clip", auto_width > override_width);
 //         td.style.minWidth = override_width + "px";
 //         td.style.maxWidth = override_width + "px";
 //     } else {
-//         td.classList.remove("pd-cell-clip");
+//         td.classList.remove("rt-cell-clip");
 //         td.style.minWidth = "";
 //         td.style.maxWidth = "";
 //     }
