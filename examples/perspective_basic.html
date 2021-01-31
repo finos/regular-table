@@ -16,10 +16,10 @@
     <script src="../dist/umd/regular-table.js"></script>
     <link rel='stylesheet' href="../dist/css/material.css">
     <style>
-        .pd-align-right {
+        .rt-align-right {
             text-align: right;
         }
-        .pd-align-left {
+        .rt-align-left {
             text-align: left;
         }
 
@@ -60,10 +60,10 @@
 
         class PerspectiveDataModel {
             _tree_header_levels(path, is_open, is_leaf) {
-                const tree_levels = path.map(() => '<span class="pd-tree-group"></span>');
+                const tree_levels = path.map(() => '<span class="rt-tree-group"></span>');
                 if (!is_leaf) {
                     const group_icon = is_open ? "remove" : "add";
-                    const tree_button = `<span class="pd-row-header-icon">${group_icon}</span>`;
+                    const tree_button = `<span class="rt-row-header-icon">${group_icon}</span>`;
                     tree_levels.push(tree_button);
                 }
 
@@ -72,10 +72,10 @@
 
             _tree_header(path, is_leaf, is_open) {
                 const name = path.length === 0 ? "TOTAL" : path[path.length - 1];
-                const header_classes = is_leaf ? "pd-group-name pd-group-leaf" : "pd-group-name";
+                const header_classes = is_leaf ? "rt-group-name rt-group-leaf" : "rt-group-name";
                 const tree_levels = this._tree_header_levels(path, is_open, is_leaf);
                 const header_text = name;
-                TEMPLATE.innerHTML = `<span class="pd-tree-container">${tree_levels}<span class="${header_classes}">${header_text}</span></span>`;
+                TEMPLATE.innerHTML = `<span class="rt-tree-container">${tree_levels}<span class="${header_classes}">${header_text}</span></span>`;
                 return TEMPLATE.content.firstChild;
             }
         
@@ -128,20 +128,20 @@
                         type = "string";
                     }
                     if (type === "integer" || type === "float") {
-                        td.classList.toggle("pd-align-right", true);
-                        td.classList.toggle("pd-align-left", false);
+                        td.classList.toggle("rt-align-right", true);
+                        td.classList.toggle("rt-align-left", false);
                         if (parseFloat(metadata.value) > 0) {
-                            td.classList.add("pd-positive");
-                            td.classList.toggle("pd-negative", false);
+                            td.classList.add("rt-positive");
+                            td.classList.toggle("rt-negative", false);
                         } else if (parseFloat(metadata.value) < 0) {
-                            td.classList.add("pd-negative");
-                            td.classList.toggle("pd-positive", false);
+                            td.classList.add("rt-negative");
+                            td.classList.toggle("rt-positive", false);
                         }
                     } else {
-                        td.classList.toggle("pd-positive", false);
-                        td.classList.toggle("pd-negative", false);
-                        td.classList.toggle("pd-align-right", false);
-                        td.classList.toggle("pd-align-left", true);
+                        td.classList.toggle("rt-positive", false);
+                        td.classList.toggle("rt-negative", false);
+                        td.classList.toggle("rt-align-right", false);
+                        td.classList.toggle("rt-align-left", true);
                     }
                 }
             }
