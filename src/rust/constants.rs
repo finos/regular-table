@@ -8,6 +8,8 @@
  *
  */
 
+#![macro_use]
+
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -71,3 +73,86 @@ impl StaticKey for std::thread::LocalKey<JsValue> {
 //         }
 //     }
 // }
+
+#[macro_export]
+macro_rules! js_object {
+	($($key:expr, $value:expr);+ $(;)*) => {
+		{
+			use js_intern::{js_intern};
+			let o = js_sys::Object::new();
+			$(
+				{
+					let k = js_intern!($key);
+                    Reflect::set(&o, k, &$value.into()).unwrap();
+				}
+			)*
+			o
+		}
+	};
+
+	($o:expr; with $($key:expr, $value:expr);+ $(;)*) => {
+		{
+			use js_intern::{js_intern};
+			$(
+				{
+					let k = js_intern!($key);
+                    Reflect::set($o, k, &$value.into()).unwrap();
+				}
+			)*
+			$o
+		}
+	};
+}
+
+#[macro_export]
+macro_rules! js_obj_field {
+    ($value:expr, $key:expr) => {{
+        use js_intern::js_intern;
+        Reflect::get($value, js_intern!($key)).map(|x| x.unchecked_into::<js_sys::Object>())
+    }};
+}
+
+#[macro_export]
+macro_rules! js_html_field {
+    ($value:expr, $key:expr) => {{
+        use js_intern::js_intern;
+        Reflect::get($value, js_intern!($key)).map(|x| x.unchecked_into::<web_sys::HtmlElement>())
+    }};
+}
+
+#[macro_export]
+macro_rules! js_arr_field {
+    ($value:expr, $key:expr) => {{
+        use js_intern::js_intern;
+        Reflect::get($value, js_intern!($key)).map(|x| x.unchecked_into::<js_sys::Array>())
+    }};
+}
+
+#[macro_export]
+macro_rules! js_bool_field {
+    ($value:expr, $key:expr) => {{
+        use js_intern::js_intern;
+        let k = js_intern!($key);
+        Reflect::get($value, k)?.as_bool().ok_or(k)
+    }};
+
+    ($value:expr, $key:expr, $def:expr) => {{
+        use js_intern::js_intern;
+        let d = $def;
+        Reflect::get($value, js_intern!($key)).unwrap_or(d).as_bool().unwrap_or(d)
+    }};
+}
+
+#[macro_export]
+macro_rules! js_f64_field {
+    ($value:expr, $key:expr) => {{
+        use js_intern::js_intern;
+        let k = js_intern!($key);
+        Reflect::get($value, k)?.as_f64().ok_or(k)
+    }};
+
+    ($value:expr, $key:expr, $def:expr) => {{
+        use js_intern::js_intern;
+        Reflect::get($value, js_intern!($key))?.as_f64().unwrap_or($def)
+    }};
+}

@@ -16,7 +16,6 @@ use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-use crate::constants;
 use crate::utils::coerce_str;
 use crate::view_model;
 
@@ -121,7 +120,7 @@ impl RegularHeaderViewModel {
         }
         // TODO wrong - this is not an array, but we can treat it like one here
         let _parts_arr = parts.clone().unchecked_into::<js_sys::Array>();
-        let header_levels = _parts_arr.length(); // Reflect::get(&_parts_arr, js_intern!("length"))?.as_f64().unwrap() as usize;
+        let header_levels = _parts_arr.length();
         let mut th: Option<web_sys::HtmlElement> = None;
         let mut metadata: Option<js_sys::Object> = None;
         for d in 0..header_levels {
@@ -207,10 +206,11 @@ impl RegularHeaderViewModel {
         Ok(ret_obj)
     }
 
-    pub fn clean(&mut self) {
+    pub fn clean(&mut self) -> Result<(), JsValue> {
         self.view_model.borrow_mut()._clean_columns_cache(&self._offset_cache);
-        self._offset_cache = js_sys::Array::new();
-        self._group_header_cache = js_sys::Array::new();
+        Reflect::set(&self._offset_cache, js_intern!("length"), &JsValue::from(0.0))?;
+        Reflect::set(&self._group_header_cache, js_intern!("length"), &JsValue::from(0.0))?;
+        Ok(())
     }
 
     pub fn num_rows(&self) -> usize {
