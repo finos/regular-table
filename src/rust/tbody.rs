@@ -11,6 +11,7 @@
 use js_intern::*;
 use js_sys::Reflect;
 use std::cell::RefCell;
+use std::iter::FromIterator;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -87,10 +88,10 @@ impl RegularBodyViewModel {
 
         Reflect::set(&metadata, js_intern!("value"), val)?;
 
-        let ret_obj = js_sys::Object::new();
-        Reflect::set(&ret_obj, js_intern!("td"), &td)?;
-        Reflect::set(&ret_obj, js_intern!("metadata"), &metadata)?;
-        Ok(ret_obj)
+        Ok(js_object!(
+            "td", td;
+            "metadata", metadata;
+        ))
     }
 
     pub fn draw(
@@ -143,7 +144,7 @@ impl RegularBodyViewModel {
                     let prev_col = self.view_model.borrow_mut()._fetch_cell(ridx as f64, _cidx);
                     let prev_col_metadata = self.view_model.borrow_mut()._get_or_create_metadata(&prev_col);
 
-                    let _prev_col_metadata_value = Reflect::get(&prev_col_metadata, js_intern!("value")).unwrap_or(JsValue::UNDEFINED);
+                    let _prev_col_metadata_value = js_val_field!(&prev_col_metadata, "value", JsValue::UNDEFINED);
                     let _prev_row_metadata_value = Reflect::get(&prev_row_metadata, js_intern!("value")).unwrap_or(JsValue::UNDEFINED);
 
                     // TODO object equality?
@@ -176,8 +177,8 @@ impl RegularBodyViewModel {
                         self.view_model.borrow_mut()._replace_cell(ridx, (cidx as usize) + (i as usize));
                     } else {
                         let _column_state_column_name = Reflect::get(&column_state, js_intern!("column_name"))?;
-                        let _view_state_ridx_offset = Reflect::get(&view_state, js_intern!("ridx_offset"))?.as_f64().unwrap() as usize;
-                        let _view_state_y1 = Reflect::get(&view_state, js_intern!("y1"))?.as_f64().unwrap() as usize;
+                        let _view_state_ridx_offset = js_f64_field!(&view_state, "ridx_offset")? as usize;
+                        let _view_state_y1 = js_f64_field!(&view_state, "y1")? as usize;
                         let _obj = self._draw_td(
                             js_intern!("TH"),
                             ridx,
@@ -187,20 +188,23 @@ impl RegularBodyViewModel {
                             _view_state_ridx_offset,
                             &JsValue::from_f64(i as f64),
                         )?;
+
                         obj = Some(_obj.clone());
-                        let _obj_td = Reflect::get(&_obj, js_intern!("td"))?.dyn_into::<web_sys::HtmlElement>()?;
-                        let _obj_metadata = Reflect::get(&_obj, js_intern!("metadata"))?.dyn_into::<js_sys::Object>()?;
+                        let _obj_td = js_html_field!(&_obj, "td")?;
+                        let _obj_metadata = js_obj_field!(&_obj, "metadata")?;
 
                         _obj_td.style().set_property("display", "")?;
                         _obj_td.remove_attribute("rowspan")?;
                         _obj_td.remove_attribute("colspan")?;
 
-                        Reflect::set(&_obj_metadata, js_intern!("row_header"), &_val)?;
-                        Reflect::set(&_obj_metadata, js_intern!("row_header_x"), &JsValue::from_f64(i as f64))?;
-                        Reflect::set(&_obj_metadata, js_intern!("x0"), x0)?;
-                        Reflect::set(&_obj_metadata, js_intern!("y0"), &JsValue::from_f64(_view_state_ridx_offset as f64))?;
-                        Reflect::set(&_obj_metadata, js_intern!("y1"), &JsValue::from_f64(_view_state_y1 as f64))?;
-                        Reflect::set(&_obj_metadata, js_intern!("_virtual_x"), &JsValue::from_f64(i as f64))?;
+                        js_object!(&_obj_metadata; with
+                            "row_header", _val;
+                            "row_header_x", i as f64;
+                            "x0", x0;
+                            "y0", _view_state_ridx_offset as f64;
+                            "y1", _view_state_y1 as f64;
+                            "_virtual_x", i as f64;
+                        );
 
                         if (i as usize) < ridx_offset.len() {
                             ridx_offset[i as usize] = 1;
@@ -223,28 +227,31 @@ impl RegularBodyViewModel {
                     ridx = ridx + 1;
                 } else {
                     let _column_state_column_name = Reflect::get(&column_state, js_intern!("column_name"))?;
-                    let _view_state_ridx_offset = Reflect::get(&view_state, js_intern!("ridx_offset"))?.as_f64().unwrap() as usize;
-                    let _view_state_x1 = Reflect::get(&view_state, js_intern!("x1"))?.as_f64().unwrap() as usize;
-                    let _view_state_y1 = Reflect::get(&view_state, js_intern!("y1"))?.as_f64().unwrap() as usize;
+                    let _view_state_ridx_offset = js_f64_field!(&view_state, "ridx_offset")? as usize;
+                    let _view_state_x1 = js_f64_field!(&view_state, "x1")? as usize;
+                    let _view_state_y1 = js_f64_field!(&view_state, "y1")? as usize;
 
                     let _obj = self._draw_td(js_intern!("TD"), ridx, &_val, cidx as usize, &_column_state_column_name, _view_state_ridx_offset, &size_key)?;
                     ridx = ridx + 1;
 
                     obj = Some(_obj.clone());
 
-                    let _obj_td = Reflect::get(&_obj, js_intern!("td"))?.dyn_into::<web_sys::HtmlElement>()?;
-                    let _obj_metadata = Reflect::get(&_obj, js_intern!("metadata"))?.dyn_into::<js_sys::Object>()?;
-                    let _obj_metadata_y = Reflect::get(&_obj_metadata, js_intern!("y"))?.as_f64().unwrap();
+                    let _obj_td = js_html_field!(&_obj, "td")?;
+                    let _obj_metadata = js_obj_field!(&_obj, "metadata")?;
+                    let _obj_metadata_y = js_f64_field!(&_obj_metadata, "y")?;
 
-                    Reflect::set(&_obj_metadata, js_intern!("x"), x)?;
-                    Reflect::set(&_obj_metadata, js_intern!("x0"), x0)?;
-                    Reflect::set(&_obj_metadata, js_intern!("x1"), &JsValue::from_f64(_view_state_x1 as f64))?;
-                    Reflect::set(&_obj_metadata, js_intern!("row_header"), &id)?;
-                    Reflect::set(&_obj_metadata, js_intern!("y0"), &JsValue::from_f64(_view_state_ridx_offset as f64))?;
-                    Reflect::set(&_obj_metadata, js_intern!("y1"), &JsValue::from_f64(_view_state_y1 as f64))?;
-                    Reflect::set(&_obj_metadata, js_intern!("dx"), &JsValue::from_f64(x.as_f64().unwrap() - x0.as_f64().unwrap()))?;
-                    Reflect::set(&_obj_metadata, js_intern!("dy"), &JsValue::from_f64(_obj_metadata_y - _view_state_ridx_offset as f64))?;
-                    Reflect::set(&_obj_metadata, js_intern!("_virtual_x"), &JsValue::from_f64(_virtual_x as f64))?;
+                    js_object!(&_obj_metadata; with
+                        "x", x;
+                        "x0", x0;
+                        "x1", _view_state_x1 as f64;
+                        "row_header", id;
+                        "y0", _view_state_ridx_offset as f64;
+                        "y1", _view_state_y1 as f64;
+                        "dx", x.as_f64().unwrap() - x0.as_f64().unwrap();
+                        "dy", _obj_metadata_y - _view_state_ridx_offset as f64;
+                        "_virtual_x", _virtual_x as f64;
+                    );
+
                     if tds.len() == 0 {
                         tds.push(_obj);
                     } else {
@@ -255,10 +262,10 @@ impl RegularBodyViewModel {
                 metadata = match obj {
                     Some(x) => {
                         if row_height.is_undefined() {
-                            let _obj_td = Reflect::get(&x, js_intern!("td"))?.unchecked_into::<web_sys::HtmlElement>();
+                            let _obj_td = js_html_field!(&x, "td")?;
                             row_height = JsValue::from_f64(_obj_td.offset_height() as f64);
                         }
-                        Some(Reflect::get(&x, js_intern!("metadata"))?.unchecked_into::<js_sys::Object>())
+                        Some(js_obj_field!(&x, "metadata")?)
                     }
                     None => metadata,
                 };
@@ -271,21 +278,17 @@ impl RegularBodyViewModel {
 
         self.view_model.borrow_mut()._clean_rows(ridx as u32);
 
-        let ret_obj = js_sys::Object::new();
-        let array = js_sys::Array::new();
-        for td in tds {
-            array.push(&td);
-        }
-        Reflect::set(&ret_obj, js_intern!("tds"), &array)?;
-        Reflect::set(&ret_obj, js_intern!("ridx"), &JsValue::from_f64(ridx as f64))?;
-        Reflect::set(&ret_obj, js_intern!("metadata"), &metadata.unwrap())?;
-        Reflect::set(&ret_obj, js_intern!("row_height"), &row_height)?;
-        Ok(ret_obj)
+        Ok(js_object!(
+            "tds", js_sys::Array::from_iter(tds.iter());
+            "ridx", ridx as f64;
+            "metadata", metadata.unwrap();
+            "row_height", row_height;
+        ))
     }
 
     pub fn clean(&mut self, obj: js_sys::Object) -> Result<(), JsValue> {
-        let ridx: f64 = Reflect::get(&obj, js_intern!("ridx"))?.as_f64().unwrap();
-        let cidx: f64 = Reflect::get(&obj, js_intern!("cidx"))?.as_f64().unwrap();
+        let ridx: f64 = js_f64_field!(&obj, "ridx")?;
+        let cidx: f64 = js_f64_field!(&obj, "cidx")?;
         let mut _view_model = self.view_model.borrow_mut();
         _view_model._clean_rows(ridx as u32);
         _view_model._clean_columns(cidx);

@@ -168,13 +168,9 @@ impl ViewModel {
         (tr, row_container)
     }
 
-    pub fn _clean_columns_cache(&mut self, cidx: &js_sys::Array) {
+    pub fn _clean_columns_cache(&mut self, cidx: &Vec<usize>) {
         for (i, tr) in self.rows.iter().enumerate() {
-            let ccidx = match cidx.get(i as u32).as_f64() {
-                Some(_cidx) => _cidx,
-                None => cidx.as_f64().unwrap_or(f64::from(self.cells[i].len() as u32) - 1.0),
-            };
-
+            let ccidx = cidx[i];
             self.cells[i] = self.cells[i][..ccidx as usize].to_vec();
             let idx = self.cells[i].iter().filter(|x| !x.is_undefined()).count();
             while idx < tr.children().length() as usize {

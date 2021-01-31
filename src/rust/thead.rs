@@ -16,7 +16,6 @@ use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-use crate::constants;
 use crate::utils::coerce_str;
 use crate::view_model;
 
@@ -30,8 +29,8 @@ use crate::view_model;
 #[derive(Clone)]
 pub struct RegularHeaderViewModel {
     view_model: Rc<RefCell<view_model::ViewModel>>,
-    _offset_cache: js_sys::Array,
-    _group_header_cache: js_sys::Array,
+    _offset_cache: Rc<RefCell<Vec<usize>>>,
+    _group_header_cache: Rc<RefCell<Vec<(js_sys::Object, web_sys::HtmlElement, f64)>>>,
 }
 
 #[wasm_bindgen]
@@ -39,20 +38,20 @@ impl RegularHeaderViewModel {
     #[wasm_bindgen(constructor)]
     pub fn new(column_sizes: js_sys::Object, container: js_sys::Object, table: web_sys::HtmlElement) -> RegularHeaderViewModel {
         RegularHeaderViewModel {
-            _offset_cache: js_sys::Array::new(),
-            _group_header_cache: js_sys::Array::new(),
+            _offset_cache: Rc::new(RefCell::new(vec![])),
+            _group_header_cache: Rc::new(RefCell::new(vec![])),
             view_model: Rc::new(RefCell::new(view_model::ViewModel::new(column_sizes, container, table))),
         }
     }
 
     pub fn _draw_group_th(&mut self, d: u32, column: &str) -> Result<web_sys::HtmlElement, JsValue> {
-        let cidx = if d < self._offset_cache.length() {
-            self._offset_cache.get(d).as_f64().unwrap() as usize
+        let cidx = if d < self._offset_cache.borrow().len() as u32 {
+            self._offset_cache.borrow()[d as usize]
         } else {
             0
         };
 
-        self._offset_cache.set(d, JsValue::from_f64((cidx + 1) as f64));
+        self._offset_cache.borrow_mut()[d as usize] = cidx + 1;
         let th = self.view_model.borrow_mut()._get_cell(js_intern!("TH"), d as usize, cidx);
         th.set_class_name("");
         th.remove_attribute("colspan")?;
@@ -72,13 +71,12 @@ impl RegularHeaderViewModel {
     pub fn _draw_th(&self, column: &JsValue, column_name: &JsValue, th: &web_sys::HtmlElement, _: &JsValue, size_key: &JsValue) -> Result<js_sys::Object, JsValue> {
         let metadata = self._get_or_create_metadata(&th);
         let _size_key_array = size_key.clone().dyn_into::<js_sys::Array>();
-        Reflect::set(&metadata, js_intern!("column_header"), column)?;
-        Reflect::set(&metadata, js_intern!("value"), column_name)?;
-        Reflect::set(
-            &metadata,
-            js_intern!("size_key"),
-            &if js_sys::Array::is_array(size_key) { _size_key_array.clone()?.get(0) } else { size_key.clone() },
-        )?;
+        let _size_key = if js_sys::Array::is_array(size_key) { _size_key_array.clone()?.get(0) } else { size_key.clone() };
+        js_object!(&metadata; with
+            "column_header", column;
+            "value", column_name;
+            "size_key", _size_key;
+        );
 
         if !(_size_key_array.is_ok() && _size_key_array?.length() > 1) {
             let override_width = {
@@ -112,7 +110,8 @@ impl RegularHeaderViewModel {
     }
 
     pub fn get_column_header(&mut self, cidx: usize) -> web_sys::HtmlElement {
-        self.view_model.borrow_mut()._get_cell(js_intern!("TH"), self.view_model.borrow().num_rows() - 1, cidx)
+        let nrows = self.view_model.borrow().num_rows() - 1;
+        self.view_model.borrow_mut()._get_cell(js_intern!("TH"), nrows, cidx)
     }
 
     pub fn draw(&mut self, alias: &JsValue, parts: &JsValue, colspan: bool, x: &JsValue, size_key: &JsValue, x0: &JsValue, _virtual_x: &JsValue) -> Result<js_sys::Object, JsValue> {
@@ -121,7 +120,7 @@ impl RegularHeaderViewModel {
         }
         // TODO wrong - this is not an array, but we can treat it like one here
         let _parts_arr = parts.clone().unchecked_into::<js_sys::Array>();
-        let header_levels = _parts_arr.length(); // Reflect::get(&_parts_arr, js_intern!("length"))?.as_f64().unwrap() as usize;
+        let header_levels = _parts_arr.length();
         let mut th: Option<web_sys::HtmlElement> = None;
         let mut metadata: Option<js_sys::Object> = None;
         for d in 0..header_levels {
@@ -131,17 +130,15 @@ impl RegularHeaderViewModel {
                 "".to_string()
             };
 
-            Reflect::set(
-                &self._offset_cache,
-                &JsValue::from(d),
-                &if self._offset_cache.get(d).is_undefined() { JsValue::from(0) } else { self._offset_cache.get(d) },
-            )?;
+            if d >= self._offset_cache.borrow().len() as u32 {
+                self._offset_cache.borrow_mut().push(0);
+                assert_eq!(self._offset_cache.borrow().len() - 1, d as usize);
+            }
 
             if d < header_levels - 1 {
                 let _group_header_cache_d0value = {
-                    let _ghc_entry = self._group_header_cache.get(d);
-                    if !_ghc_entry.is_undefined() {
-                        let _entry2 = _ghc_entry.unchecked_ref::<js_sys::Array>().get(0);
+                    if d < self._group_header_cache.borrow().len() as u32 {
+                        let _entry2 = &self._group_header_cache.borrow()[d as usize].0;
                         if !_entry2.is_undefined() {
                             Reflect::get(&_entry2, js_intern!("value"))?.as_string().map(|x| x == *column_name).unwrap_or(false)
                         } else {
@@ -153,32 +150,36 @@ impl RegularHeaderViewModel {
                 };
 
                 if _group_header_cache_d0value {
-                    let _group_header_cache_d_row = self._group_header_cache.get(d).unchecked_into::<js_sys::Array>();
-                    let _th = _group_header_cache_d_row.get(1).dyn_into::<web_sys::HtmlElement>()?;
-                    _group_header_cache_d_row.set(2, {
-                        let _v = _group_header_cache_d_row.get(2);
-                        JsValue::from(_v.as_f64().unwrap_or(0.0) + 1.0)
-                    });
+                    let _group_header_cache_d_row = &mut self._group_header_cache.borrow_mut()[d as usize];
+                    let _th = &_group_header_cache_d_row.1;
+                    _group_header_cache_d_row.2 = {
+                        let _v = _group_header_cache_d_row.2;
+                        _v + 1.0
+                    };
+
                     if colspan {
-                        Reflect::set(&_group_header_cache_d_row.get(0), js_intern!("row_header_x"), &size_key)?;
+                        Reflect::set(&_group_header_cache_d_row.0, js_intern!("row_header_x"), &size_key)?;
                     }
-                    _th.set_attribute("colspan", &_group_header_cache_d_row.get(2).as_f64().unwrap().to_string())?;
-                    th = Some(_th);
+                    _th.set_attribute("colspan", &_group_header_cache_d_row.2.to_string())?;
+                    th = Some(_th.clone());
                 } else {
                     let _th = self._draw_group_th(d, column_name)?;
                     let _metadata = self._draw_th(if alias.is_undefined() { parts } else { alias }, &JsValue::from_str(column_name), &_th, x, size_key)?;
-                    let _new_group_header_row = js_sys::Array::from_iter([&_metadata, &_th, &JsValue::from_f64(1.0).into()].iter()).into();
-                    self._group_header_cache.set(d, _new_group_header_row);
+                    let _new_group_header_row = (_metadata.clone(), _th.clone(), 1.0);
+                    if d < self._group_header_cache.borrow().len() as u32 {
+                        self._group_header_cache.borrow_mut()[d as usize] = _new_group_header_row;
+                    } else {
+                        self._group_header_cache.borrow_mut().push(_new_group_header_row);
+                    }
                     th = Some(_th);
                     metadata = Some(_metadata);
                 }
             } else {
                 let _th = self._draw_group_th(d, column_name)?;
                 let _metadata = self._draw_th(if alias.is_undefined() { parts } else { alias }, &JsValue::from_str(column_name), &_th, x, size_key)?;
-                for group_meta in self._group_header_cache.values() {
+                for (group_meta, _, _) in self._group_header_cache.borrow().iter() {
                     let old_key = Reflect::get(&_metadata, js_intern!("size_key"))?;
-                    let group_meta_first = group_meta?.dyn_into::<js_sys::Array>()?.get(0);
-                    Reflect::set(&group_meta_first, js_intern!("size_key"), &old_key)?;
+                    Reflect::set(&group_meta, js_intern!("size_key"), &old_key)?;
                 }
                 _th.remove_attribute("colspan")?;
                 th = Some(_th);
@@ -188,10 +189,13 @@ impl RegularHeaderViewModel {
             match metadata.clone() {
                 None => {}
                 Some(_metadata) => {
-                    Reflect::set(&_metadata, js_intern!("x"), x)?;
-                    Reflect::set(&_metadata, js_intern!("column_header_y"), &JsValue::from_f64(d as f64))?;
-                    Reflect::set(&_metadata, js_intern!("x0"), x0)?;
-                    Reflect::set(&_metadata, js_intern!("_virtual_x"), _virtual_x)?;
+                    js_object!(&_metadata; with
+                        "x", x;
+                        "column_header_y", d;
+                        "x0", x0;
+                        "_virtual_x", _virtual_x;
+                    );
+
                     if colspan {
                         Reflect::set(&_metadata, js_intern!("row_header_x"), size_key)?;
                     }
@@ -199,18 +203,19 @@ impl RegularHeaderViewModel {
             }
         }
 
-        self.view_model.borrow_mut()._clean_rows(self._offset_cache.length());
+        self.view_model.borrow_mut()._clean_rows(self._offset_cache.borrow().len() as u32);
 
-        let ret_obj = js_sys::Object::new();
-        Reflect::set(&ret_obj, js_intern!("th"), &th.unwrap_or(JsValue::UNDEFINED.into()))?;
-        Reflect::set(&ret_obj, js_intern!("metadata"), &metadata.unwrap_or(JsValue::UNDEFINED.into()))?;
-        Ok(ret_obj)
+        Ok(js_object!(
+            "th", th.unwrap_or(JsValue::UNDEFINED.into());
+            "metadata", metadata.unwrap_or(JsValue::UNDEFINED.into());
+        ))
     }
 
-    pub fn clean(&mut self) {
-        self.view_model.borrow_mut()._clean_columns_cache(&self._offset_cache);
-        self._offset_cache = js_sys::Array::new();
-        self._group_header_cache = js_sys::Array::new();
+    pub fn clean(&mut self) -> Result<(), JsValue> {
+        self.view_model.borrow_mut()._clean_columns_cache(&self._offset_cache.borrow());
+        self._offset_cache.replace(vec![]);
+        self._group_header_cache.replace(vec![]);
+        Ok(())
     }
 
     pub fn num_rows(&self) -> usize {
