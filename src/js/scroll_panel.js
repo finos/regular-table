@@ -61,6 +61,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * double buffered `<table>` is rendered in the shadow DOM before being
      * swapped in.
      *
+     * @internal
+     * @private
      * @memberof RegularVirtualTableViewModel
      */
     create_shadow_dom() {
@@ -86,10 +88,12 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Calculates the `viewport` argument for perspective's `to_columns` method.
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} nrows
      * @param {*} reset_scroll_position
      * @returns
-     * @memberof RegularVirtualTableViewModel
      */
     _calculate_viewport(nrows, num_columns, reset_scroll_position) {
         const {start_row, end_row} = this._calculate_row_range(nrows, reset_scroll_position);
@@ -131,10 +135,12 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *        |                          |
      *  600px +--------------------------+
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} nrows
      * @param {*} reset_scroll_position
      * @returns
-     * @memberof RegularVirtualTableViewModel
      */
     _calculate_row_range(nrows, reset_scroll_position) {
         const {height} = this._container_size;
@@ -156,8 +162,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * details of which are actually calculated in `_max_column`, the equivalent
      * of `total_scroll_height` from `_calculate_row_range`.
      *
-     * @returns
+     * @internal
+     * @private
      * @memberof RegularVirtualTableViewModel
+     * @returns
      */
     _calculate_column_range(num_columns) {
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
@@ -189,8 +197,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *   |                 | 80px  | 110px   | 100px  |
      *   |                 |       |         |        |
      *
-     * @returns
+     * @internal
+     * @private
      * @memberof RegularVirtualTableViewModel
+     * @returns
      */
     _max_scroll_column(num_columns) {
         let width = 0;
@@ -213,9 +223,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * e.g. when the logical (row-wise) viewport does not change, but the pixel
      * viewport has moved a few px.
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} {start_col, end_col, start_row, end_row}
      * @returns
-     * @memberof RegularVirtualTableViewModel
      */
     _validate_viewport({start_col, end_col, start_row, end_row}) {
         const invalid_column = this._start_col !== start_col;
@@ -230,8 +242,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Updates the `virtual_panel` width based on view state.
      *
-     * @param {*} invalid
+     * @internal
+     * @private
      * @memberof RegularVirtualTableViewModel
+     * @param {*} invalid
      */
     _update_virtual_panel_width(invalid, num_columns) {
         if (invalid) {
@@ -257,8 +271,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     /**
      * Updates the `virtual_panel` height based on the view state.
      *
-     * @param {*} nrows
+     * @internal
+     * @private
      * @memberof RegularVirtualTableViewModel
+     * @param {*} nrows
      */
     _update_virtual_panel_height(nrows) {
         const {row_height = 19} = this._column_sizes;
@@ -281,23 +297,25 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * interaction and previous render state.
      *
      * `reset_scroll_position` will not prevent the viewport from moving as
-     * `draw()` may change the dmiensions of the virtual_panel (and thus,
+     * `draw()` may change the dimensions of the virtual_panel (and thus,
      * absolute scroll offset).  This calls `reset_scroll`, which will
      * trigger `_on_scroll` and ultimately `draw()` again;  however, this call
      * to `draw()` will be for the same viewport and will not actually cause
      * a render.
      *
-     * @param {*} [options]
-     * @param {boolean} [options.reset_scroll_position=false]
+     * @public
+     * @memberof RegularVirtualTableViewModel
+     * @param {DrawOptions} [options]
+     * @param {boolean} [options.invalid_viewport=true]
      * @param {boolean} [options.preserve_width=false]
+     * @param {boolean} [options.reset_scroll_position=false]
      * @param {boolean} [options.swap=false]
      * @returns
-     * @memberof RegularVirtualTableViewModel
      */
     @throttlePromise
     async draw(options = {}) {
         const __debug_start_time__ = DEBUG && performance.now();
-        const {reset_scroll_position = false, preserve_width = false, invalid_viewport = true, swap = false} = options;
+        const {invalid_viewport = true, preserve_width = false, reset_scroll_position = false, swap = false} = options;
 
         if (reset_scroll_position) {
             this.reset_scroll();
@@ -347,3 +365,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
     }
 }
+
+/**
+ * Options for the draw method.
+ *
+ * @typedef DrawOptions
+ * @type {object}
+ * @property {boolean} [invalid_viewport]
+ * @property {boolean} [preserve_width]
+ * @property {boolean} [reset_scroll_position]
+ * @property {boolean} [swap]
+ */
