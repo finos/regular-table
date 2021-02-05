@@ -33,7 +33,7 @@ export class RegularTableViewModel {
     }
 
     num_columns() {
-        return this.header._get_row(Math.max(0, this.header.rows?.length - 1 || 0)).row_container.length;
+        return this.header.num_columns();
     }
 
     clear(element) {

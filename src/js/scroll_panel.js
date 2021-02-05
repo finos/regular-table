@@ -262,7 +262,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _update_virtual_panel_height(nrows) {
         const {row_height = 19} = this._column_sizes;
-        const header_height = this.table_model.header.cells.length * row_height;
+        const header_height = this.table_model.header.num_rows() * row_height;
         let virtual_panel_px_size;
         if (this._virtual_scrolling_disabled) {
             virtual_panel_px_size = nrows * row_height + header_height;
@@ -281,7 +281,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * interaction and previous render state.
      *
      * `reset_scroll_position` will not prevent the viewport from moving as
-     * `draw()` may change the dmiensions of the virtual_panel (and thus,
+     * `draw()` may change the dimensions of the virtual_panel (and thus,
      * absolute scroll offset).  This calls `reset_scroll`, which will
      * trigger `_on_scroll` and ultimately `draw()` again;  however, this call
      * to `draw()` will be for the same viewport and will not actually cause

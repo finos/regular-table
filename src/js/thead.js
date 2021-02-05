@@ -20,7 +20,7 @@ import {html} from "./utils.js";
  */
 export class RegularHeaderViewModel extends ViewModel {
     _draw_group_th(offset_cache, d, column) {
-        const th = this._get_cell("TH", d, offset_cache[d]);
+        const th = this._get_cell("TH", d, offset_cache[d] || 0);
         offset_cache[d] += 1;
         th.className = "";
         th.removeAttribute("colspan");
@@ -69,7 +69,7 @@ export class RegularHeaderViewModel extends ViewModel {
     }
 
     get_column_header(cidx) {
-        return this._get_cell("TH", this.rows.length - 1, cidx);
+        return this._get_cell("TH", this.num_rows() - 1, cidx);
     }
 
     _group_header_cache = [];
