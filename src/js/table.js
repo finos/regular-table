@@ -141,7 +141,6 @@ export class RegularTableViewModel {
 
         try {
             let dcidx = 0;
-            let unknown_column_sizes = [];
             const num_visible_columns = num_columns - viewport.start_col;
             while (dcidx < num_visible_columns) {
                 if (!data[dcidx]) {
@@ -179,8 +178,7 @@ export class RegularTableViewModel {
                 if (last_measured_col_width) {
                     view_state.viewport_width += last_measured_col_width;
                 } else {
-                    view_state.viewport_width += 65;
-                    unknown_column_sizes.push([cont_body.tds, cont_head.th]);
+                    view_state.viewport_width += cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || cont_head.th.offsetWidth;
                 }
 
                 view_state.row_height = view_state.row_height || cont_body.row_height;
@@ -189,10 +187,20 @@ export class RegularTableViewModel {
 
                 if (view_state.viewport_width > container_width) {
                     yield last_cells;
-                    for (const [tds, th] of unknown_column_sizes) {
-                        view_state.viewport_width -= 65;
-                        view_state.viewport_width += tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || th.offsetWidth;
+
+                    // If we make it here, this draw() call was invalidated by
+                    // a call to `invalidate()` within a `StyleListener`, so
+                    // recalculate the cumulative width and keep drawing if
+                    // necessary.  Note `last_cells` is a list of 2-tuples but
+                    // we only bind the first var because _eslint_.
+                    view_state.viewport_width = 0;
+                    for (let [td] of last_cells) {
+                        view_state.viewport_width += td.offsetWidth;
                     }
+
+                    // If there are still enough columns to fill the screen,
+                    // completely end the iteration here, otherwise
+                    // continue iterating to draw another column.
                     if (view_state.viewport_width > container_width) {
                         return;
                     }

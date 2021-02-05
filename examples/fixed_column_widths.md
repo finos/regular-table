@@ -62,6 +62,7 @@ const fixColumnWidths = (table, isFixed) => {
     }
 
     function styleListener() {
+        table.invalidate();
         const ths = table.querySelectorAll("thead th");
         const tds = table.querySelectorAll("tbody td");
         for (const cell of [...ths, ...tds]) {

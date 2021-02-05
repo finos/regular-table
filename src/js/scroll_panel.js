@@ -330,11 +330,17 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 
             let last_cells;
             for await (last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
+                this._is_styling = true;
                 for (const callback of this._style_callbacks.values()) {
                     await callback({detail: this});
                 }
-            }
+                this._is_styling = false;
 
+                if (!this._invalidated) {
+                    break;
+                }
+                this._invalidated = false;
+            }
             this.table_model.autosize_cells(last_cells);
             if (!preserve_width) {
                 this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);
