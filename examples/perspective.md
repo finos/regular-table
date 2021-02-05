@@ -318,6 +318,7 @@ function _format(parts, val, use_table_schema = false) {
 }
 
 function formatStyleListener(regularTable) {
+    regularTable.invalidate();
     for (const td of regularTable.querySelectorAll("table tbody td")) {
         const metadata = regularTable.getMeta(td);
         let type = get_psp_type.call(this, metadata);

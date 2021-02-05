@@ -25,6 +25,10 @@ export class ViewModel {
         this.rows = [];
     }
 
+    num_columns() {
+        return this._get_row(Math.max(0, this.rows.length - 1)).row_container.length;
+    }
+
     num_rows() {
         return this.cells.length;
     }
