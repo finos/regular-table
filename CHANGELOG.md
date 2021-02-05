@@ -1,6 +1,29 @@
 # Changelog
 
-## [v0.1.6](https://github.com/jpmorganchase/regular-table/tree/v0.1.6)
+## [v0.2.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.1.6...HEAD)
+
+**Implemented enhancements:**
+
+- The "namespace" of the css classes doesn't match the name of this project [\#107](https://github.com/jpmorganchase/regular-table/issues/107)
+- Invalidate [\#112](https://github.com/jpmorganchase/regular-table/pull/112) ([texodus](https://github.com/texodus))
+
+**Fixed bugs:**
+
+- There are some minor typos in the jsdoc annotations [\#110](https://github.com/jpmorganchase/regular-table/issues/110)
+
+**Closed issues:**
+
+- Rename main branch [\#106](https://github.com/jpmorganchase/regular-table/issues/106)
+
+**Merged pull requests:**
+
+- Fixup jsdoc annotations, carry fixups over to typescript typings [\#111](https://github.com/jpmorganchase/regular-table/pull/111) ([telamonian](https://github.com/telamonian))
+- map pd-\>rt in css namespace [\#108](https://github.com/jpmorganchase/regular-table/pull/108) ([timkpaine](https://github.com/timkpaine))
+- make logo transparent background, change font to \#414042 so can be se… [\#105](https://github.com/jpmorganchase/regular-table/pull/105) ([timkpaine](https://github.com/timkpaine))
+
+## [v0.1.6](https://github.com/jpmorganchase/regular-table/tree/v0.1.6) (2021-01-13)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.1.5...v0.1.6)
 
