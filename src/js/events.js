@@ -146,7 +146,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 return;
             }
         }
-        const is_resize = event.target.classList.contains("pd-column-resize");
+        const is_resize = event.target.classList.contains("rt-column-resize");
         const metadata = METADATA_MAP.get(element);
         if (is_resize) {
             await new Promise(setTimeout);
@@ -162,7 +162,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 }
                 td.style.minWidth = "";
                 td.style.maxWidth = "";
-                td.classList.remove("pd-cell-clip");
+                td.classList.remove("rt-cell-clip");
             }
             await this.draw();
         }
@@ -191,7 +191,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             }
         }
 
-        const is_resize = event.target.classList.contains("pd-column-resize");
+        const is_resize = event.target.classList.contains("rt-column-resize");
         const metadata = METADATA_MAP.get(element);
         if (is_resize) {
             this._on_resize_column(event, element, metadata);
@@ -255,7 +255,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 const td = row[metadata._virtual_x];
                 if (td) {
                     td.style.maxWidth = td.style.minWidth = override_width + "px";
-                    td.classList.toggle("pd-cell-clip", auto_width > override_width);
+                    td.classList.toggle("rt-cell-clip", auto_width > override_width);
                 }
             }
         }
