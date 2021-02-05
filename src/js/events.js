@@ -29,8 +29,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     }
 
     /**
+     *
+     * @internal
+     * @private
+     * @memberof RegularViewEventModel
      * @returns
-     * @memberof RegularViewModel
      */
     async _on_scroll(event) {
         event.stopPropagation();
@@ -45,6 +48,8 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * and disabled to achieve clean virtual scrolling in the presence of a
      * `fixed` element.
      *
+     * @internal
+     * @private
      * @memberof RegularViewEventModel
      */
     _register_glitch_scroll_listeners() {
@@ -63,8 +68,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * Mousewheel must precalculate in addition to `_on_scroll` to prevent
      * visual artifacts due to scrolling "inertia" on modern browsers.
      *
+     * @internal
+     * @private
+     * @memberof RegularViewEventModel
      * @param {*} event
-     * @memberof RegularViewModel
      */
     _on_mousewheel(event) {
         if (this._virtual_scrolling_disabled) {
@@ -88,9 +95,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * the unfortunate side-effect of disabling scroll intertia, but the
      * alternative is a dodgy, glitchy mess.
      *
+     * @internal
+     * @private
+     * @memberof RegularViewEventModel
      * @param {*} event
      * @returns
-     * @memberof RegularViewEventModel
      */
     _on_touchmove(event) {
         if (this._virtual_scrolling_disabled) {
@@ -110,8 +119,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * Memoize `touchstart` positions to calculate deltas, since these are not
      * generated on `touchmove` events.
      *
-     * @param {*} event
+     * @internal
+     * @private
      * @memberof RegularViewEventModel
+     * @param {*} event
      */
     _on_touchstart(event) {
         this._memo_touch_startY = event.touches[0].screenY;
@@ -121,9 +132,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     /**
      * Handles double-click header width override reset.
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} event
      * @returns
-     * @memberof RegularVirtualTableViewModel
      */
     async _on_dblclick(event) {
         let element = event.target;
@@ -159,9 +172,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * Dispatches all click events to other handlers, depending on
      * `event.target`.
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} event
      * @returns
-     * @memberof RegularVirtualTableViewModel
      */
     async _on_click(event) {
         if (event.button !== 0) {
@@ -186,10 +201,12 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     /**
      * Regular event for column resize.
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} event
      * @param {*} element
      * @param {*} metadata
-     * @memberof RegularVirtualTableViewModel
      */
     _on_resize_column(event, element, metadata) {
         const start = event.pageX;
@@ -210,12 +227,14 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     /**
      * Regular event for mouse movement when resizing a column.
      *
+     * @internal
+     * @private
+     * @memberof RegularVirtualTableViewModel
      * @param {*} event
      * @param {*} th
      * @param {*} start
      * @param {*} width
      * @param {*} metadata
-     * @memberof RegularVirtualTableViewModel
      */
     @throttlePromise
     async _on_resize_column_move(event, th, start, width, metadata) {

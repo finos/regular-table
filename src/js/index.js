@@ -302,7 +302,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * @property {number} [x1] - The `x` index of the viewport corner in
  * your data model, e.g. what was passed to `x1` when your
  * `dataListener` was invoked.
- * @property {number} [y1] - The `y` index of the viewport origin in
+ * @property {number} [y1] - The `y` index of the viewport corner in
  * your data model, e.g. what was passed to `y1` when your
  * `dataListener` was invoked.
  * @property {number} [dx] - The `x` index in `DataResponse.data`, this
@@ -312,7 +312,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * @property {number} [column_header_y] - The `y` index in
  * `DataResponse.column_headers[x]`, this property is only generated for `<th>`
  * from `column_headers`.
- * @property {number} [column_header_x] - The `x` index in
+ * @property {number} [row_header_x] - The `x` index in
  * `DataResponse.row_headers[y]`, this property is only generated for `<th>`
  * from `row_headers`.
  * @property {number} size_key - The unique index of this column in a full
@@ -321,6 +321,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `DataResponse.row_headers`, if it was provided.
  * @property {Array<object>} [column_header] - The `Array` for this `x` in
  * `DataResponse.column_headers`, if it was provided.
+ * @property {object} [value] - The value dispalyed in the cell or header.
  */
 
 /**
@@ -373,8 +374,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `Event`); and returns a `Promise` for a `DataResponse` object for this
  * region (as opposed to returning `void` as a standard event listener).
  *
- * @typedef DataListener
- * @type {function}
+ * @callback DataListener
  * @param {number} x0 - The origin `x` index (column).
  * @param {number} y0 - The origin `y` index (row).
  * @param {number} x1 - The corner `x` index (column).
