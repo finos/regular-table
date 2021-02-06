@@ -13,7 +13,7 @@
 export const METADATA_MAP = new WeakMap();
 
 // Output runtime debug info like FPS.
-export const DEBUG = false;
+export const DEBUG = true;
 
 // The largest size virtual <div> in (px) that Chrome can support without
 // glitching.

@@ -95,9 +95,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} reset_scroll_position
      * @returns
      */
-    _calculate_viewport(nrows, num_columns, reset_scroll_position) {
+    _calculate_viewport(nrows, num_columns, reset_scroll_position, invalid_columns) {
         const {start_row, end_row} = this._calculate_row_range(nrows, reset_scroll_position);
-        const {start_col, end_col} = this._calculate_column_range(num_columns);
+        const {start_col, end_col} = this._calculate_column_range(num_columns, invalid_columns);
         this._nrows = nrows;
         return {start_col, end_col, start_row, end_row};
     }
@@ -167,12 +167,12 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @memberof RegularVirtualTableViewModel
      * @returns
      */
-    _calculate_column_range(num_columns) {
+    _calculate_column_range(num_columns, invalid_columns) {
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
         const percent_left = this.scrollLeft / total_scroll_width;
         const max_scroll_column = this._max_scroll_column(num_columns) + 0.5;
         let start_col = Math.floor(max_scroll_column * percent_left);
-        const vis_cols = this.table_model.num_columns() || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
+        const vis_cols = (!invalid_columns && this.table_model.num_columns()) || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
         let end_col = start_col + vis_cols + 1;
         return {start_col, end_col};
     }
@@ -315,13 +315,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     @throttlePromise
     async draw(options = {}) {
         const __debug_start_time__ = DEBUG && performance.now();
-        const {invalid_viewport = true, preserve_width = false, reset_scroll_position = false, swap = false} = options;
+        const {invalid_viewport = true, preserve_width = false, reset_scroll_position = false, invalid_columns = false} = options;
 
         if (reset_scroll_position) {
             this.reset_scroll();
         }
 
-        this._invalid_schema = swap || this._invalid_schema;
+        this._invalid_schema = invalid_columns || this._invalid_schema;
 
         const {num_columns, num_rows} = await this._view_cache.view(0, 0, 0, 0);
 
@@ -334,11 +334,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             };
         }
 
-        const viewport = this._calculate_viewport(num_rows, num_columns, reset_scroll_position);
+        const viewport = this._calculate_viewport(num_rows, num_columns, reset_scroll_position, invalid_columns);
         const {invalid_row, invalid_column} = this._validate_viewport(viewport);
         this._update_virtual_panel_height(num_rows);
 
-        if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
+        if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport || invalid_column) {
             this.dispatchEvent(
                 new CustomEvent("regular-table-before-update", {
                     bubbles: true,
@@ -359,7 +359,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 }
                 this._invalidated = false;
             }
+
             this.table_model.autosize_cells(last_cells);
+            this.table_model.header.reset_header_cache();
             if (!preserve_width) {
                 this._update_virtual_panel_width(this._invalid_schema || invalid_column || invalid_viewport, num_columns);
             }
