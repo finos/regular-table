@@ -97,8 +97,6 @@ export function throttlePromise(target, property, descriptor) {
         let result;
         try {
             result = await f.call(this, ...args);
-        } catch (e) {
-            console.error(e);
         } finally {
             const l = this[lock];
             this[lock] = undefined;

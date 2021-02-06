@@ -124,6 +124,9 @@ export class RegularHeaderViewModel extends ViewModel {
 
     clean() {
         this._clean_columns(this._offset_cache);
+    }
+
+    reset_header_cache() {
         this._offset_cache = [];
         this._group_header_cache = [];
     }

@@ -186,6 +186,8 @@ export class RegularTableViewModel {
                 dcidx++;
 
                 if (view_state.viewport_width > container_width) {
+                    this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
+                    this.header.clean();
                     yield last_cells;
 
                     // If we make it here, this draw() call was invalidated by
@@ -206,7 +208,8 @@ export class RegularTableViewModel {
                     }
                 }
             }
-
+            this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
+            this.header.clean();
             yield last_cells;
         } finally {
             this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
