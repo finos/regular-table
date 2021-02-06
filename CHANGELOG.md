@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.2.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [v0.2.1](https://github.com/jpmorganchase/regular-table/tree/v0.2.1)
 
-[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.1.6...HEAD)
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.2.0...HEAD)
+
+**Fixed bugs:**
+
+- Clean and autosize columns in incremental render passes [\#113](https://github.com/jpmorganchase/regular-table/pull/113) ([texodus](https://github.com/texodus))
+
+## [v0.2.0](https://github.com/jpmorganchase/regular-table/tree/v0.2.0) (2021-02-05)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.1.6...v0.2.0)
 
 **Implemented enhancements:**
 
