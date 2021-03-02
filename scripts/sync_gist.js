@@ -9,6 +9,7 @@ const hashes = {
     minesweeper: "96a9ed60d0250f7d3187c0fed5f5b78c",
     file_browser: "a7b7588c899e3953dd8580e81c51b3f9",
     spreadsheet: "3e0e3d6f8bf8b47294a7847b402b55fb",
+    row_mouse_selection: "f880c45f68ba062fd53e39fe13615d6d",
 };
 
 for (const file in hashes) {
