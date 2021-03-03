@@ -28,7 +28,7 @@ describe("row_mouse_selection.html", () => {
         test("selects the rows' headers and cells", async () => {
             const rowHeader1 = await page.$("regular-table tbody tr:nth-of-type(2) th");
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, rowHeader1);
 

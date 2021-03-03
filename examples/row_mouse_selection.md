@@ -416,15 +416,36 @@ function generateDataListener(num_rows, num_columns) {
 Now to kick off our example on `"load"` by adding an `EvenListener` that will set
 our `table`'s `DataListener` from `generateDataListener()`,
 `addRowMouseSelection()` and make an initial call to `draw()`.
+We will use `defaultRowSelection()` to show a few selections by default on load.
 
 ```html
 <script>
+function defaultRowSelection () {
+    MOUSE_SELECTED_ROWS = [
+        {
+            row_header: ["Group 10", "Row 11"],
+            y0: 11,
+            y1: 11,
+        }, {
+            row_header: ["Group 10", "Row 15"],
+            y0: 14,
+            y1: 15,
+        }, {
+            row_header: ["Group 10", "Row 18"],
+            y0: 17,
+            y1: 18,
+        }
+    ];
+}
+
 window.addEventListener("load", () => {
     const table = window.rowMouseSelectionRegularTable;
     if (table) {
         const dl = generateDataListener(200, 50);
         table.setDataListener(dl);
-        addRowMouseSelection(table, dl).draw();
+        addRowMouseSelection(table, dl);
+        defaultRowSelection();
+        table.draw();
     }
 });
 </script>
