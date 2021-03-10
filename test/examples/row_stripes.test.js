@@ -8,10 +8,10 @@
  *
  */
 
-describe("striped.html", () => {
+describe("row_stripes.html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
-        await page.goto("http://localhost:8081/dist/examples/striped.html");
+        await page.goto("http://localhost:8081/dist/examples/row_stripes.html");
         await page.waitFor("regular-table table tbody tr td");
     });
 
@@ -19,11 +19,11 @@ describe("striped.html", () => {
         test("row style alternates", async () => {
             const tds1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");
             const backgroundColor1 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds1[0]);
-            expect(backgroundColor1).toEqual("rgb(221, 221, 221)");
+            expect(backgroundColor1).toEqual("rgb(234, 237, 239)");
 
             const tds2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
             const backgroundColor2 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds2[0]);
-            expect(backgroundColor2).toEqual("rgb(238, 238, 238)");
+            expect(backgroundColor2).toEqual("rgb(255, 255, 255)");
         });
     });
 
@@ -39,11 +39,11 @@ describe("striped.html", () => {
         test("row style alternates in reverse", async () => {
             const tds1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");
             const backgroundColor1 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds1[0]);
-            expect(backgroundColor1).toEqual("rgb(238, 238, 238)");
+            expect(backgroundColor1).toEqual("rgb(255, 255, 255)");
 
             const tds2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
             const backgroundColor2 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds2[0]);
-            expect(backgroundColor2).toEqual("rgb(221, 221, 221)");
+            expect(backgroundColor2).toEqual("rgb(234, 237, 239)");
         });
     });
 });
