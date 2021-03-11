@@ -12,6 +12,7 @@ const hashes = {
     row_mouse_selection: "f880c45f68ba062fd53e39fe13615d6d",
     row_stripes: "aaaaaaaaaaaaaaaaaa",
     area_mouse_selection: "bbbbbbbbbbbbbbbbbb",
+    column_mouse_selection: "cccccccccccccccccc",
 };
 
 for (const file in hashes) {
