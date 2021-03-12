@@ -11,6 +11,7 @@ const hashes = {
     spreadsheet: "3e0e3d6f8bf8b47294a7847b402b55fb",
     row_mouse_selection: "f880c45f68ba062fd53e39fe13615d6d",
     row_stripes: "aaaaaaaaaaaaaaaaaa",
+    area_mouse_selection: "bbbbbbbbbbbbbbbbbb",
 };
 
 for (const file in hashes) {

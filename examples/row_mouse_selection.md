@@ -261,7 +261,8 @@ Let's style our `mouse-selected-row` - in this example we'll use a light yellow.
 
 ```css
 regular-table tbody tr td.mouse-selected-row, regular-table tr th.mouse-selected-row {
-    background-color: #ffffbb; /* yellow */
+    background-color: #2771A8;
+    color: white;
 }
 ```
 
