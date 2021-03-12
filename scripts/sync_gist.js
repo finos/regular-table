@@ -9,6 +9,8 @@ const hashes = {
     minesweeper: "96a9ed60d0250f7d3187c0fed5f5b78c",
     file_browser: "a7b7588c899e3953dd8580e81c51b3f9",
     spreadsheet: "3e0e3d6f8bf8b47294a7847b402b55fb",
+    row_mouse_selection: "f880c45f68ba062fd53e39fe13615d6d",
+    row_stripes: "aaaaaaaaaaaaaaaaaa",
 };
 
 for (const file in hashes) {
@@ -17,14 +19,26 @@ for (const file in hashes) {
         if (fs.existsSync(`dist/${hashes[file]}`)) {
             console.log(`dist/${hashes[file]} exists, skipping checkout`);
         } else {
-            child_process.execSync(`git clone https://gist.github.com/${hashes[file]}.git dist/${hashes[file]}`);
+            try {
+                child_process.execSync(`git clone https://gist.github.com/${hashes[file]}.git dist/${hashes[file]}`);
+            } catch (e) {
+                console.error(`Failed to clone creating a local git repo ${hashes[file]}`);
+                fs.mkdirSync(`dist/${hashes[file]}`);
+            }
         }
 
         // Run literally for this project
-        console.log(child_process.execSync(`yarn literally --format block --output dist/${hashes[file]} examples/${file}.md`).toString());
+        console.log(child_process.execSync(`yarn literally --screenshot --format block --output dist/${hashes[file]} examples/${file}.md`).toString());
 
         // Update git
         process.chdir(`dist/${hashes[file]}`);
+        if (!fs.existsSync("./.git")) {
+            console.log(child_process.execSync(`git init`).toString());
+            console.log(child_process.execSync(`touch README.md`).toString());
+            console.log(child_process.execSync(`git add README.md`).toString());
+            console.log(child_process.execSync(`git commit -m "First Commit"`).toString());
+        }
+
         child_process.execSync(`git add thumbnail.png preview.png index.html .block README.md`);
         console.log(child_process.execSync(`git status`).toString());
         console.log(child_process.execSync(`git commit -am"Auto update via sync_gist" --amend`).toString());
