@@ -2,21 +2,26 @@
 
 This example adds column selection to a [`<regular-table>`](https://github.com/jpmorganchase/regular-table),
 allowing the user to select columns via mouse clicks.
-
 **_Quick Note:_** The implementation of this behavior is mostly symmetric to the
 `row_mouse_selection` example. There's actually so much overlap that we will
 comment sparingly - mainly focusing on the differences. 
-
 First off, we need the `<regular-table>` with an `id` that will
 be accessible on the window object using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
+
 ```html
 <regular-table id="columnMouseSelectionRegularTable"></regular-table>
 ```
+
 ## `addColumnMouseSelection()`
+
 Similar to `addRowMouseSelection()`, we expect that when we `"click"` on the column
 header or the grouped column header then the column shows as selected.
+
 ```javascript
-const addColumnMouseSelection = (table, dl) => {
+const MOUSE_SELECTED_COLUMN_CLASS = "mouse-selected-column";
+
+const addColumnMouseSelection = (table, dl, {className = MOUSE_SELECTED_COLUMN_CLASS} = {}) => {
+    console.error("className", className);
     const clickListener = (event) => {
         const meta = table.getMeta(event.target);
         const headerWasClicked = meta && typeof meta.column_header_y !== "undefined";
@@ -29,10 +34,11 @@ const addColumnMouseSelection = (table, dl) => {
     };
 
     table.addEventListener("click", clickListener);
-    addColumnSelectionStyleListener(table, dl);
+    addColumnSelectionStyleListener(table, dl, className);
     return table;
 };
 ```
+
 We will keep a `ColumnSelection` object in our `MOUSE_SELECTED_COLUMN_HEADERS`
 that resembles the `RowSelection` object in `row_mouse_selection`.
 | Name | Type | Description |
@@ -41,18 +47,22 @@ that resembles the `RowSelection` object in `row_mouse_selection`.
 | [x1] | `number` | The `x` index that ends the selection. |
 | [column_header_y] | `number` | The `y` of this header's `row_header`.|
 | [column_header] | <code>Array.&lt;object&gt;</code> | The `Array` of headers associated with this selection. |
+
 ```javascript
 let MOUSE_SELECTED_COLUMN_HEADERS = [];
 ```
+
 The logic of our `"click"` `EventListener` only differs in the `MetaData` attributes
 we need in order to produce the `newColumnHeaderSelections()`. Throughout this example
 we'll be focusing on the `x` indexes and `column_header`s in place of the `y` and
 `row_header`s.
 
 ### When creating `newColumnHeaderSelections()`
+
 We will check the `meta` and `ctrlKey` to determine the selection mode, and our
 method of generating a `targetColumnSelection()` will grab the attributes from the
 `MetaData` appropriate for generating our `ColumnSelection`.
+
 ```javascript
 const newColumnHeaderSelections = (meta, event, dl) => {
     const inMultiSelectMode = event.ctrlKey || event.metaKey;
@@ -79,8 +89,10 @@ const targetColumnSelection = (meta, dl) => {
     return target;
 };
 ```
+
 We'll create a single range selection if the `shiftKey` is pressed otherwise a
 single column is selected.
+
 ```javascript
 const newSingleSelectColumnHeaders = (targetSelection, dl) => {
     const matches = matchingColumnSelections(targetSelection);
@@ -96,16 +108,20 @@ const newSingleSelectColumnHeaders = (targetSelection, dl) => {
     }
 };
 ```
+
 If the selection was already made based on our `matchingColumnSelections()`, we
 will instead clear the `MOUSE_SELECTED_COLUMN_HEADERS` by returning an empty `Array`.
+
 ```javascript
 const matchingColumnSelections = ({x, x0, x1}) => {
     const _x = x !== undefined ? x : Math.min(x0, x1);
     return MOUSE_SELECTED_COLUMN_HEADERS.filter((s) => s.x0 <= _x && _x <= s.x1);
 };
 ```
+
 Creating a column range selection closely mirrors `createRowRangeSelection()` in our
 `row_mouse_selection` example.
+
 ```javascript
 const createColumnRangeSelection = (columnSelection, dl) => {
     const lastSelection = MOUSE_SELECTED_COLUMN_HEADERS[MOUSE_SELECTED_COLUMN_HEADERS.length - 1];
@@ -119,7 +135,9 @@ const createColumnRangeSelection = (columnSelection, dl) => {
     return columnSelection;
 };
 ```
+
 ... as does our logic for multi-select.
+
 ```javascript
 const newMultiSelectColumnHeaders = (targetSelection, dl) => {
     const matches = matchingColumnSelections(targetSelection);
@@ -156,40 +174,48 @@ const splitColumnRangeMatches = (selections, columnSelection) => {
     });
 };
 ```
+
 ## Styling
+
 Our `mouse-selected-column` will need some style to make it visually distinct.
+
 ```css
 regular-table tbody tr td.mouse-selected-column, regular-table tr th.mouse-selected-column {
-    background-color: #efefff; /* blue */
+    background-color: #2771A8;
+    color: white;
 }
 ```
+
 And we similarly disable the default `user-select` here.
+
 ```css
 regular-table thead tr th, regular-table tbody tr td {
     user-select: none;
 }
 ```
+
 ## `StyleListener`
+
 We need to use a `StyleListener` to make our selection re-render on `draw()`, so
 we'll check each `td` and `th` in our `table` and update their `classList`.
-
 Our function to update the `th`s will report the `x`s marked as selected for reuse
 in `reapplyColumnTDSelection()`.
-```javascript
-const MOUSE_SELECTED_COLUMN_CLASS = "mouse-selected-column";
 
-const addColumnSelectionStyleListener = (table, dl) => {
+```javascript
+const addColumnSelectionStyleListener = (table, dl, className) => {
     table.addStyleListener(() => {
-        const xs = reapplyColumnTHSelection(table, dl);
-        reapplyColumnTDSelection(table, xs);
+        const xs = reapplyColumnTHSelection(table, dl, className);
+        reapplyColumnTDSelection(table, xs, className);
     });
 };
 ```
+
 Our `reapplyColumnTHSelection()` and `reapplyColumnTDSelection()` functions are
-complicated but symmetric to our `reapplyRowTHSelection()` and `reapplyRowTDSelection()`
-definitions.
+complicated but symmetric to our `reapplyRowTHSelection()` and
+`reapplyRowTDSelection()` definitions.
+
 ```javascript
-const reapplyColumnTHSelection = (table, dl) => {
+const reapplyColumnTHSelection = (table, dl, className) => {
     const elements = table.querySelectorAll("thead th");
     let selectedXs = [];
 
@@ -204,9 +230,9 @@ const reapplyColumnTHSelection = (table, dl) => {
 
             if (isColumnHeaderSelected(meta, visibleHeaders)) {
                 selectedXs.push(meta.x);
-                el.classList.add(MOUSE_SELECTED_COLUMN_CLASS);
+                el.classList.add(className);
             } else {
-                el.classList.remove(MOUSE_SELECTED_COLUMN_CLASS);
+                el.classList.remove(className);
             }
         }
     }
@@ -227,23 +253,26 @@ const isColumnHeaderSelected = (meta, visibleHeaders) => {
     return isDirectMatch() || isGroupMatch();
 };
 
-const reapplyColumnTDSelection = (table, xs) => {
+const reapplyColumnTDSelection = (table, xs, className) => {
     const elements = table.querySelectorAll("tbody td");
 
     for (const el of elements) {
         const meta = table.getMeta(el);
 
         if (xs.indexOf(meta.x) !== -1) {
-            el.classList.add(MOUSE_SELECTED_COLUMN_CLASS);
+            el.classList.add(className);
         } else {
-            el.classList.remove(MOUSE_SELECTED_COLUMN_CLASS);
+            el.classList.remove(className);
         }
     }
 };
 ```
+
 ## Our `DataListener`
+
 Here's a quick `DataListener` generator using some borrowed code, thanks again
 `two_billion_rows`.
+
 ```javascript
 function generateDataListener(num_rows, num_columns) {
     return function dl(x0, y0, x1, y1) {
@@ -257,9 +286,13 @@ function generateDataListener(num_rows, num_columns) {
     };
 }
 ```
+
 ### `lastIndexOfColumnGroup()`
+
 We need to scan the `DataListener` to find the final index of a group selection
-to ensure it's properly styled. For a more in depth explanation, see `lastIndexOfRowGroup()`.
+to ensure it's properly styled. For a more in depth explanation, see
+`lastIndexOfRowGroup()`.
+
 ```javascript
 const lastIndexOfColumnGroup = (dl, {column_header_y, value, x}) => {
     const {num_columns} = dl(0, 0, 1, 1);
@@ -280,18 +313,56 @@ const lastIndexOfColumnGroup = (dl, {column_header_y, value, x}) => {
     return idx === undefined ? num_columns : idx - 1;
 };
 ```
+
 On `"load"`, we'll handle wiring our behavior up by generating and setting the
-`DataListener` and passing it to `addColumnMouseSelection()` along with our `table`.
+`DataListener` and passing it to `addColumnMouseSelection()` along with our
+`table`.
 Finally, we'll make the initial `draw()` call.
-```javascript
+
+```html
+<script>
+function defaultColumnSelection() {
+    MOUSE_SELECTED_COLUMN_HEADERS = [
+        {
+            column_header: ["Group 0", "Column 6"],
+            column_header_y: 1,
+            x0: 6,
+            x1: 6,
+        },
+        {
+            column_header: ["Group 0", "Column 8"],
+            column_header_y: 1,
+            x0: 8,
+            x1: 8,
+        },
+        {
+            column_header: ["Group 0", "Column 9"],
+            column_header_y: 1,
+            x0: 8,
+            x1: 9,
+        },
+    ];
+}
+
 window.addEventListener("load", () => {
     const table = window.columnMouseSelectionRegularTable;
     if (table) {
         const dl = generateDataListener(200, 50);
         table.setDataListener(dl);
-        addColumnMouseSelection(table, dl).draw();
+        addColumnMouseSelection(table, dl);
+        defaultColumnSelection();
+        table.draw();
     }
 });
+</script>
+```
+
+## Appendix (Exports)
+
+This is the public function you can use.
+
+```javascript
+exports.addColumnMouseSelection = addColumnMouseSelection;
 ```
 
 ## Appendix (Dependencies)
@@ -307,4 +378,8 @@ Of course, we'll pull in our libraries.
 
 ```html
 <script src="/dist/examples/two_billion_rows.js"></script>
+```
+
+```block
+license: apache-2.0
 ```

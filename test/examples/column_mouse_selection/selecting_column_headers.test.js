@@ -25,8 +25,8 @@ describe("column_mouse_selection.html", () => {
     });
 
     describe("initial view", () => {
-        test("includes no selection", async () => {
-            expect(await selectedColumns()).toEqual([]);
+        test("includes defaults", async () => {
+            expect(await selectedColumns()).toEqual(["Column 6", "Column 8", "Column 9"]);
         });
     });
 
@@ -36,7 +36,7 @@ describe("column_mouse_selection.html", () => {
                 const ths = await page.$$("regular-table thead th");
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, ths[0]);
 
@@ -53,7 +53,7 @@ describe("column_mouse_selection.html", () => {
 
             test("includes the group and the columns", async () => {
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, ths[1]);
 
@@ -64,7 +64,7 @@ describe("column_mouse_selection.html", () => {
                 expect(await selectedColumns()).toEqual(["Group 0", "Column 0", "Column 1", "Column 2", "Column 3", "Column 4", "Column 5", "Column 6", "Column 7", "Column 8", "Column 9"]);
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                    const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
                     th.dispatchEvent(event);
                 }, ths[9]);
 
