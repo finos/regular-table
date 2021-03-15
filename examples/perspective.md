@@ -1,7 +1,7 @@
 ## Perspective
 
 An example of a multi-dimensional pivot table using [`regular-table`](https://github.com/jpmorganchase/regular-table)
-and [`perspective`](https://perspective.finos.org/). 
+and [`perspective`](https://perspective.finos.org/).
 
 ```html
 <regular-table></regular-table>
@@ -64,7 +64,7 @@ Accompanying CSS:
     content: "arrow_forward"
 }
 ```
- 
+
 
 Group headers, e.g. `column_headers` 0 - (N - 1).
 
@@ -199,8 +199,8 @@ can emit the event `"regular-table-psp-sort"` which we can then handle in the
 same scope that declares this `regular-table`.
 
 ```javascript
-async function sortHandler(regularTable, event) {
-    const meta = regularTable.getMeta(event.target);
+async function sortHandler(regularTable, event, target) {
+    const meta = regularTable.getMeta(target);
     const column_name = meta.column_header[meta.column_header.length - 1];
     const sort_method = event.shiftKey ? append_sort : override_sort;
     const sort = sort_method.call(this, column_name);
@@ -256,9 +256,9 @@ const ROW_COL_SORT_ORDER = {desc: "asc", asc: "col desc", "col desc": "col asc",
 ## Expand/Collapse Interaction
 
 ```javascript
-async function expandCollapseHandler(regularTable, event) {
-    const meta = regularTable.getMeta(event.target);
-    const is_collapse = event.target.classList.contains("psp-tree-label-collapse");
+async function expandCollapseHandler(regularTable, event, target) {
+    const meta = regularTable.getMeta(target);
+    const is_collapse = target.classList.contains("psp-tree-label-collapse");
     if (event.shiftKey && is_collapse) {
         this._view.set_depth(meta.row_header.filter((x) => x !== undefined).length - 2);
     } else if (event.shiftKey) {
@@ -274,11 +274,19 @@ async function expandCollapseHandler(regularTable, event) {
 }
 
 function mousedownListener(regularTable, event) {
-    if (event.target.classList.contains("psp-tree-label") && event.offsetX < 26) {
-        expandCollapseHandler.call(this, regularTable, event);
+    let target = event.target;
+    while (target.tagName !== "TD" && target.tagName !== "TH") {
+        target = target.parentElement;
+        if (!regularTable.contains(target)) {
+            return;
+        }
+    }
+
+    if (target.classList.contains("psp-tree-label") && event.offsetX < 26) {
+        expandCollapseHandler.call(this, regularTable, event, target);
         event.handled = true;
-    } else if (event.target.classList.contains("psp-header-leaf") && !event.target.classList.contains("psp-header-corner")) {
-        sortHandler.call(this, regularTable, event);
+    } else if (target.classList.contains("psp-header-leaf") && !target.classList.contains("psp-header-corner")) {
+        sortHandler.call(this, regularTable, event, target);
         event.handled = true;
     }
 }
@@ -443,7 +451,7 @@ exports.configureRegularTable = configureRegularTable;
 ```html
 <script>
     const URL = "/node_modules/superstore-arrow/superstore.arrow";
-    
+
     const datasource = async () => {
         const request = fetch(URL);
         const worker = window.perspective.worker();
@@ -483,7 +491,7 @@ regular-table table {
 ```
 
 ## Appendix (Dependencies)
-    
+
 ```html
 <script src="/node_modules/@finos/perspective/dist/umd/perspective.js"></script>
 <script src="/dist/umd/regular-table.js"></script>

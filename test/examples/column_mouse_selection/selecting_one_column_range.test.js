@@ -13,7 +13,7 @@ describe("column_mouse_selection.html", () => {
         const selectedCells = await page.$$("regular-table thead th.mouse-selected-column");
         const selectedValues = [];
         for (const td of selectedCells) {
-            selectedValues.push(await page.evaluate((td) => td.innerHTML.trim().split(" ").slice(0, 2).join(" "), td));
+            selectedValues.push(await page.evaluate((td) => td.firstChild.innerHTML, td));
         }
         return selectedValues;
     };
