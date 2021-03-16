@@ -23,19 +23,19 @@ describe("perspective.html", () => {
             test("with the correct top grouped header", async () => {
                 const first_tr = await page.$("regular-table thead tr:first-child");
                 const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-                expect(cell_values).toEqual(["   ", " Furniture  "]);
+                expect(cell_values).toEqual(["", "Furniture"]);
             });
 
             test("with the correct middle grouped header", async () => {
                 const first_tr = await page.$("regular-table thead tr:nth-child(2)");
                 const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-                expect(cell_values).toEqual(["   ", " Bookcases  ", " Chairs  "]);
+                expect(cell_values).toEqual(["", "Bookcases", "Chairs"]);
             });
 
             test("with the correct bottom grouped header", async () => {
                 const first_tr = await page.$("regular-table thead tr:last-child");
                 const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-                expect(cell_values).toEqual(["   ", "   ", "   ", "   ", " Sales  ", " Profit  ", " Sales  ", " Profit  "]);
+                expect(cell_values).toEqual(["", "", "", "", "Sales", "Profit", "Sales", "Profit"]);
             });
         });
 
@@ -62,7 +62,7 @@ describe("perspective.html", () => {
                 for (const tr of first_tr) {
                     cell_values.push(await page.evaluate((tr) => tr.textContent, tr));
                 }
-                expect(cell_values.slice(0, 7)).toEqual(["   ", "   ", "   ", "   ", " Sales  ", " Profit  ", " Sales  "]);
+                expect(cell_values.slice(0, 7)).toEqual(["", "", "", "", "Sales", "Profit", "Sales"]);
             });
 
             test("with the correct first row's cells", async () => {
@@ -87,7 +87,7 @@ describe("perspective.html", () => {
                 for (const tr of first_tr) {
                     cell_values.push(await page.evaluate((tr) => tr.textContent, tr));
                 }
-                expect(cell_values.slice(0, 7)).toEqual(["   ", "   ", "   ", "   ", " Sales  ", " Profit  ", " Sales  "]);
+                expect(cell_values.slice(0, 7)).toEqual(["", "", "", "", "Sales", "Profit", "Sales"]);
             });
 
             test("with the correct first row's cells", async () => {

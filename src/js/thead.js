@@ -9,7 +9,6 @@
  */
 
 import {ViewModel} from "./view_model";
-import {html} from "./utils.js";
 
 /**
  * <thead> view model.  This model accumulates state in the form of
@@ -25,10 +24,19 @@ export class RegularHeaderViewModel extends ViewModel {
         th.className = "";
         th.removeAttribute("colspan");
         th.style.minWidth = "0";
-        th.innerHTML = html`
-            ${column}
-            <span class="rt-column-resize"></span>
-        `;
+
+        th.textContent = "";
+        if (column instanceof HTMLElement) {
+            th.appendChild(column);
+        } else {
+            const span = document.createElement("span");
+            span.textContent = column;
+            th.appendChild(span);
+        }
+
+        const resizeSpan = document.createElement("span");
+        resizeSpan.className = "rt-column-resize";
+        th.appendChild(resizeSpan);
 
         return th;
     }
