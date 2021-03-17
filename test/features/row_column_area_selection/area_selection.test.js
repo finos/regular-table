@@ -8,7 +8,7 @@
  *
  */
 
-describe("row_column_area_selection.html", () => {
+describe.skip("row_column_area_selection.html", () => {
     beforeEach(async () => {
         await page.setViewport({width: 2500, height: 2500});
         await page.goto("http://localhost:8081/dist/examples/row_column_area_selection.html");

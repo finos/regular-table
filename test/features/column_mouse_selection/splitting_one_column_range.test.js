@@ -8,7 +8,7 @@
  *
  */
 
-describe("column_mouse_selection.html", () => {
+describe.skip("column_mouse_selection.html", () => {
     const selectedColumns = async () => {
         const selectedCells = await page.$$("regular-table thead th.mouse-selected-column");
         const selectedValues = [];
@@ -33,19 +33,19 @@ describe("column_mouse_selection.html", () => {
 
         test("selects the columns' headers and cells", async () => {
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
+                const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
                 th.dispatchEvent(event);
             }, ths[17]);
 
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
+                const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
                 th.dispatchEvent(event);
             }, ths[13]);
 
             await page.waitFor("regular-table td.mouse-selected-column");
             expect(await selectedColumns()).toEqual(["Column 6", "Column 7", "Column 8", "Column 9", "Column 10"]);
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
+                const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
                 th.dispatchEvent(event);
             }, ths[15]);
 

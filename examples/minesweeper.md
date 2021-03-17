@@ -173,7 +173,10 @@ function styleListener() {
         const val = VIEW_DATA[meta.x][meta.y];
         td.className = "";
         td.classList.toggle(`hint-${val}`, HINT_ENUMS.has(val));
-        td.classList.toggle("brick", HIDDEN_ENUMS.has(val) || FLAG_ENUMS.has(val));
+        td.classList.toggle(
+            "brick",
+            HIDDEN_ENUMS.has(val) || FLAG_ENUMS.has(val)
+        );
         td.classList.toggle("flag", FLAG_ENUMS.has(val));
         td.classList.toggle("exploded", val === EXPLODED_ENUM);
     }

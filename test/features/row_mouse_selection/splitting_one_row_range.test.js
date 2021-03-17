@@ -8,7 +8,7 @@
  *
  */
 
-describe("row_mouse_selection.html", () => {
+describe.skip("row_mouse_selection.html", () => {
     const selectedRows = async () => {
         const selectedCells = await page.$$("regular-table tbody tr th.mouse-selected-row");
         const selectedValues = [];
@@ -24,23 +24,28 @@ describe("row_mouse_selection.html", () => {
         await page.waitFor("regular-table table tbody tr td");
     });
 
-    describe("selecting one row", () => {
-        test("selects the row header and cells then deselects", async () => {
+    describe("splitting a row range", () => {
+        test("selects the rows' headers and cells", async () => {
             const rowHeader1 = await page.$("regular-table tbody tr:nth-of-type(2) th");
             await page.evaluate(async (th) => {
                 const event = new MouseEvent("click", {bubbles: true});
                 th.dispatchEvent(event);
             }, rowHeader1);
-            await page.waitFor("regular-table td.mouse-selected-row");
-            const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-row");
-            expect(await selectedRows()).toEqual(["Row 1"]);
-            expect(selectedCells.length > 0).toEqual(true);
 
+            const rowHeader3 = await page.$("regular-table tbody tr:nth-of-type(4) th");
+            await page.evaluate(async (th) => {
+                const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                th.dispatchEvent(event);
+            }, rowHeader3);
+
+            const rowHeader2 = await page.$("regular-table tbody tr:nth-of-type(3) th");
             await page.evaluate(async (th) => {
                 const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
                 th.dispatchEvent(event);
-            }, rowHeader1);
-            expect(await selectedRows()).toEqual([]);
+            }, rowHeader2);
+
+            await page.waitFor("regular-table td.mouse-selected-row");
+            expect(await selectedRows()).toEqual(["Row 1", "Row 3"]);
         });
     });
 });

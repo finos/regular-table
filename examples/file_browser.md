@@ -184,7 +184,7 @@ function dataListener(x0, y0, x1, y1) {
         num_rows: DATA.length,
         num_columns: DATA[0].row.length,
         row_headers: DATA.slice(y0, y1).map((z) => z.path.slice()),
-        column_headers: COLUMNS.slice(y0, y1),
+        column_headers: COLUMNS.slice(x0, x1),
         data: transpose(DATA.slice(y0, y1).map(({row}) => row.slice(x0, x1))),
     };
 }
@@ -235,7 +235,7 @@ function mousedownListener() {
 ## Main
 
 ```javascript
-function init() {
+export function init() {
     regularTable.setDataListener(dataListener);
     regularTable.addStyleListener(styleListener);
     regularTable.addEventListener("mousedown", mousedownListener);
@@ -247,7 +247,10 @@ function init() {
 ```
 
 ```html
-<script>window.addEventListener("load", () => init())</script>
+<script type="module">
+    import {init} from "/dist/examples/file_browser.js";
+    window.addEventListener("load", () => init());
+</script>
 ```
 
 ## CSS

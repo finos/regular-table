@@ -18,15 +18,42 @@
         "context": true,
         "jestPuppeteer": true
     },
-    "overrides": [{
-        "files": ["**/*.md"],
-        "rules": {
-            "no-undef": "off",
-            "no-unused-vars": "off",
-            "no-console": "off",
-            "padded-blocks": "off"
+    "overrides": [
+        {
+            "files": [
+                "**/*.md"
+            ],
+            "processor": "markdown/markdown"
+        },
+        {
+            "files": [
+                "**/*.md/*.js"
+            ],
+            "rules": {
+                "no-undef": "off",
+                "no-unused-vars": "off",
+                "no-console": "off",
+                "padded-blocks": "off",
+                "prettier/prettier": [
+                    "error",
+                    {
+                        "printWidth": 20,
+                        "tabWidth": 4,
+                        "bracketSpacing": false,
+                        "proseWrap": "always"
+                    }
+                ],
+                "max-len": [
+                    "error",
+                    {
+                        "code": 80,
+                        "comments": 80,
+                        "ignoreTrailingComments": true
+                    }
+                ]
+            }
         }
-    }],
+    ],
     "parserOptions": {
         "ecmaVersion": 2018,
         "ecmaFeatures": {},
@@ -34,16 +61,23 @@
         "experimentalObjectRestSpread": true
     },
     "rules": {
-        "prettier/prettier": ["error", {
-            "printWidth": 200,
-            "tabWidth": 4,
-            "bracketSpacing": false
-        }],
-        "max-len": ["warn", {
-            "code": 200,
-            "comments": 80,
-            "ignoreTrailingComments": true
-        }],
+        "prettier/prettier": [
+            "error",
+            {
+                "printWidth": 200,
+                "tabWidth": 4,
+                "bracketSpacing": false,
+                "proseWrap": "always"
+            }
+        ],
+        "max-len": [
+            "warn",
+            {
+                "code": 200,
+                "comments": 80,
+                "ignoreTrailingComments": true
+            }
+        ],
         "@typescript-eslint/camelcase": "off",
         "camelcase": "off",
         "no-const-assign": "error",

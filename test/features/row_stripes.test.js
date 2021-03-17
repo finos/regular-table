@@ -8,10 +8,10 @@
  *
  */
 
-describe("row_stripes.html", () => {
+describe.skip("row_stripes.html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 100});
-        await page.goto("http://localhost:8081/dist/examples/row_stripes.html");
+        await page.goto("http://localhost:8081/dist/features/row_stripes.html");
         await page.waitFor("regular-table table tbody tr td");
     });
 
