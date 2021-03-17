@@ -14,13 +14,17 @@ initialize, but it does retain some state between calls that makes it even more
 performant, so it is worth trying to prevente React from re-rendering it.
 
 ```javascript
+import {dataListener} from "/dist/examples/two_billion_rows.js";
+
 function setRegularTable(table) {
-    table.setDataListener(window.dataListener);
+    table.setDataListener(dataListener);
     table.draw();
 }
 
 window.addEventListener("load", () => {
-    const element = window.React.createElement("regular-table", {ref: setRegularTable});
+    const element = window.React.createElement("regular-table", {
+        ref: setRegularTable,
+    });
     window.ReactDOM.render(element, window.root);
 });
 ```
@@ -49,10 +53,4 @@ This example also requires React.
 ```html
 <script src="/node_modules/react/dist/react.js"></script>
 <script src="/node_modules/react-dom/dist/react-dom.js"></script>
-```
-
-Borrow a data model from `two_billion_rows`.
-
-```html
-<script src="/dist/examples/two_billion_rows.js"></script>
 ```

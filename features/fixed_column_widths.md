@@ -6,14 +6,14 @@ Javascript and CSS rules.
 
 By default `<regular-table>` sets each column's width based on the content width
 of each of that column's cells. Currently, each column's width will not increase
-past the max width of the column's content, but you can manually shrink the column 
-width up to the limit of 10 pixels.
-Column widths are calculated by the library using the max-width css rule meaning
-that setting the `max-width` from a css rule will lead to a fixed width behavior
-for the cells of that column.
+past the max width of the column's content, but you can manually shrink the
+column width up to the limit of 10 pixels. Column widths are calculated by the
+library using the max-width css rule meaning that setting the `max-width` from a
+css rule will lead to a fixed width behavior for the cells of that column.
 
-To start, we need a `<regular-table>` with an `id` that will be accessible on the window
-object using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
+To start, we need a `<regular-table>` with an `id` that will be accessible on
+the window object using
+[`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
 
 ```html
 <regular-table id="fixedColumnWidthsRegularTable"></regular-table>
@@ -21,12 +21,13 @@ object using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-d
 
 ## Styling
 
-Then some `css` to define our `.fixed` `min-width` and `max-width`.
-We'll also need to disable default header text selection and handle overflow conditions
+Then some `css` to define our `.fixed` `min-width` and `max-width`. We'll also
+need to disable default header text selection and handle overflow conditions
 that would otherwise cause some ugly content rendering.
 
 ```css
-regular-table tr th.fixed-column-width, regular-table tr td.fixed-column-width {
+regular-table tr th.fixed-column-width,
+regular-table tr td.fixed-column-width {
     min-width: 100px !important;
     max-width: 100px !important;
 }
@@ -35,7 +36,8 @@ regular-table thead tr th {
     user-select: none;
 }
 
-regular-table tr th, regular-table tr td {
+regular-table tr th,
+regular-table tr td {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -44,15 +46,15 @@ regular-table tr th, regular-table tr td {
 
 ## Adding a `StyleListener` with `fixColumnWidths()`
 
-In our `fixColumnWidths()` function, we apply a `StyleListener` to the `<regular-table>`
-that iterates through each of the visible cells and adding or removing the
-`FIXED_COLUMN_WIDTH_CLASS` based on our `isFixed()` param.
+In our `fixColumnWidths()` function, we apply a `StyleListener` to the
+`<regular-table>` that iterates through each of the visible cells and adding or
+removing the `FIXED_COLUMN_WIDTH_CLASS` based on our `isFixed()` param.
 
-The `isFixed()` parameter supplied should be a predicate function that
-given a the `table` and a `cell` determines if the cell is in a fixed column by
+The `isFixed()` parameter supplied should be a predicate function that given a
+the `table` and a `cell` determines if the cell is in a fixed column by
 returning `true` or `false`.
 
-``` javascript
+```javascript
 const FIXED_COLUMN_WIDTH_CLASS = "fixed-column-width";
 
 const fixColumnWidths = (table, isFixed) => {
@@ -79,12 +81,12 @@ const fixColumnWidths = (table, isFixed) => {
 ```
 
 We'll need a predicate to pass in as an argument to `fixColumnWidths()` that
-will determine if the cell passed in `isFixed()`.
-For the purposes of this example, we'll check to see if the given cell's value 
-contains `"Fixed"`, but this function could reference the `DataModel` or some other 
-logic to make its decision.
+will determine if the cell passed in `isFixed()`. For the purposes of this
+example, we'll check to see if the given cell's value contains `"Fixed"`, but
+this function could reference the `DataModel` or some other logic to make its
+decision.
 
-``` javascript
+```javascript
 function isFixed(table, cell) {
     const value = table.getMeta(cell).value;
     return value.includes("Fixed");
@@ -93,10 +95,10 @@ function isFixed(table, cell) {
 
 ## DataModel
 
-Our `DataModel` will generate a data set with alternating `"Fixed"` and `"Not Set"`
-values ensuring a mix of columns for testing in our example.
+Our `DataModel` will generate a data set with alternating `"Fixed"` and
+`"Not Set"` values ensuring a mix of columns for testing in our example.
 
-``` javascript
+```javascript
 class DataModel {
     constructor(columnCount, cellCount) {
         this._baseColumns = ["Fixed", "Not Set"];
@@ -104,12 +106,14 @@ class DataModel {
         this._cellCount = cellCount;
         this._dataset = this._createDataset();
         this.columns = this._createColumns();
-        this._data = this.columns.map(({key}) => this._dataset[key]);
-        this._columnHeaders = this.columns.map(({value}) => [value]);
+        this._data = this.columns.map(({ key }) => this._dataset[key]);
+        this._columnHeaders = this.columns.map(({ value }) => [value]);
     }
 
     _createTextCells(text) {
-        return Array.from(Array(this._cellCount).keys()).map((idx) => `${text} ${idx}`);
+        return Array.from(Array(this._cellCount).keys()).map(
+            (idx) => `${text} ${idx}`
+        );
     }
 
     _createColumns() {
@@ -146,11 +150,13 @@ class DataModel {
     };
 }
 ```
-Within our `init()` we will create a `DataModel` and call `setDataListener()` with its `DataListener`, giving our example a reasonable amount of data to test.
 
-Next we'll call our `fixColumnWidths()` function with the `#fixedColumnWidthsRegularTable`
-and our `isFixed()` predicate to decorate `<regular-table>` with our `StyleListener`
-and then invoke `draw()`.
+Within our `init()` we will create a `DataModel` and call `setDataListener()`
+with its `DataListener`, giving our example a reasonable amount of data to test.
+
+Next we'll call our `fixColumnWidths()` function with the
+`#fixedColumnWidthsRegularTable` and our `isFixed()` predicate to decorate
+`<regular-table>` with our `StyleListener` and then invoke `draw()`.
 
 This will all be fired on `"load"`.
 
@@ -173,5 +179,5 @@ And of course we'll need the libraries.
 
 ```html
 <script src="/dist/umd/regular-table.js"></script>
-<link rel='stylesheet' href="/dist/css/material.css">
+<link rel="stylesheet" href="/dist/css/material.css" />
 ```

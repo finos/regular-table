@@ -33,6 +33,15 @@ anytime you need:
 |minesweeper|file_browser|spreadsheet|
 |[![minesweeper](https://bl.ocks.org/texodus/raw/96a9ed60d0250f7d3187c0fed5f5b78c/thumbnail.png)](https://bl.ocks.org/texodus/96a9ed60d0250f7d3187c0fed5f5b78c)|[![file_browser](https://bl.ocks.org/texodus/raw/a7b7588c899e3953dd8580e81c51b3f9/thumbnail.png)](https://bl.ocks.org/texodus/a7b7588c899e3953dd8580e81c51b3f9)|[![spreadsheet](https://bl.ocks.org/texodus/raw/3e0e3d6f8bf8b47294a7847b402b55fb/thumbnail.png)](https://bl.ocks.org/texodus/3e0e3d6f8bf8b47294a7847b402b55fb)|
 
+## Features
+
+||||
+|:--|:--|:--|
+|row_mouse_selection|column_mouse_selection|area_mouse_selection|
+|[![row_mouse_selection](https://bl.ocks.org/texodus/raw/f880c45f68ba062fd53e39fe13615d6d/thumbnail.png)](https://bl.ocks.org/texodus/f880c45f68ba062fd53e39fe13615d6d)|[![column_mouse_selection](https://bl.ocks.org/texodus/raw/e89234de558575cdd92bfd111f224895/thumbnail.png)](https://bl.ocks.org/texodus/e89234de558575cdd92bfd111f224895)|[![area_mouse_selection](https://bl.ocks.org/texodus/raw/4ac513f103a3bcef7b5442f52d9c6072/thumbnail.png)](https://bl.ocks.org/texodus/4ac513f103a3bcef7b5442f52d9c6072)|
+|row_stripes|
+|[![row_stripes](https://bl.ocks.org/texodus/raw/4157245997d92219d73ae43c25f29781/thumbnail.png)](https://bl.ocks.org/texodus/4157245997d92219d73ae43c25f29781)|
+
 ## Documentation
 
 What follows functions as a quick-start guide, and will explain the basics of

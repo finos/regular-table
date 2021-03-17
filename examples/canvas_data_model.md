@@ -134,8 +134,16 @@ ref_image.onload = async function () {
         }
         return {
             data,
-            row_headers: y1 - y0 === 0 ? [] : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [clamp(y0 + z, 10), (y0 + z) % 10]),
-            column_headers: column_names.slice(x0, x1).map((x) => [clamp(x, 10), x % 10]),
+            row_headers:
+                y1 - y0 === 0
+                    ? []
+                    : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [
+                          clamp(y0 + z, 10),
+                          (y0 + z) % 10,
+                      ]),
+            column_headers: column_names
+                .slice(x0, x1)
+                .map((x) => [clamp(x, 10), x % 10]),
             num_rows: canvas.height,
             num_columns: column_names.length,
         };
@@ -153,8 +161,10 @@ window.addEventListener("mousemove", (event) => {
     const y = event.clientY + scroll_container.scrollTop;
     reticle.style.top = `${y}px`;
     reticle.style.left = `${x}px`;
-    const top_scroll_limit = scroll_container.scrollTop + window.innerHeight - 424;
-    const left_scroll_limit = scroll_container.scrollLeft + window.innerWidth - 424;
+    const top_scroll_limit =
+        scroll_container.scrollTop + window.innerHeight - 424;
+    const left_scroll_limit =
+        scroll_container.scrollLeft + window.innerWidth - 424;
     if (top_scroll_limit < y + 20 && left_scroll_limit < x + 20) {
         if (y - top_scroll_limit < x - left_scroll_limit) {
             table.style.top = `${top_scroll_limit}px`;

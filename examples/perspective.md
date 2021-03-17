@@ -19,17 +19,35 @@ function columnHeaderStyleListener(regularTable) {
     const header_depth = regularTable._view_cache.config.row_pivots.length - 1;
     for (const td of regularTable.querySelectorAll("thead tr:last-child th")) {
         const metadata = regularTable.getMeta(td);
-        const sort = this._config.sort.find((x) => x[0] === metadata.column_header[metadata.column_header.length - 1]);
+        const sort = this._config.sort.find(
+            (x) =>
+                x[0] ===
+                metadata.column_header[metadata.column_header.length - 1]
+        );
         let needs_border = metadata.row_header_x === header_depth;
-        needs_border = needs_border || (metadata.x + 1) % this._config.columns.length === 0;
+        needs_border =
+            needs_border ||
+            (metadata.x + 1) % this._config.columns.length === 0;
         td.classList.toggle("psp-header-border", needs_border);
         td.classList.toggle("psp-header-group", false);
         td.classList.toggle("psp-header-leaf", true);
-        td.classList.toggle("psp-header-corner", typeof metadata.x === "undefined");
+        td.classList.toggle(
+            "psp-header-corner",
+            typeof metadata.x === "undefined"
+        );
         td.classList.toggle("psp-header-sort-asc", !!sort && sort[1] === "asc");
-        td.classList.toggle("psp-header-sort-desc", !!sort && sort[1] === "desc");
-        td.classList.toggle("psp-header-sort-col-asc", !!sort && sort[1] === "col asc");
-        td.classList.toggle("psp-header-sort-col-desc", !!sort && sort[1] === "col desc");
+        td.classList.toggle(
+            "psp-header-sort-desc",
+            !!sort && sort[1] === "desc"
+        );
+        td.classList.toggle(
+            "psp-header-sort-col-asc",
+            !!sort && sort[1] === "col asc"
+        );
+        td.classList.toggle(
+            "psp-header-sort-col-desc",
+            !!sort && sort[1] === "col desc"
+        );
     }
 }
 ```
@@ -71,9 +89,12 @@ Group headers, e.g. `column_headers` 0 - (N - 1).
 ```javascript
 function groupHeaderStyleListener(regularTable) {
     const header_depth = regularTable._view_cache.config.row_pivots.length - 1;
-    for (const td of regularTable.querySelectorAll("thead tr:not(:last-child) th")) {
+    for (const td of regularTable.querySelectorAll(
+        "thead tr:not(:last-child) th"
+    )) {
         const metadata = regularTable.getMeta(td);
-        let needs_border = metadata.row_header_x === header_depth || metadata.x >= 0;
+        let needs_border =
+            metadata.row_header_x === header_depth || metadata.x >= 0;
         td.classList.toggle("psp-header-group", true);
         td.classList.toggle("psp-header-leaf", false);
         td.classList.toggle("psp-header-border", needs_border);
@@ -88,13 +109,26 @@ buttons.
 function treeStyleListener(regularTable) {
     for (const td of regularTable.querySelectorAll("tbody th")) {
         const metadata = regularTable.getMeta(td);
-        const is_not_empty = !!metadata.value && metadata.value.toString().trim().length > 0;
+        const is_not_empty =
+            !!metadata.value && metadata.value.toString().trim().length > 0;
         const is_leaf = metadata.row_header_x >= this._config.row_pivots.length;
-        const next = regularTable.getMeta({dx: 0, dy: metadata.y - metadata.y0 + 1});
-        const is_collapse = next && next.row_header && typeof next.row_header[metadata.row_header_x + 1] !== "undefined";
+        const next = regularTable.getMeta({
+            dx: 0,
+            dy: metadata.y - metadata.y0 + 1,
+        });
+        const is_collapse =
+            next &&
+            next.row_header &&
+            typeof next.row_header[metadata.row_header_x + 1] !== "undefined";
         td.classList.toggle("psp-tree-label", is_not_empty && !is_leaf);
-        td.classList.toggle("psp-tree-label-expand", is_not_empty && !is_leaf && !is_collapse);
-        td.classList.toggle("psp-tree-label-collapse", is_not_empty && !is_leaf && is_collapse);
+        td.classList.toggle(
+            "psp-tree-label-expand",
+            is_not_empty && !is_leaf && !is_collapse
+        );
+        td.classList.toggle(
+            "psp-tree-label-collapse",
+            is_not_empty && !is_leaf && is_collapse
+        );
         td.classList.toggle("psp-tree-leaf", is_not_empty && is_leaf);
     }
 }
@@ -158,7 +192,9 @@ function get_psp_type(metadata) {
 }
 
 function typeStyleListener(regularTable) {
-    for (const td of regularTable.querySelectorAll("td, tbody th, thead tr:last-child th")) {
+    for (const td of regularTable.querySelectorAll(
+        "td, tbody th, thead tr:last-child th"
+    )) {
         const metadata = regularTable.getMeta(td);
         let type = get_psp_type.call(this, metadata);
         const is_numeric = type === "integer" || type === "float";
@@ -204,7 +240,9 @@ async function sortHandler(regularTable, event, target) {
     const column_name = meta.column_header[meta.column_header.length - 1];
     const sort_method = event.shiftKey ? append_sort : override_sort;
     const sort = sort_method.call(this, column_name);
-    regularTable.dispatchEvent(new CustomEvent("regular-table-psp-sort", {detail: {sort}}));
+    regularTable.dispatchEvent(
+        new CustomEvent("regular-table-psp-sort", {detail: {sort}})
+    );
 }
 ```
 
@@ -250,7 +288,12 @@ function create_sort(column_name, sort_dir) {
 }
 
 const ROW_SORT_ORDER = {desc: "asc", asc: undefined};
-const ROW_COL_SORT_ORDER = {desc: "asc", asc: "col desc", "col desc": "col asc", "col asc": undefined};
+const ROW_COL_SORT_ORDER = {
+    desc: "asc",
+    asc: "col desc",
+    "col desc": "col asc",
+    "col asc": undefined,
+};
 ```
 
 ## Expand/Collapse Interaction
@@ -260,9 +303,13 @@ async function expandCollapseHandler(regularTable, event, target) {
     const meta = regularTable.getMeta(target);
     const is_collapse = target.classList.contains("psp-tree-label-collapse");
     if (event.shiftKey && is_collapse) {
-        this._view.set_depth(meta.row_header.filter((x) => x !== undefined).length - 2);
+        this._view.set_depth(
+            meta.row_header.filter((x) => x !== undefined).length - 2
+        );
     } else if (event.shiftKey) {
-        this._view.set_depth(meta.row_header.filter((x) => x !== undefined).length - 1);
+        this._view.set_depth(
+            meta.row_header.filter((x) => x !== undefined).length - 1
+        );
     } else if (is_collapse) {
         this._view.collapse(meta.y);
     } else {
@@ -285,7 +332,10 @@ function mousedownListener(regularTable, event) {
     if (target.classList.contains("psp-tree-label") && event.offsetX < 26) {
         expandCollapseHandler.call(this, regularTable, event, target);
         event.handled = true;
-    } else if (target.classList.contains("psp-header-leaf") && !target.classList.contains("psp-header-corner")) {
+    } else if (
+        target.classList.contains("psp-header-leaf") &&
+        !target.classList.contains("psp-header-corner")
+    ) {
         sortHandler.call(this, regularTable, event, target);
         event.handled = true;
     }
@@ -316,12 +366,17 @@ const FORMATTERS = {
     }),
 };
 
+export const formatters = FORMATTERS;
+
 function _format(parts, val, use_table_schema = false) {
     if (val === null) {
         return "-";
     }
     const title = parts[parts.length - 1];
-    const type = (use_table_schema && this._table_schema[title]) || this._schema[title] || "string";
+    const type =
+        (use_table_schema && this._table_schema[title]) ||
+        this._schema[title] ||
+        "string";
     return FORMATTERS[type] ? FORMATTERS[type].format(val) : val;
 }
 
@@ -330,7 +385,9 @@ function formatStyleListener(regularTable) {
     for (const td of regularTable.querySelectorAll("table tbody td")) {
         const metadata = regularTable.getMeta(td);
         let type = get_psp_type.call(this, metadata);
-        td.innerHTML = FORMATTERS[type] ? FORMATTERS[type].format(metadata.value) : td.textContent;
+        td.innerHTML = FORMATTERS[type]
+            ? FORMATTERS[type].format(metadata.value)
+            : td.textContent;
     }
 }
 ```
@@ -344,7 +401,12 @@ function* _tree_header(paths = [], row_headers) {
         path = ["TOTAL", ...path];
         const last = path[path.length - 1];
         path = path.slice(0, path.length - 1).fill("");
-        const formatted = _format.call(this, [row_headers[path.length - 1]], last, true);
+        const formatted = _format.call(
+            this,
+            [row_headers[path.length - 1]],
+            last,
+            true
+        );
         path = path.concat({toString: () => formatted});
         path.length = row_headers.length + 1;
         yield path;
@@ -381,7 +443,13 @@ async function dataListener(x0, y0, x1, y1) {
     return {
         num_rows: this._num_rows,
         num_columns: this._column_paths.length,
-        row_headers: Array.from(_tree_header.call(this, columns.__ROW_PATH__, this._config.row_pivots)),
+        row_headers: Array.from(
+            _tree_header.call(
+                this,
+                columns.__ROW_PATH__,
+                this._config.row_pivots
+            )
+        ),
         column_headers,
         data,
     };
@@ -395,9 +463,16 @@ instantiate a view (and this call `createModel()` themselves), we must
 memoize both the `Table` and `View` objects.
 
 ```javascript
-async function createModel(regular, table, view, extend = {}) {
+export async function createModel(regular, table, view, extend = {}) {
     const config = await view.get_config();
-    const [table_schema, table_computed_schema, num_rows, schema, computed_schema, column_paths] = await Promise.all([
+    const [
+        table_schema,
+        table_computed_schema,
+        num_rows,
+        schema,
+        computed_schema,
+        column_paths,
+    ] = await Promise.all([
         table.schema(),
         table.computed_schema(config.computed_columns),
         view.num_rows(),
@@ -425,31 +500,24 @@ async function createModel(regular, table, view, extend = {}) {
 ```
 
 ```javascript
-async function configureRegularTable(regular, model) {
+export async function configureRegularTable(regular, model) {
     regular.addStyleListener(formatStyleListener.bind(model, regular));
     regular.addStyleListener(typeStyleListener.bind(model, regular));
     regular.addStyleListener(treeStyleListener.bind(model, regular));
     regular.addStyleListener(groupHeaderStyleListener.bind(model, regular));
     regular.addStyleListener(columnHeaderStyleListener.bind(model, regular));
-    regular.addEventListener("mousedown", mousedownListener.bind(model, regular));
+    regular.addEventListener(
+        "mousedown",
+        mousedownListener.bind(model, regular)
+    );
     await regular.draw();
 }
 ```
-
-The functions `configureRegularTable()` and `createModel()` are all that's
-needed to wire a `Table` to a `regular-table`, so we'll export these for
-convenient inclusion in a module-aware Javascript project.
-
-```javascript
-exports.formatters = FORMATTERS;
-exports.createModel = createModel;
-exports.configureRegularTable = configureRegularTable;
-```
-
 ## Perspective
 
 ```html
-<script>
+<script type="module">
+    import {createModel, configureRegularTable} from "/dist/examples/perspective.js";
     const URL = "/node_modules/superstore-arrow/superstore.arrow";
 
     const datasource = async () => {

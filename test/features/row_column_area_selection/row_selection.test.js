@@ -8,37 +8,39 @@
  *
  */
 
-describe("row_column_area_selection.html", () => {
-    const selectedColumns = async () => {
-        const selectedCells = await page.$$("regular-table thead th.mouse-selected-column");
+describe.skip("row_column_area_selection.html", () => {
+    const selectedRows = async () => {
+        const selectedCells = await page.$$("regular-table tbody tr th.mouse-selected-row");
         const selectedValues = [];
         for (const td of selectedCells) {
-            selectedValues.push(await page.evaluate((td) => td.firstChild.innerHTML, td));
+            selectedValues.push(await page.evaluate((td) => td.innerHTML, td));
         }
         return selectedValues;
     };
+
+    let ths;
 
     beforeEach(async () => {
         await page.setViewport({width: 2500, height: 2500});
         await page.goto("http://localhost:8081/dist/examples/row_column_area_selection.html");
         await page.waitFor("regular-table table tbody tr td");
+        ths = await page.$$("regular-table tbody tr th:nth-of-type(2)");
     });
 
-    describe("selecting one column", () => {
+    describe("selecting one row", () => {
         test("selects the cells", async () => {
-            const ths = await page.$$("regular-table thead tr:nth-of-type(2) th");
-
             await page.evaluate(async (th) => {
                 const event = new MouseEvent("click", {bubbles: true});
                 th.dispatchEvent(event);
-            }, ths[4]);
-            const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-column");
+            }, ths[0]);
+
+            const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-row");
             const selectedValues = [];
             for (const td of selectedCells) {
                 selectedValues.push(await page.evaluate((td) => td.innerHTML.trim().split(" ").slice(0, 2).join(" "), td));
             }
             expect(selectedValues.length > 0).toEqual(true);
-            expect(await selectedColumns()).toEqual(["Column 2"]);
+            expect(await selectedRows()).toEqual(["Row 0"]);
         });
     });
 });

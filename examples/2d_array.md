@@ -63,7 +63,7 @@ virtual data model to a regular HTML `<table>`, register this data model via
 the `setDataListener()` method:
 
 ```javascript
-function dataListener(x0, y0, x1, y1) {
+export function dataListener(x0, y0, x1, y1) {
     return {
         num_rows: DATA[0].length,
         num_columns: DATA.length,
@@ -75,7 +75,7 @@ function dataListener(x0, y0, x1, y1) {
 You can register and invoke this table thusly:
 
 ```javascript
-function init() {
+export function init() {
     window.regularTable.setDataListener(dataListener);
     window.regularTable.draw();
 }
@@ -84,7 +84,10 @@ function init() {
 ... which we'll do on the Window `"load"` event.
 
 ```html
-<script>window.addEventListener("load", () => init())</script>
+<script type="module">
+    import {init} from "/dist/examples/2d_array.js";
+    window.addEventListener("load", () => init());
+</script>
 ```
 
 # Appendix (Dependencies)
