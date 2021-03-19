@@ -349,7 +349,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             let last_cells;
             for await (last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
                 this._is_styling = true;
-                for (const callback of this._style_callbacks.values()) {
+                const callbacks = this._style_callbacks;
+                for (const callback of callbacks) {
                     await callback({detail: this});
                 }
                 this._is_styling = false;

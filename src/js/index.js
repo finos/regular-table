@@ -44,7 +44,7 @@ class RegularTableElement extends RegularViewEventModel {
             this.register_listeners();
             this.setAttribute("tabindex", "0");
             this._column_sizes = {auto: {}, override: {}, indices: []};
-            this._style_callbacks = new Map();
+            this._style_callbacks = [];
             this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
             this._initialized = true;
         }
@@ -119,18 +119,34 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      * @param {function({detail: RegularTableElement}): void} styleListener - A
      * (possibly async) function that styles the inner <table>.
-     * @returns {number} The index of the added listener.
+     * @returns {function(): void} A function to remove this style listener.
      * @example
-     * table.addStyleListener(() => {
+     * const unsubscribe = table.addStyleListener(() => {
      *     for (const td of table.querySelectorAll("td")) {
      *         td.setAttribute("contenteditable", true);
      *     }
      * });
+     *
+     * setTimeout(() => {
+     *     unsubscribe();
+     * }, 1000);
      */
     addStyleListener(styleListener) {
-        const key = this._style_callbacks.size;
-        this._style_callbacks.set(key, styleListener);
-        return key;
+        this._style_callbacks = this._style_callbacks.concat(styleListener);
+
+        let isSubscribed = true;
+
+        const unsubscribe = () => {
+            if (!isSubscribed) {
+                return;
+            }
+            isSubscribed = false;
+
+            const callbacks = (this._style_callbacks = this._style_callbacks.slice());
+            const index = callbacks.indexOf(styleListener);
+            callbacks.splice(index, 1);
+        };
+        return unsubscribe;
     }
 
     /**
