@@ -28,7 +28,7 @@ However by simply adding stripes to the rows, the top-most row will always show
 with the darker `background-color: #ddd`, and the next row will retain its
 even, `background-color: #eee`, style as the user scrolls - repeating for each
 row and making the striping look inconsistent.
-We're going to add the `.reverse-stripes` class for use in our 
+We're going to add the `.reverse-stripes` class for use in our
 `alternateStripes()` function that applies a `StyleListener`.
 
 ```css
@@ -44,18 +44,21 @@ We're going to add the `.reverse-stripes` class for use in our
 ## Adding a `StyleListener` with `alternateStripes()`
 
 Adding a `StyleListener` to the `<regular-table>` in our `alternateStripes()`
-function will ensure that the odd and even styling will alternate depending
-on the oddness/evenness of the top-most row.
-We can `getMeta()` from the table and add/remove our `.stipes` and 
-`.reverse-stripes` classes based on the evenness of the `meta.y0` or the `y` 
-index of the viewport origin.
+function will ensure that the odd and even styling will alternate depending on
+the oddness/evenness of the top-most row. We can `getMeta()` from the table and
+add/remove our `.stipes` and `.reverse-stripes` classes based on the evenness of
+the `meta.y0` or the `y` index of the viewport origin. We will also make sure to
+return a function that removes the style listener (using the return value of
+`addStyleListener()`) and the attached classes for cleanup purposes. Once this
+function is called, the stripes will be gone and no longer get applied as the
+user scrolls - this is because the style listener has been removed.
 
 ```javascript
 const EVEN_STRIPE_CLASS = "stripes";
 const ODD_STRIPE_CLASS = "reverse-stripes";
 
 const alternateStripes = (table, {evenStripeClassName = EVEN_STRIPE_CLASS, oddStripeClassName = ODD_STRIPE_CLASS} = {}) => {
-    table.addStyleListener(() => {
+    const removeStyleListener = table.addStyleListener(() => {
         const tds = table.querySelectorAll("tbody tr:nth-of-type(1) td");
         const meta = table.getMeta(tds[0]);
 
@@ -69,7 +72,12 @@ const alternateStripes = (table, {evenStripeClassName = EVEN_STRIPE_CLASS, oddSt
             }
         }
     });
-    return table;
+
+    return () => {
+        removeStyleListener();
+        table.classList.remove(evenStripeClassName);
+        table.classList.remove(oddStripeClassName);
+    };
 };
 ```
 
@@ -107,7 +115,7 @@ window.addEventListener("load", () => {
     if (window.stripedRegularTable) {
         const dataListener = generateDataListener(10000, 50);
         window.stripedRegularTable.setDataListener(dataListener);
-        alternateStripes(window.stripedRegularTable);
+        window.removeStripes = alternateStripes(window.stripedRegularTable);
         window.stripedRegularTable.draw();
     }
 });
@@ -128,7 +136,7 @@ The usual suspects.
 
 ```html
 <script src="/dist/umd/regular-table.js"></script>
-<link rel='stylesheet' href="/dist/css/material.css">
+<link rel="stylesheet" href="/dist/css/material.css" />
 ```
 
 Borrow utility functions from the `two_billion_rows` example.

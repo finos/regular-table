@@ -29,17 +29,19 @@ declare module 'regular-table' {
          * @memberof RegularTableElement
          * @param {function({detail: RegularTableElement}): void} styleListener - A
          * (possibly async) function that styles the inner <table>.
-         * @returns {number} The index of the added listener.
+         * @returns {function(): void} A function to remove this style listener.
          * @example
-         * table.addStyleListener(() => {
+         * const unsubscribe = table.addStyleListener(() => {
          *     for (const td of table.querySelectorAll("td")) {
          *         td.setAttribute("contenteditable", true);
          *     }
          * });
+         *
+         * setTimeout(() => {
+         *     unsubscribe();
+         * }, 1000);
          */
-        addStyleListener(styleListener: (arg0: {
-                detail: RegularTableElement;
-        }) => void): number;
+        addStyleListener(styleListener: (arg0: {detail: RegularTableElement}) => void): () => void;
 
         /**
          * Draws this virtual panel, given an object of render options that allow
