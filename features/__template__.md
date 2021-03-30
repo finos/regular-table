@@ -45,7 +45,7 @@ function _style(options) {
 }
 ```
 
-### Styling
+### Stylin
 
 Style sections may also be intermixed in the code sections as needed, but
 attempt to prefer a separate styling section for
