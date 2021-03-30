@@ -206,6 +206,24 @@ scroll, more data will be fetched from `getDataSlice()`, and parts of the
 </regular-table>
 ```
 
+
+#### `virtual_mode` Option
+
+`regular-table` supports four modes of virtual scrolling, which can be
+configured via the `virtual_mode` optional argument.  Note that using a
+`virtual_mode` other than the default `"both"` will render the _entire_
+`<table>` along the non-virtual axis(es), and may cause rendering performance
+degradation.
+
+* "both" (default) virtualizes scrolling on both axes.
+* "vertical" only virtualizes vertical (y) scrolling.
+* "horizontal" only virtualizes horizontal (x) scrolling.
+* "none" disable all scroll virtualization.
+
+```javascript
+table.setDataListener(listener, {virtual_mode: "vertical"})
+```
+
 ### Column and Row Headers
 
 `regular-table` can also generate Hierarchial Row and Column Headers, using

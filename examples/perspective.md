@@ -485,6 +485,11 @@ exports.configureRegularTable = configureRegularTable;
 ## CSS
 
 ```css
+html,
+body {
+    overflow: hidden;
+}
+
 regular-table table {
     user-select: none;
 }

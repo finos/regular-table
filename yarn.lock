@@ -5269,7 +5269,7 @@ linkify-it@^2.0.0:
   dependencies:
     uc.micro "^1.0.1"
 
-literally-cli@^0.0.7:
+literally-cli@=0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/literally-cli/-/literally-cli-0.0.7.tgz#221ef9e96c9cbea9de618106a0db5a798ab67599"
   integrity sha512-HpLCAe7VH+1mn4VznmZntWqNLsWpSf7lZSbTkaSbeah7bDT199rQ4Rt8Oud1Rnmw3BzLF8lFWOY3QQTmRd1mgw==

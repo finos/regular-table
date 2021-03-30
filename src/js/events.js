@@ -74,11 +74,13 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @param {*} event
      */
     _on_mousewheel(event) {
-        if (this._virtual_scrolling_disabled) {
+        if (!window.safari) {
+            // **** Apple
             return;
         }
+
         const {clientWidth, clientHeight, scrollTop, scrollLeft, scrollHeight} = this;
-        if ((event.deltaY > 0 && scrollTop + clientHeight < scrollHeight) || (event.deltaY < 0 && scrollTop > 0) || event.deltaY === 0) {
+        if ((event.deltaY > 0 && scrollTop + clientHeight >= scrollHeight) || (event.deltaY < 0 && scrollTop <= 0)) {
             event.preventDefault();
             event.returnValue = false;
             const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
@@ -102,9 +104,6 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @returns
      */
     _on_touchmove(event) {
-        if (this._virtual_scrolling_disabled) {
-            return;
-        }
         event.preventDefault();
         event.returnValue = false;
         const {clientWidth, clientHeight, scrollTop, scrollLeft} = this;
