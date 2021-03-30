@@ -28,8 +28,9 @@ We can load `defaultRowSelections()` to this example and wire up the
 <script type="module">
     import { addAreaMouseSelection } from "./area_mouse_selection.js";
     import { dataListener } from "/dist/examples/two_billion_rows.js";
+
     window.addEventListener("load", () => {
-        example_table.setDataListener(dataListener);
+        example_table.setDataListener(dataListener(1000, 50));
         addAreaMouseSelection(example_table, {
             selected: [
                 { x0: 5, x1: 7, y0: 7, y1: 11 },
