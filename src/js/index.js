@@ -13,6 +13,8 @@ import {RegularTableViewModel} from "./table";
 import {RegularViewEventModel} from "./events";
 import {get_draw_fps} from "./utils";
 
+const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"];
+
 /**
  * The `<regular-table>` custom element.
  *
@@ -254,6 +256,10 @@ class RegularTableElement extends RegularViewEventModel {
      * `dataListener` is called by to request a rectangular section of data
      * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
      * object.
+     * @param {Options} options.virtual_mode
+     * The `virtual_mode` options flag may be one of "both", "horizontal",
+     * "vertical", or "none" indicating which dimensions of the table should be
+     * virtualized (vs. rendering completely).
      * @example
      * table.setDataListener((x0, y0, x1, y1) => {
      *     return {
@@ -263,15 +269,18 @@ class RegularTableElement extends RegularViewEventModel {
      *     };
      * })
      */
-    setDataListener(dataListener) {
+    setDataListener(dataListener, {virtual_mode = "both"} = {}) {
         let schema = {};
         let config = {
             row_pivots: [],
             column_pivots: [],
         };
 
+        console.assert(VIRTUAL_MODES.indexOf(virtual_mode) > -1, `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`);
+        this._virtual_mode = virtual_mode;
         this._invalid_schema = true;
         this._view_cache = {view: dataListener, config, schema};
+        this._setup_virtual_scroll();
     }
 }
 

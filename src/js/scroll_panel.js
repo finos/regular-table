@@ -72,17 +72,28 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             <style>
                 ${container_css}
             </style>
-            <div class="rt-virtual-panel">
-                ${this._virtual_scrolling_disabled ? slot : ""}
-            </div>
+            <div class="rt-virtual-panel"></div>
             <div class="rt-scroll-table-clip">
-                ${this._virtual_scrolling_disabled ? "" : slot}
+                ${slot}
             </div>
         `;
 
         const [, virtual_panel, table_clip] = this.shadowRoot.children;
         this._table_clip = table_clip;
         this._virtual_panel = virtual_panel;
+        this._setup_virtual_scroll();
+    }
+
+    _setup_virtual_scroll() {
+        if (this._table_clip) {
+            if (this._virtual_mode === "both" || this._virtual_mode === "vertical") {
+                this._table_clip.style.top = "0px";
+            }
+
+            if (this._virtual_mode === "both" || this._virtual_mode === "horizontal") {
+                this._table_clip.style.left = "0px";
+            }
+        }
     }
 
     /**
@@ -171,10 +182,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
         const percent_left = this.scrollLeft / total_scroll_width;
         const max_scroll_column = this._max_scroll_column(num_columns) + 0.5;
-        let start_col = Math.floor(max_scroll_column * percent_left);
-        const vis_cols = (!invalid_columns && this.table_model.num_columns()) || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
-        let end_col = start_col + vis_cols + 1;
-        return {start_col, end_col};
+        if (this._virtual_mode === "none" || this._virtual_mode === "vertical") {
+            return {start_col: 0, end_col: Infinity};
+        } else {
+            let start_col = Math.floor(max_scroll_column * percent_left);
+            const vis_cols = (!invalid_columns && this.table_model.num_columns()) || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
+            let end_col = start_col + vis_cols + 1;
+            return {start_col, end_col};
+        }
     }
 
     /**
@@ -249,7 +264,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _update_virtual_panel_width(invalid, num_columns) {
         if (invalid) {
-            if (this._virtual_scrolling_disabled) {
+            if (this._virtual_mode === "vertical" || this._virtual_mode === "none") {
                 this._virtual_panel.style.width = this._column_sizes.indices.reduce((x, y) => x + y, 0) + "px";
             } else {
                 const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
@@ -280,7 +295,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const {row_height = 19} = this._column_sizes;
         const header_height = this.table_model.header.num_rows() * row_height;
         let virtual_panel_px_size;
-        if (this._virtual_scrolling_disabled) {
+        if (this._virtual_mode === "horizontal" || this._virtual_mode === "none") {
             virtual_panel_px_size = nrows * row_height + header_height;
         } else {
             //const {height} = this._container_size;
@@ -322,17 +337,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         this._invalid_schema = invalid_columns || this._invalid_schema;
-
         const {num_columns, num_rows} = await this._view_cache.view(0, 0, 0, 0);
-
-        if (this._virtual_scrolling_disabled) {
-            this._container_size = {width: Infinity, height: Infinity};
-        } else if (this._invalid_schema || invalid_viewport) {
-            this._container_size = {
-                width: this._table_clip.clientWidth,
-                height: this._table_clip.clientHeight,
-            };
-        }
+        this._container_size = {
+            width: this._virtual_mode === "none" || this._virtual_mode === "vertical" ? Infinity : this._table_clip.clientWidth,
+            height: this._virtual_mode === "none" || this._virtual_mode === "horizontal" ? Infinity : this._table_clip.clientHeight,
+        };
 
         const viewport = this._calculate_viewport(num_rows, num_columns, reset_scroll_position, invalid_columns);
         const {invalid_row, invalid_column} = this._validate_viewport(viewport);
