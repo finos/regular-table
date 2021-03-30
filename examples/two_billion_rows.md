@@ -27,16 +27,16 @@ The `dataListener` function for this virtual data set is simple, and
 returns the static dimensions directly:
 
 ```javascript
-export function dataListener(x0, y0, x1, y1) {
-    return {
-        num_rows: NUM_ROWS,
-        num_columns: NUM_COLUMNS,
+export function dataListener(num_rows, num_columns) {
+    return (x0, y0, x1, y1) => ({
+        num_rows,
+        num_columns,
         row_headers: range(y0, y1, group_header.bind(null, "Row")),
         column_headers: range(x0, x1, group_header.bind(null, "Column")),
         data: range(x0, x1, (x) =>
             range(y0, y1, (y) => formatter.format(x + y))
         ),
-    };
+    });
 }
 ```
 
@@ -74,7 +74,8 @@ With these, all that's left is to register the `dataListener` and draw the
 ```javascript
 export function init() {
     const table = document.getElementsByTagName("regular-table")[0];
-    table.setDataListener(dataListener);
+    const dl = dataListener(NUM_ROWS, NUM_COLUMNS);
+    table.setDataListener(dl);
     table.draw();
 }
 ```
