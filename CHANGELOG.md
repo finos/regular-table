@@ -1,8 +1,25 @@
 # Changelog
 
-## [v0.2.1](https://github.com/jpmorganchase/regular-table/tree/v0.2.1)
+## [0.3.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.2.0...HEAD)
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.2.1...v0.3.0)
+
+**Breaking changes:**
+
+- Add 'virtual\_mode' optional argument to `setDataListener\(\)` [\#125](https://github.com/jpmorganchase/regular-table/pull/125) ([texodus](https://github.com/texodus))
+- Return an unsubscribe function from `addStyleListener` [\#121](https://github.com/jpmorganchase/regular-table/pull/121) ([NMinhNguyen](https://github.com/NMinhNguyen))
+
+**Merged pull requests:**
+
+- Make column selection blocks example [\#120](https://github.com/jpmorganchase/regular-table/pull/120) ([JHawk](https://github.com/JHawk))
+- Make area selection block example [\#119](https://github.com/jpmorganchase/regular-table/pull/119) ([JHawk](https://github.com/JHawk))
+- Make row stripes block example [\#118](https://github.com/jpmorganchase/regular-table/pull/118) ([JHawk](https://github.com/JHawk))
+- wrap any plain text column headers in a `\<span\>` [\#117](https://github.com/jpmorganchase/regular-table/pull/117) ([telamonian](https://github.com/telamonian))
+- Update features / example - allow row selection anywhere [\#116](https://github.com/jpmorganchase/regular-table/pull/116) ([JHawk](https://github.com/JHawk))
+
+## [v0.2.1](https://github.com/jpmorganchase/regular-table/tree/v0.2.1) (2021-02-06)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.2.0...v0.2.1)
 
 **Fixed bugs:**
 
