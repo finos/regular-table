@@ -30,7 +30,7 @@ will be invoked on `"load"`.
     import { dataListener } from "/dist/examples/two_billion_rows.js";
 
     window.addEventListener("load", () => {
-        const dl = dataListener(100, 50);
+        const dl = dataListener(1000, 50);
         example_table.setDataListener(dl);
         window.removeStripes = alternateStripes(example_table);
         example_table.draw();
