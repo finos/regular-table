@@ -356,7 +356,9 @@ declare module 'regular-table' {
     global {
         namespace JSX {
             interface IntrinsicElements {
-                "regular-table": DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>;
+                "regular-table": Omit<DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>, "className"> & {
+                    class?: string;
+                };
             }
         }
 
