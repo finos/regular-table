@@ -77,8 +77,10 @@ export const addRowMouseSelection = (
 
     const clickListener = (event) => {
         const meta = table.getMeta(event.target);
+
         const headerWasClicked =
             meta && typeof meta.row_header_x !== "undefined" && meta.row_header;
+
         const cellWasClicked =
             meta && typeof meta.y !== "undefined" && !meta.column_header_y;
 
