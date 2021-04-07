@@ -20,9 +20,9 @@ using a `StyleListener` that we will define later.
 <regular-table id="example_table"></regular-table>
 ```
 
-We can load `defaultRowSelections()` to this example and wire up the
-`DataListener` borrowed from `two_billion_rows` and then we simply
-`addAreaMouseSelection()` to the `table` and `draw()`.
+We can load default selections to this example and wire up the `DataListener`
+borrowed from `two_billion_rows`, and then we simply `addAreaMouseSelection()`
+to the `table` and `draw()`.
 
 ```html
 <script type="module">
