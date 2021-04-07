@@ -1,48 +1,44 @@
-# ** Title Here **
+# Row Stripes
 
-An example of adding stripes to a
-[`regular-table`](https://github.com/jpmorganchase/regular-table) by setting the
-each `tr`s `background-color`. Lets start by adding a `<regular-table>` to the
-page with an `id` that will be accessible on the window object using
-[`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
+Adding row stripes to a table, at its most basic, could be accomplished by
+adding `odd` and `even` css rules to each of the rows in the `<regular-table>`.
+Given this approach, a user would notice that on `"scroll"` the rows don't
+alternate, and the stripes remain fixed. The top-most row would always show the
+darker `background-color`, and the next row would retain its lighter, even
+`background-color` - repeating for each row and making the striping look
+inconsistent.
+
+By alternating our css rules based on the oddness or evenness of the first row
+in the data set, we can ensure that the data and stripes style remain consistent
+as the user scrolls the table.
+
+# API
 
 ```html
-<regular-table id="stripedRegularTable"></regular-table>
+<regular-table id="example_table"></regular-table>
 ```
 
-## Styling
+Lets set up by using `dataListener()` from `two_billion_rows` to create a data
+set and then call `setDataListener()` with it. Next we'll call our
+`alternateStripes()` function passing in the `<regular-table>` and then invoke
+`draw()` - checking that the `#stripedRegularTable` exists first. All of this
+will be invoked on `"load"`.
 
-For some basic stripes, we could simply add a `.stripes` class alternating the
-style on `tr:nth-child(odd)` and `tr:nth-child(even)`.
+```html
+<script type="module">
+    import { alternateStripes } from "./row_stripes.js";
+    import { dataListener } from "/dist/examples/two_billion_rows.js";
 
-```css
-.stripes tbody tr:nth-child(odd) td {
-    background-color: #eaedef;
-}
-
-.stripes tbody tr:nth-child(even) td {
-    background-color: white;
-}
+    window.addEventListener("load", () => {
+        const dl = dataListener(1000, 50);
+        example_table.setDataListener(dl);
+        window.removeStripes = alternateStripes(example_table);
+        example_table.draw();
+    });
+</script>
 ```
 
-However by simply adding stripes to the rows, the top-most row will always show
-with the darker `background-color: #ddd`, and the next row will retain its even,
-`background-color: #eee`, style as the user scrolls - repeating for each row and
-making the striping look inconsistent. We're going to add the `.reverse-stripes`
-class for use in our `alternateStripes()` function that applies a
-`StyleListener`.
-
-```css
-.reverse-stripes tbody tr:nth-child(odd) td {
-    background-color: white;
-}
-
-.reverse-stripes tbody tr:nth-child(even) td {
-    background-color: #eaedef;
-}
-```
-
-## Adding a `StyleListener` with `alternateStripes()`
+## `alternateStripes()`
 
 Adding a `StyleListener` to the `<regular-table>` in our `alternateStripes()`
 function will ensure that the odd and even styling will alternate depending on
@@ -58,7 +54,7 @@ user scrolls - this is because the style listener has been removed.
 const EVEN_STRIPE_CLASS = "stripes";
 const ODD_STRIPE_CLASS = "reverse-stripes";
 
-const alternateStripes = (
+export const alternateStripes = (
     table,
     {
         evenStripeClassName = EVEN_STRIPE_CLASS,
@@ -88,70 +84,38 @@ const alternateStripes = (
 };
 ```
 
-## Virtual Data Model
+## Styling
 
-To see the stripes scroll and test out our example, we'll need a large enough
-data set. The `generateDataListener()` function takes a `num_rows` and
-`num_columns` and generates a test `DataListener` making use of the `range()`
-and `formatter()` utility functions from `two_billion_rows` example included in
-the dependencies below.
+For some basic stripes, we could simply add a `.stripes` class alternating the
+style on `tr:nth-child(odd)` and `tr:nth-child(even)`.
 
-```javascript
-function generateDataListener(num_rows, num_columns) {
-    return function dataListener(x0, y0, x1, y1) {
-        return {
-            num_rows,
-            num_columns,
-            row_headers: range(y0, y1, group_header.bind(null, "Row")),
-            column_headers: range(x0, x1, group_header.bind(null, "Column")),
-            data: range(x0, x1, (x) =>
-                range(y0, y1, (y) => formatter.format(x + y))
-            ),
-        };
-    };
+```css
+.stripes tbody tr:nth-child(odd) td {
+    background-color: #eaedef;
+}
+
+.stripes tbody tr:nth-child(even) td {
+    background-color: white;
 }
 ```
 
-Lets set up by using `generateDataListener()` to create a 10k row data set and
-call `setDataListener()` with it. Next we'll call our `alternateStripes()`
-function passing in the `#stripedRegularTable` and then invoke `draw()` -
-checking that the `#stripedRegularTable` exists first. All of this will be
-invoked on `"load"`.
+And a `.reverse-stripes` class that swaps the `odd` and `even` styles.
 
-```html
-<script>
-    window.addEventListener("load", () => {
-        if (window.stripedRegularTable) {
-            const dataListener = generateDataListener(10000, 50);
-            window.stripedRegularTable.setDataListener(dataListener);
-            window.removeStripes = alternateStripes(window.stripedRegularTable);
-            window.stripedRegularTable.draw();
-        }
-    });
-</script>
-```
+```css
+.reverse-stripes tbody tr:nth-child(odd) td {
+    background-color: white;
+}
 
-## Appendix (Exports)
-
-This is the public function you can use.
-
-```javascript
-exports.alternateStripes = alternateStripes;
+.reverse-stripes tbody tr:nth-child(even) td {
+    background-color: #eaedef;
+}
 ```
 
 ## Appendix (Dependencies)
 
-The usual suspects.
-
 ```html
 <script src="/dist/umd/regular-table.js"></script>
 <link rel="stylesheet" href="/dist/css/material.css" />
-```
-
-Borrow utility functions from the `two_billion_rows` example.
-
-```html
-<script src="/dist/examples/two_billion_rows.js"></script>
 ```
 
 ```block

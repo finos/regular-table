@@ -1,25 +1,10 @@
-# Row Selection using the Mouse
+# Mouse Row Selection
 
-This example adds row selection to a
-[`<regular-table>`](https://github.com/jpmorganchase/regular-table), allowing
-the user to select rows via mouse clicks. **_Quick Note:_** The implementation
-of this behavior is mostly symmetric to the `column_mouse_selection` example.
-We'll need a `<regular-table>` with an `id` accessible on the window using
-[`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
-
-```html
-<regular-table id="rowMouseSelectionRegularTable"></regular-table>
-```
-
-## `addRowMouseSelection()`
-
-Before we get started, lets think about the feature. We expect that when we
+Mouse row selection is a feature common in most grids. We expect that when we
 `"click"` on the row or row header then the row shows as selected. In this
 example, the rows are grouped as well, and when the group is selected then rows
-under the group should show as selected too.
-
-We'll also allow the user to make multiple selections when holding down the
-`ctrl` or `metaKey`.
+under the group should show as selected too. We'll also allow the user to make
+multiple selections when holding down the `ctrl` or `metaKey`.
 
 Sounds like the bulk of the logic belongs in a `"click"` `EventListener`, so our
 `addRowMouseSelection()` should take a `table` and add a `clickListener()`.
@@ -27,27 +12,88 @@ Sounds like the bulk of the logic belongs in a `"click"` `EventListener`, so our
 It will also be responsible for adding the `StyleListener` to ensure the
 selection shows correctly as the `table` scrolls.
 
+# API
+
+```html
+<regular-table id="example_table"></regular-table>
+```
+
+We can load default selections to this example and wire up the `DataListener`
+borrowed from `two_billion_rows`, and then we simply `addRowMouseSelection()` to
+the `table` and `draw()`.
+
+```html
+<script type="module">
+    import { addRowMouseSelection } from "./row_mouse_selection.js";
+    import { dataListener } from "/dist/examples/two_billion_rows.js";
+
+    window.addEventListener("load", () => {
+        const dl = dataListener(200, 50);
+        example_table.setDataListener(dl);
+        addRowMouseSelection(example_table, dl, {
+            selected: [
+                {
+                    row_header: ["Group 10", "Row 11"],
+                    y0: 11,
+                    y1: 11,
+                },
+                {
+                    row_header: ["Group 10", "Row 15"],
+                    y0: 14,
+                    y1: 15,
+                },
+                {
+                    row_header: ["Group 10", "Row 18"],
+                    y0: 17,
+                    y1: 18,
+                },
+            ],
+        });
+        example_table.draw();
+    });
+</script>
+```
+
+## `addRowMouseSelection()`
+
+Lets make the row selection behavior available with a single function,
+`addRowMouseSelection()`, that takes a `<regular-table>` and the `DataListener`
+then applies our behavior on `"click"`.
+
 ```javascript
+const PRIVATE = Symbol("Row Mouse Selection");
 const MOUSE_SELECTED_ROW_CLASS = "mouse-selected-row";
 
 export const addRowMouseSelection = (
     table,
     dl,
-    { cellSelectionEnabled = true, className = MOUSE_SELECTED_ROW_CLASS } = {}
+    {
+        cellSelectionEnabled = true,
+        className = MOUSE_SELECTED_ROW_CLASS,
+        selected = [],
+    } = {}
 ) => {
+    table[PRIVATE] = { selected_rows: selected };
+
     const clickListener = (event) => {
         const meta = table.getMeta(event.target);
+
         const headerWasClicked =
             meta && typeof meta.row_header_x !== "undefined" && meta.row_header;
+
         const cellWasClicked =
             meta && typeof meta.y !== "undefined" && !meta.column_header_y;
 
         if (headerWasClicked) {
-            MOUSE_SELECTED_ROWS = newRowSelections(meta, event, dl);
+            table[PRIVATE] = {
+                selected_rows: newRowSelections(table, meta, event, dl),
+            };
         } else if (cellWasClicked && cellSelectionEnabled) {
-            MOUSE_SELECTED_ROWS = newRowSelections(meta, event, dl);
+            table[PRIVATE] = {
+                selected_rows: newRowSelections(table, meta, event, dl),
+            };
         } else if (!event.ctrlKey && !event.metaKey) {
-            MOUSE_SELECTED_ROWS = [];
+            table[PRIVATE] = { selected_rows: [] };
         }
         table.draw();
     };
@@ -61,24 +107,21 @@ export const addRowMouseSelection = (
 Our internal `clickListener()` will need to keep track of the information that
 describes our row selection. The properties we're interested in will overlap a
 bit with the `MetaData` `object`, and we'll refer to an `object` with the below
-properties as a `RowSelection`. | Name | Type | Description | | --- | --- | ---
-| | [y0] | `number` | The `y` index that begins the selection. | | [y1] |
-`number` | The `y` index that ends the selection. | | [row_header_x] | `number`
-| The `y` of this header's `row_header`.| | [row_header] |
-<code>Array.&lt;object&gt;</code> | The `Array` of headers associated with this
-selection. |
+properties as a `RowSelection`.
 
-We'll add them to a collection, say `MOUSE_SELECTED_ROWS`.
+| Name           | Type                              | Description                              |
+| -------------- | --------------------------------- | ---------------------------------------- |
+| [y0]           | `number`                          | The `y` index that begins the selection. |
+| [y1]           | `number`                          | The `y` index that ends the selection.   |
+| [row_header_x] | `number`                          | The `y` of this header's `row_header`.   |
+| [row_header]   | <code>Array.&lt;object&gt;</code> | Header selections.                       |
 
-```javascript
-let MOUSE_SELECTED_ROWS = [];
-```
-
-In our `clickListener()`, we'll check if the `headerWasClicked` and if so, we
-can update the `MOUSE_SELECTED_ROWS` with the `newRowSelections()`. If the
-`ctrlKey` and `metaKey` aren't pressed then our user isn't multi-selecting, and
-we should clear the prior selections. Finally, we'll call `draw()` on the
-`table` ensuring the new selection shows.
+We'll add them to a collection, say keyed on the `table`. In our
+`clickListener()`, we'll check if the `headerWasClicked` and if so, we can
+update the `selected_rows` with the `newRowSelections()`. If the `ctrlKey` and
+`metaKey` aren't pressed then our user isn't multi-selecting, and we should
+clear the prior selections. Finally, we'll call `draw()` on the `table` ensuring
+the new selection shows.
 
 ### When creating `newRowSelections()`
 
@@ -94,14 +137,14 @@ effectively making it a range selection. We'll save the implementation of
 `lastIndexOfRowGroup()` for later.
 
 ```javascript
-const newRowSelections = (meta, event, dl) => {
+const newRowSelections = (table, meta, event, dl) => {
     const inMultiSelectMode = event.ctrlKey || event.metaKey;
     const targetSelection = targetRowSelection(meta, dl);
 
     if (inMultiSelectMode) {
-        return newMultiSelectRow(targetSelection, dl);
+        return newMultiSelectRow(table, targetSelection, dl);
     } else {
-        return newSingleSelectRow(targetSelection, dl);
+        return newSingleSelectRow(table, targetSelection, dl);
     }
 };
 
@@ -131,14 +174,14 @@ consider selections made with the `shiftKey` a range selection. Without the
 selection already exists by returning empty.
 
 ```javascript
-const newSingleSelectRow = (targetSelection, dl) => {
-    const matches = matchingRowSelections(targetSelection);
+const newSingleSelectRow = (table, targetSelection, dl) => {
+    const matches = matchingRowSelections(table, targetSelection);
 
     if (matches.length > 0) {
         return [];
     } else {
         if (event.shiftKey) {
-            return [createRowRangeSelection(targetSelection, dl)];
+            return [createRowRangeSelection(table, targetSelection, dl)];
         } else {
             return [targetSelection];
         }
@@ -147,18 +190,18 @@ const newSingleSelectRow = (targetSelection, dl) => {
 ```
 
 We'll need a couple helper functions, one that returns the
-`matchingRowSelections()` by iterating throught the `MOUSE_SELECTED_ROWS` and
+`matchingRowSelections()` by iterating throught the `selected_rows` and
 returning all `RowSelection`s who's rows intersect...
 
 ```javascript
-const matchingRowSelections = ({ y, y0, y1 }) => {
+const matchingRowSelections = (table, { y, y0, y1 }) => {
     const _y = y !== undefined ? y : Math.min(y0, y1);
-    return MOUSE_SELECTED_ROWS.filter((s) => s.y0 <= _y && _y <= s.y1);
+    return table[PRIVATE].selected_rows.filter((s) => s.y0 <= _y && _y <= s.y1);
 };
 ```
 
 ... and a way to create a `RowSelection` that represents a range selection by
-looking at the `lastSelection` in `MOUSE_SELECTED_ROWS`. If there is a
+looking at the `lastSelection` in `selected_rows`. If there is a
 `lastSelection`, we'll update the given `rowSelection` with the `min()` `y0` and
 `max` `y1` to ensure the correct range selecting top to bottom as well as bottom
 to top. `createRowRangeSelection()` will also ensure that the resulting
@@ -167,8 +210,10 @@ the selections is a Group and the other is a Row we should select the
 appropriate `row_header_x`.
 
 ```javascript
-const createRowRangeSelection = (rowSelection, dl) => {
-    const lastSelection = MOUSE_SELECTED_ROWS[MOUSE_SELECTED_ROWS.length - 1];
+const createRowRangeSelection = (table, rowSelection, dl) => {
+    const selectedRows = table[PRIVATE].selected_rows;
+    const lastSelection = selectedRows[selectedRows.length - 1];
+
     if (lastSelection) {
         const y0 = Math.min(
             rowSelection.y0,
@@ -199,19 +244,19 @@ we want to simply remove the selection, but if the selection is a range, we'll
 need to split the range into two row selections, removing the `targetSelection`.
 
 ```javascript
-const newMultiSelectRow = (targetSelection, dl) => {
-    const matches = matchingRowSelections(targetSelection);
+const newMultiSelectRow = (table, targetSelection, dl) => {
+    const matches = matchingRowSelections(table, targetSelection);
 
     if (matches.length > 0) {
-        let newSelections = rejectMatchingRowSelections(targetSelection);
+        let newSelections = rejectMatchingRowSelections(table, targetSelection);
         return splitRowRangeMatches(newSelections, targetSelection);
     } else {
         if (event.shiftKey) {
-            return MOUSE_SELECTED_ROWS.concat(
-                createRowRangeSelection(targetSelection, dl)
+            return table[PRIVATE].selected_rows.concat(
+                createRowRangeSelection(table, targetSelection, dl)
             );
         } else {
-            return MOUSE_SELECTED_ROWS.concat(targetSelection);
+            return table[PRIVATE].selected_rows.concat(targetSelection);
         }
     }
 };
@@ -221,9 +266,11 @@ We can write a complement to our `matchingRowSelections()` that returns all the
 `RowSelection`s that don't match the input's row.
 
 ```javascript
-const rejectMatchingRowSelections = ({ y, y0, y1 }) => {
+const rejectMatchingRowSelections = (table, { y, y0, y1 }) => {
     const _y = y ? y : Math.min(y0, y1);
-    return MOUSE_SELECTED_ROWS.filter(({ y0, y1 }) => !(y0 == _y && _y == y1));
+    return table[PRIVATE].selected_rows.filter(
+        ({ y0, y1 }) => !(y0 == _y && _y == y1)
+    );
 };
 ```
 
@@ -300,27 +347,6 @@ const lastIndexOfRowGroup = (dl, { row_header_x, value, y }) => {
 };
 ```
 
-## Styling
-
-Let's style our `mouse-selected-row` - in this example we'll use a light yellow.
-
-```css
-regular-table tbody tr td.mouse-selected-row,
-regular-table tr th.mouse-selected-row {
-    background-color: #2771a8;
-    color: white;
-}
-```
-
-And we can disable the default `user-select`.
-
-```css
-regular-table tbody tr th,
-regular-table tbody tr td {
-    user-select: none;
-}
-```
-
 ## `StyleListener`
 
 As our `<regular-table>` is re-rendered, we will want to ensure that our
@@ -349,7 +375,7 @@ const reapplyRowSelection = (table, dl, className) => {
     if (elements.length > 0) {
         for (const el of elements) {
             const meta = table.getMeta(el);
-            const matches = matchingRowSelections(meta);
+            const matches = matchingRowSelections(table, meta);
             if (matches.length > 0) {
                 el.classList.add(className);
             } else {
@@ -389,7 +415,7 @@ const reapplyRowTHSelection = (table, dl, className) => {
         for (const el of elements) {
             const meta = table.getMeta(el);
 
-            if (isRowHeaderSelected(meta, visibleRowHeaders)) {
+            if (isRowHeaderSelected(table, meta, visibleRowHeaders)) {
                 selectedYs.push(meta.y);
                 el.classList.add(className);
             } else {
@@ -417,11 +443,11 @@ then we'll extract the `row_header` that matches our `selection`'s
 matches our `selection` and compare.
 
 ```javascript
-const isRowHeaderSelected = (meta, visibleRowHeaders) => {
-    const matches = matchingRowSelections(meta);
+const isRowHeaderSelected = (table, meta, visibleRowHeaders) => {
+    const matches = matchingRowSelections(table, meta);
 
     const isGroupMatch = () => {
-        return MOUSE_SELECTED_ROWS.find((selection) => {
+        return table[PRIVATE].selected_rows.find((selection) => {
             const matchingGroupValues = visibleRowHeaders
                 .filter(([idx]) => selection.y0 <= idx && idx <= selection.y1)
                 .map(([idx, row_headers]) => idx);
@@ -458,66 +484,25 @@ const reapplyRowTDSelection = (table, ys, className) => {
 };
 ```
 
-## Our `DataListener`
+## Styling
 
-A quick function that makes use of some utilities borrowed from
-`two_billion_rows`.
+Let's style our `mouse-selected-row` - in this example we'll use a light yellow.
 
-```javascript
-function generateDataListener(num_rows, num_columns) {
-    return function dl(x0, y0, x1, y1) {
-        return {
-            num_rows,
-            num_columns,
-            row_headers: range(y0, y1, group_header.bind(null, "Row")),
-            column_headers: range(x0, x1, group_header.bind(null, "Column")),
-            data: range(x0, x1, (x) =>
-                range(y0, y1, (y) => formatter.format(x + y))
-            ),
-        };
-    };
+```css
+regular-table tbody tr td.mouse-selected-row,
+regular-table tr th.mouse-selected-row {
+    background-color: #2771a8;
+    color: white;
 }
 ```
 
-Now to kick off our example on `"load"` by adding an `EvenListener` that will
-set our `table`'s `DataListener` from `generateDataListener()`,
-`addRowMouseSelection()` and make an initial call to `draw()`. We will use
-`defaultRowSelection()` to show a few selections by default on load.
+And we can disable the default `user-select`.
 
-```html
-<script type="module">
-    import { addRowMouseSelection } from "./row_mouse_selection.js";
-    function defaultRowSelection() {
-        MOUSE_SELECTED_ROWS = [
-            {
-                row_header: ["Group 10", "Row 11"],
-                y0: 11,
-                y1: 11,
-            },
-            {
-                row_header: ["Group 10", "Row 15"],
-                y0: 14,
-                y1: 15,
-            },
-            {
-                row_header: ["Group 10", "Row 18"],
-                y0: 17,
-                y1: 18,
-            },
-        ];
-    }
-
-    window.addEventListener("load", () => {
-        const table = window.rowMouseSelectionRegularTable;
-        if (table) {
-            const dl = generateDataListener(200, 50);
-            table.setDataListener(dl);
-            addRowMouseSelection(table, dl);
-            defaultRowSelection();
-            table.draw();
-        }
-    });
-</script>
+```css
+regular-table tbody tr th,
+regular-table tbody tr td {
+    user-select: none;
+}
 ```
 
 ## Appendix (Dependencies)
@@ -527,12 +512,6 @@ None of this would work without our libraries below.
 ```html
 <script src="/dist/umd/regular-table.js"></script>
 <link rel="stylesheet" href="/dist/css/material.css" />
-```
-
-And we will borrow our data helpers from `two_billion_rows`.
-
-```html
-<script src="/dist/examples/two_billion_rows.js"></script>
 ```
 
 ```block

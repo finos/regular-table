@@ -97,13 +97,15 @@ here. We'll need to set our `table`'s `DataListener` and make the initial
     import { addColumnMouseSelection } from "/dist/examples/column_mouse_selection.js";
     import { addAreaMouseSelection } from "/dist/examples/area_mouse_selection.js";
     import { dataListener } from "/dist/examples/two_billion_rows.js";
+
     window.addEventListener("load", () => {
         const table = window.allTheMouseSelectionRegularTable;
         if (table) {
+            const dl = dataListener(1000, 50);
             addAreaMouseSelection(table);
-            addRowMouseSelection(table, dataListener);
-            addColumnMouseSelection(table, dataListener);
-            table.setDataListener(dataListener);
+            addRowMouseSelection(table, dl);
+            addColumnMouseSelection(table, dl);
+            table.setDataListener(dl);
             table.draw();
         }
     });

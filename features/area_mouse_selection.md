@@ -20,16 +20,17 @@ using a `StyleListener` that we will define later.
 <regular-table id="example_table"></regular-table>
 ```
 
-We can load `defaultRowSelections()` to this example and wire up the
-`DataListener` borrowed from `two_billion_rows` and then we simply
-`addAreaMouseSelection()` to the `table` and `draw()`.
+We can load default selections to this example and wire up the `DataListener`
+borrowed from `two_billion_rows`, and then we simply `addAreaMouseSelection()`
+to the `table` and `draw()`.
 
 ```html
 <script type="module">
     import { addAreaMouseSelection } from "./area_mouse_selection.js";
     import { dataListener } from "/dist/examples/two_billion_rows.js";
+
     window.addEventListener("load", () => {
-        example_table.setDataListener(dataListener);
+        example_table.setDataListener(dataListener(1000, 50));
         addAreaMouseSelection(example_table, {
             selected: [
                 { x0: 5, x1: 7, y0: 7, y1: 11 },
