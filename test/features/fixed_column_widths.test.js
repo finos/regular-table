@@ -8,14 +8,14 @@
  *
  */
 
-describe("fixed_column_widths.html", () => {
+describe.skip("fixed_column_widths.html", () => {
     beforeAll(async () => {
         await page.setViewport({width: 400, height: 100});
     });
 
     describe("creates a `<table>` with fixed column widths", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/dist/examples/fixed_column_widths.html");
+            await page.goto("http://localhost:8081/dist/features/fixed_column_widths.html");
             await page.waitFor("regular-table table tbody tr td");
         });
 

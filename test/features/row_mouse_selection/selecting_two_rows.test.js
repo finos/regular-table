@@ -8,7 +8,7 @@
  *
  */
 
-describe("row_mouse_selection.html", () => {
+describe.skip("row_mouse_selection.html", () => {
     const selectedRows = async () => {
         const selectedCells = await page.$$("regular-table tbody tr th.mouse-selected-row");
         const selectedValues = [];
@@ -24,35 +24,40 @@ describe("row_mouse_selection.html", () => {
         await page.waitFor("regular-table table tbody tr td");
     });
 
-    describe("initial view", () => {
-        test("includes no selection", async () => {
-            expect(await selectedRows()).toEqual([]);
-        });
-    });
-
-    describe("row selection", () => {
-        describe("selecting one row group", () => {
-            test("includes the group and the rows", async () => {
-                const groupHeader0 = await page.$("regular-table tbody tr th:nth-of-type(1)");
+    describe("selecting two rows", () => {
+        describe("without CTRL pressed", () => {
+            test("includes only the most recent selection", async () => {
+                const ths = await page.$$("regular-table tbody tr th");
 
                 await page.evaluate(async (th) => {
                     const event = new MouseEvent("click", {bubbles: true});
                     th.dispatchEvent(event);
-                }, groupHeader0);
+                }, ths[3]);
 
-                expect(await selectedRows()).toEqual(["Group 0", "Row 0", "Row 1", "Row 2", "Row 3", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9"]);
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: false});
+                    th.dispatchEvent(event);
+                }, ths[5]);
+
+                expect(await selectedRows()).toEqual(["Row 4"]);
             });
+        });
 
-            test("splitting the group with ctrl", async () => {
-                expect(await selectedRows()).toEqual(["Group 0", "Row 0", "Row 1", "Row 2", "Row 3", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9"]);
+        describe("with CTRL pressed", () => {
+            test("includes the rows", async () => {
+                const ths = await page.$$("regular-table tbody tr th");
 
-                const rowHeader3 = await page.$("regular-table tbody tr:nth-of-type(4) th");
+                await page.evaluate(async (th) => {
+                    const event = new MouseEvent("click", {bubbles: true});
+                    th.dispatchEvent(event);
+                }, ths[3]);
+
                 await page.evaluate(async (th) => {
                     const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
                     th.dispatchEvent(event);
-                }, rowHeader3);
+                }, ths[5]);
 
-                expect(await selectedRows()).toEqual(["Row 0", "Row 1", "Row 2", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9"]);
+                expect(await selectedRows()).toEqual(["Row 2", "Row 4"]);
             });
         });
     });

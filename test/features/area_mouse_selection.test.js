@@ -20,7 +20,7 @@ describe("area_mouse_selection.html", () => {
 
     beforeAll(async () => {
         await page.setViewport({width: 300, height: 300});
-        await page.goto("http://localhost:8081/dist/examples/area_mouse_selection.html");
+        await page.goto("http://localhost:8081/dist/features/area_mouse_selection.html");
         await page.waitFor("regular-table table tbody tr td");
     });
 

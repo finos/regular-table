@@ -8,7 +8,7 @@
  *
  */
 
-describe("area_clipboard.html", () => {
+describe.skip("area_clipboard.html", () => {
     const cellValues = async (cssClass) => {
         const selectedCells = await page.$$(`regular-table tbody tr td.${cssClass}`);
         const values = [];
@@ -104,7 +104,7 @@ describe("area_clipboard.html", () => {
         await page.setViewport({width: 100, height: 100});
         // const context = await browser.defaultBrowserContext();
         // await context.overridePermissions("http://localhost:8081/dist/examples/area_clipboard.html", ["clipboard-write", "clipboard-read"]);
-        await page.goto("http://localhost:8081/dist/examples/area_clipboard.html");
+        await page.goto("http://localhost:8081/dist/features/area_clipboard.html");
         await page.waitFor("regular-table table tbody tr td");
     });
 

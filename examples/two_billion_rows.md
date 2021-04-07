@@ -27,13 +27,15 @@ The `dataListener` function for this virtual data set is simple, and
 returns the static dimensions directly:
 
 ```javascript
-function dataListener(x0, y0, x1, y1) {
+export function dataListener(x0, y0, x1, y1) {
     return {
         num_rows: NUM_ROWS,
         num_columns: NUM_COLUMNS,
         row_headers: range(y0, y1, group_header.bind(null, "Row")),
         column_headers: range(x0, x1, group_header.bind(null, "Column")),
-        data: range(x0, x1, (x) => range(y0, y1, (y) => formatter.format(x + y))),
+        data: range(x0, x1, (x) =>
+            range(y0, y1, (y) => formatter.format(x + y))
+        ),
     };
 }
 ```
@@ -70,7 +72,7 @@ With these, all that's left is to register the `dataListener` and draw the
 `<table>`.
 
 ```javascript
-function init() {
+export function init() {
     const table = document.getElementsByTagName("regular-table")[0];
     table.setDataListener(dataListener);
     table.draw();
@@ -82,7 +84,10 @@ from `literally` of this Markdown file will not initialize, allowing
 `dataListener()` to be re-used as a data model in other examples.
 
 ```html
-<script>window.addEventListener("load", () => init())</script>
+<script type="module">
+    import {init} from "/dist/examples/two_billion_rows.js";
+    window.addEventListener("load", () => init());
+</script>
 ```
 
 ## Styling

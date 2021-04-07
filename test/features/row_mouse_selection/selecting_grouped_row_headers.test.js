@@ -8,7 +8,7 @@
  *
  */
 
-describe("row_mouse_selection.html", () => {
+describe.skip("row_mouse_selection.html", () => {
     const selectedRows = async () => {
         const selectedCells = await page.$$("regular-table tbody tr th.mouse-selected-row");
         const selectedValues = [];

@@ -1,9 +1,10 @@
-# Row Stripes
+# ** Title Here **
 
-An example of adding stripes to a [`regular-table`](https://github.com/jpmorganchase/regular-table)
-by setting the each `tr`s `background-color`.
-Lets start by adding a `<regular-table>` to the page with an `id` that will
-be accessible on the window object using [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
+An example of adding stripes to a
+[`regular-table`](https://github.com/jpmorganchase/regular-table) by setting the
+each `tr`s `background-color`. Lets start by adding a `<regular-table>` to the
+page with an `id` that will be accessible on the window object using
+[`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
 
 ```html
 <regular-table id="stripedRegularTable"></regular-table>
@@ -11,12 +12,12 @@ be accessible on the window object using [`window.${id}`](https://stackoverflow.
 
 ## Styling
 
-For some basic stripes, we could simply add a `.stripes` class alternating
-the style on `tr:nth-child(odd)` and `tr:nth-child(even)`.
+For some basic stripes, we could simply add a `.stripes` class alternating the
+style on `tr:nth-child(odd)` and `tr:nth-child(even)`.
 
 ```css
-.stripes tbody tr:nth-child(odd) td { 
-    background-color: #EAEDEF;
+.stripes tbody tr:nth-child(odd) td {
+    background-color: #eaedef;
 }
 
 .stripes tbody tr:nth-child(even) td {
@@ -25,11 +26,11 @@ the style on `tr:nth-child(odd)` and `tr:nth-child(even)`.
 ```
 
 However by simply adding stripes to the rows, the top-most row will always show
-with the darker `background-color: #ddd`, and the next row will retain its
-even, `background-color: #eee`, style as the user scrolls - repeating for each
-row and making the striping look inconsistent.
-We're going to add the `.reverse-stripes` class for use in our
-`alternateStripes()` function that applies a `StyleListener`.
+with the darker `background-color: #ddd`, and the next row will retain its even,
+`background-color: #eee`, style as the user scrolls - repeating for each row and
+making the striping look inconsistent. We're going to add the `.reverse-stripes`
+class for use in our `alternateStripes()` function that applies a
+`StyleListener`.
 
 ```css
 .reverse-stripes tbody tr:nth-child(odd) td {
@@ -37,7 +38,7 @@ We're going to add the `.reverse-stripes` class for use in our
 }
 
 .reverse-stripes tbody tr:nth-child(even) td {
-    background-color: #EAEDEF;
+    background-color: #eaedef;
 }
 ```
 
@@ -57,7 +58,13 @@ user scrolls - this is because the style listener has been removed.
 const EVEN_STRIPE_CLASS = "stripes";
 const ODD_STRIPE_CLASS = "reverse-stripes";
 
-const alternateStripes = (table, {evenStripeClassName = EVEN_STRIPE_CLASS, oddStripeClassName = ODD_STRIPE_CLASS} = {}) => {
+const alternateStripes = (
+    table,
+    {
+        evenStripeClassName = EVEN_STRIPE_CLASS,
+        oddStripeClassName = ODD_STRIPE_CLASS,
+    } = {}
+) => {
     const removeStyleListener = table.addStyleListener(() => {
         const tds = table.querySelectorAll("tbody tr:nth-of-type(1) td");
         const meta = table.getMeta(tds[0]);
@@ -83,11 +90,11 @@ const alternateStripes = (table, {evenStripeClassName = EVEN_STRIPE_CLASS, oddSt
 
 ## Virtual Data Model
 
-To see the stripes scroll and test out our example, we'll need a large
-enough data set. The `generateDataListener()` function takes a
-`num_rows` and `num_columns` and generates a test `DataListener` making use of
-the `range()` and `formatter()` utility functions from `two_billion_rows`
-example included in the dependencies below.
+To see the stripes scroll and test out our example, we'll need a large enough
+data set. The `generateDataListener()` function takes a `num_rows` and
+`num_columns` and generates a test `DataListener` making use of the `range()`
+and `formatter()` utility functions from `two_billion_rows` example included in
+the dependencies below.
 
 ```javascript
 function generateDataListener(num_rows, num_columns) {
@@ -97,28 +104,30 @@ function generateDataListener(num_rows, num_columns) {
             num_columns,
             row_headers: range(y0, y1, group_header.bind(null, "Row")),
             column_headers: range(x0, x1, group_header.bind(null, "Column")),
-            data: range(x0, x1, (x) => range(y0, y1, (y) => formatter.format(x + y))),
+            data: range(x0, x1, (x) =>
+                range(y0, y1, (y) => formatter.format(x + y))
+            ),
         };
     };
 }
 ```
 
 Lets set up by using `generateDataListener()` to create a 10k row data set and
-call `setDataListener()` with it.
-Next we'll call our `alternateStripes()` function passing in the `#stripedRegularTable`
-and then invoke `draw()` - checking that the `#stripedRegularTable` exists first.
-All of this will be invoked on `"load"`.
+call `setDataListener()` with it. Next we'll call our `alternateStripes()`
+function passing in the `#stripedRegularTable` and then invoke `draw()` -
+checking that the `#stripedRegularTable` exists first. All of this will be
+invoked on `"load"`.
 
 ```html
 <script>
-window.addEventListener("load", () => {
-    if (window.stripedRegularTable) {
-        const dataListener = generateDataListener(10000, 50);
-        window.stripedRegularTable.setDataListener(dataListener);
-        window.removeStripes = alternateStripes(window.stripedRegularTable);
-        window.stripedRegularTable.draw();
-    }
-});
+    window.addEventListener("load", () => {
+        if (window.stripedRegularTable) {
+            const dataListener = generateDataListener(10000, 50);
+            window.stripedRegularTable.setDataListener(dataListener);
+            window.removeStripes = alternateStripes(window.stripedRegularTable);
+            window.stripedRegularTable.draw();
+        }
+    });
 </script>
 ```
 

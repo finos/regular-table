@@ -50,7 +50,9 @@ function dataListener(x0, y0, x1, y1) {
     return {
         num_rows: DATA[0].length,
         num_columns: DATA.length,
-        row_headers: Array.from(Array(Math.ceil(y1) - y0).keys()).map((y) => [`${y + y0}`]),
+        row_headers: Array.from(Array(Math.ceil(y1) - y0).keys()).map((y) => [
+            `${y + y0}`,
+        ]),
         column_headers: DATA_COLUMN_NAMES.slice(x0, x1).map((x) => [x]),
         data: DATA.slice(x0, x1).map((col) => col.slice(y0, y1)),
     };
@@ -97,7 +99,9 @@ function stringify(x, y) {
 }
 
 function slice(x0, y0, x1, y1) {
-    return DATA.slice(x0, parseInt(x1) + 1).map((z) => z.slice(y0, parseInt(y1) + 1));
+    return DATA.slice(x0, parseInt(x1) + 1).map((z) =>
+        z.slice(y0, parseInt(y1) + 1)
+    );
 }
 ```
 
@@ -130,8 +134,15 @@ since neither of these patterns are recursive.
 function compile(input) {
     const output = input
         .slice(1)
-        .replace(new RegExp(RANGE_PATTERN, "g"), (_, x0, y0, x1, y1) => `slice(${col2Idx(x0)}, ${y0}, ${col2Idx(x1)}, ${y1})`)
-        .replace(new RegExp(CELL_PATTERN, "g"), (_, x, y) => `stringify(${col2Idx(x)}, ${y})`);
+        .replace(
+            new RegExp(RANGE_PATTERN, "g"),
+            (_, x0, y0, x1, y1) =>
+                `slice(${col2Idx(x0)}, ${y0}, ${col2Idx(x1)}, ${y1})`
+        )
+        .replace(
+            new RegExp(CELL_PATTERN, "g"),
+            (_, x, y) => `stringify(${col2Idx(x)}, ${y})`
+        );
     console.log(`Compiled '${input}' to '${output}'`);
     return eval(output);
 }
@@ -377,7 +388,9 @@ function* cell_iter(patt, text) {
     let match;
     let regex = new RegExp(patt, "g");
     while ((match = regex.exec(text)) !== null) {
-        yield match.slice(1).map((x, i) => (i % 2 === 0 ? col2Idx(x) : parseInt(x)));
+        yield match
+            .slice(1)
+            .map((x, i) => (i % 2 === 0 ? col2Idx(x) : parseInt(x)));
     }
 }
 
