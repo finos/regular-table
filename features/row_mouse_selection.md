@@ -3,9 +3,8 @@
 Mouse row selection is a feature common in most grids. We expect that when we
 `"click"` on the row or row header then the row shows as selected. In this
 example, the rows are grouped as well, and when the group is selected then rows
-under the group should show as selected too.
-We'll also allow the user to make multiple selections when holding down the
-`ctrl` or `metaKey`.
+under the group should show as selected too. We'll also allow the user to make
+multiple selections when holding down the `ctrl` or `metaKey`.
 
 Sounds like the bulk of the logic belongs in a `"click"` `EventListener`, so our
 `addRowMouseSelection()` should take a `table` and add a `clickListener()`.
@@ -47,8 +46,8 @@ the `table` and `draw()`.
                     row_header: ["Group 10", "Row 18"],
                     y0: 17,
                     y1: 18,
-                }
-            ]
+                },
+            ],
         });
         example_table.draw();
     });
@@ -71,7 +70,7 @@ export const addRowMouseSelection = (
     {
         cellSelectionEnabled = true,
         className = MOUSE_SELECTED_ROW_CLASS,
-        selected = []
+        selected = [],
     } = {}
 ) => {
     table[PRIVATE] = { selected_rows: selected };
@@ -85,11 +84,11 @@ export const addRowMouseSelection = (
 
         if (headerWasClicked) {
             table[PRIVATE] = {
-                selected_rows: newRowSelections(table, meta, event, dl)
+                selected_rows: newRowSelections(table, meta, event, dl),
             };
         } else if (cellWasClicked && cellSelectionEnabled) {
             table[PRIVATE] = {
-                selected_rows: newRowSelections(table, meta, event, dl)
+                selected_rows: newRowSelections(table, meta, event, dl),
             };
         } else if (!event.ctrlKey && !event.metaKey) {
             table[PRIVATE] = { selected_rows: [] };
@@ -108,12 +107,12 @@ describes our row selection. The properties we're interested in will overlap a
 bit with the `MetaData` `object`, and we'll refer to an `object` with the below
 properties as a `RowSelection`.
 
-| Name | Type | Description |
-| --- | --- | --- |
-| [y0] | `number` | The `y` index that begins the selection. |
-| [y1] | `number` | The `y` index that ends the selection. |
-| [row_header_x] | `number` | The `y` of this header's `row_header`.|
-| [row_header] | <code>Array.&lt;object&gt;</code> | Header selections. |
+| Name           | Type                              | Description                              |
+| -------------- | --------------------------------- | ---------------------------------------- |
+| [y0]           | `number`                          | The `y` index that begins the selection. |
+| [y1]           | `number`                          | The `y` index that ends the selection.   |
+| [row_header_x] | `number`                          | The `y` of this header's `row_header`.   |
+| [row_header]   | <code>Array.&lt;object&gt;</code> | Header selections.                       |
 
 We'll add them to a collection, say keyed on the `table`. In our
 `clickListener()`, we'll check if the `headerWasClicked` and if so, we can
@@ -267,7 +266,9 @@ We can write a complement to our `matchingRowSelections()` that returns all the
 ```javascript
 const rejectMatchingRowSelections = (table, { y, y0, y1 }) => {
     const _y = y ? y : Math.min(y0, y1);
-    return table[PRIVATE].selected_rows.filter(({ y0, y1 }) => !(y0 == _y && _y == y1));
+    return table[PRIVATE].selected_rows.filter(
+        ({ y0, y1 }) => !(y0 == _y && _y == y1)
+    );
 };
 ```
 
