@@ -8,7 +8,7 @@
  *
  */
 
-describe.skip("row_mouse_selection.html", () => {
+describe("row_mouse_selection.html", () => {
     const selectedRows = async () => {
         const selectedCells = await page.$$("regular-table tbody tr th.mouse-selected-row");
         const selectedValues = [];
@@ -19,8 +19,8 @@ describe.skip("row_mouse_selection.html", () => {
     };
 
     beforeAll(async () => {
-        await page.setViewport({width: 2500, height: 2500});
-        await page.goto("http://localhost:8081/dist/examples/row_mouse_selection.html");
+        await page.setViewport({ width: 2500, height: 2500 });
+        await page.goto("http://localhost:8081/dist/features/row_mouse_selection.html");
         await page.waitFor("regular-table table tbody tr td");
     });
 
