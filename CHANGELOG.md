@@ -1,6 +1,21 @@
 # Changelog
 
-## [0.3.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [v0.3.1](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.0...HEAD)
+
+**Implemented enhancements:**
+
+- A simple way to specify a generic tree column [\#18](https://github.com/jpmorganchase/regular-table/issues/18)
+- Row Stripes, Row Selection and Column Selection Features [\#133](https://github.com/jpmorganchase/regular-table/pull/133) ([texodus](https://github.com/texodus))
+
+**Merged pull requests:**
+
+- Update column and row selection tests [\#134](https://github.com/jpmorganchase/regular-table/pull/134) ([JHawk](https://github.com/JHawk))
+- Replace unsupported `className` prop with `class` in TypeScript typings [\#131](https://github.com/jpmorganchase/regular-table/pull/131) ([NMinhNguyen](https://github.com/NMinhNguyen))
+- Add `/features` [\#123](https://github.com/jpmorganchase/regular-table/pull/123) ([texodus](https://github.com/texodus))
+
+## [v0.3.0](https://github.com/jpmorganchase/regular-table/tree/v0.3.0) (2021-03-30)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.2.1...v0.3.0)
 
