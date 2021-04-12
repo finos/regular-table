@@ -15,6 +15,7 @@ compile("features", {
     // row_mouse_selection: "f880c45f68ba062fd53e39fe13615d6d",
     // row_stripes: "4157245997d92219d73ae43c25f29781",
     area_mouse_selection: "4ac513f103a3bcef7b5442f52d9c6072",
+    area_clipboard: "pppppppppp",
     // column_mouse_selection: "e89234de558575cdd92bfd111f224895",
 });
 

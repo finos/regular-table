@@ -1,33 +1,59 @@
-# Area Clipboard Interactions
+# Area Clipboard
 
-This example adds clipboard edit interactions to the area selection behavior
-applied to a
-[`<regular-table>`](https://github.com/jpmorganchase/regular-table), allowing
-the user to select groups of cells then copy, paste and cut. First we'll add a
-`<regular-table>` to the page with an `id` accessible on the window object.
+Area Clipboard interactions allow the end user the ability to copy, paste and
+cut selections in the grid. There is some complexity to this behavior when the
+data on the `clipboard` has a different shape than the cells selected in the
+grid. For instance, if the user has copied two cells of data and has selected
+three distinct areas as a target to `"paste"` the data - what's the desired
+behavior. In this example, we will repeat the selection to fill all targets upon
+`"paste"`. This feature adds clipboard edit interactions to the area selection
+behavior defined in `area_mouse_selection` by listening for the
+`regular-table-area-selected"`event.
 
-```html
-<regular-table id="areaClipboardInteractionsRegularTable"></regular-table>
-```
-
-## Extending Area Selection
-
-Now we'll need to make the area selection behavior available by including the
-`area_mouse_selection` example ...
+# API
 
 ```html
-<script src="/dist/examples/area_mouse_selection.js"></script>
+<regular-table id="example_table"></regular-table>
 ```
 
-and we'll also need a quick helper `function` to `getSelectedAreas()`.
+We will wire it all up on `"load"` by creating and setting our `DataListener`
+and then making sure that we `addAreaMouseSelection()` and create a `write()`
+`function` for use in `addAreaClipboard()`, and then we can `addAreaClipboard()`
+and kick off a `draw()`.
 
-```javascript
-function getSelectedAreas() {
-    return MOUSE_SELECTED_AREAS;
-}
+```html
+<script type="module">
+    import {
+        addAreaClipboard,
+        generateDataListener,
+    } from "./area_clipboard.js";
+
+    import { addAreaMouseSelection } from "/dist/features/area_mouse_selection.js";
+
+    window.addEventListener("load", () => {
+        const dl = generateDataListener(1000, 50);
+        example_table.setDataListener(dl);
+
+        const write = (x, y, value) => {
+            dl().allData[x][y] = value;
+        };
+
+        addAreaClipboard(example_table, dl, write);
+
+        addAreaMouseSelection(example_table, {
+            selected: [
+                { x0: 5, x1: 7, y0: 7, y1: 11 },
+                { x0: 1, x1: 3, y0: 16, y1: 22 },
+                { x0: 7, x1: 8, y0: 15, y1: 18 },
+            ],
+        });
+
+        example_table.draw();
+    });
+</script>
 ```
 
-## `addAreaClipboardInteractions()`
+## `addAreaClipboard()`
 
 We'll create a single function to add the clipboard behavior to the
 `<regular-table>` passed in as the first argument. Additionally, it will take
@@ -37,7 +63,9 @@ interaction's `StyleListener`. Our `EventListener` will dispatch to each of the
 behaviors for copy, paste and cut as expected - we'll define those next.
 
 ```javascript
-const addAreaClipboardInteractions = (table, dl, write) => {
+const PRIVATE = Symbol("Area Clipboard");
+
+export const addAreaClipboard = (table, dl, write) => {
     const keyListener = (event) => {
         const meta = table.getMeta(event.target);
         switch (event.keyCode) {
@@ -62,8 +90,17 @@ const addAreaClipboardInteractions = (table, dl, write) => {
         }
     };
 
+    initAreaClipboardData(table);
+
     table.addEventListener("keydown", keyListener);
-    addAreaClipboardInteractionsStyleListener(table, dl);
+    table.addEventListener(
+        "regular-table-area-selected",
+        ({ detail: { selected_areas } }) => {
+            table[PRIVATE].selected_areas = selected_areas;
+        }
+    );
+
+    addAreaClipboardStyleListener(table, dl);
     return table;
 };
 ```
@@ -71,50 +108,60 @@ const addAreaClipboardInteractions = (table, dl, write) => {
 For our `areaClipboardCopy()`, we'll need to keep track of the
 `AREA_CLIPBOARD_COPY_SELECTIONS`. Each will represent a rectangular selection
 using familiar attributes `x0` as the upper left and `y1` as the lower right.
-
-```javascript
-let AREA_CLIPBOARD_COPY_SELECTIONS = [];
-```
-
 We'll also keep track of the data we get from the `DataListener` for the areas
-selected mapping over the selections then transposing the collection.
+selected mapping over the selections then transposing the collection. We will
+also track `AREA_CLIPBOARD_PASTE_SELECTIONS` and the `selected_areas` from
+`area_mouse_selection`.
 
 ```javascript
-let AREA_CLIPBOARD_COPIED_DATA = [];
-
-const areaClipboardCopyData = (dl) => {
-    const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
-    const data = AREA_CLIPBOARD_COPY_SELECTIONS.map(
-        ({ x0, x1, y0, y1 }) => dl(x0, y0, x1 + 1, y1 + 1).data
-    );
-    return data.map(transpose);
+const initAreaClipboardData = (table) => {
+    table[PRIVATE] = {
+        AREA_CLIPBOARD_COPIED_DATA: [],
+        AREA_CLIPBOARD_COPY_SELECTIONS: [],
+        AREA_CLIPBOARD_PASTE_SELECTIONS: [],
+        selected_areas: [],
+    };
 };
 ```
 
-So we'll start our `function` by keeping track of the
-`AREA_CLIPBOARD_COPY_SELECTIONS` and `AREA_CLIPBOARD_COPIED_DATA`. Next, we can
-generate the corresponding `textSelections` by splitting the lines with `\t` and
-selections with `\n`.
-
+So we'll start our `function` by recording the `AREA_CLIPBOARD_COPY_SELECTIONS`
+and `AREA_CLIPBOARD_COPIED_DATA`. Next, we can generate the corresponding
+`textSelections` by splitting the lines with `\t` and selections with `\n`.
 Finally, we write our generated text to the `navigator.clipboard` and update the
-styling. Don't worry, we'll define `updateAreaClipboardInteractionsStyle()`
-later.
+styling. Don't worry, we'll define `updateAreaClipboardStyle()` later.
 
 ```javascript
-const areaClipboardCopy = async (table, dl) => {
-    AREA_CLIPBOARD_COPY_SELECTIONS = getSelectedAreas();
-    AREA_CLIPBOARD_COPIED_DATA = areaClipboardCopyData(dl);
+const getSelectedAreas = (table) => {
+    return table[PRIVATE].selected_areas;
+};
 
-    const textSelections = AREA_CLIPBOARD_COPIED_DATA.map((area) => {
-        return area.map((row) => row.join("\t")).join("\n");
-    });
+const areaClipboardCopy = async (table, dl) => {
+    table[PRIVATE].AREA_CLIPBOARD_COPY_SELECTIONS = getSelectedAreas(table);
+    table[PRIVATE].AREA_CLIPBOARD_COPIED_DATA = areaClipboardCopyData(
+        table,
+        dl
+    );
+
+    const textSelections = table[PRIVATE].AREA_CLIPBOARD_COPIED_DATA.map(
+        (area) => {
+            return area.map((row) => row.join("\t")).join("\n");
+        }
+    );
 
     try {
         await navigator.clipboard.writeText(textSelections[0]);
-        updateAreaClipboardInteractionsStyle(table);
+        updateAreaClipboardStyle(table);
     } catch (e) {
         console.error("Failed to writeText to navigator.clipboard.", e);
     }
+};
+
+const areaClipboardCopyData = (table, dl) => {
+    const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
+    const data = table[PRIVATE].AREA_CLIPBOARD_COPY_SELECTIONS.map(
+        ({ x0, x1, y0, y1 }) => dl(x0, y0, x1 + 1, y1 + 1).data
+    );
+    return data.map(transpose);
 };
 ```
 
@@ -126,7 +173,8 @@ cut.
 ```javascript
 const areaClipboardCut = async (table, dl, write) => {
     await areaClipboardCopy(table, dl);
-    for (const { x0, x1, y0, y1 } of AREA_CLIPBOARD_COPY_SELECTIONS) {
+    for (const { x0, x1, y0, y1 } of table[PRIVATE]
+        .AREA_CLIPBOARD_COPY_SELECTIONS) {
         for (var x = x0; x < x1 + 1; x++) {
             for (var y = y0; y < y1 + 1; y++) {
                 write(x, y, undefined);
@@ -154,10 +202,6 @@ of the selected areas we're pasting to. We'll want to keep track of the
 `AREA_CLIPBOARD_PASTE_SELECTIONS` to style the areas we paste to using the same
 structure as `AREA_CLIPBOARD_COPY_SELECTIONS`.
 
-```javascript
-let AREA_CLIPBOARD_PASTE_SELECTIONS = [];
-```
-
 We'll then duplicate the `data` collection to ensure we can paste into all of
 the currently selected areas and zip the collections - pairing the currently
 selected areas with copied data. We can then iterate through the zipped
@@ -171,32 +215,36 @@ const areaClipboardPaste = async (table, write) => {
         arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
 
     const parsedData = await tryParseAreaClipboardText();
-    const useLocalData = eqArray(parsedData, AREA_CLIPBOARD_COPIED_DATA[0]);
+    const useLocalData = eqArray(
+        parsedData,
+        table[PRIVATE].AREA_CLIPBOARD_COPIED_DATA[0]
+    );
 
     let data = [];
     if (!parsedData || useLocalData) {
-        data = Array.from(Array(getSelectedAreas().length).keys()).flatMap(
-            () => AREA_CLIPBOARD_COPIED_DATA
+        data = Array.from(Array(getSelectedAreas(table).length).keys()).flatMap(
+            () => table[PRIVATE].AREA_CLIPBOARD_COPIED_DATA
         );
     } else {
-        data = Array.from(Array(getSelectedAreas().length).keys()).map(
+        data = Array.from(Array(getSelectedAreas(table).length).keys()).map(
             () => parsedData
         );
     }
 
-    AREA_CLIPBOARD_PASTE_SELECTIONS = zip(getSelectedAreas(), data).map(
-        ([{ x0, y0 }, data]) => {
-            data.map((row, ridx) => {
-                row.map((value, cidx) => {
-                    write(x0 + cidx, y0 + ridx, value);
-                });
+    table[PRIVATE].AREA_CLIPBOARD_PASTE_SELECTIONS = zip(
+        getSelectedAreas(table),
+        data
+    ).map(([{ x0, y0 }, data]) => {
+        data.map((row, ridx) => {
+            row.map((value, cidx) => {
+                write(x0 + cidx, y0 + ridx, value);
             });
+        });
 
-            const x1 = x0 + data[0].length - 1;
-            const y1 = y0 + data.length - 1;
-            return { x0, y0, x1, y1 };
-        }
-    );
+        const x1 = x0 + data[0].length - 1;
+        const y1 = y0 + data.length - 1;
+        return { x0, y0, x1, y1 };
+    });
 
     await table.draw();
 };
@@ -238,67 +286,6 @@ function eqArray(a1, a2) {
 }
 ```
 
-## Styling
-
-Similar to other examples like `row_column_area_selection`, we will use a
-primary color scheme to show the selected areas and their overlap with areas
-that are being copied or have been pasted to.
-
-```css
-regular-table tbody tr td.mouse-selected-area {
-    background-color: rgb(255, 0, 0, 0.25); /* red */
-}
-regular-table tbody tr td.clipboard-paste-selected-area {
-    background-color: rgb(255, 255, 0, 0.25); /* yellow */
-}
-regular-table tbody tr td.clipboard-copy-selected-area {
-    background-color: rgb(0, 0, 255, 0.15); /* blue */
-}
-regular-table tbody tr td.mouse-selected-area.clipboard-copy-selected-area {
-    background-color: rgb(128, 0, 128, 0.33); /* violet */
-}
-regular-table tbody tr td.mouse-selected-area.clipboard-paste-selected-area {
-    background-color: rgb(255, 165, 0, 0.33); /* orange */
-}
-regular-table
-    tbody
-    tr
-    td.clipboard-copy-selected-area.clipboard-paste-selected-area {
-    background-color: rgb(50, 205, 50, 0.33); /* green */
-}
-regular-table
-    tbody
-    tr
-    td.mouse-selected-area.clipboard-copy-selected-area.clipboard-paste-selected-area {
-    background-color: rgb(183, 65, 14, 0.33); /* rust */
-}
-```
-
-Lets turn off the `user-select` style for this example too
-
-```css
-regular-table tbody tr td {
-    user-select: none;
-}
-regular-table tbody tr th {
-    user-select: none;
-}
-regular-table thead tr th {
-    user-select: none;
-}
-```
-
-And outline the `td`s.
-
-```css
-td {
-    outline: none;
-    border-right: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-    min-width: 22px;
-}
-```
-
 ## `StyleListener`
 
 We'll need to add a `StyleListener` to `add` or `remove` the classes for copy
@@ -308,34 +295,34 @@ and paste.
 const AREA_CLIPBOARD_COPY_SELECTED_CLASS = "clipboard-copy-selected-area";
 const AREA_CLIPBOARD_PASTE_SELECTED_CLASS = "clipboard-paste-selected-area";
 
-const addAreaClipboardInteractionsStyleListener = (table) => {
-    table.addStyleListener(() => updateAreaClipboardInteractionsStyle(table));
+const addAreaClipboardStyleListener = (table) => {
+    table.addStyleListener(() => updateAreaClipboardStyle(table));
 };
 ```
 
 We'll make the logic for updating the `classList` available via a `function`
 that can be called outside of the `StyleListener`, so that we can invoke it
 without forcing a `draw()` on the `table`. Basically,
-`updateAreaClipboardInteractionsStyle()` iterates through the `td`s on the
-screen removing the `AREA_CLIPBOARD_COPY_SELECTED_CLASS` and
+`updateAreaClipboardStyle()` iterates through the `td`s on the screen removing
+the `AREA_CLIPBOARD_COPY_SELECTED_CLASS` and
 `AREA_CLIPBOARD_PASTE_SELECTED_CLASS` from each and then checks to see if the
 `MetaData` shows that it intersects a copied or pasted selection, reapplying the
 classes on a match.
 
 ```javascript
-const updateAreaClipboardInteractionsStyle = (table) => {
+const updateAreaClipboardStyle = (table) => {
     const tds = table.querySelectorAll("tbody td");
     for (const td of tds) {
         const meta = table.getMeta(td);
         td.classList.remove(AREA_CLIPBOARD_COPY_SELECTED_CLASS);
         td.classList.remove(AREA_CLIPBOARD_PASTE_SELECTED_CLASS);
 
-        const copyMatch = AREA_CLIPBOARD_COPY_SELECTIONS.find(
+        const copyMatch = table[PRIVATE].AREA_CLIPBOARD_COPY_SELECTIONS.find(
             ({ x0, x1, y0, y1 }) =>
                 x0 <= meta.x && meta.x <= x1 && y0 <= meta.y && meta.y <= y1
         );
 
-        const pasteMatch = AREA_CLIPBOARD_PASTE_SELECTIONS.find(
+        const pasteMatch = table[PRIVATE].AREA_CLIPBOARD_PASTE_SELECTIONS.find(
             ({ x0, x1, y0, y1 }) =>
                 x0 <= meta.x && meta.x <= x1 && y0 <= meta.y && meta.y <= y1
         );
@@ -352,12 +339,16 @@ const updateAreaClipboardInteractionsStyle = (table) => {
 
 ## Our `DataListener`
 
-Our `DataListener` generator uses some borrowed code from `two_billion_rows` and
-extends the `return`ed `object` with `allData` - exposed to enable our `write`
-`function`.
+Our `DataListener` generator is similar to the `dataListener` defined in
+`two_billion_rows`, but extends the `return`ed `object` with `allData` - exposed
+to enable our `write` `function`.
 
 ```javascript
-function generateDataListener(num_rows, num_columns) {
+function range(x0, x1, f) {
+    return Array.from(Array(x1 - x0).keys()).map((x) => f(x + x0));
+}
+
+export const generateDataListener = (num_rows, num_columns) => {
     const allData = range(0, num_columns, (x) =>
         range(0, num_rows, (y) => `${x}, ${y}`)
     );
@@ -369,34 +360,101 @@ function generateDataListener(num_rows, num_columns) {
             allData,
         };
     };
+};
+```
+
+## Styling
+
+Similar to other examples like `row_column_area_selection`, we will use a
+primary color scheme to show the selected areas and their overlap with areas
+that are being copied or have been pasted to.
+
+```css
+regular-table tbody tr:hover td {
+    background-color: #a4d5f4 !important;
+    border: 1px solid #a4d5f4 !important;
+    color: black !important;
+}
+
+regular-table tbody tr td.mouse-selected-area {
+    background-color: #2771a8;
+    border: 1px solid #2771a8;
+    color: white;
+}
+
+regular-table tbody tr td.clipboard-paste-selected-area {
+    background-color: #64b1e4;
+    border: 1px solid #64b1e4;
+    color: black;
+}
+
+regular-table tbody tr td.clipboard-copy-selected-area {
+    background-color: #a4d5f4;
+    border: 1px solid #a4d5f4;
+    color: black;
+}
+
+regular-table tbody tr td.mouse-selected-area.clipboard-copy-selected-area {
+    background-color: #2771a8;
+    border: 1px solid #2771a8;
+    color: white;
+}
+
+regular-table tbody tr td.mouse-selected-area.clipboard-paste-selected-area {
+    background-color: #2771a8;
+    border: 1px solid #2771a8;
+    color: white;
+}
+
+regular-table
+    tbody
+    tr
+    td.clipboard-copy-selected-area.clipboard-paste-selected-area {
+    background-color: #2771a8;
+    border: 1px solid #2771a8;
+    color: black;
+}
+
+regular-table
+    tbody
+    tr
+    td.mouse-selected-area.clipboard-copy-selected-area.clipboard-paste-selected-area {
+    background-color: #2771a8;
+    border: 1px solid #2771a8;
+    color: black;
 }
 ```
 
-## On `"load"`
+Lets turn off the `user-select` style for this example too
 
-We will wire it all up on `"load"` by checking that the `table` exists on the
-`window` then creating and setting our `DataListener`. We need to make sure that
-we `addAreaMouseSelection()` and create a `write()` `function` for use in
-`addAreaClipboardInteractions()`, and then we can
-`addAreaClipboardInteractions()` and kick off a `draw()`.
+```css
+regular-table tbody tr td {
+    user-select: none;
+}
 
-```javascript
-window.addEventListener("load", () => {
-    const table = window.areaClipboardInteractionsRegularTable;
-    if (table) {
-        const dl = generateDataListener(50, 50);
-        table.setDataListener(dl);
+regular-table tbody tr th {
+    user-select: none;
+}
 
-        addAreaMouseSelection(table);
+regular-table thead tr th {
+    user-select: none;
+}
+```
 
-        const write = (x, y, value) => {
-            dl().allData[x][y] = value;
-        };
+And outline the `td`s.
 
-        addAreaClipboardInteractions(table, dl, write);
-        table.draw();
-    }
-});
+```css
+td {
+    outline: none;
+    box-sizing: border-box;
+
+    border-left: 1px solid transparent;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid transparent;
+
+    min-width: 22px;
+}
 ```
 
 ## Appendix (Dependencies)
@@ -408,8 +466,6 @@ Our Libraries.
 <link rel="stylesheet" href="/dist/css/material.css" />
 ```
 
-The `two_billion_rows` example for the its helper `function`s.
-
-```html
-<script src="/dist/examples/two_billion_rows.js"></script>
+```block
+license: apache-2.0
 ```

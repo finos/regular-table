@@ -8,9 +8,11 @@
  *
  */
 
-describe.skip("area_clipboard.html", () => {
+describe("area_clipboard.html", () => {
     const cellValues = async (cssClass) => {
-        const selectedCells = await page.$$(`regular-table tbody tr td.${cssClass}`);
+        const selectedCells = await page.$$(
+            `regular-table tbody tr td.${cssClass}`
+        );
         const values = [];
         for (const td of selectedCells) {
             values.push(await page.evaluate((td) => td.innerHTML, td));
