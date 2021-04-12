@@ -64,7 +64,17 @@ export const addAreaMouseSelection = (
     table.addStyleListener(() =>
         applyMouseAreaSelections(example_table, className)
     );
+    notifyAreasSelected(table);
     return table;
+};
+
+const notifyAreasSelected = (table) => {
+    table.dispatchEvent(
+        new CustomEvent("regular-table-area-selected", {
+            bubbles: true,
+            detail: { selected_areas: table[PRIVATE].selected_areas },
+        })
+    );
 };
 ```
 
@@ -89,6 +99,7 @@ const getMousedownListener = (table) => (event) => {
 
     if (!event.ctrlKey && !event.metaKey) {
         table[PRIVATE].selected_areas = [];
+        notifyAreasSelected(table);
     }
 };
 ```
@@ -167,6 +178,7 @@ const getMouseupListener = (table, className) => (event) => {
             ),
         };
         table[PRIVATE].selected_areas.push(selection);
+        notifyAreasSelected(table);
         applyMouseAreaSelections(table, className);
     }
     table[PRIVATE].CURRENT_MOUSEDOWN_COORDINATES = {};
