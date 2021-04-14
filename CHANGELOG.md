@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.3.1](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [v0.3.2](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.0...HEAD)
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.1...HEAD)
+
+**Fixed bugs:**
+
+- Fix column group resize [\#136](https://github.com/jpmorganchase/regular-table/pull/136) ([texodus](https://github.com/texodus))
+
+## [v0.3.1](https://github.com/jpmorganchase/regular-table/tree/v0.3.1) (2021-04-08)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.0...v0.3.1)
 
 **Implemented enhancements:**
 
