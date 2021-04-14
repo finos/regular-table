@@ -145,9 +145,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 return;
             }
         }
+
         const is_resize = event.target.classList.contains("rt-column-resize");
         const metadata = METADATA_MAP.get(element);
         if (is_resize) {
+            event.stopImmediatePropagation();
             await new Promise(setTimeout);
             delete this._column_sizes.override[metadata.size_key];
             delete this._column_sizes.auto[metadata.size_key];
@@ -194,6 +196,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         const metadata = METADATA_MAP.get(element);
         if (is_resize) {
             this._on_resize_column(event, element, metadata);
+            event.stopImmediatePropagation();
         }
     }
 
@@ -208,15 +211,17 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @param {*} metadata
      */
     _on_resize_column(event, element, metadata) {
+        const {_virtual_x, size_key} = metadata;
         const start = event.pageX;
-        element = this.table_model.header.get_column_header(metadata._virtual_x);
-        const width = this._column_sizes.indices[metadata.size_key];
-        const move = (event) => this._on_resize_column_move(event, element, start, width, metadata);
+        const header_x = _virtual_x + element.colSpan - 1;
+        const header_element = this.table_model.header.get_column_header(header_x);
+        const width = this._column_sizes.indices[size_key];
+        const move = (event) => this._on_resize_column_move(event, header_element, start, width, size_key, header_x);
         const up = async () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
-            const override_width = this._column_sizes.override[metadata.size_key];
-            this._column_sizes.indices[metadata.size_key] = override_width;
+            const override_width = this._column_sizes.override[size_key];
+            this._column_sizes.indices[size_key] = override_width;
             await this.draw();
         };
         document.addEventListener("mousemove", move);
@@ -236,11 +241,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @param {*} metadata
      */
     @throttlePromise
-    async _on_resize_column_move(event, th, start, width, metadata) {
+    async _on_resize_column_move(event, th, start, width, size_key, virtual_x) {
         await new Promise(setTimeout);
         const diff = event.pageX - start;
         const override_width = Math.max(1, width + diff);
-        this._column_sizes.override[metadata.size_key] = override_width;
+        this._column_sizes.override[size_key] = override_width;
 
         // If the column is smaller, new columns may need to be fetched, so
         // redraw, else just update the DOM widths as if redrawn.
@@ -249,9 +254,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         } else {
             th.style.minWidth = override_width + "px";
             th.style.maxWidth = override_width + "px";
-            const auto_width = this._column_sizes.auto[metadata.size_key];
+            const auto_width = this._column_sizes.auto[size_key];
             for (const row of this.table_model.body.cells) {
-                const td = row[metadata._virtual_x];
+                const td = row[virtual_x];
                 if (td) {
                     td.style.maxWidth = td.style.minWidth = override_width + "px";
                     td.classList.toggle("rt-cell-clip", auto_width > override_width);

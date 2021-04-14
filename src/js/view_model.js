@@ -49,7 +49,7 @@ export class ViewModel {
         }
     }
 
-    _replace_cell(new_td, ridx, cidx) {
+    _replace_cell(ridx, cidx) {
         const {tr, row_container} = this._get_row(ridx);
         let td = row_container[cidx];
         if (td) {

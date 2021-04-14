@@ -121,7 +121,7 @@ export class RegularTableViewModel {
                 first_col,
             };
             const size_key = _virtual_x + x0;
-            cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key, _virtual_x);
+            cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
                 cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), 1, undefined, i, x0, i));
@@ -166,7 +166,7 @@ export class RegularTableViewModel {
                 const x = dcidx + x0;
                 const size_key = _virtual_x + x0;
                 const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x);
-                cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, _virtual_x);
+                cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key);
                 first_col = false;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
