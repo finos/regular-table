@@ -8,6 +8,10 @@ module.exports = {
     retarget: [
         {rule: /\/node_modules\//gm, value: "https://cdn.jsdelivr.net/npm/"},
         {
+            rule: /\.\/.+?\"/gm,
+            value: `./index.js"`,
+        },
+        {
             rule: /\/dist\//gm,
             value: `https://cdn.jsdelivr.net/npm/regular-table@${pkg.version}/dist/`,
         },

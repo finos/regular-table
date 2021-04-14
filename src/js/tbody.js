@@ -50,7 +50,7 @@ export class RegularBodyViewModel extends ViewModel {
         return {td, metadata};
     }
 
-    draw(container_height, column_state, view_state, th = false, x, x0, size_key, _virtual_x) {
+    draw(container_height, column_state, view_state, th = false, x, x0, size_key) {
         const {cidx, column_data, row_headers} = column_state;
         let {row_height} = view_state;
         let metadata;
@@ -75,11 +75,11 @@ export class RegularBodyViewModel extends ViewModel {
                     if (prev_col && (prev_col_metadata.value === row_header || row_header === undefined) && !prev_col.hasAttribute("rowspan")) {
                         cidx_offset[ridx] = cidx_offset[ridx] ? cidx_offset[ridx] + 1 : 2;
                         prev_col.setAttribute("colspan", cidx_offset[ridx]);
-                        this._replace_cell(undefined, ridx, cidx + i);
+                        this._replace_cell(ridx, cidx + i);
                     } else if (prev_row && prev_row_metadata.value === row_header && !prev_row.hasAttribute("colspan")) {
                         ridx_offset[i] = ridx_offset[i] ? ridx_offset[i] + 1 : 2;
                         prev_row.setAttribute("rowspan", ridx_offset[i]);
-                        this._replace_cell(undefined, ridx, cidx + i);
+                        this._replace_cell(ridx, cidx + i);
                     } else {
                         obj = this._draw_td("TH", ridx, row_header, cidx + i, column_state, view_state, i);
                         obj.td.style.display = "";
@@ -106,7 +106,7 @@ export class RegularBodyViewModel extends ViewModel {
                     obj.metadata.y1 = view_state.y1;
                     obj.metadata.dx = x - x0;
                     obj.metadata.dy = obj.metadata.y - obj.metadata.y0;
-                    obj.metadata._virtual_x = _virtual_x;
+                    obj.metadata._virtual_x = cidx;
                     tds[0] = obj;
                 }
 
