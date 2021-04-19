@@ -16,7 +16,7 @@ Now we'll need to make the area selection behavior available by including the
 `area_mouse_selection` example ...
 
 ```html
-<script src="/dist/examples/area_mouse_selection.js"></script>
+<script src="/dist/features/area_mouse_selection.js"></script>
 ```
 
 and we'll also need a quick helper `function` to `getSelectedAreas()`.
