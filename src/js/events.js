@@ -150,21 +150,31 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         const metadata = METADATA_MAP.get(element);
         if (is_resize) {
             event.stopImmediatePropagation();
-            await new Promise(setTimeout);
-            delete this._column_sizes.override[metadata.size_key];
-            delete this._column_sizes.auto[metadata.size_key];
-            delete this._column_sizes.indices[metadata.size_key];
+            // await new Promise(queueMicrotask);
             element.style.minWidth = "";
             element.style.maxWidth = "";
-            for (const row of this.table_model.body.cells) {
-                const td = row[metadata._virtual_x];
-                if (!td) {
-                    continue;
-                }
-                td.style.minWidth = "";
-                td.style.maxWidth = "";
-                td.classList.remove("rt-cell-clip");
+            if (event.shiftKey) {
+                this._column_sizes.override = [];
+                this._column_sizes.auto = [];
+                this._column_sizes.indices = [];
+            } else {
+                delete this._column_sizes.override[metadata.size_key];
+                delete this._column_sizes.auto[metadata.size_key];
+                delete this._column_sizes.indices[metadata.size_key];
             }
+
+            for (const row of event.shiftKey ? [this.table_model.header.cells[this.table_model.header.cells.length - 1], ...this.table_model.body.cells] : this.table_model.body.cells) {
+                for (const td of event.shiftKey ? row : [row[metadata._virtual_x]]) {
+                    if (!td) {
+                        continue;
+                    }
+
+                    td.style.minWidth = "";
+                    td.style.maxWidth = "";
+                    td.classList.remove("rt-cell-clip");
+                }
+            }
+
             await this.draw();
         }
     }
@@ -217,13 +227,17 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         const header_element = this.table_model.header.get_column_header(header_x);
         const width = this._column_sizes.indices[size_key];
         const move = (event) => this._on_resize_column_move(event, header_element, start, width, size_key, header_x);
-        const up = async () => {
+        const up = () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
             const override_width = this._column_sizes.override[size_key];
+            const should_redraw = this._column_sizes.indices[size_key] !== override_width;
             this._column_sizes.indices[size_key] = override_width;
-            await this.draw();
+            if (should_redraw) {
+                this.draw();
+            }
         };
+
         document.addEventListener("mousemove", move);
         document.addEventListener("mouseup", up);
     }

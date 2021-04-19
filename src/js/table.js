@@ -222,7 +222,7 @@ export class RegularTableViewModel {
                 if (last_measured_col_width) {
                     view_state.viewport_width += last_measured_col_width;
                 } else {
-                    view_state.viewport_width += cont_head.th.offsetWidth;
+                    view_state.viewport_width += cont_head.th?.offsetWidth || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0);
                 }
 
                 view_state.row_height = view_state.row_height || cont_body.row_height;
