@@ -54,7 +54,7 @@ export class RegularTableViewModel {
      */
     autosize_cells(last_cells) {
         while (last_cells.length > 0) {
-            const [cell, metadata] = last_cells.pop();
+            const [cell, metadata, row_height_cell] = last_cells.pop();
             let offsetWidth;
             const style = getComputedStyle(cell);
             if (style.boxSizing !== "border-box") {
@@ -64,7 +64,7 @@ export class RegularTableViewModel {
             } else {
                 offsetWidth = cell.offsetWidth;
             }
-            this._column_sizes.row_height = this._column_sizes.row_height || cell.offsetHeight;
+            this._column_sizes.row_height = this._column_sizes.row_height || row_height_cell.offsetHeight;
             this._column_sizes.indices[metadata.size_key] = offsetWidth;
             const is_override = this._column_sizes.override.hasOwnProperty(metadata.size_key);
             if (offsetWidth && !is_override) {
@@ -79,7 +79,7 @@ export class RegularTableViewModel {
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
-        let {data, row_headers, column_headers} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+        let {data, row_headers, column_headers, metadata: data_listener_metadata} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
         const {start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0} = viewport;
 
         // pad row_headers for embedded renderer
@@ -134,7 +134,7 @@ export class RegularTableViewModel {
                 for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
                     const {td, metadata} = cont_body.tds[i] || {};
                     const {th, metadata: hmetadata} = cont_heads[i];
-                    last_cells.push([th || td, hmetadata || metadata]);
+                    last_cells.push([th || td, hmetadata || metadata, td || th]);
                 }
             }
         }
@@ -143,22 +143,66 @@ export class RegularTableViewModel {
             let dcidx = 0;
             const num_visible_columns = num_columns - viewport.start_col;
             while (dcidx < num_visible_columns) {
+                // If there is no column for this data, our pre-fetch viewport
+                // estimate was wrong and we'll need to do a mid-render fetch
+                // to get more data.
                 if (!data[dcidx]) {
                     let missing_cidx = Math.max(viewport.end_col, 0);
                     viewport.start_col = missing_cidx;
-                    viewport.end_col = missing_cidx + 1;
-                    const new_col = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
-                    data[dcidx] = new_col.data[0];
-                    if (column_headers) {
-                        column_headers[dcidx] = new_col.column_headers?.[0];
+
+                    // Calculate a new data window width based on how large the
+                    // columns drawn so far take up.  This can either be
+                    // summed if we've drawn/measured these columns before,
+                    // or estimated by avg if the missing columns have never
+                    // been seen by the renderer.
+                    let end_col_offset = 0,
+                        size_extension = 0;
+                    while (this._column_sizes.indices.length > _virtual_x + x0 + end_col_offset && size_extension + view_state.viewport_width < container_width) {
+                        end_col_offset++;
+                        size_extension += this._column_sizes.indices[_virtual_x + x0 + end_col_offset];
+                    }
+
+                    if (size_extension + view_state.viewport_width < container_width) {
+                        const estimate = Math.ceil(((dcidx + end_col_offset) * container_width) / (view_state.viewport_width + size_extension) - missing_cidx + 1);
+                        viewport.end_col = Math.max(1, Math.min(num_visible_columns - 1, missing_cidx + estimate));
+                    } else {
+                        viewport.end_col = Math.max(1, Math.min(num_visible_columns - 1, missing_cidx + end_col_offset));
+                    }
+
+                    // Fetch the new data window extension and append it to the
+                    // cached data page and continue.
+                    const new_col_req = view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+                    yield undefined;
+                    const new_col = await new_col_req;
+
+                    if (new_col.data.length === 0) {
+                        // The viewport is size 0, first the estimate, then the
+                        // first-pass render, so really actually abort now.
+                        yield last_cells;
+                        return;
+                    }
+
+                    viewport.end_col = viewport.start_col + new_col.data.length;
+                    for (let i = 0; i < new_col.data.length; i++) {
+                        data[dcidx + i] = new_col.data[i];
+                        if (new_col.metadata) {
+                            data_listener_metadata[dcidx + i] = new_col.metadata[i];
+                        }
+
+                        if (column_headers) {
+                            column_headers[dcidx + i] = new_col.column_headers?.[i];
+                        }
                     }
                 }
+
                 const column_name = column_headers?.[dcidx] || "";
                 const column_data = data[dcidx];
+                const column_data_listener_metadata = data_listener_metadata?.[dcidx];
                 const column_state = {
                     column_name,
                     cidx: _virtual_x,
                     column_data,
+                    column_data_listener_metadata,
                     row_headers,
                     first_col,
                 };
@@ -170,7 +214,7 @@ export class RegularTableViewModel {
                 first_col = false;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
-                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata]);
+                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata, td || cont_head.th]);
                     }
                 }
 
@@ -178,7 +222,7 @@ export class RegularTableViewModel {
                 if (last_measured_col_width) {
                     view_state.viewport_width += last_measured_col_width;
                 } else {
-                    view_state.viewport_width += cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || cont_head.th.offsetWidth;
+                    view_state.viewport_width += cont_head.th?.offsetWidth || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0);
                 }
 
                 view_state.row_height = view_state.row_height || cont_body.row_height;

@@ -355,18 +355,19 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 })
             );
 
-            let last_cells;
+            let last_cells = [];
             for await (last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
                 this._is_styling = true;
                 const callbacks = this._style_callbacks;
                 for (const callback of callbacks) {
                     await callback({detail: this});
                 }
-                this._is_styling = false;
 
-                if (!this._invalidated) {
+                this._is_styling = false;
+                if (!this._invalidated && last_cells !== undefined) {
                     break;
                 }
+
                 this._invalidated = false;
             }
 
