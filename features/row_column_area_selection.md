@@ -93,9 +93,9 @@ here. We'll need to set our `table`'s `DataListener` and make the initial
 
 ```html
 <script type="module">
-    import { addRowMouseSelection } from "/dist/examples/row_mouse_selection.js";
-    import { addColumnMouseSelection } from "/dist/examples/column_mouse_selection.js";
-    import { addAreaMouseSelection } from "/dist/examples/area_mouse_selection.js";
+    import { addRowMouseSelection } from "/dist/features/row_mouse_selection.js";
+    import { addColumnMouseSelection } from "/dist/features/column_mouse_selection.js";
+    import { addAreaMouseSelection } from "/dist/features/area_mouse_selection.js";
     import { dataListener } from "/dist/examples/two_billion_rows.js";
 
     window.addEventListener("load", () => {
