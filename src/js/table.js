@@ -143,14 +143,55 @@ export class RegularTableViewModel {
             let dcidx = 0;
             const num_visible_columns = num_columns - viewport.start_col;
             while (dcidx < num_visible_columns) {
+                // If there is no column for this data, our pre-fetch viewport
+                // estimate was wrong and we'll need to do a mid-render fetch
+                // to get more data.
                 if (!data[dcidx]) {
                     let missing_cidx = Math.max(viewport.end_col, 0);
                     viewport.start_col = missing_cidx;
-                    viewport.end_col = missing_cidx + 1;
-                    const new_col = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
-                    data[dcidx] = new_col.data[0];
-                    if (column_headers) {
-                        column_headers[dcidx] = new_col.column_headers?.[0];
+
+                    // Calculate a new data window width based on how large the
+                    // columns drawn so far take up.  This can either be
+                    // summed if we've drawn/measured these columns before,
+                    // or estimated by avg if the missing columns have never
+                    // been seen by the renderer.
+                    let end_col_offset = 0,
+                        size_extension = 0;
+                    while (this._column_sizes.indices.length > _virtual_x + x0 + end_col_offset && size_extension + view_state.viewport_width < container_width) {
+                        end_col_offset++;
+                        size_extension += this._column_sizes.indices[_virtual_x + x0 + end_col_offset];
+                    }
+
+                    if (size_extension + view_state.viewport_width < container_width) {
+                        const estimate = Math.ceil(((dcidx + end_col_offset) * container_width) / (view_state.viewport_width + size_extension) - missing_cidx + 1);
+                        viewport.end_col = Math.max(1, Math.min(num_visible_columns - 1, missing_cidx + estimate));
+                    } else {
+                        viewport.end_col = Math.max(1, Math.min(num_visible_columns - 1, missing_cidx + end_col_offset));
+                    }
+
+                    // Fetch the new data window extension and append it to the
+                    // cached data page and continue.
+                    const new_col_req = view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+                    yield undefined;
+                    const new_col = await new_col_req;
+
+                    if (new_col.data.length === 0) {
+                        // The viewport is size 0, first the estimate, then the
+                        // first-pass render, so really actually abort now.
+                        yield last_cells;
+                        return;
+                    }
+
+                    viewport.end_col = viewport.start_col + new_col.data.length;
+                    for (let i = 0; i < new_col.data.length; i++) {
+                        data[dcidx + i] = new_col.data[i];
+                        if (new_col.metadata) {
+                            data_listener_metadata[dcidx + i] = new_col.metadata[i];
+                        }
+
+                        if (column_headers) {
+                            column_headers[dcidx + i] = new_col.column_headers?.[i];
+                        }
                     }
                 }
 
