@@ -54,7 +54,7 @@ export class RegularTableViewModel {
      */
     autosize_cells(last_cells) {
         while (last_cells.length > 0) {
-            const [cell, metadata] = last_cells.pop();
+            const [cell, metadata, row_height_cell] = last_cells.pop();
             let offsetWidth;
             const style = getComputedStyle(cell);
             if (style.boxSizing !== "border-box") {
@@ -64,7 +64,7 @@ export class RegularTableViewModel {
             } else {
                 offsetWidth = cell.offsetWidth;
             }
-            this._column_sizes.row_height = this._column_sizes.row_height || cell.offsetHeight;
+            this._column_sizes.row_height = this._column_sizes.row_height || row_height_cell.offsetHeight;
             this._column_sizes.indices[metadata.size_key] = offsetWidth;
             const is_override = this._column_sizes.override.hasOwnProperty(metadata.size_key);
             if (offsetWidth && !is_override) {
@@ -134,7 +134,7 @@ export class RegularTableViewModel {
                 for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
                     const {td, metadata} = cont_body.tds[i] || {};
                     const {th, metadata: hmetadata} = cont_heads[i];
-                    last_cells.push([th || td, hmetadata || metadata]);
+                    last_cells.push([th || td, hmetadata || metadata, td || th]);
                 }
             }
         }
@@ -170,7 +170,7 @@ export class RegularTableViewModel {
                 first_col = false;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
-                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata]);
+                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata, td || cont_head.th]);
                     }
                 }
 
@@ -178,7 +178,7 @@ export class RegularTableViewModel {
                 if (last_measured_col_width) {
                     view_state.viewport_width += last_measured_col_width;
                 } else {
-                    view_state.viewport_width += cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0) || cont_head.th.offsetWidth;
+                    view_state.viewport_width += cont_head.th.offsetWidth;
                 }
 
                 view_state.row_height = view_state.row_height || cont_body.row_height;
