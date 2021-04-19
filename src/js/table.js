@@ -79,7 +79,7 @@ export class RegularTableViewModel {
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
-        let {data, row_headers, column_headers} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+        let {data, row_headers, column_headers, metadata: data_listener_metadata} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
         const {start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0} = viewport;
 
         // pad row_headers for embedded renderer
@@ -153,12 +153,15 @@ export class RegularTableViewModel {
                         column_headers[dcidx] = new_col.column_headers?.[0];
                     }
                 }
+
                 const column_name = column_headers?.[dcidx] || "";
                 const column_data = data[dcidx];
+                const column_data_listener_metadata = data_listener_metadata?.[dcidx];
                 const column_state = {
                     column_name,
                     cidx: _virtual_x,
                     column_data,
+                    column_data_listener_metadata,
                     row_headers,
                     first_col,
                 };

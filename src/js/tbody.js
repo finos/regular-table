@@ -51,7 +51,7 @@ export class RegularBodyViewModel extends ViewModel {
     }
 
     draw(container_height, column_state, view_state, th = false, x, x0, size_key) {
-        const {cidx, column_data, row_headers} = column_state;
+        const {cidx, column_data, row_headers, column_data_listener_metadata} = column_state;
         let {row_height} = view_state;
         let metadata;
         const ridx_offset = [],
@@ -95,13 +95,16 @@ export class RegularBodyViewModel extends ViewModel {
                         cidx_offset[ridx] = 1;
                         tds[i] = obj;
                     }
-                    ridx++;
                 } else {
-                    obj = this._draw_td("TD", ridx++, val, cidx, column_state, view_state, size_key);
+                    obj = this._draw_td("TD", ridx, val, cidx, column_state, view_state, size_key);
+                    if (column_data_listener_metadata) {
+                        obj.metadata.user = column_data_listener_metadata[ridx];
+                    }
+
                     obj.metadata.x = x;
                     obj.metadata.x0 = x0;
                     obj.metadata.x1 = view_state.x1;
-                    obj.metadata.row_header = id || {test: 2};
+                    obj.metadata.row_header = id || [];
                     obj.metadata.y0 = view_state.ridx_offset;
                     obj.metadata.y1 = view_state.y1;
                     obj.metadata.dx = x - x0;
@@ -110,6 +113,7 @@ export class RegularBodyViewModel extends ViewModel {
                     tds[0] = obj;
                 }
 
+                ridx++;
                 metadata = obj ? obj.metadata : metadata;
                 row_height = row_height || obj?.td.offsetHeight;
                 if (ridx * row_height > container_height) {

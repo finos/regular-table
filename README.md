@@ -335,6 +335,28 @@ repeated elements in a sequence will be automatically merged via `rowspan` and
 `colspan` attributes.  In this example, e.g. `"Rowgroup 1"` will only output
 to one `<th>` node in the resulting `<table>`.
 
+### `metadata` Data-Aware Styling
+
+A `dataListener` may also optionally provide a `metadata` field in its response,
+a two dimensional `Array` of the same dimensions as `data`.  The values in this
+field will accompany the metadata records returned by `regular-table`'s
+`getMeta()` method (as described in the next section). 
+
+```json
+{
+    "num_rows": 26,
+    "num_columns": 3,
+    "data": [
+        [-1, 1],
+        ["A", "B"]
+    ],
+    "metadata": [
+        ["pos", "neg"],
+        ["green", "red"]
+    ],
+}
+```
+
 ### `async` Data Models
 
 With an `async` data model, it's easy to serve `getDataSlice()` remotely
