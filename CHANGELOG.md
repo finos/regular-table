@@ -1,8 +1,20 @@
 # Changelog
 
-## [v0.3.2](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [0.3.3](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.1...HEAD)
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.2...HEAD)
+
+**Implemented enhancements:**
+
+- Metadata API [\#138](https://github.com/jpmorganchase/regular-table/pull/138) ([texodus](https://github.com/texodus))
+
+**Merged pull requests:**
+
+- update paths from examples to features [\#137](https://github.com/jpmorganchase/regular-table/pull/137) ([timkpaine](https://github.com/timkpaine))
+
+## [v0.3.2](https://github.com/jpmorganchase/regular-table/tree/v0.3.2) (2021-04-14)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.1...v0.3.2)
 
 **Fixed bugs:**
 
