@@ -21,7 +21,6 @@ export class RegularHeaderViewModel extends ViewModel {
     _draw_group_th(offset_cache, d, column) {
         const th = this._get_cell("TH", d, offset_cache[d] || 0);
         offset_cache[d] += 1;
-        th.className = "";
         th.removeAttribute("colspan");
         th.style.minWidth = "0";
 
@@ -46,7 +45,6 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.column_header = column;
         metadata.value = column_name;
         metadata.value = column_name;
-        th.className = "";
         return metadata;
     }
 
