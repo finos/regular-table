@@ -157,16 +157,16 @@ export class RegularTableViewModel {
                     // been seen by the renderer.
                     let end_col_offset = 0,
                         size_extension = 0;
-                    while (this._column_sizes.indices.length > _virtual_x + x0 + end_col_offset && size_extension + view_state.viewport_width < container_width) {
+                    while (this._column_sizes.indices.length > _virtual_x + x0 + end_col_offset + 1 && size_extension + view_state.viewport_width < container_width) {
                         end_col_offset++;
                         size_extension += this._column_sizes.indices[_virtual_x + x0 + end_col_offset];
                     }
 
                     if (size_extension + view_state.viewport_width < container_width) {
-                        const estimate = Math.ceil(((dcidx + end_col_offset) * container_width) / (view_state.viewport_width + size_extension) - missing_cidx + 1);
-                        viewport.end_col = Math.max(1, Math.min(num_visible_columns - 1, missing_cidx + estimate));
+                        const estimate = Math.min(num_columns, missing_cidx + 5); //Math.ceil(((dcidx + end_col_offset) * container_width) / (view_state.viewport_width + size_extension) + 1);
+                        viewport.end_col = Math.max(1, Math.min(num_columns, estimate));
                     } else {
-                        viewport.end_col = Math.max(1, Math.min(num_visible_columns - 1, missing_cidx + end_col_offset));
+                        viewport.end_col = Math.max(1, Math.min(num_columns, missing_cidx + end_col_offset));
                     }
 
                     // Fetch the new data window extension and append it to the
