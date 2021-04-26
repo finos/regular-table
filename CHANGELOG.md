@@ -1,8 +1,16 @@
 # Changelog
 
-## [0.3.3](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [0.4.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.2...HEAD)
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.3...HEAD)
+
+**Breaking changes:**
+
+- Preserve classname [\#139](https://github.com/jpmorganchase/regular-table/pull/139) ([texodus](https://github.com/texodus))
+
+## [v0.3.3](https://github.com/jpmorganchase/regular-table/tree/v0.3.3) (2021-04-20)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.2...v0.3.3)
 
 **Implemented enhancements:**
 
