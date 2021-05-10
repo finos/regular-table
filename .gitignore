@@ -189,8 +189,9 @@ ENV/
 .DS_Store
 
 .autoversion
-docs/api
+declarations/
+docs/api/
 docs/index.md
-.jupyter
+.jupyter/
 python_junit.xml
 

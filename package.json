@@ -27,6 +27,7 @@
         "build:rollup": "rollup -c rollup.config.js",
         "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
+        "declarations": "tsc -b declarationsconfig.json",
         "docs": "jsdoc2md src/js/index.js --separators > api.md",
         "fix": "eslint --fix src features/*.md examples/*.md examples/*.html && prettier --write features/*.md",
         "lint": "npm-run-all lint:*",
@@ -84,6 +85,7 @@
         "rollup-plugin-terser": "^6.1.0",
         "source-map-explorer": "^2.4.2",
         "source-map-loader": "^0.2.4",
-        "superstore-arrow": "^1.0.0"
+        "superstore-arrow": "^1.0.0",
+        "typescript": "^4.2.4"
     }
 }
