@@ -2,8 +2,7 @@ declare module 'regular-table' {
     // only need the @types/react pkg for this, not the runtime react pkg
     import { DetailedHTMLProps, HTMLAttributes } from "react";
 
-    export const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"] as const;
-
+    //// START: index.d.ts
     /**
      * The `<regular-table>` custom element.
      *
@@ -20,6 +19,64 @@ declare module 'regular-table' {
      * @extends HTMLElement
      */
     export class RegularTableElement extends HTMLElement {
+        /**
+         * For internal use by the Custom Elements API: "Invoked each time the
+         * custom element is appended into a document-connected element".
+         * Ref: https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements#Using_the_lifecycle_callbacks
+         *
+         * @internal
+         * @private
+         * @memberof RegularTableElement
+         */
+        private connectedCallback;
+        /** @private */
+        private _column_sizes;
+        /** @private */
+        private _initialized;
+        /** @private */
+        private _style_callbacks;
+        /** @public @type {TableModel} */
+        public table_model: TableModel;
+        /**
+         * Reset the viewport of this regular table.
+         *
+         * @internal
+         * @private
+         * @memberof RegularTableElement
+         */
+        private _reset_viewport;
+        /** @private @type {number} */
+        private _start_row;
+        /** @private @type {number} */
+        private _end_row;
+        /** @private @type {number} */
+        private _start_col;
+        /** @private @type {number} */
+        private _end_col;
+        /**
+         * Reset the scroll position of this regular table back to the origin.
+         *
+         * @internal
+         * @private
+         * @memberof RegularTableElement
+         */
+        private _reset_scroll;
+        /**
+         * Reset column autosizing, such that column sizes will be recalculated
+         * on the next draw() call.
+         *
+         * @internal
+         * @protected
+         * @memberof RegularTableElement
+         */
+        protected _resetAutoSize(): void;
+        /**
+         * Clears the current renderer `<table>`.
+         *
+         * @public
+         * @memberof RegularTableElement
+         */
+        public clear(): void;
         /**
          * Adds a style listener callback. The style listeners are called
          * whenever the <table> is re-rendered, such as through API invocations
@@ -43,31 +100,22 @@ declare module 'regular-table' {
          *     unsubscribe();
          * }, 1000);
          */
-        addStyleListener(styleListener: (arg0: {detail: RegularTableElement}) => void): () => void;
-
+        public addStyleListener(styleListener: (arg0: {
+            detail: RegularTableElement;
+        }) => void): () => void;
         /**
-         * Draws this virtual panel, given an object of render options that allow
-         * the implementor to fine tune the individual render frames based on the
-         * interaction and previous render state.
-         *
-         * `reset_scroll_position` will not prevent the viewport from moving as
-         * `draw()` may change the dimensions of the virtual_panel (and thus,
-         * absolute scroll offset).  This calls `reset_scroll`, which will
-         * trigger `_on_scroll` and ultimately `draw()` again;  however, this call
-         * to `draw()` will be for the same viewport and will not actually cause
-         * a render.
+         * When called within the execution scope of a function registered to this
+         * `<regular-table>` as a `StyleListener`, invalidate this draw's
+         * dimensions and attempt to draw more columns.  Useful if your
+         * `StyleListener` changes a cells dimensions, otherwise `<regular-table>`
+         * may not draw enough columns to fill the screen.
          *
          * @public
-         * @memberof RegularVirtualTableViewModel
-         * @param {DrawOptions} [options]
-         * @param {boolean} [options.invalid_viewport=true]
-         * @param {boolean} [options.preserve_width=false]
-         * @param {boolean} [options.reset_scroll_position=false]
-         * @param {boolean} [options.swap=false]
-         * @returns
+         * @memberof RegularTableElement
          */
-        draw(options?: DrawOptions): Promise<void>;
-
+        public invalidate(): void;
+        /** @private */
+        private _invalidated;
         /**
          * Returns the `MetaData` object associated with a `<td>` or `<th>`.  When
          * your `StyleListener` is invoked, use this method to look up additional
@@ -86,8 +134,7 @@ declare module 'regular-table' {
          * @example
          * const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
          */
-        getMeta(element: HTMLTableCellElement | Partial<MetaData>): MetaData;
-
+        public getMeta(element: HTMLTableCellElement | Partial<MetaData>): MetaData;
         /**
          * Get performance statistics about this `<regular-table>`.  Calling this
          * method resets the internal state, which makes it convenient to measure
@@ -104,8 +151,7 @@ declare module 'regular-table' {
          *     console.log(`Measured ${fps} fps`)
          * });
          */
-        getDrawFPS(): Performance;
-
+        public getDrawFPS(): Performance;
         /**
          * Call this method to set the `scrollLeft` and `scrollTop` for this
          * `<regular-table>` by calculating the position of this `scrollLeft`
@@ -121,8 +167,7 @@ declare module 'regular-table' {
          * @example
          * table.scrollToCell(1, 3, 10, 30);
          */
-        scrollToCell(x: number, y: number, ncols: number, nrows: number): void;
-
+        public scrollToCell(x: number, y: number, ncols: number, nrows: number): Promise<void>;
         /**
          * Call this method to set `DataListener` for this `<regular-table>`,
          * which will be called whenever a new data slice is needed to render.
@@ -134,6 +179,11 @@ declare module 'regular-table' {
          * `dataListener` is called by to request a rectangular section of data
          * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
          * object.
+         * @param {Object} options
+         * @param {("both"|"horizontal"|"vertical"|"none")} options.virtual_mode
+         * The `virtual_mode` options flag may be one of "both", "horizontal",
+         * "vertical", or "none" indicating which dimensions of the table should be
+         * virtualized (vs. rendering completely).
          * @example
          * table.setDataListener((x0, y0, x1, y1) => {
          *     return {
@@ -143,9 +193,36 @@ declare module 'regular-table' {
          *     };
          * })
          */
-        setDataListener(dataListener: DataListener, options?: {virtual_mode: (typeof VIRTUAL_MODES)[number]}): void;
+        public setDataListener(dataListener: DataListener, { virtual_mode }?: {
+            virtual_mode: ("both" | "horizontal" | "vertical" | "none");
+        }): void;
+        /** @private */
+        private _virtual_mode;
+        /** @private */
+        private _invalid_schema;
+        /** @private */
+        private _view_cache;
+        /**
+         * This func only exists to provide hints to doc compulation tools.
+         * Should never be run, and even if it is the body of the func will
+         * never execute.
+         *
+         * @internal
+         * @private
+         * @memberof RegularTableElement
+         */
+        private __noop_jsdoc_hints;
+        /**
+         * Draws this virtual panel, given an object of render options that allow
+         * the implementor to fine tune the individual render frames based on the
+         * interaction and previous render state.
+         *
+         * @public
+         * @type {(opt?: DrawOptions) => void}
+         * @memberof RegularTableElement
+         * */
+        public draw: (opt?: DrawOptions) => void;
     }
-
     /**
      * An object with performance statistics about calls to
      * `draw()` from some time interval (captured in milliseconds by the
@@ -174,31 +251,11 @@ declare module 'regular-table' {
          */
         elapsed: number;
     };
-
     /**
      * An object describing virtual rendering metadata about an
      * `HTMLTableCellElement`, use this object to map rendered `<th>` or `<td>`
      * elements back to your `data`, `row_headers` or `column_headers` within
      * listener functions for `addStyleListener()` and `addEventListener()`.
-     *
-     * @example
-     *
-     * MetaData                     (x = 0, column_header_y = 0))
-     *                              *-------------------------------------+
-     *                              |                                     |
-     *                              |                                     |
-     *                              +-------------------------------------+
-     * (row_header_x = 0, y = 0)    (x = 0, y = 0)
-     * *------------------------+   *-------------------------------------+
-     * |                        |   |                                     |
-     * |                        |   |      (x0, y0)                       |
-     * |                        |   |      *---------------*              |
-     * |                        |   |      |               |              |
-     * |                        |   |      |     * (x, y)  |              |
-     * |                        |   |      |               |              |
-     * |                        |   |      *---------------* (x1, y1)     |
-     * |                        |   |                                     |
-     * +------------------------+   +-------------------------------------+
      */
     export type MetaData = {
         /**
@@ -275,9 +332,8 @@ declare module 'regular-table' {
         /**
          * - The value dispalyed in the cell or header.
          */
-        value?: string | HTMLElement;
+        value?: (string | HTMLElement);
     };
-
     /**
      * The `DataResponse` object describes a rectangular region of a virtual
      * data set, and some associated metadata.  `<regular-table>` will use this
@@ -285,24 +341,6 @@ declare module 'regular-table' {
      * different regions to achieve a compelte render as it must estimate
      * certain dimensions.  You must construct a `DataResponse` object to
      * implement a `DataListener`.
-     *
-     * @example
-     * {
-     *     "num_rows": 26,
-     *     "num_columns": 3,
-     *     "data": [
-     *         [0, 1],
-     *         ["A", "B"]
-     *     ],
-     *     "row_headers": [
-     *         ["Rowgroup 1", "Row 1"],
-     *         ["Rowgroup 1", "Row 2"]
-     *     ],
-     *     "column_headers": [
-     *         ["Colgroup 1", "Column 1"],
-     *         ["Colgroup 1", "Column 2"]
-     *     ]
-     * }
      */
     export type DataResponse = {
         /**
@@ -310,21 +348,21 @@ declare module 'regular-table' {
          * `Array` of column group headers, in specificity order.  No `<thead>`
          * will be generated if this property is not provided.
          */
-        column_headers?: MetaData["value"][][];
+        column_headers?: (string | HTMLElement)[][];
         /**
          * - A two dimensional
          * `Array` of row group headers, in specificity order.  No `<th>`
          * elements within `<tbody>` will be generated if this property is not
          * provided.
          */
-        row_headers?: MetaData["value"][][];
+        row_headers?: (string | HTMLElement)[][];
         /**
          * - A two dimensional `Array`
          * representing a rectangular section of the underlying data set from
          * (x0, y0) to (x1, y1), arranged in columnar fashion such that
          * `data[x][y]` returns the `y`th row of the `x`th column of the slice.
          */
-        data: MetaData["value"][][];
+        data: (string | HTMLElement)[][];
         /**
          * - Total number of rows in the underlying
          * data set.
@@ -336,7 +374,6 @@ declare module 'regular-table' {
          */
         num_columns: number;
     };
-
     /**
      * The `DataListener` is similar to a normal event listener function.
      * Unlike a normal event listener, it takes regular arguments (not an
@@ -344,9 +381,13 @@ declare module 'regular-table' {
      * region (as opposed to returning `void` as a standard event listener).
      */
     export type DataListener = (x0: number, y0: number, x1: number, y1: number) => Promise<DataResponse>;
-
     /**
-     * Options for the draw method.
+     * Options for the draw method. `reset_scroll_position` will not prevent
+     * the viewport from moving as `draw()` may change the dimensions of the
+     * virtual_panel (and thus, absolute scroll offset).  This calls
+     * `reset_scroll`, which will trigger `_on_scroll` and ultimately `draw()`
+     * again;  however, this call to `draw()` will be for the same viewport
+     * and will not actually cause a render.
      */
     export type DrawOptions = {
         invalid_viewport?: boolean;
@@ -354,6 +395,26 @@ declare module 'regular-table' {
         reset_scroll_position?: boolean;
         swap?: boolean;
     };
+    /**
+     * Public summary of table_model type.
+     */
+    export type TableModel = {
+        header: ViewModel;
+        body: ViewModel;
+        num_columns: () => number;
+    };
+    /**
+     * Public summary of header and body base type.
+     */
+    export type ViewModel = {
+        table: any;
+        cells: any[];
+        rows: any[];
+        num_columns: () => number;
+        num_rows: () => number;
+    };
+
+    //// END: index.d.ts
 
     global {
         namespace JSX {
