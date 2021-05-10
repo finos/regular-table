@@ -2,6 +2,8 @@ declare module 'regular-table' {
     // only need the @types/react pkg for this, not the runtime react pkg
     import { DetailedHTMLProps, HTMLAttributes } from "react";
 
+    export const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"] as const;
+
     /**
      * The `<regular-table>` custom element.
      *
@@ -141,7 +143,7 @@ declare module 'regular-table' {
          *     };
          * })
          */
-        setDataListener(dataListener: DataListener): void;
+        setDataListener(dataListener: DataListener, options?: {virtual_mode: (typeof VIRTUAL_MODES)[number]}): void;
     }
 
     /**
@@ -264,16 +266,16 @@ declare module 'regular-table' {
          * - The `Array` for this `y` in
          * `DataResponse.row_headers`, if it was provided.
          */
-        row_header?: Array<object>;
+        row_header?: (string | HTMLElement)[];
         /**
          * - The `Array` for this `x` in
          * `DataResponse.column_headers`, if it was provided.
          */
-        column_header?: Array<object>;
+        column_header?: (string | HTMLElement)[];
         /**
          * - The value dispalyed in the cell or header.
          */
-        value?: object;
+        value?: string | HTMLElement;
     };
 
     /**
@@ -308,21 +310,21 @@ declare module 'regular-table' {
          * `Array` of column group headers, in specificity order.  No `<thead>`
          * will be generated if this property is not provided.
          */
-        column_headers?: Array<Array<object>>;
+        column_headers?: MetaData["value"][][];
         /**
          * - A two dimensional
          * `Array` of row group headers, in specificity order.  No `<th>`
          * elements within `<tbody>` will be generated if this property is not
          * provided.
          */
-        row_headers?: Array<Array<object>>;
+        row_headers?: MetaData["value"][][];
         /**
          * - A two dimensional `Array`
          * representing a rectangular section of the underlying data set from
          * (x0, y0) to (x1, y1), arranged in columnar fashion such that
          * `data[x][y]` returns the `y`th row of the `x`th column of the slice.
          */
-        data: Array<Array<object>>;
+        data: MetaData["value"][][];
         /**
          * - Total number of rows in the underlying
          * data set.

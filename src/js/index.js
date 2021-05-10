@@ -13,6 +13,13 @@ import {RegularTableViewModel} from "./table";
 import {RegularViewEventModel} from "./events";
 import {get_draw_fps} from "./utils";
 
+/**
+ * The `virtual_mode` options flag may be one of "both", "horizontal",
+ * "vertical", or "none" indicating which dimensions of the table should be
+ * virtualized (vs. rendering completely).
+ *
+ * @private
+ */
 const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"];
 
 /**
@@ -256,7 +263,8 @@ class RegularTableElement extends RegularViewEventModel {
      * `dataListener` is called by to request a rectangular section of data
      * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
      * object.
-     * @param {Options} options.virtual_mode
+     * @param {Object} options
+     * @param {("both"|"horizontal"|"vertical"|"none")} options.virtual_mode
      * The `virtual_mode` options flag may be one of "both", "horizontal",
      * "vertical", or "none" indicating which dimensions of the table should be
      * virtualized (vs. rendering completely).
@@ -293,6 +301,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `draw()` from some time interval (captured in milliseconds by the
  * `elapsed` proprty).
  *
+ * @public
  * @typedef Performance
  * @type {object}
  * @property {number} avg - Avergage milliseconds per call.
@@ -327,6 +336,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * |                        |   |                                     |
  * +------------------------+   +-------------------------------------+
  *
+ * @public
  * @typedef MetaData
  * @type {object}
  * @property {number} [x] - The `x` index in your virtual data model.
@@ -357,11 +367,11 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * from `row_headers`.
  * @property {number} size_key - The unique index of this column in a full
  * `<table>`, which is `x` + (Total Row Header Columns).
- * @property {Array<object>} [row_header] - The `Array` for this `y` in
+ * @property {(string|HTMLElement)[]} [row_header] - The `Array` for this `y` in
  * `DataResponse.row_headers`, if it was provided.
- * @property {Array<object>} [column_header] - The `Array` for this `x` in
+ * @property {(string|HTMLElement)[]} [column_header] - The `Array` for this `x` in
  * `DataResponse.column_headers`, if it was provided.
- * @property {object} [value] - The value dispalyed in the cell or header.
+ * @property {(string|HTMLElement)} [value] - The value dispalyed in the cell or header.
  */
 
 /**
@@ -372,16 +382,17 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * certain dimensions.  You must construct a `DataResponse` object to
  * implement a `DataListener`.
  *
+ * @public
  * @typedef DataResponse
  * @type {object}
- * @property {Array<Array<object>>} [column_headers] - A two dimensional
+ * @property {(string|HTMLElement)[][]} [column_headers] - A two dimensional
  * `Array` of column group headers, in specificity order.  No `<thead>`
  * will be generated if this property is not provided.
- * @property {Array<Array<object>>} [row_headers] - A two dimensional
+ * @property {(string|HTMLElement)[][]} [row_headers] - A two dimensional
  * `Array` of row group headers, in specificity order.  No `<th>`
  * elements within `<tbody>` will be generated if this property is not
  * provided.
- * @property {Array<Array<object>>} data - A two dimensional `Array`
+ * @property {(string|HTMLElement)[][]} data - A two dimensional `Array`
  * representing a rectangular section of the underlying data set from
  * (x0, y0) to (x1, y1), arranged in columnar fashion such that
  * `data[x][y]` returns the `y`th row of the `x`th column of the slice.
@@ -414,6 +425,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `Event`); and returns a `Promise` for a `DataResponse` object for this
  * region (as opposed to returning `void` as a standard event listener).
  *
+ * @public
  * @callback DataListener
  * @param {number} x0 - The origin `x` index (column).
  * @param {number} y0 - The origin `y` index (row).
