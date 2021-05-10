@@ -9,18 +9,21 @@
  */
 
 import {METADATA_MAP} from "./constants";
-import {RegularTableViewModel} from "./table";
 import {RegularViewEventModel} from "./events";
+import {RegularTableViewModel} from "./table";
 import {get_draw_fps} from "./utils";
 
-/**
- * The `virtual_mode` options flag may be one of "both", "horizontal",
- * "vertical", or "none" indicating which dimensions of the table should be
- * virtualized (vs. rendering completely).
- *
- * @private
- */
 const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"];
+
+// /**
+//  * @public
+//  * @typedef {table: any, cells: any[], rows: any[], num_columns: () => number, num_rows: () => number} ViewModel
+//  */
+
+// /**
+//  * @public
+//  * @typedef {header: ViewModel, body: ViewModel, num_columns: () => number} TableModel
+//  */
 
 /**
  * The `<regular-table>` custom element.
@@ -52,10 +55,15 @@ class RegularTableElement extends RegularViewEventModel {
             this.create_shadow_dom();
             this.register_listeners();
             this.setAttribute("tabindex", "0");
+
+            /** @private */
             this._column_sizes = {auto: {}, override: {}, indices: []};
-            this._style_callbacks = [];
-            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
+            /** @private */
             this._initialized = true;
+            /** @private */
+            this._style_callbacks = [];
+            /** @public @type {TableModel} */
+            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
         }
     }
 
@@ -67,9 +75,13 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      */
     _reset_viewport() {
+        /** @private @type {number} */
         this._start_row = undefined;
+        /** @private @type {number} */
         this._end_row = undefined;
+        /** @private @type {number} */
         this._start_col = undefined;
+        /** @private @type {number} */
         this._end_col = undefined;
     }
 
@@ -92,7 +104,7 @@ class RegularTableElement extends RegularViewEventModel {
      * on the next draw() call.
      *
      * @internal
-     * @private
+     * @protected
      * @memberof RegularTableElement
      */
     _resetAutoSize() {
@@ -164,11 +176,15 @@ class RegularTableElement extends RegularViewEventModel {
      * dimensions and attempt to draw more columns.  Useful if your
      * `StyleListener` changes a cells dimensions, otherwise `<regular-table>`
      * may not draw enough columns to fill the screen.
+     *
+     * @public
+     * @memberof RegularTableElement
      */
     invalidate() {
         if (!this._is_styling) {
             throw new Error("Cannot call `invalidate()` outside of a `StyleListener`");
         }
+        /** @private */
         this._invalidated = true;
     }
 
@@ -285,10 +301,37 @@ class RegularTableElement extends RegularViewEventModel {
         };
 
         console.assert(VIRTUAL_MODES.indexOf(virtual_mode) > -1, `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`);
+        /** @private */
         this._virtual_mode = virtual_mode;
+        /** @private */
         this._invalid_schema = true;
+        /** @private */
         this._view_cache = {view: dataListener, config, schema};
         this._setup_virtual_scroll();
+    }
+
+    /**
+     * This func only exists to provide hints to doc compulation tools.
+     * Should never be run, and even if it is the body of the func will
+     * never execute.
+     *
+     * @internal
+     * @private
+     * @memberof RegularTableElement
+     */
+    __noop_jsdoc_hints() {
+        if (false) {
+            /**
+             * Draws this virtual panel, given an object of render options that allow
+             * the implementor to fine tune the individual render frames based on the
+             * interaction and previous render state.
+             *
+             * @public
+             * @type {(opt?: DrawOptions) => void}
+             * @memberof RegularTableElement
+             * */
+            this.draw = null;
+        }
     }
 }
 
@@ -434,4 +477,45 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * @returns {Promise<DataResponse>} The resulting `DataResponse`.  Make sure
  * to `resolve` or `reject` the `Promise`, or your `<regular-table>` will
  * never render!
+ */
+
+/**
+ * Options for the draw method. `reset_scroll_position` will not prevent
+ * the viewport from moving as `draw()` may change the dimensions of the
+ * virtual_panel (and thus, absolute scroll offset).  This calls
+ * `reset_scroll`, which will trigger `_on_scroll` and ultimately `draw()`
+ * again;  however, this call to `draw()` will be for the same viewport
+ * and will not actually cause a render.
+ *
+ * @public
+ * @typedef DrawOptions
+ * @type {object}
+ * @property {boolean} [invalid_viewport]
+ * @property {boolean} [preserve_width]
+ * @property {boolean} [reset_scroll_position]
+ * @property {boolean} [swap]
+ */
+
+/**
+ * Public summary of table_model type.
+ *
+ * @public
+ * @typedef TableModel
+ * @type {object}
+ * @property {ViewModel} header
+ * @property {ViewModel} body
+ * @property {() => number} num_columns
+ */
+
+/**
+ * Public summary of header and body base type.
+ *
+ * @public
+ * @typedef ViewModel
+ * @type {object}
+ * @property {any} table
+ * @property {any[]} cells
+ * @property {any[]} rows
+ * @property {() => number} num_columns
+ * @property {() => number} num_rows
  */
