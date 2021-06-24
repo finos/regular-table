@@ -16,10 +16,33 @@ import {METADATA_MAP} from "./constants";
  *
  */
 
+class ElemFactory {
+    constructor(name) {
+        this._name = name;
+        this._elements = [];
+        this._index = 0;
+    }
+
+    reset() {
+        this._index = 0;
+    }
+
+    get() {
+        if (!this._elements[this._index]) {
+            this._elements[this._index] = document.createElement(this._name);
+        }
+
+        const elem = this._elements[this._index];
+        this._index += 1;
+        return elem;
+    }
+}
+
 export class ViewModel {
     constructor(column_sizes, container, table) {
         this._column_sizes = column_sizes;
         this._container = container;
+        this._span_factory = new ElemFactory("span");
         this.table = table;
         this.cells = [];
         this.rows = [];

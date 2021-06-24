@@ -28,12 +28,12 @@ export class RegularHeaderViewModel extends ViewModel {
         if (column instanceof HTMLElement) {
             th.appendChild(column);
         } else {
-            const span = document.createElement("span");
+            const span = this._span_factory.get("span");
             span.textContent = column;
             th.appendChild(span);
         }
 
-        const resizeSpan = document.createElement("span");
+        const resizeSpan = this._span_factory.get("span");
         resizeSpan.className = "rt-column-resize";
         th.appendChild(resizeSpan);
 

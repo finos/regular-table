@@ -258,6 +258,8 @@ export class RegularTableViewModel {
         } finally {
             this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
             this.header.clean();
+            this.body._span_factory.reset();
+            this.header._span_factory.reset();
         }
     }
 }
