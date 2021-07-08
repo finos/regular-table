@@ -325,7 +325,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {boolean} [options.preserve_width=false]
      * @param {boolean} [options.reset_scroll_position=false]
      * @param {boolean} [options.swap=false]
-     * @returns
      */
     @throttlePromise
     async draw(options = {}) {
@@ -388,6 +387,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 /**
  * Options for the draw method.
  *
+ * @public
  * @typedef DrawOptions
  * @type {object}
  * @property {boolean} [invalid_viewport]

@@ -9,8 +9,8 @@
  */
 
 import {METADATA_MAP} from "./constants";
-import {RegularTableViewModel} from "./table";
 import {RegularViewEventModel} from "./events";
+import {RegularTableViewModel} from "./table";
 import {get_draw_fps} from "./utils";
 
 const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"];
@@ -45,10 +45,15 @@ class RegularTableElement extends RegularViewEventModel {
             this.create_shadow_dom();
             this.register_listeners();
             this.setAttribute("tabindex", "0");
+
+            /** @private */
             this._column_sizes = {auto: {}, override: {}, indices: []};
-            this._style_callbacks = [];
-            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
+            /** @private */
             this._initialized = true;
+            /** @private */
+            this._style_callbacks = [];
+            /** @public @type {TableModel} */
+            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
         }
     }
 
@@ -60,9 +65,13 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      */
     _reset_viewport() {
+        /** @private @type {number} */
         this._start_row = undefined;
+        /** @private @type {number} */
         this._end_row = undefined;
+        /** @private @type {number} */
         this._start_col = undefined;
+        /** @private @type {number} */
         this._end_col = undefined;
     }
 
@@ -85,7 +94,7 @@ class RegularTableElement extends RegularViewEventModel {
      * on the next draw() call.
      *
      * @internal
-     * @private
+     * @protected
      * @memberof RegularTableElement
      */
     _resetAutoSize() {
@@ -117,12 +126,7 @@ class RegularTableElement extends RegularViewEventModel {
      * optionally async callback, you can select <td>, <th>, etc. elements
      * via regular DOM API methods like querySelectorAll().
      *
-     * @public
-     * @memberof RegularTableElement
-     * @param {function({detail: RegularTableElement}): void} styleListener - A
-     * (possibly async) function that styles the inner <table>.
-     * @returns {function(): void} A function to remove this style listener.
-     * @example
+     * Example:
      * const unsubscribe = table.addStyleListener(() => {
      *     for (const td of table.querySelectorAll("td")) {
      *         td.setAttribute("contenteditable", true);
@@ -132,6 +136,11 @@ class RegularTableElement extends RegularViewEventModel {
      * setTimeout(() => {
      *     unsubscribe();
      * }, 1000);
+     * @public
+     * @memberof RegularTableElement
+     * @param {function({detail: RegularTableElement}): void} styleListener - A
+     * (possibly async) function that styles the inner <table>.
+     * @returns {function(): void} A function to remove this style listener.
      */
     addStyleListener(styleListener) {
         this._style_callbacks = this._style_callbacks.concat(styleListener);
@@ -157,11 +166,15 @@ class RegularTableElement extends RegularViewEventModel {
      * dimensions and attempt to draw more columns.  Useful if your
      * `StyleListener` changes a cells dimensions, otherwise `<regular-table>`
      * may not draw enough columns to fill the screen.
+     *
+     * @public
+     * @memberof RegularTableElement
      */
     invalidate() {
         if (!this._is_styling) {
             throw new Error("Cannot call `invalidate()` outside of a `StyleListener`");
         }
+        /** @private */
         this._invalidated = true;
     }
 
@@ -170,18 +183,18 @@ class RegularTableElement extends RegularViewEventModel {
      * your `StyleListener` is invoked, use this method to look up additional
      * `MetaData` about any `HTMLTableCellElement` in the rendered `<table>`.
      *
+     * Example:
+     * const elems = document.querySelector("td:last-child td:last_child");
+     * const metadata = table.getMeta(elems);
+     * console.log(`Viewport corner is ${metadata.x}, ${metadata.y}`);
+     *
+     * const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
      * @public
      * @memberof RegularTableElement
      * @param {HTMLTableCellElement|Partial<MetaData>} element - The child element
      * of this `<regular-table>` for which to look up metadata, or a
      * coordinates-like object to refer to metadata by logical position.
      * @returns {MetaData} The metadata associated with the element.
-     * @example
-     * const elems = document.querySelector("td:last-child td:last_child");
-     * const metadata = table.getMeta(elems);
-     * console.log(`Viewport corner is ${metadata.x}, ${metadata.y}`);
-     * @example
-     * const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
      */
     getMeta(element) {
         if (typeof element === "undefined") {
@@ -208,16 +221,16 @@ class RegularTableElement extends RegularViewEventModel {
      * method resets the internal state, which makes it convenient to measure
      * performance at regular intervals (see example).
      *
-     * @public
-     * @memberof RegularTableElement
-     * @returns {Performance} Performance data aggregated since the last
-     * call to `getDrawFPS()`.
-     * @example
+     * Example:
      * const table = document.getElementById("my_regular_table");
      * setInterval(() => {
      *     const {real_fps} = table.getDrawFPS();
      *     console.log(`Measured ${fps} fps`)
      * });
+     * @public
+     * @memberof RegularTableElement
+     * @returns {Performance} Performance data aggregated since the last
+     * call to `getDrawFPS()`.
      */
     getDrawFPS() {
         return get_draw_fps();
@@ -229,14 +242,14 @@ class RegularTableElement extends RegularViewEventModel {
      * and `scrollTop` relative to the underlying widths of its columns
      * and heights of its rows.
      *
+     * Example:
+     * table.scrollToCell(1, 3, 10, 30);
      * @public
      * @memberof RegularTableElement
      * @param {number} x - The left most `x` index column to scroll into view.
      * @param {number} y - The top most `y` index row to scroll into view.
      * @param {number} ncols - Total number of columns in the data model.
      * @param {number} nrows - Total number of rows in the data model.
-     * @example
-     * table.scrollToCell(1, 3, 10, 30);
      */
     async scrollToCell(x, y, ncols, nrows) {
         const row_height = this._virtual_panel.offsetHeight / nrows;
@@ -250,17 +263,7 @@ class RegularTableElement extends RegularViewEventModel {
      * which will be called whenever a new data slice is needed to render.
      * Calls to `draw()` will fail if no `DataListener` has been set
      *
-     * @public
-     * @memberof RegularTableElement
-     * @param {DataListener} dataListener
-     * `dataListener` is called by to request a rectangular section of data
-     * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
-     * object.
-     * @param {Options} options.virtual_mode
-     * The `virtual_mode` options flag may be one of "both", "horizontal",
-     * "vertical", or "none" indicating which dimensions of the table should be
-     * virtualized (vs. rendering completely).
-     * @example
+     * Example:
      * table.setDataListener((x0, y0, x1, y1) => {
      *     return {
      *         num_rows: num_rows = DATA[0].length,
@@ -268,6 +271,17 @@ class RegularTableElement extends RegularViewEventModel {
      *         data: DATA.slice(x0, x1).map(col => col.slice(y0, y1))
      *     };
      * })
+     * @public
+     * @memberof RegularTableElement
+     * @param {DataListener} dataListener
+     * `dataListener` is called by to request a rectangular section of data
+     * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
+     * object.
+     * @param {Object} options
+     * @param {("both"|"horizontal"|"vertical"|"none")} options.virtual_mode
+     * The `virtual_mode` options flag may be one of "both", "horizontal",
+     * "vertical", or "none" indicating which dimensions of the table should be
+     * virtualized (vs. rendering completely).
      */
     setDataListener(dataListener, {virtual_mode = "both"} = {}) {
         let schema = {};
@@ -277,10 +291,37 @@ class RegularTableElement extends RegularViewEventModel {
         };
 
         console.assert(VIRTUAL_MODES.indexOf(virtual_mode) > -1, `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`);
+        /** @private */
         this._virtual_mode = virtual_mode;
+        /** @private */
         this._invalid_schema = true;
+        /** @private */
         this._view_cache = {view: dataListener, config, schema};
         this._setup_virtual_scroll();
+    }
+
+    /**
+     * This func only exists to provide hints to doc compulation tools.
+     * Should never be run, and even if it is the body of the func will
+     * never execute.
+     *
+     * @internal
+     * @private
+     * @memberof RegularTableElement
+     */
+    __noop_jsdoc_hints() {
+        if (false) {
+            /**
+             * Draws this virtual panel, given an object of render options that allow
+             * the implementor to fine tune the individual render frames based on the
+             * interaction and previous render state.
+             *
+             * @public
+             * @type {(opt?: DrawOptions) => void}
+             * @memberof RegularTableElement
+             * */
+            this.draw = null;
+        }
     }
 }
 
@@ -293,6 +334,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `draw()` from some time interval (captured in milliseconds by the
  * `elapsed` proprty).
  *
+ * @public
  * @typedef Performance
  * @type {object}
  * @property {number} avg - Avergage milliseconds per call.
@@ -308,7 +350,8 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `HTMLTableCellElement`, use this object to map rendered `<th>` or `<td>`
  * elements back to your `data`, `row_headers` or `column_headers` within
  * listener functions for `addStyleListener()` and `addEventListener()`.
- * @example
+ *
+ * Example:
  *
  * MetaData                     (x = 0, column_header_y = 0))
  *                              *-------------------------------------+
@@ -327,6 +370,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * |                        |   |                                     |
  * +------------------------+   +-------------------------------------+
  *
+ * @public
  * @typedef MetaData
  * @type {object}
  * @property {number} [x] - The `x` index in your virtual data model.
@@ -357,11 +401,11 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * from `row_headers`.
  * @property {number} size_key - The unique index of this column in a full
  * `<table>`, which is `x` + (Total Row Header Columns).
- * @property {Array<object>} [row_header] - The `Array` for this `y` in
+ * @property {(string|HTMLElement)[]} [row_header] - The `Array` for this `y` in
  * `DataResponse.row_headers`, if it was provided.
- * @property {Array<object>} [column_header] - The `Array` for this `x` in
+ * @property {(string|HTMLElement)[]} [column_header] - The `Array` for this `x` in
  * `DataResponse.column_headers`, if it was provided.
- * @property {object} [value] - The value dispalyed in the cell or header.
+ * @property {(string|HTMLElement)} [value] - The value dispalyed in the cell or header.
  */
 
 /**
@@ -372,24 +416,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * certain dimensions.  You must construct a `DataResponse` object to
  * implement a `DataListener`.
  *
- * @typedef DataResponse
- * @type {object}
- * @property {Array<Array<object>>} [column_headers] - A two dimensional
- * `Array` of column group headers, in specificity order.  No `<thead>`
- * will be generated if this property is not provided.
- * @property {Array<Array<object>>} [row_headers] - A two dimensional
- * `Array` of row group headers, in specificity order.  No `<th>`
- * elements within `<tbody>` will be generated if this property is not
- * provided.
- * @property {Array<Array<object>>} data - A two dimensional `Array`
- * representing a rectangular section of the underlying data set from
- * (x0, y0) to (x1, y1), arranged in columnar fashion such that
- * `data[x][y]` returns the `y`th row of the `x`th column of the slice.
- * @property {number} num_rows - Total number of rows in the underlying
- * data set.
- * @property {number} num_columns - Total number of columns in the
- * underlying data set.
- * @example
+ * Example:
  * {
  *     "num_rows": 26,
  *     "num_columns": 3,
@@ -406,6 +433,24 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  *         ["Colgroup 1", "Column 2"]
  *     ]
  * }
+ * @public
+ * @typedef DataResponse
+ * @type {object}
+ * @property {(string|HTMLElement)[][]} [column_headers] - A two dimensional
+ * `Array` of column group headers, in specificity order.  No `<thead>`
+ * will be generated if this property is not provided.
+ * @property {(string|HTMLElement)[][]} [row_headers] - A two dimensional
+ * `Array` of row group headers, in specificity order.  No `<th>`
+ * elements within `<tbody>` will be generated if this property is not
+ * provided.
+ * @property {(string|HTMLElement)[][]} data - A two dimensional `Array`
+ * representing a rectangular section of the underlying data set from
+ * (x0, y0) to (x1, y1), arranged in columnar fashion such that
+ * `data[x][y]` returns the `y`th row of the `x`th column of the slice.
+ * @property {number} num_rows - Total number of rows in the underlying
+ * data set.
+ * @property {number} num_columns - Total number of columns in the
+ * underlying data set.
  */
 
 /**
@@ -414,6 +459,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `Event`); and returns a `Promise` for a `DataResponse` object for this
  * region (as opposed to returning `void` as a standard event listener).
  *
+ * @public
  * @callback DataListener
  * @param {number} x0 - The origin `x` index (column).
  * @param {number} y0 - The origin `y` index (row).
@@ -422,4 +468,45 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * @returns {Promise<DataResponse>} The resulting `DataResponse`.  Make sure
  * to `resolve` or `reject` the `Promise`, or your `<regular-table>` will
  * never render!
+ */
+
+/**
+ * Options for the draw method. `reset_scroll_position` will not prevent
+ * the viewport from moving as `draw()` may change the dimensions of the
+ * virtual_panel (and thus, absolute scroll offset).  This calls
+ * `reset_scroll`, which will trigger `_on_scroll` and ultimately `draw()`
+ * again;  however, this call to `draw()` will be for the same viewport
+ * and will not actually cause a render.
+ *
+ * @public
+ * @typedef DrawOptions
+ * @type {object}
+ * @property {boolean} [invalid_viewport]
+ * @property {boolean} [preserve_width]
+ * @property {boolean} [reset_scroll_position]
+ * @property {boolean} [swap]
+ */
+
+/**
+ * Public summary of table_model type.
+ *
+ * @public
+ * @typedef TableModel
+ * @type {object}
+ * @property {ViewModel} header
+ * @property {ViewModel} body
+ * @property {() => number} num_columns
+ */
+
+/**
+ * Public summary of table_model.header and table_model.body base type.
+ *
+ * @public
+ * @typedef ViewModel
+ * @type {object}
+ * @property {any} table
+ * @property {any[]} cells
+ * @property {any[]} rows
+ * @property {() => number} num_columns
+ * @property {() => number} num_rows
  */
