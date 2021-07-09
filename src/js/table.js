@@ -62,7 +62,7 @@ export class RegularTableViewModel {
                 offsetWidth -= parseFloat(style.paddingLeft);
                 offsetWidth -= parseFloat(style.paddingRight);
             } else {
-                offsetWidth = cell.offsetWidth;
+                offsetWidth = parseFloat(window.getComputedStyle(cell).width);
             }
             this._column_sizes.row_height = this._column_sizes.row_height || row_height_cell.offsetHeight;
             this._column_sizes.indices[metadata.size_key] = offsetWidth;
@@ -258,6 +258,8 @@ export class RegularTableViewModel {
         } finally {
             this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
             this.header.clean();
+            this.body._span_factory.reset();
+            this.header._span_factory.reset();
         }
     }
 }

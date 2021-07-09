@@ -31,6 +31,16 @@ const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"];
  * @extends HTMLElement
  */
 class RegularTableElement extends RegularViewEventModel {
+    constructor() {
+        super();
+        /** @private */
+        this._column_sizes = {auto: {}, override: {}, indices: []};
+        /** @private */
+        this._style_callbacks = [];
+        /** @private */
+        this._initialized = false;
+    }
+
     /**
      * For internal use by the Custom Elements API: "Invoked each time the
      * custom element is appended into a document-connected element".
@@ -46,13 +56,7 @@ class RegularTableElement extends RegularViewEventModel {
             this.register_listeners();
             this.setAttribute("tabindex", "0");
 
-            /** @private */
-            this._column_sizes = {auto: {}, override: {}, indices: []};
-            /** @private */
             this._initialized = true;
-            /** @private */
-            this._style_callbacks = [];
-            /** @public @type {TableModel} */
             this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
         }
     }
