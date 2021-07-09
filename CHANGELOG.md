@@ -1,6 +1,17 @@
 # Changelog
 
-## [0.4.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [v0.4.1](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.0...HEAD)
+
+**Implemented enhancements:**
+
+- Memoize `\<span\>` elements [\#142](https://github.com/jpmorganchase/regular-table/pull/142) ([texodus](https://github.com/texodus))
+- Update typings for 0.4.0; add 99% automated typescript declarations build [\#140](https://github.com/jpmorganchase/regular-table/pull/140) ([telamonian](https://github.com/telamonian))
+
+# Changelog
+
+## [v0.4.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.3.3...HEAD)
 
