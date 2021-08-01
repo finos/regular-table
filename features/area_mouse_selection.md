@@ -61,9 +61,7 @@ export const addAreaMouseSelection = (
     table.addEventListener("mousedown", getMousedownListener(table));
     table.addEventListener("mouseover", getMouseoverListener(table, className));
     table.addEventListener("mouseup", getMouseupListener(table, className));
-    table.addStyleListener(() =>
-        applyMouseAreaSelections(table, className)
-    );
+    table.addStyleListener(() => applyMouseAreaSelections(table, className));
     return table;
 };
 ```
