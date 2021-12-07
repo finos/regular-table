@@ -1,5 +1,5 @@
 module.exports = {
-    preset: process.platform === "darwin" ? "jest-puppeteer-docker" : "jest-puppeteer",
+    preset: "jest-puppeteer",
     transform: {},
     coverageDirectory: "coverage",
 };
