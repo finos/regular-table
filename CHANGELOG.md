@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.2](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.1...HEAD)
+
+**Fixed bugs:**
+
+- Fix wrong var in example [\#143](https://github.com/jpmorganchase/regular-table/pull/143) ([timkpaine](https://github.com/timkpaine))
+
+**Closed issues:**
+
+- GitHub Actions Disabled [\#144](https://github.com/jpmorganchase/regular-table/issues/144)
+
+**Merged pull requests:**
+
+- Fix screen thrash when "position: sticky" container resize is triggered [\#146](https://github.com/jpmorganchase/regular-table/pull/146) ([texodus](https://github.com/texodus))
+
 ## [v0.4.1](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.0...HEAD)
@@ -8,8 +24,6 @@
 
 - Memoize `\<span\>` elements [\#142](https://github.com/jpmorganchase/regular-table/pull/142) ([texodus](https://github.com/texodus))
 - Update typings for 0.4.0; add 99% automated typescript declarations build [\#140](https://github.com/jpmorganchase/regular-table/pull/140) ([telamonian](https://github.com/telamonian))
-
-# Changelog
 
 ## [v0.4.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
