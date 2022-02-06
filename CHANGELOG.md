@@ -1,6 +1,14 @@
 # Changelog
 
-## [0.4.2](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+## [v0.4.3](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.2...HEAD)
+
+**Fixed bugs:**
+
+- Fix `virtual_mode` CSS bug [\#150](https://github.com/jpmorganchase/regular-table/pull/150) ([texodus](https://github.com/texodus))
+
+## [v0.4.2](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.1...HEAD)
 
