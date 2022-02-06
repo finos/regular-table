@@ -88,10 +88,20 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         if (this._table_clip) {
             if (this._virtual_mode === "both" || this._virtual_mode === "vertical") {
                 this._table_clip.style.top = "0px";
+            } else {
+                this._table_clip.style.removeProperty("top");
             }
 
             if (this._virtual_mode === "both" || this._virtual_mode === "horizontal") {
                 this._table_clip.style.left = "0px";
+            } else {
+                this._table_clip.style.removeProperty("left");
+            }
+
+            if (this._virtual_mode !== "both") {
+                this._table_clip.style.contain = "none";
+            } else {
+                this._table_clip.style.removeProperty("contain");
             }
         }
     }
