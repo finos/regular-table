@@ -21,7 +21,7 @@ describe("column_mouse_selection.html", () => {
     beforeAll(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
         await page.goto("http://localhost:8081/dist/features/column_mouse_selection.html");
-        await page.waitFor("regular-table table tbody tr td");
+        await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("splitting a column range", () => {
@@ -42,14 +42,14 @@ describe("column_mouse_selection.html", () => {
                 th.dispatchEvent(event);
             }, ths[13]);
 
-            await page.waitFor("regular-table td.mouse-selected-column");
+            await page.waitForSelector("regular-table td.mouse-selected-column");
             expect(await selectedColumns()).toEqual(["Column 6", "Column 7", "Column 8", "Column 9", "Column 10"]);
             await page.evaluate(async (th) => {
                 const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
                 th.dispatchEvent(event);
             }, ths[15]);
 
-            await page.waitFor("regular-table td.mouse-selected-column");
+            await page.waitForSelector("regular-table td.mouse-selected-column");
             expect(await selectedColumns()).toEqual(["Column 6", "Column 7", "Column 9", "Column 10"]);
         });
     });

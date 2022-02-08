@@ -83,29 +83,30 @@ const invertPromise = () => {
 };
 
 export function throttlePromise(target, property, descriptor) {
-    const lock = Symbol("private lock");
     const f = descriptor.value;
+    let lock = null;
     descriptor.value = async function (...args) {
-        if (this[lock]) {
-            await this[lock];
-            if (this[lock]) {
-                await this[lock];
+        if (lock !== null) {
+            await lock;
+            if (lock !== null) {
+                await lock;
                 return;
             }
         }
-        this[lock] = invertPromise();
+        lock = invertPromise();
         let result;
         try {
             result = await f.call(this, ...args);
         } finally {
-            const l = this[lock];
-            this[lock] = undefined;
+            const l = lock;
+            lock = null;
             l.resolve();
         }
         return result;
     };
-    descriptor.value.flush = function () {
-        return this[lock];
+    descriptor.value.flush = async function () {
+        await new Promise(requestAnimationFrame);
+        return await lock;
     };
     return descriptor;
 }

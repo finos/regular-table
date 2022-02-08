@@ -21,7 +21,7 @@ describe("column_mouse_selection.html", () => {
     beforeAll(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
         await page.goto("http://localhost:8081/dist/features/column_mouse_selection.html");
-        await page.waitFor("regular-table table tbody tr td");
+        await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("initial view", () => {

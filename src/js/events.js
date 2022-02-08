@@ -13,6 +13,16 @@ import {RegularVirtualTableViewModel} from "./scroll_panel";
 import {throttlePromise} from "./utils";
 
 /**
+ * WHen enabled, override iOS overscroll behavior by emulating scroll position
+ * in JavaScript.  This prevents "bounce" on edges, but it also removes scroll
+ * inertia.  This waspreviously enabled by default in `regular-table<=0.4.3`,
+ * but this version also had bugged (exaggerated) position calculation.
+ * As `0.5.0` introduces sub-cell scrolling by defualt, this is now disabled by
+ * default as well.
+ */
+const IOS_DISABLE_OVERSCROLL = false;
+
+/**
  *
  *
  * @class RegularViewEventModel
@@ -23,8 +33,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         this.addEventListener("mousedown", this._on_click.bind(this));
         this.addEventListener("dblclick", this._on_dblclick.bind(this));
         this.addEventListener("scroll", this._on_scroll.bind(this), {
-            passive: false,
+            passive: true,
         });
+
         this._register_glitch_scroll_listeners();
     }
 
@@ -35,11 +46,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @memberof RegularViewEventModel
      * @returns
      */
-    async _on_scroll(event) {
+    _on_scroll(event) {
         event.stopPropagation();
-        event.returnValue = false;
-        await this.draw({invalid_viewport: false});
-        this.dispatchEvent(new CustomEvent("regular-table-scroll"));
+        this.draw({invalid_viewport: false});
     }
 
     /**
@@ -53,17 +62,14 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @memberof RegularViewEventModel
      */
     _register_glitch_scroll_listeners() {
-        this.addEventListener("mousewheel", this._on_mousewheel.bind(this), {
-            passive: false,
-        });
-        this.addEventListener("touchstart", this._on_touchstart.bind(this), {
-            passive: false,
-        });
-        this.addEventListener("touchmove", this._on_touchmove.bind(this), {
-            passive: false,
-        });
+        this.addEventListener("mousewheel", this._on_mousewheel.bind(this));
+        if (IOS_DISABLE_OVERSCROLL) {
+            this.addEventListener("touchmove", this._on_touchmove.bind(this));
+            this.addEventListener("touchstart", this._on_touchstart.bind(this), {
+                passive: true,
+            });
+        }
     }
-
     /**
      * Mousewheel must precalculate in addition to `_on_scroll` to prevent
      * visual artifacts due to scrolling "inertia" on modern browsers.
@@ -79,23 +85,20 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             return;
         }
 
-        const {clientWidth, clientHeight, scrollTop, scrollLeft, scrollHeight} = this;
-        if ((event.deltaY > 0 && scrollTop + clientHeight >= scrollHeight) || (event.deltaY < 0 && scrollTop <= 0)) {
-            event.preventDefault();
-            event.returnValue = false;
-            const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
-            const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
-            this.scrollTop = Math.min(total_scroll_height, scrollTop + event.deltaY);
-            this.scrollLeft = Math.min(total_scroll_width, scrollLeft + event.deltaX);
-            this._on_scroll(event);
-        }
+        const {clientWidth, clientHeight, scrollTop, scrollLeft} = this;
+        event.preventDefault();
+        event.returnValue = false;
+        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
+        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
+        this.scrollTop = Math.max(0, Math.min(total_scroll_height, scrollTop + event.deltaY));
+        this.scrollLeft = Math.max(0, Math.min(total_scroll_width, scrollLeft + event.deltaX));
+        this._on_scroll(event);
     }
 
     /**
-     * Touchmove must precalculate in addition to `_on_scroll` to prevent
-     * visual artifacts due to scrolling "inertia" on mobile browsers.  This has
-     * the unfortunate side-effect of disabling scroll intertia, but the
-     * alternative is a dodgy, glitchy mess.
+     * Touchmove/touchstart must precalculate in addition to `_on_scroll` to
+     * prevent visual artifacts due to scrolling "inertia" on mobile browsers.
+     * This has the unfortunate side-effect of disabling scroll intertia.
      *
      * @internal
      * @private
@@ -104,28 +107,22 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @returns
      */
     _on_touchmove(event) {
+        event.stopPropagation();
         event.preventDefault();
         event.returnValue = false;
-        const {clientWidth, clientHeight, scrollTop, scrollLeft} = this;
+        const {clientWidth, clientHeight} = this;
         const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
-        this.scrollTop = Math.min(total_scroll_height, scrollTop + (this._memo_touch_startY - event.touches[0].screenY));
-        this.scrollLeft = Math.min(total_scroll_width, scrollLeft + (this._memo_touch_startX - event.touches[0].screenX));
+        this.scrollTop = Math.min(total_scroll_height, this._memo_scroll_top + (this._memo_touch_startY - event.touches[0].pageY));
+        this.scrollLeft = Math.min(total_scroll_width, this._memo_scroll_left + (this._memo_touch_startX - event.touches[0].pageX));
         this._on_scroll(event);
     }
 
-    /**
-     * Memoize `touchstart` positions to calculate deltas, since these are not
-     * generated on `touchmove` events.
-     *
-     * @internal
-     * @private
-     * @memberof RegularViewEventModel
-     * @param {*} event
-     */
     _on_touchstart(event) {
-        this._memo_touch_startY = event.touches[0].screenY;
-        this._memo_touch_startX = event.touches[0].screenX;
+        this._memo_touch_startY = event.touches[0].pageY;
+        this._memo_touch_startX = event.touches[0].pageX;
+        this._memo_scroll_top = this.scrollTop;
+        this._memo_scroll_left = this.scrollLeft;
     }
 
     /**
@@ -158,9 +155,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 this._column_sizes.auto = [];
                 this._column_sizes.indices = [];
             } else {
-                delete this._column_sizes.override[metadata.size_key];
-                delete this._column_sizes.auto[metadata.size_key];
-                delete this._column_sizes.indices[metadata.size_key];
+                this._column_sizes.override[metadata.size_key] = undefined;
+                this._column_sizes.auto[metadata.size_key] = undefined;
+                this._column_sizes.indices[metadata.size_key] = undefined;
             }
 
             for (const row of event.shiftKey ? [this.table_model.header.cells[this.table_model.header.cells.length - 1], ...this.table_model.body.cells] : this.table_model.body.cells) {

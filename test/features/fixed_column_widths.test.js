@@ -16,7 +16,7 @@ describe.skip("fixed_column_widths.html", () => {
     describe("creates a `<table>` with fixed column widths", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/features/fixed_column_widths.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("fixed th has min-width", async () => {

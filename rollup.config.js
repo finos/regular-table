@@ -26,6 +26,23 @@ export default (args) => {
             },
         },
         {
+            input:  "src/less/sub-cell-scrolling.less",
+            output: {
+                dir: "dist/css",
+            },
+            plugins: [
+                postcss({
+                    inject: false,
+                    extract: "sub-cell-scrolling.css",
+                    sourceMap: true,
+                    minimize: !watch,
+                }),
+            ],
+            watch: {
+                clearScreen: false,
+            },
+        },
+        {
             input: "src/js/index.js",
             output: {
                 sourcemap: true,

@@ -113,10 +113,12 @@ export class RegularHeaderViewModel extends ViewModel {
                 }
                 th.removeAttribute("colspan");
             }
+
+            th.classList.toggle("rt-group-corner", x === undefined);
             if (metadata) {
-                metadata.x = x;
+                metadata.x = typeof x === "undefined" ? x : Math.floor(x);
                 metadata.column_header_y = d;
-                metadata.x0 = x0;
+                metadata.x0 = Math.floor(x0);
                 metadata._virtual_x = _virtual_x;
                 if (colspan === 1) {
                     metadata.row_header_x = size_key;

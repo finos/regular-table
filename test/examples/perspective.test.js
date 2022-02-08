@@ -16,7 +16,7 @@ describe("perspective.html", () => {
     describe("Loads a regular-table with perspective backend superstore example", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/perspective.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         describe("grouped column headers", () => {
@@ -53,7 +53,7 @@ describe("perspective.html", () => {
         describe("headers sorted when clicked", () => {
             beforeAll(async () => {
                 await page.click("thead tr:last-child th + th:nth-child(5)");
-                await page.waitFor("regular-table th.psp-header-sort-desc");
+                await page.waitForSelector("regular-table th.psp-header-sort-desc");
             });
 
             test("with the correct column header leaves", async () => {
@@ -78,7 +78,7 @@ describe("perspective.html", () => {
         describe.skip("headers sorted when clicked a 2nd time", () => {
             beforeAll(async () => {
                 await page.click("thead tr:last-child th:last-child");
-                await page.waitFor("regular-table th.psp-header-sort-asc");
+                await page.waitForSelector("regular-table th.psp-header-sort-asc");
             });
 
             test("with the correct column header leaves", async () => {

@@ -59,6 +59,7 @@ are also available.
   - [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
     - [`.invalidate()`](#invalidate)
   - [`.addEventListener()` Interaction](#addeventlistener-interaction)
+  - [Scrolling](#scrolling)
   - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
   - [Development](#development)
 
@@ -499,6 +500,21 @@ table.addStyleListener(() => {
 
 Advanced examples can be found in the [`examples`](https://github.com/jpmorganchase/regular-table/tree/master/examples)
 directory, and in the [`bl.ocks` example gallery](https://github.com/jpmorganchase/regular-table#examples).
+
+## Scrolling
+
+Because of the structure of the HTML `<table>` element, `<td>` elements must be
+aligned with their respective row/column, which causes default `<regular-table>`
+to only be able to scroll in increments of a cell, which can be irregular when
+column data is of different lengths.  Optionally, you may implement
+_sub-cell scrolling_ in CSS via `<regular-table>` slotted CSS variables.
+The provided `material.css` theme does exactly this, or you can implement this
+in any custom style by importing the `sub_cell_scrollling.css` stylesheet
+explicitly:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/regular-table/dist/css/sub-cell-scrolling.css">
+```
 
 ## Pivots, Filters, Sorts, and Column Expressions with `perspective`
 

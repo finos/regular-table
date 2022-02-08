@@ -16,11 +16,11 @@ describe("scrolling", () => {
     describe("scrolls down", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                await table.draw();
                 table.scrollTop = 1000;
-                await table.draw();
+                await table.draw.flush();
             }, table);
         });
 
@@ -33,24 +33,24 @@ describe("scrolling", () => {
         test("with the correct # of columns", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const num_cells = await page.evaluate((first_tr) => first_tr.children.length, first_tr);
-            expect(num_cells).toEqual(5);
+            expect(num_cells).toEqual(6);
         });
 
         test("with the first row's <td> test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.querySelectorAll("td")).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["40", "41", "42"]);
+            expect(cell_values).toEqual(["39", "40", "41", "42"]);
         });
     });
 
     describe("scrolls right", () => {
         beforeAll(async () => {
             const table = await page.$("regular-table");
+            await page.waitForSelector("regular-table table tbody tr td");
             await page.evaluate(async (table) => {
-                await table.draw();
                 table.scrollTop = 0;
                 table.scrollLeft = 1000;
-                await table.draw();
+                await table.draw.flush();
             }, table);
         });
 

@@ -16,7 +16,7 @@ describe("two_billion_rows.html", () => {
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("with the correct # of rows", async () => {
@@ -41,10 +41,11 @@ describe("two_billion_rows.html", () => {
     describe("scrolls down", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
-                await table.draw();
+                await table.draw.flush();
             }, table);
         });
 
@@ -57,17 +58,18 @@ describe("two_billion_rows.html", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["Group 200,000", "Row 200,002", "200,002", "200,003"]);
+            expect(cell_values).toEqual(["Group 200,000", "Row 200,001", "200,001", "200,002", "200,003"]);
         });
     });
 
     describe("scrolls right", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollLeft = 1000;
-                await table.draw();
+                await table.draw.flush();
             }, table);
         });
 
@@ -87,14 +89,14 @@ describe("two_billion_rows.html", () => {
     describe("scrolls via scrollToCell() method", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test.skip("https://github.com/jpmorganchase/regular-table/issues/15", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollToCell(0, 250500, 1000, 2000000000);
-                await table.draw();
+                await table.draw({invalid_viewport: true});
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
@@ -105,46 +107,48 @@ describe("two_billion_rows.html", () => {
     describe("scrolls down beyond bottom threshold", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = table.scrollHeight + 100000;
-                await table.draw();
+                await table.draw.flush();
             }, table);
         });
 
         test("with the correct # of rows", async () => {
             const tbody = await page.$("regular-table tbody");
             const num_rows = await page.evaluate((tbody) => tbody.children.length, tbody);
-            expect(num_rows).toEqual(2);
+            expect(num_rows).toEqual(3);
         });
 
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["Group 1,999,999,990", "Row 1,999,999,998", "1,999,999,998", "1,999,999,999"]);
+            expect(cell_values).toEqual(["Group 1,999,999,990", "Row 1,999,999,997", "1,999,999,997", "1,999,999,998", "1,999,999,999"]);
         });
     });
 
     describe("scrolls rights beyond right border threshold", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/two_billion_rows.html");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollLeft = table.scrollWidth + 100000;
-                await table.draw();
+                await table.draw.flush();
             }, table);
         });
 
         test("with the correct # of columns", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const num_cells = await page.evaluate((first_tr) => first_tr.children.length, first_tr);
-            expect(num_cells).toEqual(3);
+            expect(num_cells).toEqual(4);
         });
 
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["Group 0", "Row 0", "999"]);
+            expect(cell_values).toEqual(["Group 0", "Row 0", "998", "999"]);
         });
     });
 });

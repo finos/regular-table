@@ -41,6 +41,7 @@ class RegularTableElement extends RegularViewEventModel {
         this._initialized = false;
     }
 
+    /* eslint-disable */
     /**
      * For internal use by the Custom Elements API: "Invoked each time the
      * custom element is appended into a document-connected element".
@@ -50,6 +51,7 @@ class RegularTableElement extends RegularViewEventModel {
      * @private
      * @memberof RegularTableElement
      */
+    /* eslint-enable */
     connectedCallback() {
         if (!this._initialized) {
             this.create_shadow_dom();
@@ -195,8 +197,8 @@ class RegularTableElement extends RegularViewEventModel {
      * const header = table.getMeta({row_header_x: 1, y: 3}).row_header;
      * @public
      * @memberof RegularTableElement
-     * @param {HTMLTableCellElement|Partial<MetaData>} element - The child element
-     * of this `<regular-table>` for which to look up metadata, or a
+     * @param {HTMLTableCellElement|Partial<MetaData>} element - The child
+     * element of this `<regular-table>` for which to look up metadata, or a
      * coordinates-like object to refer to metadata by logical position.
      * @returns {MetaData} The metadata associated with the element.
      */
@@ -256,9 +258,17 @@ class RegularTableElement extends RegularViewEventModel {
      * @param {number} nrows - Total number of rows in the data model.
      */
     async scrollToCell(x, y, ncols, nrows) {
+        if (!this._view_cache) {
+            console.warn("data listener not configured");
+            return;
+        }
+
         const row_height = this._virtual_panel.offsetHeight / nrows;
-        this.scrollTop = row_height * y;
-        this.scrollLeft = (x / (this._max_scroll_column(ncols) || ncols)) * (this.scrollWidth - this.clientWidth);
+        this.scrollTop = row_height * y + 1;
+        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
+        const percent_left = x / this._max_scroll_column(ncols);
+        this.scrollLeft = Math.ceil(percent_left * total_scroll_width);
+        await new Promise(requestAnimationFrame);
         await this.draw.flush();
     }
 
@@ -316,9 +326,9 @@ class RegularTableElement extends RegularViewEventModel {
     __noop_jsdoc_hints() {
         if (false) {
             /**
-             * Draws this virtual panel, given an object of render options that allow
-             * the implementor to fine tune the individual render frames based on the
-             * interaction and previous render state.
+             * Draws this virtual panel, given an object of render options that
+             * allow the implementor to fine tune the individual render frames
+             * based on the interaction and previous render state.
              *
              * @public
              * @type {(opt?: DrawOptions) => void}
@@ -407,9 +417,10 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `<table>`, which is `x` + (Total Row Header Columns).
  * @property {(string|HTMLElement)[]} [row_header] - The `Array` for this `y` in
  * `DataResponse.row_headers`, if it was provided.
- * @property {(string|HTMLElement)[]} [column_header] - The `Array` for this `x` in
- * `DataResponse.column_headers`, if it was provided.
- * @property {(string|HTMLElement)} [value] - The value dispalyed in the cell or header.
+ * @property {(string|HTMLElement)[]} [column_header] - The `Array` for this `x`
+ * in `DataResponse.column_headers`, if it was provided.
+ * @property {(string|HTMLElement)} [value] - The value dispalyed in the cell or
+ * header.
  */
 
 /**
