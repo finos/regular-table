@@ -195,7 +195,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _calculate_column_range(num_columns, invalid_columns) {
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
-        const percent_left = Math.max(0, this.scrollLeft) / total_scroll_width;
+        const percent_left = Math.max(0, Math.ceil(this.scrollLeft)) / total_scroll_width;
         const max_scroll_column = this._max_scroll_column(num_columns);
         if (this._virtual_mode === "none" || this._virtual_mode === "vertical") {
             return {start_col: 0, end_col: Infinity};
