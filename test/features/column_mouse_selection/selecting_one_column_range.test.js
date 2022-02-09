@@ -21,7 +21,7 @@ describe("column_mouse_selection.html", () => {
     beforeAll(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
         await page.goto("http://localhost:8081/dist/features/column_mouse_selection.html");
-        await page.waitFor("regular-table table tbody tr td");
+        await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("selecting a column range", () => {
@@ -42,7 +42,7 @@ describe("column_mouse_selection.html", () => {
                 th.dispatchEvent(event);
             }, ths[11]);
 
-            await page.waitFor("regular-table td.mouse-selected-column");
+            await page.waitForSelector("regular-table td.mouse-selected-column");
             expect(await selectedColumns()).toEqual(["Column 2", "Column 3", "Column 4"]);
         });
     });

@@ -17,7 +17,7 @@ describe("web_worker.html", () => {
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/examples/web_worker.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("with the correct # of rows", async () => {
@@ -37,7 +37,7 @@ describe("web_worker.html", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/examples/web_worker.html");
             const table = await page.$("regular-table");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
             await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
                 await table.draw();
@@ -47,7 +47,7 @@ describe("web_worker.html", () => {
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["200,002", "200,003", "200,004", "200,005"]);
+            expect(cell_values).toEqual(["200,001", "200,002", "200,003", "200,004", "200,005"]);
         });
     });
 });

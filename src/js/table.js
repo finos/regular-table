@@ -59,10 +59,10 @@ export class RegularTableViewModel {
             const style = getComputedStyle(cell);
             if (style.boxSizing !== "border-box") {
                 offsetWidth = cell.clientWidth;
-                offsetWidth -= parseFloat(style.paddingLeft);
-                offsetWidth -= parseFloat(style.paddingRight);
+                offsetWidth -= style.paddingLeft ? parseFloat(style.paddingLeft) : 0;
+                offsetWidth -= style.paddingRight ? parseFloat(style.paddingRight) : 0;
             } else {
-                offsetWidth = parseFloat(window.getComputedStyle(cell).width);
+                offsetWidth = parseFloat(style.width);
             }
             this._column_sizes.row_height = this._column_sizes.row_height || row_height_cell.offsetHeight;
             this._column_sizes.indices[metadata.size_key] = offsetWidth;
@@ -79,7 +79,13 @@ export class RegularTableViewModel {
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const {width: container_width, height: container_height} = container_size;
         const {view, config} = view_cache;
-        let {data, row_headers, column_headers, metadata: data_listener_metadata} = await view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+        let {data, row_headers, column_headers, metadata: data_listener_metadata} = await view(
+            Math.floor(viewport.start_col),
+            Math.floor(viewport.start_row),
+            Math.ceil(viewport.end_col),
+            Math.ceil(viewport.end_row)
+        );
+
         const {start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0} = viewport;
 
         // pad row_headers for embedded renderer
@@ -94,11 +100,13 @@ export class RegularTableViewModel {
 
         view_cache.config.column_pivots = Array.from(Array(column_headers?.[0]?.length - 1 || 0).keys());
         view_cache.config.row_pivots = Array.from(Array(row_headers?.[0]?.length || 0).keys());
+        const sub_cell_offset = this._column_sizes.indices[(this._row_headers_length || 0) + Math.floor(viewport.start_col)] || 0;
 
         const view_state = {
             viewport_width: 0,
             selected_id,
             ridx_offset,
+            sub_cell_offset,
             x0: x0,
             x1: x1,
             y1: y1,
@@ -120,7 +128,7 @@ export class RegularTableViewModel {
                 row_headers,
                 first_col,
             };
-            const size_key = _virtual_x + x0;
+            const size_key = _virtual_x + Math.floor(x0);
             cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
@@ -171,7 +179,7 @@ export class RegularTableViewModel {
 
                     // Fetch the new data window extension and append it to the
                     // cached data page and continue.
-                    const new_col_req = view(viewport.start_col, viewport.start_row, viewport.end_col, viewport.end_row);
+                    const new_col_req = view(Math.floor(viewport.start_col), Math.floor(viewport.start_row), Math.ceil(viewport.end_col), Math.ceil(viewport.end_row));
                     yield undefined;
                     const new_col = await new_col_req;
 
@@ -208,7 +216,7 @@ export class RegularTableViewModel {
                 };
 
                 const x = dcidx + x0;
-                const size_key = _virtual_x + x0;
+                const size_key = _virtual_x + Math.floor(x0);
                 const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x);
                 cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key);
                 first_col = false;
@@ -218,10 +226,12 @@ export class RegularTableViewModel {
                     }
                 }
 
-                const last_measured_col_width = this._column_sizes.indices[_virtual_x + x0];
+                const last_measured_col_width = this._column_sizes.indices[_virtual_x + Math.floor(x0)];
                 if (last_measured_col_width) {
                     view_state.viewport_width += last_measured_col_width;
                 } else {
+                    // This is probably wrong since the column has yet to be
+                    // styled, but we'll use it as an estimate and recalc after.
                     view_state.viewport_width += cont_head.th?.offsetWidth || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0);
                 }
 
@@ -229,8 +239,11 @@ export class RegularTableViewModel {
                 _virtual_x++;
                 dcidx++;
 
-                if (view_state.viewport_width > container_width) {
-                    this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
+                if (view_state.viewport_width - view_state.sub_cell_offset > container_width) {
+                    this.body.clean({
+                        ridx: cont_body?.ridx || 0,
+                        cidx: _virtual_x,
+                    });
                     this.header.clean();
                     yield last_cells;
 
@@ -247,7 +260,7 @@ export class RegularTableViewModel {
                     // If there are still enough columns to fill the screen,
                     // completely end the iteration here, otherwise
                     // continue iterating to draw another column.
-                    if (view_state.viewport_width > container_width) {
+                    if (view_state.viewport_width - view_state.sub_cell_offset > container_width) {
                         return;
                     }
                 }

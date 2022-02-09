@@ -1,0 +1,43 @@
+
+// Optional CSS to implement micro-offset.
+regular-table {
+
+    tbody td,
+    thead th:not(.rt-group-corner) {
+        transform: translate(var(--regular-table--transform-x, 0px), 0);
+    }
+
+    tbody {
+        transform: translate(0, var(--regular-table--transform-y, 0px));
+    }
+
+    tbody tr:first-child {
+        td, th {
+            clip-path: polygon(
+                0 var(--regular-table--clip-y, 0),
+                0 100%,
+                100% 100%,
+                100% var(--regular-table--clip-y, 0)
+            );
+        }
+    }
+
+    tbody tr td:first-of-type {
+        clip-path: polygon(
+            var(--regular-table--clip-x, 0) 0,
+            var(--regular-table--clip-x, 0) 100%,
+            100% 100%,
+            100% 0
+        );
+    }
+
+    tbody tr:first-child td:first-of-type {
+        clip-path: polygon(
+            var(--regular-table--clip-x, 0) var(--regular-table--clip-y, 0),
+            var(--regular-table--clip-x, 0) 100%,
+            100% 100%,
+            100% var(--regular-table--clip-y, 0)
+        );
+    }
+
+}

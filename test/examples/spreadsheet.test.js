@@ -90,7 +90,7 @@ describe("spreadsheet.html", () => {
 
         beforeEach(async () => {
             await page.goto("http://localhost:8081/dist/examples/spreadsheet.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("initializes with focus on (0,0)", async () => {
@@ -101,7 +101,7 @@ describe("spreadsheet.html", () => {
             for (const td of tr) {
                 cell_values.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cell_values).toEqual(["Hello, World!", "", ""]);
+            expect(cell_values).toEqual(["Hello, World!", "", "", "", "", "", ""]);
         });
 
         test("scrolls as right arrow is down", async () => {
@@ -131,7 +131,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
+            expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -149,7 +149,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
+            expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -167,7 +167,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
+            expect(cells).toEqual(["", "", "", "", "", "Hello, World!"]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -184,7 +184,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["Hello, World!", "", ""]);
+            expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -195,7 +195,7 @@ describe("spreadsheet.html", () => {
     describe("Makes a simple edit", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/spreadsheet.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 const cell = table.querySelector("table tbody").children[2].children[1];
@@ -215,7 +215,7 @@ describe("spreadsheet.html", () => {
             for (const td of tr) {
                 cell_values.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cell_values).toEqual(["Hello, World!", "", ""]);
+            expect(cell_values).toEqual(["Hello, World!", "", "", "", "", "", ""]);
         });
 
         test("next cell has focus", async () => {
@@ -227,7 +227,7 @@ describe("spreadsheet.html", () => {
             beforeAll(async () => {
                 const table = await page.$("regular-table");
                 await page.evaluate(async (table) => {
-                    table.scrollTop = table.scrollTop + 20;
+                    table.scrollTop = table.scrollTop + 30;
                     await table.draw();
                 }, table);
             });
@@ -238,7 +238,7 @@ describe("spreadsheet.html", () => {
                 for (const td of tr) {
                     cell_values.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(cell_values).toEqual(["Hello, World!", "", ""]);
+                expect(cell_values).toEqual(["Hello, World!", "", "", "", "", "", ""]);
             });
         });
     });
@@ -246,7 +246,7 @@ describe("spreadsheet.html", () => {
     describe("Evaluates an expression", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/spreadsheet.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 for (const [x, y, v] of [
@@ -267,42 +267,42 @@ describe("spreadsheet.html", () => {
         });
 
         test("displays evaluated expression", async () => {
-            const tr2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
+            const tr2 = await page.$$("regular-table tbody tr:nth-of-type(3) td");
             const tds2 = [];
             for (const td of tr2) {
                 tds2.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(tds2).toEqual(["1", "", "", "", "", ""]);
-            const tr3 = await page.$$("regular-table tbody tr:nth-of-type(3) td");
+            expect(tds2).toEqual(["1", "", "", "", "", "", ""]);
+            const tr3 = await page.$$("regular-table tbody tr:nth-of-type(4) td");
             const tds3 = [];
             for (const td of tr3) {
                 tds3.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(tds3).toEqual(["2", "3", "", "", "", ""]);
+            expect(tds3).toEqual(["2", "3", "", "", "", "", ""]);
         });
 
         describe("on scroll", () => {
             beforeAll(async () => {
                 const table = await page.$("regular-table");
                 await page.evaluate(async (table) => {
-                    table.scrollTop = table.scrollTop + 20;
+                    table.scrollTop = table.scrollTop + 25;
                     await table.draw();
                 }, table);
             });
 
             test("preserves evaluated expression", async () => {
-                const tr1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");
+                const tr1 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
                 const tds1 = [];
                 for (const td of tr1) {
                     tds1.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds1).toEqual(["1", "", "", "", "", ""]);
-                const tr2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
+                expect(tds1).toEqual(["1", "", "", "", "", "", ""]);
+                const tr2 = await page.$$("regular-table tbody tr:nth-of-type(3) td");
                 const tds2 = [];
                 for (const td of tr2) {
                     tds2.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds2).toEqual(["2", "3", "", "", "", ""]);
+                expect(tds2).toEqual(["2", "3", "", "", "", "", ""]);
             });
         });
     });

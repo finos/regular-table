@@ -16,7 +16,7 @@ describe("file_browser.html", () => {
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/dist/examples/file_browser.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("with the first row's cell test correct", async () => {

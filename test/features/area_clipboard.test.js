@@ -105,7 +105,7 @@ describe.skip("area_clipboard.html", () => {
         // const context = await browser.defaultBrowserContext();
         // await context.overridePermissions("http://localhost:8081/dist/examples/area_clipboard.html", ["clipboard-write", "clipboard-read"]);
         await page.goto("http://localhost:8081/dist/features/area_clipboard.html");
-        await page.waitFor("regular-table table tbody tr td");
+        await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("copy/paste", () => {

@@ -10,9 +10,6 @@
 
 import {ViewModel} from "./view_model";
 
-// const ROW_HEADER_RENDER_MODE = "rowspan";
-// console.assert(["none", "rowspan", "colspan"].indexOf(ROW_HEADER_RENDER_MODE) > -1, "Invalid ROW_HEADER_RENDERER_MODE");
-
 /**
  * <tbody> view model.
  *
@@ -22,7 +19,7 @@ export class RegularBodyViewModel extends ViewModel {
     _draw_td(tagName, ridx, val, cidx, {column_name}, {ridx_offset}, size_key) {
         const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
-        metadata.y = ridx + ridx_offset;
+        metadata.y = ridx + Math.floor(ridx_offset);
         metadata.size_key = size_key;
         if (tagName === "TD") {
             metadata.column_header = column_name;
@@ -39,11 +36,13 @@ export class RegularBodyViewModel extends ViewModel {
             td.style.maxWidth = "";
         }
 
-        if (val instanceof HTMLElement) {
-            td.textContent = "";
-            td.appendChild(val);
-        } else {
-            td.textContent = val;
+        if (metadata.value !== val) {
+            if (val instanceof HTMLElement) {
+                td.textContent = "";
+                td.appendChild(val);
+            } else {
+                td.textContent = val;
+            }
         }
 
         metadata.value = val;
@@ -87,10 +86,12 @@ export class RegularBodyViewModel extends ViewModel {
                         obj.td.removeAttribute("colspan");
                         obj.metadata.row_header = val;
                         obj.metadata.row_header_x = i;
-                        obj.metadata.x0 = x0;
-                        obj.metadata.y0 = view_state.ridx_offset;
-                        obj.metadata.y1 = view_state.y1;
+                        obj.metadata.y0 = Math.floor(view_state.ridx_offset);
+                        obj.metadata.y1 = Math.ceil(view_state.y1);
                         obj.metadata._virtual_x = i;
+                        if (typeof x0 !== "undefined") {
+                            obj.metadata.x0 = Math.floor(x0);
+                        }
                         ridx_offset[i] = 1;
                         cidx_offset[ridx] = 1;
                         tds[i] = obj;
@@ -101,15 +102,18 @@ export class RegularBodyViewModel extends ViewModel {
                         obj.metadata.user = column_data_listener_metadata[ridx];
                     }
 
-                    obj.metadata.x = x;
-                    obj.metadata.x0 = x0;
-                    obj.metadata.x1 = view_state.x1;
+                    obj.metadata.x = typeof x === "undefined" ? x : Math.floor(x);
+                    obj.metadata.x1 = Math.ceil(view_state.x1);
                     obj.metadata.row_header = id || [];
-                    obj.metadata.y0 = view_state.ridx_offset;
-                    obj.metadata.y1 = view_state.y1;
-                    obj.metadata.dx = x - x0;
-                    obj.metadata.dy = obj.metadata.y - obj.metadata.y0;
+                    obj.metadata.y0 = Math.floor(view_state.ridx_offset);
+                    obj.metadata.y1 = Math.ceil(view_state.y1);
+                    obj.metadata.dx = Math.floor(x - x0);
+                    obj.metadata.dy = obj.metadata.y - Math.floor(obj.metadata.y0);
                     obj.metadata._virtual_x = cidx;
+                    if (typeof x0 !== "undefined") {
+                        obj.metadata.x0 = Math.floor(x0);
+                    }
+
                     tds[0] = obj;
                 }
 

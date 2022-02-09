@@ -12,7 +12,7 @@ describe("getMeta()", () => {
     beforeAll(async () => {
         await page.setViewport({width: 200, height: 200});
         await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
-        await page.waitFor("regular-table table tbody tr td");
+        await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("returns the correct metadata", () => {
@@ -96,7 +96,7 @@ describe("getMeta()", () => {
                     value: "16",
                     x: 16,
                     x0: 16,
-                    x1: 21,
+                    x1: 22,
                     y: 0,
                     y0: 0,
                     y1: 10,
@@ -143,7 +143,7 @@ describe("getMeta()", () => {
                 await page.evaluate(async (table) => {
                     table.scrollLeft = 0;
                     table.scrollTop = 1000;
-                    await table.draw();
+                    await table.draw.flush();
                 }, table);
             });
 
@@ -154,17 +154,17 @@ describe("getMeta()", () => {
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 0", "Column 0"],
-                    row_header: ["Group 40", "Row 40"],
+                    row_header: ["Group 30", "Row 39"],
                     dx: 0,
                     dy: 0,
                     size_key: 2,
                     _virtual_x: 2,
-                    value: "40",
+                    value: "39",
                     x: 0,
                     x0: 0,
                     x1: 5,
-                    y: 40,
-                    y0: 40,
+                    y: 39,
+                    y0: 39,
                     y1: 50,
                 });
             });
@@ -175,13 +175,13 @@ describe("getMeta()", () => {
                     return JSON.stringify(table.getMeta(document.querySelector("tbody th")));
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
-                    row_header: ["Group 40", "Row 40"],
+                    row_header: ["Group 30", "Row 39"],
                     size_key: 0,
                     _virtual_x: 0,
-                    value: "Group 40",
+                    value: "Group 30",
                     row_header_x: 0,
-                    y: 40,
-                    y0: 40,
+                    y: 39,
+                    y0: 39,
                     y1: 50,
                 });
             });
@@ -193,7 +193,7 @@ describe("getMeta()", () => {
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 0", "Column 0"],
-                    size_key: 3,
+                    size_key: 4,
                     _virtual_x: 2,
                     value: "Group 0",
                     column_header_y: 0,

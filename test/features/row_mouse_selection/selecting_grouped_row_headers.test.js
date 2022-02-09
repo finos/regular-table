@@ -21,7 +21,7 @@ describe("row_mouse_selection.html", () => {
     beforeAll(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
         await page.goto("http://localhost:8081/dist/features/row_mouse_selection.html");
-        await page.waitFor("regular-table table tbody tr td");
+        await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("selecting a group range", () => {
@@ -41,7 +41,7 @@ describe("row_mouse_selection.html", () => {
                     th.dispatchEvent(event);
                 }, groupHeader10);
 
-                await page.waitFor("regular-table td.mouse-selected-row");
+                await page.waitForSelector("regular-table td.mouse-selected-row");
                 expect(await selectedRows()).toEqual([
                     "Group 0",
                     "Row 0",
@@ -89,7 +89,7 @@ describe("row_mouse_selection.html", () => {
                     th.dispatchEvent(event);
                 }, rowHeader11);
 
-                await page.waitFor("regular-table td.mouse-selected-row");
+                await page.waitForSelector("regular-table td.mouse-selected-row");
                 expect(await selectedRows()).toEqual(["Row 0", "Row 1", "Row 2", "Row 3", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9", "Row 10", "Row 11"]);
             });
         });

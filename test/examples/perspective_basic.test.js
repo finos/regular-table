@@ -16,7 +16,7 @@ describe("perspective_basic.html", () => {
     describe("creates a `<table>` body when attached to `document`", () => {
         beforeAll(async () => {
             await page.goto("http://localhost:8081/examples/perspective_basic.html");
-            await page.waitFor("regular-table table tbody tr td");
+            await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("with the first row's cells from superstore.arrow", async () => {
