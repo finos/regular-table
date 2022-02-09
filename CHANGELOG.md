@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.5.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.3...HEAD)
+
+**Implemented enhancements:**
+
+- Sub-cell scrolling [\#151](https://github.com/jpmorganchase/regular-table/pull/151) ([texodus](https://github.com/texodus))
+
+## [v0.4.3](https://github.com/jpmorganchase/regular-table/tree/v0.4.3) (2022-02-06)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.2...v0.4.3)
+
+**Fixed bugs:**
+
+- Fix `virtual_mode` CSS bug [\#150](https://github.com/jpmorganchase/regular-table/pull/150) ([texodus](https://github.com/texodus))
+
 ## [v0.4.3](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.2...HEAD)
