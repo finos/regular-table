@@ -66,10 +66,11 @@ export class RegularTableViewModel {
             }
             this._column_sizes.row_height = this._column_sizes.row_height || row_height_cell.offsetHeight;
             this._column_sizes.indices[metadata.size_key] = offsetWidth;
-            const is_override = this._column_sizes.override.hasOwnProperty(metadata.size_key);
+            const is_override = this._column_sizes.override[metadata.size_key] !== undefined;
             if (offsetWidth && !is_override) {
                 this._column_sizes.auto[metadata.size_key] = offsetWidth;
             }
+
             if (cell.style.minWidth === "0px") {
                 cell.style.minWidth = `${offsetWidth}px`;
             }

@@ -286,20 +286,19 @@ necessary and providing a small buffer to the edge of the visible table.
 ```javascript
 const SCROLL_AHEAD = 4;
 
-function moveSelection(active_cell, dx, dy) {
+async function moveSelection(active_cell, dx, dy) {
     const meta = table.getMeta(active_cell);
-
     if (dx !== 0) {
         if (meta.x + dx < NUM_COLUMNS && 0 <= meta.x + dx) {
             SELECTED_POSITION.x = meta.x + dx;
         }
         if (meta.x1 <= SELECTED_POSITION.x + SCROLL_AHEAD) {
-            table.scrollToCell(meta.x0 + 2, meta.y0, NUM_COLUMNS, NUM_ROWS);
+            await table.scrollToCell(meta.x0 + 2, meta.y0, NUM_COLUMNS, NUM_ROWS);
         } else if (SELECTED_POSITION.x - SCROLL_AHEAD < meta.x0) {
             if (0 < meta.x0 - 1) {
-                table.scrollToCell(meta.x0 - 1, meta.y0, NUM_COLUMNS, NUM_ROWS);
+                await table.scrollToCell(meta.x0 - 1, meta.y0, NUM_COLUMNS, NUM_ROWS);
             } else {
-                table.scrollToCell(0, meta.y0, NUM_COLUMNS, NUM_ROWS);
+                await table.scrollToCell(0, meta.y0, NUM_COLUMNS, NUM_ROWS);
             }
         }
     }
@@ -309,12 +308,12 @@ function moveSelection(active_cell, dx, dy) {
             SELECTED_POSITION.y = meta.y + dy;
         }
         if (meta.y1 <= SELECTED_POSITION.y + SCROLL_AHEAD) {
-            table.scrollToCell(meta.x0, meta.y0 + 1, NUM_COLUMNS, NUM_ROWS);
+            await table.scrollToCell(meta.x0, meta.y0 + 1, NUM_COLUMNS, NUM_ROWS);
         } else if (SELECTED_POSITION.y - SCROLL_AHEAD + 2 < meta.y0) {
             if (0 < meta.y0 - 1) {
-                table.scrollToCell(meta.x0, meta.y0 - 1, NUM_COLUMNS, NUM_ROWS);
+                await table.scrollToCell(meta.x0, meta.y0 - 1, NUM_COLUMNS, NUM_ROWS);
             } else {
-                table.scrollToCell(meta.x0, 0, NUM_COLUMNS, NUM_ROWS);
+                await table.scrollToCell(meta.x0, 0, NUM_COLUMNS, NUM_ROWS);
             }
         }
     }
