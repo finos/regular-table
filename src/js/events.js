@@ -30,8 +30,10 @@ const IOS_DISABLE_OVERSCROLL = false;
  */
 export class RegularViewEventModel extends RegularVirtualTableViewModel {
     register_listeners() {
-        this.addEventListener("mousedown", this._on_click.bind(this));
-        this.addEventListener("dblclick", this._on_dblclick.bind(this));
+        // // TODO see `_on_click_or_dblclick` method jsdoc
+        // this.addEventListener("dblclick", this._on_dblclick.bind(this));
+
+        this.addEventListener("mousedown", this._on_click_or_dblclick.bind(this));
         this.addEventListener("scroll", this._on_scroll.bind(this), {
             passive: true,
         });
@@ -204,6 +206,22 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         if (is_resize) {
             this._on_resize_column(event, element, metadata);
             event.stopImmediatePropagation();
+        }
+    }
+
+    /**
+     * `dblclick` event does not work reliably for some reason so dispatch this
+     * event in JavaScript instead.
+     * @param {`*`} event
+     */
+    async _on_click_or_dblclick(event) {
+        const now = performance.now();
+        if (this._last_clicked_time && now - this._last_clicked_time < 500) {
+            this._last_clicked_time = now;
+            await this._on_dblclick(event);
+        } else {
+            this._last_clicked_time = now;
+            await this._on_click(event);
         }
     }
 

@@ -14,9 +14,6 @@ module.exports = {
     ],
     plugins: [
         ["@babel/plugin-proposal-decorators", {legacy: true}],
-        "transform-custom-element-classes",
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-proposal-optional-chaining",
         "./scripts/babel-plugin-html-template.js",
     ],
     sourceMaps: true,

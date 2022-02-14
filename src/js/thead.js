@@ -18,6 +18,12 @@ import {ViewModel} from "./view_model";
  * @class RegularHeaderViewModel
  */
 export class RegularHeaderViewModel extends ViewModel {
+    constructor(...args) {
+        super(...args);
+        this._group_header_cache = [];
+        this._offset_cache = [];
+    }
+
     _draw_group_th(offset_cache, d, column) {
         const th = this._get_cell("TH", d, offset_cache[d] || 0);
         offset_cache[d] += 1;
@@ -77,9 +83,6 @@ export class RegularHeaderViewModel extends ViewModel {
     get_column_header(cidx) {
         return this._get_cell("TH", this.num_rows() - 1, cidx);
     }
-
-    _group_header_cache = [];
-    _offset_cache = [];
 
     draw(alias, parts, colspan, x, size_key, x0, _virtual_x) {
         const header_levels = parts?.length; //config.column_pivots.length + 1;

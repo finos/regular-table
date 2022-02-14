@@ -108,6 +108,21 @@ class DataModel {
         this.columns = this._createColumns();
         this._data = this.columns.map(({ key }) => this._dataset[key]);
         this._columnHeaders = this.columns.map(({ value }) => [value]);
+
+        this.dataListener = (x0, y0, x1, y1) => {
+            const data = this._data
+                .slice(x0, x1)
+                .map((col) => col.slice(y0, y1));
+            const column_headers = this._columnHeaders.slice(x0, x1);
+            const num_columns = this._data.length;
+            const num_rows = this._data[0].length;
+            return {
+                num_rows,
+                num_columns,
+                column_headers,
+                data,
+            };
+        };
     }
 
     _createTextCells(text) {
@@ -135,19 +150,6 @@ class DataModel {
             {}
         );
     }
-
-    dataListener = (x0, y0, x1, y1) => {
-        const data = this._data.slice(x0, x1).map((col) => col.slice(y0, y1));
-        const column_headers = this._columnHeaders.slice(x0, x1);
-        const num_columns = this._data.length;
-        const num_rows = this._data[0].length;
-        return {
-            num_rows,
-            num_columns,
-            column_headers,
-            data,
-        };
-    };
 }
 ```
 

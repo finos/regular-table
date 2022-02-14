@@ -419,18 +419,11 @@ declare module 'regular-table' {
      */
     export type DataListener = (x0: number, y0: number, x1: number, y1: number) => Promise<DataResponse>;
     /**
-     * Options for the draw method. `reset_scroll_position` will not prevent
-     * the viewport from moving as `draw()` may change the dimensions of the
-     * virtual_panel (and thus, absolute scroll offset).  This calls
-     * `reset_scroll`, which will trigger `_on_scroll` and ultimately `draw()`
-     * again;  however, this call to `draw()` will be for the same viewport
-     * and will not actually cause a render.
+     * Options for the draw method.
      */
     export type DrawOptions = {
         invalid_viewport?: boolean;
         preserve_width?: boolean;
-        reset_scroll_position?: boolean;
-        swap?: boolean;
     };
     /**
      * Public summary of table_model type.

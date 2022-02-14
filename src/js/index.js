@@ -34,7 +34,7 @@ class RegularTableElement extends RegularViewEventModel {
     constructor() {
         super();
         /** @private */
-        this._column_sizes = {auto: {}, override: {}, indices: []};
+        this._column_sizes = {auto: [], override: [], indices: []};
         /** @private */
         this._style_callbacks = [];
         /** @private */
@@ -104,8 +104,8 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      */
     _resetAutoSize() {
-        this._column_sizes.auto = {};
-        this._column_sizes.override = {};
+        this._column_sizes.auto = [];
+        this._column_sizes.override = [];
         this._column_sizes.indices = [];
 
         for (let i = 0; i < this.table_model.header.num_columns(); i++) {
@@ -265,9 +265,13 @@ class RegularTableElement extends RegularViewEventModel {
 
         const row_height = this._virtual_panel.offsetHeight / nrows;
         this.scrollTop = row_height * y + 1;
-        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - this._container_size.width);
-        const percent_left = x / this._max_scroll_column(ncols);
-        this.scrollLeft = Math.ceil(percent_left * total_scroll_width);
+        let scroll_left = 0;
+        while (x > 0) {
+            x--;
+            scroll_left += this._column_sizes.indices[x] || 60;
+        }
+
+        this.scrollLeft = Math.ceil(scroll_left);
         await new Promise(requestAnimationFrame);
         await this.draw.flush();
     }
@@ -486,20 +490,13 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  */
 
 /**
- * Options for the draw method. `reset_scroll_position` will not prevent
- * the viewport from moving as `draw()` may change the dimensions of the
- * virtual_panel (and thus, absolute scroll offset).  This calls
- * `reset_scroll`, which will trigger `_on_scroll` and ultimately `draw()`
- * again;  however, this call to `draw()` will be for the same viewport
- * and will not actually cause a render.
+ * Options for the draw method.
  *
  * @public
  * @typedef DrawOptions
  * @type {object}
  * @property {boolean} [invalid_viewport]
  * @property {boolean} [preserve_width]
- * @property {boolean} [reset_scroll_position]
- * @property {boolean} [swap]
  */
 
 /**

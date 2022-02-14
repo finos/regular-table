@@ -126,16 +126,16 @@ describe("spreadsheet.html", () => {
             keydownDownArrow(table, 5);
             await sayHello(table);
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(4) td");
             const cells = [];
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
             expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
+            const ths = await page.$$("regular-table tbody tr:nth-of-type(4) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("5");
+            expect(th).toEqual("6");
         });
 
         test("scrolls down and back up", async () => {
@@ -159,7 +159,7 @@ describe("spreadsheet.html", () => {
         test("scrolls right and back left", async () => {
             const table = await page.$("regular-table");
             keydownRightArrow(table, 10);
-            keydownLeftArrow(table, 5);
+            keydownLeftArrow(table, 7);
             await sayHello(table);
 
             const tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
@@ -167,7 +167,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["", "", "", "", "", "Hello, World!"]);
+            expect(cells).toEqual(["", "", "", "Hello, World!"]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -179,16 +179,16 @@ describe("spreadsheet.html", () => {
             keypressReturn(table, 5);
             await sayHello(table);
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(4) td");
             const cells = [];
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
             expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
+            const ths = await page.$$("regular-table tbody tr:nth-of-type(4) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("5");
+            expect(th).toEqual("6");
         });
     });
 
@@ -272,13 +272,13 @@ describe("spreadsheet.html", () => {
             for (const td of tr2) {
                 tds2.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(tds2).toEqual(["1", "", "", "", "", "", ""]);
+            expect(tds2).toEqual(["1", "", "", ""]);
             const tr3 = await page.$$("regular-table tbody tr:nth-of-type(4) td");
             const tds3 = [];
             for (const td of tr3) {
                 tds3.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(tds3).toEqual(["2", "3", "", "", "", "", ""]);
+            expect(tds3).toEqual(["2", "3", "", ""]);
         });
 
         describe("on scroll", () => {
@@ -296,13 +296,13 @@ describe("spreadsheet.html", () => {
                 for (const td of tr1) {
                     tds1.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds1).toEqual(["1", "", "", "", "", "", ""]);
+                expect(tds1).toEqual(["1", "", "", ""]);
                 const tr2 = await page.$$("regular-table tbody tr:nth-of-type(3) td");
                 const tds2 = [];
                 for (const td of tr2) {
                     tds2.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds2).toEqual(["2", "3", "", "", "", "", ""]);
+                expect(tds2).toEqual(["2", "3", "", ""]);
             });
         });
     });
