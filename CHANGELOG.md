@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.1](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.0...HEAD)
+
+**Merged pull requests:**
+
+- Linear column scrolling [\#152](https://github.com/jpmorganchase/regular-table/pull/152) ([texodus](https://github.com/texodus))
+
 ## [v0.5.0](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.4.3...HEAD)
