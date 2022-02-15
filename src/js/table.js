@@ -99,7 +99,7 @@ export class RegularTableViewModel {
             });
         }
 
-        view_cache.config.column_pivots = Array.from(Array(column_headers?.[0]?.length - 1 || 0).keys());
+        view_cache.config.column_pivots = Array.from(Array(column_headers?.[0]?.length || 0).keys());
         view_cache.config.row_pivots = Array.from(Array(row_headers?.[0]?.length || 0).keys());
         const sub_cell_offset = this._column_sizes.indices[(this._row_headers_length || 0) + Math.floor(viewport.start_col)] || 0;
 
@@ -133,7 +133,7 @@ export class RegularTableViewModel {
             cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length + 1).fill(""), 1, undefined, i, x0, i));
+                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i));
             }
             first_col = false;
             view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);

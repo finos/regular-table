@@ -169,15 +169,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     _calculate_row_range(nrows) {
         const {height} = this._container_size;
         const row_height = this._column_sizes.row_height || 19;
-        const header_levels = this._view_cache.config.column_pivots.length + 1;
-        // TODO use cached height?
+        const header_levels = this._view_cache.config.column_pivots.length;
         const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.clientHeight);
         const percent_scroll = Math.max(this.scrollTop, 0) / total_scroll_height;
-        const virtual_panel_row_height = height / row_height;
-        const relative_nrows = this._nrows || 0;
-        const scroll_rows = Math.max(0, relative_nrows + (header_levels - virtual_panel_row_height));
-        let start_row = scroll_rows * percent_scroll;
-        let end_row = Math.min(start_row + virtual_panel_row_height, nrows);
+        const virtual_panel_row_height = height / row_height - header_levels;
+        const relative_nrows = nrows || 0;
+        const scroll_rows = Math.max(0, Math.ceil(relative_nrows - virtual_panel_row_height));
+        const start_row = scroll_rows * percent_scroll;
+        const end_row = Math.min(start_row + virtual_panel_row_height, nrows);
         return {start_row, end_row};
     }
 
@@ -330,7 +329,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _update_virtual_panel_height(nrows) {
         const {row_height = 19} = this._column_sizes;
-        const header_height = this.table_model.header.num_rows() * row_height;
+        const header_height = this._view_cache.config.column_pivots.length * row_height;
         let virtual_panel_px_size;
         if (this._virtual_mode === "horizontal" || this._virtual_mode === "none") {
             virtual_panel_px_size = nrows * row_height + header_height;
