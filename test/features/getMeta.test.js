@@ -99,7 +99,7 @@ describe("getMeta()", () => {
                     x1: 22,
                     y: 0,
                     y0: 0,
-                    y1: 10,
+                    y1: 8,
                 });
             });
 
@@ -116,7 +116,7 @@ describe("getMeta()", () => {
                     row_header_x: 0,
                     y: 0,
                     y0: 0,
-                    y1: 10,
+                    y1: 8,
                 });
             });
 
@@ -165,7 +165,7 @@ describe("getMeta()", () => {
                     x1: 5,
                     y: 39,
                     y0: 39,
-                    y1: 50,
+                    y1: 48,
                 });
             });
 
@@ -182,7 +182,7 @@ describe("getMeta()", () => {
                     row_header_x: 0,
                     y: 39,
                     y0: 39,
-                    y1: 50,
+                    y1: 48,
                 });
             });
 

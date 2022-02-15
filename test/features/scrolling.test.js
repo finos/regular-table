@@ -27,7 +27,7 @@ describe("scrolling", () => {
         test("with the correct # of rows", async () => {
             const tbody = await page.$("regular-table tbody");
             const num_rows = await page.evaluate((tbody) => tbody.children.length, tbody);
-            expect(num_rows).toEqual(10);
+            expect(num_rows).toEqual(9);
         });
 
         test("with the correct # of columns", async () => {
@@ -57,7 +57,7 @@ describe("scrolling", () => {
         test("with the correct # of rows", async () => {
             const tbody = await page.$("regular-table tbody");
             const num_rows = await page.evaluate((tbody) => tbody.children.length, tbody);
-            expect(num_rows).toEqual(10);
+            expect(num_rows).toEqual(8);
         });
 
         test("with the correct # of columns", async () => {

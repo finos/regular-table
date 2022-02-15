@@ -51,8 +51,7 @@ describe("2d_array.html", () => {
         test("to (0, 1)", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                table.scrollToCell(0, 1, 3, 15);
-                await table.draw({invalid_viewport: true});
+                await table.scrollToCell(0, 1, 3, 15);
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
@@ -62,8 +61,7 @@ describe("2d_array.html", () => {
         test("to (0, 4)", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                table.scrollToCell(0, 3, 3, 15);
-                await table.draw({invalid_viewport: true});
+                await table.scrollToCell(0, 3, 3, 15);
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
