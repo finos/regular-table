@@ -63,7 +63,7 @@ describe("scrollToCell", () => {
             const meta = await page.evaluate((table) => {
                 return table.getMeta(document.querySelector("td"));
             }, table);
-            expect(meta.y).toEqual(0);
+            expect(meta.y).toEqual(1);
         });
 
         test("for scrollToCell position {x: 211, y: 647}", async () => {

@@ -266,7 +266,7 @@ class RegularTableElement extends RegularViewEventModel {
         const body_height = this._table_clip.offsetHeight - header_height;
         const row_height_offset = body_height % viewport_row_height;
         let real_row_height = (this._virtual_panel.offsetHeight - row_height_offset) / this._nrows;
-        this.scrollTop = real_row_height * y;
+        this.scrollTop = Math.ceil(real_row_height * y);
 
         let scroll_left = 0;
         while (x > 0) {
