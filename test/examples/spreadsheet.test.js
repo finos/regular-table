@@ -22,46 +22,52 @@ describe("spreadsheet.html", () => {
                 event.initEvent("keypress", false, true);
                 event.ctrlKey = true;
                 event.keyCode = 13;
-                table.dispatchEvent(event);
+                target.dispatchEvent(event);
                 await table.draw();
             }, table);
         };
 
         const keypressReturn = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keypress", false, true);
-                    event.ctrlKey = true;
-                    event.keyCode = 13;
-                    table.dispatchEvent(event);
-                    await table.draw();
-                }, table);
-            });
+            await Promise.all(
+                Array.from(Array(times)).map(async () => {
+                    await page.evaluate(async (table) => {
+                        const event = document.createEvent("HTMLEvents");
+                        event.initEvent("keypress", false, true);
+                        event.ctrlKey = true;
+                        event.keyCode = 13;
+                        table.dispatchEvent(event);
+                        await table.draw();
+                    }, table);
+                })
+            );
         };
 
         const keydownLeftArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 37;
-                    table.dispatchEvent(event);
-                    await table.draw();
-                }, table);
-            });
+            await Promise.all(
+                Array.from(Array(times)).map(async () => {
+                    await page.evaluate(async (table) => {
+                        const event = document.createEvent("HTMLEvents");
+                        event.initEvent("keydown", false, true);
+                        event.keyCode = 37;
+                        table.dispatchEvent(event);
+                        await table.draw();
+                    }, table);
+                })
+            );
         };
 
         const keydownUpArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 38;
-                    table.dispatchEvent(event);
-                    await table.draw();
-                }, table);
-            });
+            await Promise.all(
+                Array.from(Array(times)).map(async () => {
+                    await page.evaluate(async (table) => {
+                        const event = document.createEvent("HTMLEvents");
+                        event.initEvent("keydown", false, true);
+                        event.keyCode = 38;
+                        table.dispatchEvent(event);
+                        await table.draw();
+                    }, table);
+                })
+            );
         };
 
         const keydownRightArrow = async (table, times = 1) => {
@@ -77,15 +83,17 @@ describe("spreadsheet.html", () => {
         };
 
         const keydownDownArrow = async (table, times = 1) => {
-            Array.from(Array(times)).forEach(async () => {
-                await page.evaluate(async (table) => {
-                    const event = document.createEvent("HTMLEvents");
-                    event.initEvent("keydown", false, true);
-                    event.keyCode = 40;
-                    table.dispatchEvent(event);
-                    await table.draw();
-                }, table);
-            });
+            await Promise.all(
+                Array.from(Array(times)).map(async () => {
+                    await page.evaluate(async (table) => {
+                        const event = document.createEvent("HTMLEvents");
+                        event.initEvent("keydown", false, true);
+                        event.keyCode = 40;
+                        table.dispatchEvent(event);
+                        await table.draw();
+                    }, table);
+                })
+            );
         };
 
         beforeEach(async () => {
@@ -123,25 +131,26 @@ describe("spreadsheet.html", () => {
 
         test("scrolls as down arrow is down", async () => {
             const table = await page.$("regular-table");
-            keydownDownArrow(table, 5);
+            await keydownDownArrow(table, 5);
             await sayHello(table);
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(4) td");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
             const cells = [];
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
+
             expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(4) th");
+            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("6");
+            expect(th).toEqual("5");
         });
 
         test("scrolls down and back up", async () => {
             const table = await page.$("regular-table");
-            keydownDownArrow(table, 5);
-            keydownUpArrow(table, 2);
+            await keydownDownArrow(table, 5);
+            await keydownUpArrow(table, 2);
             await sayHello(table);
 
             const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
@@ -176,19 +185,19 @@ describe("spreadsheet.html", () => {
 
         test("scrolls as return is pressed", async () => {
             const table = await page.$("regular-table");
-            keypressReturn(table, 5);
+            keypressReturn(table, 4);
             await sayHello(table);
 
-            const tds = await page.$$("regular-table tbody tr:nth-of-type(4) td");
+            const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
             const cells = [];
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
             expect(cells).toEqual(["Hello, World!", "", "", "", "", "", ""]);
 
-            const ths = await page.$$("regular-table tbody tr:nth-of-type(4) th");
+            const ths = await page.$$("regular-table tbody tr:nth-of-type(3) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
-            expect(th).toEqual("6");
+            expect(th).toEqual("4");
         });
     });
 

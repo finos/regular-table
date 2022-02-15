@@ -42,7 +42,7 @@ describe("column_mouse_selection.html", () => {
             for (const td of selectedCells) {
                 selectedValues.push(await page.evaluate((td) => td.innerHTML.trim().split(" ").slice(0, 2).join(" "), td));
             }
-            expect(selectedValues.length).toEqual(131);
+            expect(selectedValues.length).toEqual(129);
         });
     });
 });

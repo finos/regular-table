@@ -254,21 +254,24 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      * @param {number} x - The left most `x` index column to scroll into view.
      * @param {number} y - The top most `y` index row to scroll into view.
-     * @param {number} ncols - Total number of columns in the data model.
-     * @param {number} nrows - Total number of rows in the data model.
      */
-    async scrollToCell(x, y, ncols, nrows) {
+    async scrollToCell(x, y) {
         if (!this._view_cache) {
             console.warn("data listener not configured");
             return;
         }
 
-        const row_height = this._virtual_panel.offsetHeight / nrows;
-        this.scrollTop = row_height * y + 1;
+        const viewport_row_height = this._column_sizes.row_height || 19;
+        const header_height = this._view_cache.config.column_pivots.length * viewport_row_height;
+        const body_height = this._table_clip.offsetHeight - header_height;
+        const row_height_offset = body_height % viewport_row_height;
+        let real_row_height = (this._virtual_panel.offsetHeight - row_height_offset) / this._nrows;
+        this.scrollTop = Math.ceil(real_row_height * y);
+
         let scroll_left = 0;
         while (x > 0) {
             x--;
-            scroll_left += this._column_sizes.indices[x] || 60;
+            scroll_left += this._column_sizes.indices[x + this._view_cache.config.row_pivots.length] || 60;
         }
 
         this.scrollLeft = Math.ceil(scroll_left);
