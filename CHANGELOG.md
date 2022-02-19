@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.3](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.2...HEAD)
+
+**Fixed bugs:**
+
+- Fix width overflow by 1px [\#154](https://github.com/jpmorganchase/regular-table/pull/154) ([texodus](https://github.com/texodus))
+
 ## [v0.5.2](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.1...HEAD)
