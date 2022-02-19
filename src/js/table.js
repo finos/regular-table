@@ -133,7 +133,10 @@ export class RegularTableViewModel {
             cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                cont_heads.push(this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i));
+                const header = this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i);
+                if (!!header) {
+                    cont_heads.push(header);
+                }
             }
             first_col = false;
             view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
@@ -142,8 +145,10 @@ export class RegularTableViewModel {
             if (!preserve_width) {
                 for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
                     const {td, metadata} = cont_body.tds[i] || {};
-                    const {th, metadata: hmetadata} = cont_heads[i];
-                    last_cells.push([th || td, hmetadata || metadata, td || th]);
+                    const {th, metadata: hmetadata} = cont_heads[i] || {};
+                    if (!!td || !!th) {
+                        last_cells.push([th || td, hmetadata || metadata, td || th]);
+                    }
                 }
             }
         }
@@ -223,7 +228,7 @@ export class RegularTableViewModel {
                 first_col = false;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
-                        last_cells.push([cont_head.th || td, cont_head.metadata || metadata, td || cont_head.th]);
+                        last_cells.push([cont_head?.th || td, cont_head?.metadata || metadata, td || cont_head?.th]);
                     }
                 }
 
@@ -233,7 +238,7 @@ export class RegularTableViewModel {
                 } else {
                     // This is probably wrong since the column has yet to be
                     // styled, but we'll use it as an estimate and recalc after.
-                    view_state.viewport_width += cont_head.th?.offsetWidth || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0);
+                    view_state.viewport_width += cont_head?.th?.offsetWidth || cont_body.tds.reduce((x, y) => x + y.td?.offsetWidth, 0);
                 }
 
                 view_state.row_height = view_state.row_height || cont_body.row_height;

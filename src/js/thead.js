@@ -86,7 +86,7 @@ export class RegularHeaderViewModel extends ViewModel {
 
     draw(alias, parts, colspan, x, size_key, x0, _virtual_x) {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
-        if (header_levels === 0) return {};
+        if (header_levels === 0) return;
         let th, metadata, column_name;
         for (let d = 0; d < header_levels; d++) {
             column_name = parts[d] ? parts[d] : "";

@@ -313,8 +313,12 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 this._virtual_panel.style.width = this._column_sizes.indices.reduce((x, y) => x + y, 0) + "px";
             } else {
                 const virtual_width = this._calc_scrollable_column_width(num_columns);
-                const panel_width = this._container_size.width + virtual_width + 1;
-                this._virtual_panel.style.width = panel_width + "px";
+                if (virtual_width !== 0) {
+                    const panel_width = this._container_size.width + virtual_width + 2;
+                    this._virtual_panel.style.width = panel_width + "px";
+                } else {
+                    this._virtual_panel.style.width = "1px";
+                }
             }
         }
     }
