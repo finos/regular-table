@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.5](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.4...HEAD)
+
+**Fixed bugs:**
+
+- Fix errors when `.draw()` called on empty viewport/invisible element [\#156](https://github.com/jpmorganchase/regular-table/pull/156) ([texodus](https://github.com/texodus))
+
 ## [v0.5.4](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.3...HEAD)
