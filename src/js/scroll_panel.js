@@ -192,7 +192,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             offset_width += new_val !== undefined ? new_val : 60;
         }
 
-        start_col += diff / (this._column_sizes.indices[start_col - 1] || 60);
+        start_col += diff / (this._column_sizes.indices[start_col + scroll_index_offset - 1] || 60);
         return Math.max(0, start_col - 1);
     }
 
