@@ -114,7 +114,7 @@ describe("spreadsheet.html", () => {
 
         test("scrolls as right arrow is down", async () => {
             const table = await page.$("regular-table");
-            keydownRightArrow(table, 5);
+            await keydownRightArrow(table, 5);
             await sayHello(table);
 
             const tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
@@ -167,8 +167,8 @@ describe("spreadsheet.html", () => {
 
         test("scrolls right and back left", async () => {
             const table = await page.$("regular-table");
-            keydownRightArrow(table, 10);
-            keydownLeftArrow(table, 7);
+            await keydownRightArrow(table, 10);
+            await keydownLeftArrow(table, 7);
             await sayHello(table);
 
             const tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
@@ -176,7 +176,7 @@ describe("spreadsheet.html", () => {
             for (const td of tds) {
                 cells.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(cells).toEqual(["", "", "", "Hello, World!"]);
+            expect(cells).toEqual(["", "", "", "Hello, World!", "", "", ""]);
 
             const ths = await page.$$("regular-table tbody tr:nth-of-type(1) th");
             const th = await page.evaluate((th) => th.innerHTML, ths[0]);
@@ -185,7 +185,7 @@ describe("spreadsheet.html", () => {
 
         test("scrolls as return is pressed", async () => {
             const table = await page.$("regular-table");
-            keypressReturn(table, 4);
+            await keypressReturn(table, 4);
             await sayHello(table);
 
             const tds = await page.$$("regular-table tbody tr:nth-of-type(3) td");
