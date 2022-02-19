@@ -176,7 +176,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const relative_nrows = nrows || 0;
         const scroll_rows = Math.max(0, Math.ceil(relative_nrows - virtual_panel_row_height));
         const start_row = scroll_rows * percent_scroll;
-        const end_row = Math.min(start_row + virtual_panel_row_height, nrows);
+        const end_row = Math.max(0, Math.min(start_row + virtual_panel_row_height, nrows));
         return {start_row, end_row};
     }
 
@@ -422,11 +422,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     update_sub_cell_offset(viewport) {
         const y_offset = this._column_sizes.row_height * (viewport.start_row % 1) || 0;
         const x_offset = this._column_sizes.indices[(this.table_model._row_headers_length || 0) + Math.floor(viewport.start_col)] * (viewport.start_col % 1) || 0;
-        let style = this._sub_cell_style.sheet.cssRules[0].style;
-        style.setProperty(`--regular-table--clip-x`, `${x_offset}px`);
-        style.setProperty(`--regular-table--clip-y`, `${y_offset}px`);
-        style.setProperty(`--regular-table--transform-x`, `-${x_offset}px`);
-        style.setProperty(`--regular-table--transform-y`, `-${y_offset}px`);
+        let style = this._sub_cell_style.sheet?.cssRules[0].style;
+        if (style) {
+            style.setProperty(`--regular-table--clip-x`, `${x_offset}px`);
+            style.setProperty(`--regular-table--clip-y`, `${y_offset}px`);
+            style.setProperty(`--regular-table--transform-x`, `-${x_offset}px`);
+            style.setProperty(`--regular-table--transform-y`, `-${y_offset}px`);
+        }
     }
 }
 
