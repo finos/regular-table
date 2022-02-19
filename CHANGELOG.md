@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.4](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.3...HEAD)
+
+**Fixed bugs:**
+
+- Fix a miscalculation in row\_header offsets [\#155](https://github.com/jpmorganchase/regular-table/pull/155) ([texodus](https://github.com/texodus))
+
 ## [v0.5.3](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.2...HEAD)
