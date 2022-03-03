@@ -84,29 +84,29 @@ const invertPromise = () => {
 
 export function throttlePromise(target, property, descriptor) {
     const f = descriptor.value;
-    let lock = null;
+    const lock_symbol = Symbol("regular-table throttle lock");
     descriptor.value = async function (...args) {
-        if (lock !== null) {
-            await lock;
-            if (lock !== null) {
-                await lock;
+        if (this[lock_symbol] !== undefined) {
+            await this[lock_symbol];
+            if (this[lock_symbol] !== undefined) {
+                await this[lock_symbol];
                 return;
             }
         }
-        lock = invertPromise();
+        this[lock_symbol] = invertPromise();
         let result;
         try {
             result = await f.call(this, ...args);
         } finally {
-            const l = lock;
-            lock = null;
+            const l = this[lock_symbol];
+            this[lock_symbol] = undefined;
             l.resolve();
         }
         return result;
     };
     descriptor.value.flush = async function () {
         await new Promise(requestAnimationFrame);
-        return await lock;
+        return await this[lock_symbol];
     };
     return descriptor;
 }
