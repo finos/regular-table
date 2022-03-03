@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.6](https://github.com/jpmorganchase/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.5...HEAD)
+
+**Fixed bugs:**
+
+- Fix debounce interference between multiple `regular-table` [\#158](https://github.com/jpmorganchase/regular-table/pull/158) ([texodus](https://github.com/texodus))
+
 ## [v0.5.5](https://github.com/jpmorganchase/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/jpmorganchase/regular-table/compare/v0.5.4...HEAD)
