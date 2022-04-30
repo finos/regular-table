@@ -557,3 +557,4 @@ yarn start
 [![Build Status](https://travis-ci.org/jpmorganchase/regular-table.svg?branch=master)](https://travis-ci.org/jpmorganchase/regular-table)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table) 
 -->
+Open Source @ JPMorgan Chase
