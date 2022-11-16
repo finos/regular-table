@@ -1,0 +1,28 @@
+name: Node.js CI
+
+on:
+  push:
+    paths:
+      - 'node/package.json'
+      - 'node/package-lock.json'
+      - 'node/allow-list.json'
+      - '.github/workflows/node.yml'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      # - run: npm ci --prod
+      #   working-directory: node
+      - run: yarn install --production --frozen-lockfile
+        working-directory: node
+      - run: npx --yes auditjs ossi --whitelist allow-list.json
+        working-directory: node
