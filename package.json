@@ -4,7 +4,7 @@
     "description": "A regular `<table>`, for an async and virtual data model.",
     "repository": {
         "type": "git",
-        "url": "https://github.com/jpmorganchase/regular-table"
+        "url": "https://github.com/finos/regular-table"
     },
     "engines": {
         "node": ">=10.18.1"

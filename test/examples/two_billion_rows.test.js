@@ -92,7 +92,7 @@ describe("two_billion_rows.html", () => {
             await page.waitForSelector("regular-table table tbody tr td");
         });
 
-        test.skip("https://github.com/jpmorganchase/regular-table/issues/15", async () => {
+        test.skip("https://github.com/finos/regular-table/issues/15", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollToCell(0, 250500, 1000, 2000000000);

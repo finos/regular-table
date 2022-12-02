@@ -1,6 +1,6 @@
 # React 
 
-An example of using [`regular-table`](https://github.com/jpmorganchase/regular-table)
+An example of using [`regular-table`](https://github.com/finos/regular-table)
 with React, which is incredibly easy because `<regular-table>` is a Web
 Component.  There is a `#root` element:
 

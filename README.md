@@ -1,10 +1,11 @@
 <p align="center">
-<img alt="regular-table" src="https://raw.githubusercontent.com/jpmorganchase/regular-table/master/logo.png" width="300">
+<img alt="regular-table" src="https://raw.githubusercontent.com/finos/regular-table/master/logo.png" width="300">
 </p>
 
 <p align="center">
 <a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-squar"></a>
-<a href="https://github.com/jpmorganchase/regular-table/actions?query=workflow%3A%22Build+Status"><img alt="Build Status" src="https://github.com/jpmorganchase/regular-table/workflows/Build%20Status/badge.svg?branch=master"></a>
+<a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/l/regular-table.svg?color=brightgreen&style=flat-square"></a>
+<a href="https://github.com/finos/regular-table/actions?query=workflow%3A%22Build+Status"><img alt="Build Status" src="https://github.com/finos/regular-table/workflows/Build%20Status/badge.svg?branch=master"></a>
 </p>
 
 #
@@ -45,8 +46,8 @@ anytime you need:
 ## Documentation
 
 What follows functions as a quick-start guide, and will explain the basics of
-the Virtual Data Models, Styling and Interaction APIs.  Complete [API docs](https://github.com/jpmorganchase/regular-table/blob/master/api.md)
-and documented [examples](https://github.com/jpmorganchase/regular-table/tree/master/examples)
+the Virtual Data Models, Styling and Interaction APIs.  Complete [API docs](https://github.com/finos/regular-table/blob/master/api.md)
+and documented [examples](https://github.com/finos/regular-table/tree/master/examples)
 are also available.
 
 - QuickStart
@@ -63,7 +64,7 @@ are also available.
   - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
   - [Development](#development)
 
-- [API Docs](https://github.com/jpmorganchase/regular-table/blob/master/api.md)
+- [API Docs](https://github.com/finos/regular-table/blob/master/api.md)
 
 - Annotated Examples
   - [2d_array.md](examples/2d_array.md)
@@ -498,8 +499,8 @@ table.addStyleListener(() => {
 });
 ```
 
-Advanced examples can be found in the [`examples`](https://github.com/jpmorganchase/regular-table/tree/master/examples)
-directory, and in the [`bl.ocks` example gallery](https://github.com/jpmorganchase/regular-table#examples).
+Advanced examples can be found in the [`examples`](https://github.com/finos/regular-table/tree/master/examples)
+directory, and in the [`bl.ocks` example gallery](https://github.com/finos/regular-table#examples).
 
 ## Scrolling
 
@@ -553,8 +554,5 @@ yarn start
 ```
 <!-- 
 ## Stats
-
-[![Build Status](https://travis-ci.org/jpmorganchase/regular-table.svg?branch=master)](https://travis-ci.org/jpmorganchase/regular-table)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table) 
 -->
-Open Source @ JPMorgan Chase 2022

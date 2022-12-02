@@ -1,6 +1,6 @@
 ## Perspective
 
-An example of a multi-dimensional pivot table using [`regular-table`](https://github.com/jpmorganchase/regular-table)
+An example of a multi-dimensional pivot table using [`regular-table`](https://github.com/finos/regular-table)
 and [`perspective`](https://perspective.finos.org/).
 
 ```html

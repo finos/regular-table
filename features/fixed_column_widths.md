@@ -1,8 +1,8 @@
 # Fixed Column Widths
 
 This example shows how to set up columns with fixed widths in
-[`regular-table`](https://github.com/jpmorganchase/regular-table) just using
-Javascript and CSS rules.
+[`regular-table`](https://github.com/finos/regular-table) just using Javascript
+and CSS rules.
 
 By default `<regular-table>` sets each column's width based on the content width
 of each of that column's cells. Currently, each column's width will not increase
