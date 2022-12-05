@@ -519,7 +519,7 @@ explicitly:
 ## Pivots, Filters, Sorts, and Column Expressions with `perspective`
 
 `regular-table` is natively compatible with [`perspective`](https://github.com/finos/perspective/),
-a WebAssembly streaming visualization engine.  By using a `persective.Table` as a
+a WebAssembly streaming visualization engine.  By using a `perspective.Table` as a
 Virtual Data Nodel, it becomes simple to achieve user-driven row and
 column pivots, filters, sorts, and column expressions, as well as charts
 and persistent layouts, from high-frequency updating data. 
