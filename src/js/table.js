@@ -37,6 +37,7 @@ export class RegularTableViewModel {
     }
 
     clear(element) {
+        // nosemgrep
         element.innerHTML = html`
             <table cellspacing="0">
                 <thead></thead>
