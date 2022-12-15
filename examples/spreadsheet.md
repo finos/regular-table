@@ -1,6 +1,6 @@
 ## Spreadsheet
 
-A simple spreadsheet-like app which demonstrates use of [`regular-table`](https://github.com/jpmorganchase/regular-table).
+A simple spreadsheet-like app which demonstrates use of [`regular-table`](https://github.com/finos/regular-table).
 Supports a simple expression language for cells starting with a `=`
 character, such as `=sum(A2..C4)` for the sum of cell values within the
 rectangular region (A2, C4).

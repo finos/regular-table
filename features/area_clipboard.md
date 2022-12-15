@@ -1,10 +1,10 @@
 # Area Clipboard Interactions
 
 This example adds clipboard edit interactions to the area selection behavior
-applied to a
-[`<regular-table>`](https://github.com/jpmorganchase/regular-table), allowing
-the user to select groups of cells then copy, paste and cut. First we'll add a
-`<regular-table>` to the page with an `id` accessible on the window object.
+applied to a [`<regular-table>`](https://github.com/finos/regular-table),
+allowing the user to select groups of cells then copy, paste and cut. First
+we'll add a `<regular-table>` to the page with an `id` accessible on the window
+object.
 
 ```html
 <regular-table id="areaClipboardInteractionsRegularTable"></regular-table>

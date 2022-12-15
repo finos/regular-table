@@ -1,8 +1,7 @@
 # Row, Column and Area Mouse Selection
 
 We're going to create a composite example with all of our selection behaviors
-mixed in to one
-[`<regular-table>`](https://github.com/jpmorganchase/regular-table).
+mixed in to one [`<regular-table>`](https://github.com/finos/regular-table).
 
 Lets make a `<regular-table>` with a way-to-specific `id` that will be
 accessible on the window object using

@@ -1,7 +1,7 @@
 ## Minesweeper
 
 A clone of the classic game Minesweeper with 1,000,000 cells, built with
-[`regular-table`](https://github.com/jpmorganchase/regular-table).  
+[`regular-table`](https://github.com/finos/regular-table).  
     
 ```html
 <regular-table id="table"></regular-table>

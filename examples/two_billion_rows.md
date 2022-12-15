@@ -1,6 +1,6 @@
 # Two Billion Rows
 
-An example of a [`regular-table`](https://github.com/jpmorganchase/regular-table)
+An example of a [`regular-table`](https://github.com/finos/regular-table)
 data model which generates data on-the-fly to simulate a 2,000,000,000 row
 `<table>`.
 

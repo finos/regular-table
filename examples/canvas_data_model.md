@@ -1,6 +1,6 @@
 ## Canvas Data Model
 
-An example of using a `<canvas>` element as a data model for [`regular-table`](https://github.com/jpmorganchase/regular-table).
+An example of using a `<canvas>` element as a data model for [`regular-table`](https://github.com/finos/regular-table).
 As you `mouseover` the image, a cursor tooltip `<regular-table>` shows a
 zoom-in via a virtual data model which defers to [`context.getImageData()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData).
 

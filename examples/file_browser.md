@@ -1,6 +1,6 @@
 ## File Browser Example
 
-A simple file browser example built with [`regular-table`](https://github.com/jpmorganchase/regular-table).
+A simple file browser example built with [`regular-table`](https://github.com/finos/regular-table).
 Also a great introduction to `row_headers`, and how to use them to achieve
 group-like and tree-like behavior.  For this example, we'll want the latter.
 
