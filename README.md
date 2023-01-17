@@ -558,7 +558,7 @@ yarn start
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table) 
 -->
 
-#### OpenSFF
+#### OpenSSF
 The Regular Table project achieves the ["Passing" Open Source Security Foundation (OpenSSF) Best Practices status](https://bestpractices.coreinfrastructure.org/en/projects/6771).
 
 ## License
