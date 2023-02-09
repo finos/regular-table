@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-<a href="https://community.finos.org/docs/governance/software-projects/stages/active/"><img alt="OpenSFF badge" src="https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-active.svg"></a>
+<a href="https://community.finos.org/docs/governance/software-projects/stages/active/"><img alt="FINOS active badge" src="https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-active.svg"></a>
 <a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-squar"></a>
 <a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/l/regular-table.svg?color=brightgreen&style=flat-square"></a>
 <a href="https://github.com/finos/regular-table/actions?query=workflow%3A%22Build+Status"><img alt="Build Status" src="https://github.com/finos/regular-table/workflows/Build%20Status/badge.svg?branch=master"></a>
