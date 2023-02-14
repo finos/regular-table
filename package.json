@@ -28,6 +28,7 @@
         "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
         "declarations": "tsc -b declarationsconfig.json",
+        "dist:examples": "node scripts/dist_examples.js",
         "docs": "jsdoc2md src/js/index.js --separators > api.md",
         "fix": "eslint --fix src features/*.md examples/*.md examples/*.html && prettier --write features/*.md",
         "lint": "npm-run-all lint:*",

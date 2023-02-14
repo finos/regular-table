@@ -30,18 +30,18 @@ anytime you need:
 ||||
 |:--|:--|:--|
 |two_billion_rows|canvas_data_model|perspective_headers|
-|[![two_billion_rows](https://bl.ocks.org/texodus/raw/483a42e7b877043714e18bea6872b039/thumbnail.png)](https://bl.ocks.org/texodus/483a42e7b877043714e18bea6872b039)|[![canvas_data_model](https://bl.ocks.org/texodus/raw/4c6537e23dff3c8f97c316559cef012e/thumbnail.png)](https://bl.ocks.org/texodus/4c6537e23dff3c8f97c316559cef012e)|[![perspective_headers](https://bl.ocks.org/texodus/raw/d92520387cb7aa5752dad7286cbb89c9/thumbnail.png)](https://bl.ocks.org/texodus/d92520387cb7aa5752dad7286cbb89c9)|
+|[![two_billion_rows](./examples/two_billion_rows.png)](https://finos.github.io/regular-table/examples/two_billion_rows.html)|[![canvas_data_model](./examples/canvas_data_model.png)](https://finos.github.io/regular-table/examples/canvas_data_model.html)|[![perspective_headers](./examples/perspective.png)](https://finos.github.io/regular-table/examples/perspective.html)|
 |minesweeper|file_browser|spreadsheet|
-|[![minesweeper](https://bl.ocks.org/texodus/raw/96a9ed60d0250f7d3187c0fed5f5b78c/thumbnail.png)](https://bl.ocks.org/texodus/96a9ed60d0250f7d3187c0fed5f5b78c)|[![file_browser](https://bl.ocks.org/texodus/raw/a7b7588c899e3953dd8580e81c51b3f9/thumbnail.png)](https://bl.ocks.org/texodus/a7b7588c899e3953dd8580e81c51b3f9)|[![spreadsheet](https://bl.ocks.org/texodus/raw/3e0e3d6f8bf8b47294a7847b402b55fb/thumbnail.png)](https://bl.ocks.org/texodus/3e0e3d6f8bf8b47294a7847b402b55fb)|
+|[![minesweeper](./examples/minesweeper.png)](https://finos.github.io/regular-table/examples/minesweeper.html)|[![file_browser](./examples/file_browser.png)](https://finos.github.io/regular-table/examples/file_browser.html)|[![spreadsheet](./examples/spreadsheet.png)](https://finos.github.io/regular-table/examples/spreadsheet.html)|
 
 ## Features
 
 ||||
 |:--|:--|:--|
 |row_mouse_selection|column_mouse_selection|area_mouse_selection|
-|[![row_mouse_selection](https://bl.ocks.org/texodus/raw/f880c45f68ba062fd53e39fe13615d6d/thumbnail.png)](https://bl.ocks.org/texodus/f880c45f68ba062fd53e39fe13615d6d)|[![column_mouse_selection](https://bl.ocks.org/texodus/raw/e89234de558575cdd92bfd111f224895/thumbnail.png)](https://bl.ocks.org/texodus/e89234de558575cdd92bfd111f224895)|[![area_mouse_selection](https://bl.ocks.org/texodus/raw/4ac513f103a3bcef7b5442f52d9c6072/thumbnail.png)](https://bl.ocks.org/texodus/4ac513f103a3bcef7b5442f52d9c6072)|
+|[![row_mouse_selection](./features/row_mouse_selection.png)](https://finos.github.io/regular-table/features/row_mouse_selection.html)|[![column_mouse_selection](./features/column_mouse_selection.png)](https://finos.github.io/regular-table/features/column_mouse_selection.html)|[![area_mouse_selection](./features/area_mouse_selection.png)](https://finos.github.io/regular-table/features/area_mouse_selection.html)|
 |row_stripes|
-|[![row_stripes](https://bl.ocks.org/texodus/raw/4157245997d92219d73ae43c25f29781/thumbnail.png)](https://bl.ocks.org/texodus/4157245997d92219d73ae43c25f29781)|
+|[![row_stripes](./features/row_stripes.png)](https://finos.github.io/regular-table/features/row_stripes.html)|
 
 ## Documentation
 
