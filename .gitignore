@@ -195,3 +195,5 @@ docs/index.md
 .jupyter/
 python_junit.xml
 
+docs/.docusaurus
+docs/static/blocks

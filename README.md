@@ -11,71 +11,99 @@
 
 #
 
-A Javascript library for the browser, `regular-table` exports
-a [custom element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
-named `<regular-table>`,
-which renders a regular HTML `<table>` to a `sticky` position within a scollable
-viewport.  Only visible cells are rendered and queried from a natively `async`
-virtual data model, making `regular-table` ideal for enormous or remote data
-sets.  Use it to build Data Grids, Spreadsheets, Pivot Tables, File Trees, or
-anytime you need:
+A Javascript library for the browser, `regular-table` exports a
+[custom element](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements)
+named `<regular-table>`, which renders a regular HTML `<table>` to a `sticky`
+position within a scollable viewport. Only visible cells are rendered and
+queried from a natively `async` virtual data model, making `regular-table` ideal
+for enormous or remote data sets. Use it to build Data Grids, Spreadsheets,
+Pivot Tables, File Trees, or anytime you need:
 
-* Just a regular `<table>`.
-* Virtually rendered for high-performance.
-* `async` data model handles slow, remote, enormous, and/or distributed backends.
-* Easy to style, works with any regular CSS for `<table>`.
-* Small bundle size, no dependencies.
+-   Just a regular `<table>`.
+-   Virtually rendered for high-performance.
+-   `async` data model handles slow, remote, enormous, and/or distributed
+    backends.
+-   Easy to style, works with any regular CSS for `<table>`.
+-   Small bundle size, no dependencies.
 
 ## Examples
 
-||||
-|:--|:--|:--|
-|two_billion_rows|canvas_data_model|perspective_headers|
-|[![two_billion_rows](https://bl.ocks.org/texodus/raw/483a42e7b877043714e18bea6872b039/thumbnail.png)](https://bl.ocks.org/texodus/483a42e7b877043714e18bea6872b039)|[![canvas_data_model](https://bl.ocks.org/texodus/raw/4c6537e23dff3c8f97c316559cef012e/thumbnail.png)](https://bl.ocks.org/texodus/4c6537e23dff3c8f97c316559cef012e)|[![perspective_headers](https://bl.ocks.org/texodus/raw/d92520387cb7aa5752dad7286cbb89c9/thumbnail.png)](https://bl.ocks.org/texodus/d92520387cb7aa5752dad7286cbb89c9)|
-|minesweeper|file_browser|spreadsheet|
-|[![minesweeper](https://bl.ocks.org/texodus/raw/96a9ed60d0250f7d3187c0fed5f5b78c/thumbnail.png)](https://bl.ocks.org/texodus/96a9ed60d0250f7d3187c0fed5f5b78c)|[![file_browser](https://bl.ocks.org/texodus/raw/a7b7588c899e3953dd8580e81c51b3f9/thumbnail.png)](https://bl.ocks.org/texodus/a7b7588c899e3953dd8580e81c51b3f9)|[![spreadsheet](https://bl.ocks.org/texodus/raw/3e0e3d6f8bf8b47294a7847b402b55fb/thumbnail.png)](https://bl.ocks.org/texodus/3e0e3d6f8bf8b47294a7847b402b55fb)|
+<a href="https://finos.github.io/regular-table/block?example=two_billion_rows">
+<img width="30%" src="https://finos.github.io/regular-table/img/two_billion_rows.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=canvas_data_model">
+<img width="30%" src="https://finos.github.io/regular-table/img/canvas_data_model.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=perspective">
+<img width="30%" src="https://finos.github.io/regular-table/img/perspective.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=minesweeper">
+<img width="30%" src="https://finos.github.io/regular-table/img/minesweeper.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=file_browser">
+<img width="30%" src="https://finos.github.io/regular-table/img/file_browser.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=spreadsheet">
+<img width="30%" src="https://finos.github.io/regular-table/img/spreadsheet.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=row_mouse_selection">
+<img width="30%" src="https://finos.github.io/regular-table/img/row_mouse_selection.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=area_mouse_selection">
+<img width="30%" src="https://finos.github.io/regular-table/img/area_mouse_selection.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=row_stripes">
+<img width="30%" src="https://finos.github.io/regular-table/img/row_stripes.png"/>
+</a>
+<a href="https://finos.github.io/regular-table/block?example=column_mouse_selection">
+<img width="30%" src="https://finos.github.io/regular-table/img/column_mouse_selection.png"/>
+</a>
+<br/>
 
-## Features
-
-||||
-|:--|:--|:--|
-|row_mouse_selection|column_mouse_selection|area_mouse_selection|
-|[![row_mouse_selection](https://bl.ocks.org/texodus/raw/f880c45f68ba062fd53e39fe13615d6d/thumbnail.png)](https://bl.ocks.org/texodus/f880c45f68ba062fd53e39fe13615d6d)|[![column_mouse_selection](https://bl.ocks.org/texodus/raw/e89234de558575cdd92bfd111f224895/thumbnail.png)](https://bl.ocks.org/texodus/e89234de558575cdd92bfd111f224895)|[![area_mouse_selection](https://bl.ocks.org/texodus/raw/4ac513f103a3bcef7b5442f52d9c6072/thumbnail.png)](https://bl.ocks.org/texodus/4ac513f103a3bcef7b5442f52d9c6072)|
-|row_stripes|
-|[![row_stripes](https://bl.ocks.org/texodus/raw/4157245997d92219d73ae43c25f29781/thumbnail.png)](https://bl.ocks.org/texodus/4157245997d92219d73ae43c25f29781)|
+- [2d_array.md](examples/2d_array.md)
+- [canvas_data_model.md](examples/canvas_data_model.md)
+- [file_browser.md](examples/file_browser.md)
+- [minesweeper.md](examples/minesweeper.md)
+- [perspective.md](examples/perspective.md)
+- [react.md](examples/react.md)
+- [spreadsheet.md](examples/spreadsheet.md)
+- [two_billion_rows.md](examples/two_billion_rows.md)
 
 ## Documentation
 
 What follows functions as a quick-start guide, and will explain the basics of
-the Virtual Data Models, Styling and Interaction APIs.  Complete [API docs](https://github.com/finos/regular-table/blob/master/api.md)
-and documented [examples](https://github.com/finos/regular-table/tree/master/examples)
-are also available.
+the Virtual Data Models, Styling and Interaction APIs. Complete
+[API docs](https://github.com/finos/regular-table/blob/master/api.md) and
+documented
+[examples](https://github.com/finos/regular-table/tree/master/examples) are also
+available.
 
-- QuickStart
-  - [Installation](#installation)
-  - [`<regular-table>` Custom Element](#regular-table-custom-element)
-  - [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
-    - [Column and Row Headers](#column-and-row-headers)
-    - [Hierarchial/Group Headers](#hierarchialgroup-headers)
-    - [`async` Data Models](#async-data-models)
-  - [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
-    - [`.invalidate()`](#invalidate)
-  - [`.addEventListener()` Interaction](#addeventlistener-interaction)
-  - [Scrolling](#scrolling)
-  - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
-  - [Development](#development)
+-   QuickStart
 
-- [API Docs](https://github.com/finos/regular-table/blob/master/api.md)
+    -   [Installation](#installation)
+    -   [`<regular-table>` Custom Element](#regular-table-custom-element)
+    -   [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
+        -   [Column and Row Headers](#column-and-row-headers)
+        -   [Hierarchial/Group Headers](#hierarchialgroup-headers)
+        -   [`async` Data Models](#async-data-models)
+    -   [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
+        -   [`.invalidate()`](#invalidate)
+    -   [`.addEventListener()` Interaction](#addeventlistener-interaction)
+    -   [Scrolling](#scrolling)
+    -   [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
+    -   [Development](#development)
 
-- Annotated Examples
-  - [2d_array.md](examples/2d_array.md)
-  - [canvas_data_model.md](examples/canvas_data_model.md)
-  - [file_browser.md](examples/file_browser.md)
-  - [minesweeper.md](examples/minesweeper.md)
-  - [perspective.md](examples/perspective.md)
-  - [react.md](examples/react.md)
-  - [spreadsheet.md](examples/spreadsheet.md)
-  - [two_billion_rows.md](examples/two_billion_rows.md)
+-   [API Docs](https://github.com/finos/regular-table/blob/master/api.md)
+
+-   Annotated Examples
+    -   [2d_array.md](examples/2d_array.md)
+    -   [canvas_data_model.md](examples/canvas_data_model.md)
+    -   [file_browser.md](examples/file_browser.md)
+    -   [minesweeper.md](examples/minesweeper.md)
+    -   [perspective.md](examples/perspective.md)
+    -   [react.md](examples/react.md)
+    -   [spreadsheet.md](examples/spreadsheet.md)
+    -   [two_billion_rows.md](examples/two_billion_rows.md)
 
 ## Installation
 
@@ -83,7 +111,10 @@ Include via a CDN like [JSDelivr](https://cdn.jsdelivr.net/npm/regular-table):
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/regular-table"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/regular-table/dist/css/material.css">
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/regular-table/dist/css/material.css"
+/>
 ```
 
 Or, add to your project via `yarn`:
@@ -101,8 +132,8 @@ import "regular-table/dist/css/material.css";
 
 ## `<regular-table>` Custom Element
 
-`regular-table` exports no symbols, only the `<regular-table>` Custom Element 
-which is registered as a module import side-effect.  Once loaded,
+`regular-table` exports no symbols, only the `<regular-table>` Custom Element
+which is registered as a module import side-effect. Once loaded,
 `<regular-table>` can be used just like any other `HTMLElement`, using regular
 browser APIs:
 
@@ -127,10 +158,10 @@ ReactDOM.render(<App />, document.getElementById("root"));
 
 ## `.setDataListener()` Virtual Data Model
 
-Let's start with with a simple data model, a two dimensional `Array`.  This one
+Let's start with with a simple data model, a two dimensional `Array`. This one
 is very small at 3 columns x 6 rows, but even for very small data sets,
-`regular-table` won't read your entire dataset at once.  Instead, we'll need
-to write a simple _virtual_ data model to access `DATA` and `COLUMN_NAMES`
+`regular-table` won't read your entire dataset at once. Instead, we'll need to
+write a simple _virtual_ data model to access `DATA` and `COLUMN_NAMES`
 indirectly.
 
 ```javascript
@@ -142,7 +173,7 @@ const DATA = [
 ```
 
 When clipped by the scrollable viewport, you may end up with a `<table>` of just
-a rectangular region of `DATA`, rather than the entire set.  A simple viewport
+a rectangular region of `DATA`, rather than the entire set. A simple viewport
 2x2 may yield this `<table>`:
 
 <table>
@@ -169,17 +200,15 @@ a rectangular region of `DATA`, rather than the entire set.  A simple viewport
 }
 ```
 
-Here's a an implementation for this simple _virtual_ data model,
-the function `getDataSlice()`.  This function is called by your 
-`<regular-table>` whenever it needs more data, with coordinate arguments,
-`(x0, y0)` to `(x1, y1)`.  Only
-this region is needed to render the viewport, so `getDataSlice()` returns 
-this rectangular `slice` of `DATA`.  For the window (0, 0) to (2, 2),
-`getDataSlice()` would generate an Object as above, containing the `data` slice,
-as well as the overall dimensions of 
-`DATA` itself ( `num_rows`, `num_columns`), for sizing the scroll area.  To
-render this virtual data model to a regular HTML `<table>`, register this data
-model via the `setDataListener()` method:
+Here's a an implementation for this simple _virtual_ data model, the function
+`getDataSlice()`. This function is called by your `<regular-table>` whenever it
+needs more data, with coordinate arguments, `(x0, y0)` to `(x1, y1)`. Only this
+region is needed to render the viewport, so `getDataSlice()` returns this
+rectangular `slice` of `DATA`. For the window (0, 0) to (2, 2), `getDataSlice()`
+would generate an Object as above, containing the `data` slice, as well as the
+overall dimensions of `DATA` itself ( `num_rows`, `num_columns`), for sizing the
+scroll area. To render this virtual data model to a regular HTML `<table>`,
+register this data model via the `setDataListener()` method:
 
 ```javascript
 function getDataSlice(x0, y0, x1, y1) {
@@ -193,15 +222,14 @@ function getDataSlice(x0, y0, x1, y1) {
 regularTable.setDataListener(getDataSlice);
 ```
 
-This will render your regular HTML `<table>` !  Your DOM will look something
-like this, depending on the size of your viewport.  Notice there are fewer rows
-and columns in the resulting HTML, e.g. the column `Column 3 (boolean)` - as you
+This will render your regular HTML `<table>` ! Your DOM will look something like
+this, depending on the size of your viewport. Notice there are fewer rows and
+columns in the resulting HTML, e.g. the column `Column 3 (boolean)` - as you
 scroll, more data will be fetched from `getDataSlice()`, and parts of the
 `<table>` will redrawn or extended as needed.
 
 ```html
 <regular-table>
-
     <table>
         <tbody>
             <tr>
@@ -214,38 +242,35 @@ scroll, more data will be fetched from `getDataSlice()`, and parts of the
             </tr>
         </tbody>
     </table>
-
 </regular-table>
 ```
-
 
 #### `virtual_mode` Option
 
 `regular-table` supports four modes of virtual scrolling, which can be
-configured via the `virtual_mode` optional argument.  Note that using a
+configured via the `virtual_mode` optional argument. Note that using a
 `virtual_mode` other than the default `"both"` will render the _entire_
 `<table>` along the non-virtual axis(es), and may cause rendering performance
 degradation.
 
-* "both" (default) virtualizes scrolling on both axes.
-* "vertical" only virtualizes vertical (y) scrolling.
-* "horizontal" only virtualizes horizontal (x) scrolling.
-* "none" disable all scroll virtualization.
+-   "both" (default) virtualizes scrolling on both axes.
+-   "vertical" only virtualizes vertical (y) scrolling.
+-   "horizontal" only virtualizes horizontal (x) scrolling.
+-   "none" disable all scroll virtualization.
 
 ```javascript
-table.setDataListener(listener, {virtual_mode: "vertical"})
+table.setDataListener(listener, { virtual_mode: "vertical" });
 ```
 
 ### Column and Row Headers
 
 `regular-table` can also generate Hierarchial Row and Column Headers, using
-`<th>` elements which layout in a `fixed` position within the virtual table.
-It can generate Column Headers (within the `<thead>`), or Row Headers (the first
+`<th>` elements which layout in a `fixed` position within the virtual table. It
+can generate Column Headers (within the `<thead>`), or Row Headers (the first
 children of each `tbody tr`), via the `column_headers` and `row_headers`
-properties (respectively) of your data model's `Response` object.  This can be
-renderered with `column_headers`, a two dimensional `Array` which must be of 
+properties (respectively) of your data model's `Response` object. This can be
+renderered with `column_headers`, a two dimensional `Array` which must be of
 length `x1 - x0`, one `Array` for every column in your `data` window.
-
 
 <table>
 <thead>
@@ -274,19 +299,15 @@ length `x1 - x0`, one `Array` for every column in your `data` window.
         [0, 1],
         ["A", "B"]
     ],
-    "column_headers": [
-        ["Column 1 (number)"],
-        ["Column 2 (string)"]
-    ]
+    "column_headers": [["Column 1 (number)"], ["Column 2 (string)"]]
 }
 ```
 
-###   Hierarchial/Group Headers
+### Hierarchial/Group Headers
 
 `regular-table` supports multiple `<tr>` of `<th>`, and also uses `colspan` and
 `rowspan` to merge simple consecutive names, which allows description of simple
 Row and Column Group Hierarchies such as this:
-
 
 <table>
 <thead>
@@ -333,17 +354,17 @@ Row and Column Group Hierarchies such as this:
 }
 ```
 
-Note that in the rendered HTML, for these Row and Column `Array`,
-repeated elements in a sequence will be automatically merged via `rowspan` and
-`colspan` attributes.  In this example, e.g. `"Rowgroup 1"` will only output
-to one `<th>` node in the resulting `<table>`.
+Note that in the rendered HTML, for these Row and Column `Array`, repeated
+elements in a sequence will be automatically merged via `rowspan` and `colspan`
+attributes. In this example, e.g. `"Rowgroup 1"` will only output to one `<th>`
+node in the resulting `<table>`.
 
 ### `metadata` Data-Aware Styling
 
 A `dataListener` may also optionally provide a `metadata` field in its response,
-a two dimensional `Array` of the same dimensions as `data`.  The values in this
+a two dimensional `Array` of the same dimensions as `data`. The values in this
 field will accompany the metadata records returned by `regular-table`'s
-`getMeta()` method (as described in the next section). 
+`getMeta()` method (as described in the next section).
 
 ```json
 {
@@ -356,21 +377,21 @@ field will accompany the metadata records returned by `regular-table`'s
     "metadata": [
         ["pos", "neg"],
         ["green", "red"]
-    ],
+    ]
 }
 ```
 
 ### `async` Data Models
 
-With an `async` data model, it's easy to serve `getDataSlice()` remotely
-from `node.js` or re-implement the JSON response protocol in any language.
-Just return a `Promise()` from, or use an `async` function as an argument to,
-`setDataListener()`.  Your `<regular-table>` won't render until the
-`Promise` is resolved, nor will it call your data model function again until
-the current call is resolved or rejected.  The following `async` example uses a
-Web Worker, but the same principle applies to Web Sockets, `readFile()` or any
-other asynchronous source.  Returning a `Promise` blocks rendering until the Web
-Worker replies:
+With an `async` data model, it's easy to serve `getDataSlice()` remotely from
+`node.js` or re-implement the JSON response protocol in any language. Just
+return a `Promise()` from, or use an `async` function as an argument to,
+`setDataListener()`. Your `<regular-table>` won't render until the `Promise` is
+resolved, nor will it call your data model function again until the current call
+is resolved or rejected. The following `async` example uses a Web Worker, but
+the same principle applies to Web Sockets, `readFile()` or any other
+asynchronous source. Returning a `Promise` blocks rendering until the Web Worker
+replies:
 
 ```javascript
 // Browser
@@ -405,23 +426,24 @@ self.addEventListener("message", async (event) => {
 ```css
 // Zebra striping!
 regular-table tr:nth-child(even) td {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
 }
 ```
+
 However, CSS alone cannot select on properties of your _data_ - if you scroll
-this example, the 2nd row will always be the striped one.  Some other
+this example, the 2nd row will always be the striped one. Some other
 data-reliant style examples include:
 
-* Styling a specific column in the virtual data set, as ` <td>` may represent
-  a different column based on horizontal scroll position.
-* Styling cells by value, +/-, heatmaps, categories, etc.
-* Styling cells based on data within-or-outside of the virtual viewport,
-  grouping depth, grouping categories, etc.
+-   Styling a specific column in the virtual data set, as `<td>` may represent a
+    different column based on horizontal scroll position.
+-   Styling cells by value, +/-, heatmaps, categories, etc.
+-   Styling cells based on data within-or-outside of the virtual viewport,
+    grouping depth, grouping categories, etc.
 
 To make CSS that is virtual-data-model-aware, you'll need to use
 `addStyleListener()`, which invokes a callback whenever the `<table>` is
 re-rendered, such as through API invocations of `draw()` and user-initiated
-events such as scrolling.  Within this optionally `async` callback, you can
+events such as scrolling. Within this optionally `async` callback, you can
 select `<td>`, `<th>`, etc. elements via regular DOM API methods like
 `querySelectorAll()`.
 
@@ -434,10 +456,10 @@ table.addStyleListener(() => {
 });
 ```
 
-Once you've selected the `<td>` and `<th>` you want to paint, `getMeta()`
-will return a `MetaData` record of information about the HTMLElement's
-virtual position.  This example uses `meta.x`, the position in `data`-space,
-to make virtual-scroll-aware zebra striping.
+Once you've selected the `<td>` and `<th>` you want to paint, `getMeta()` will
+return a `MetaData` record of information about the HTMLElement's virtual
+position. This example uses `meta.x`, the position in `data`-space, to make
+virtual-scroll-aware zebra striping.
 
 ```javascript
 function style_th(th) {
@@ -448,22 +470,22 @@ function style_th(th) {
 
 ```css
 .zebra-striped {
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 ```
 
 ### `.invalidate()`
 
 To prevent DOM renders, `<regular-table>` conserves DOM calls like `offsetWidth`
-to an internal cache.  When a `<td>` or `<th>`'s `width` is modified within a 
+to an internal cache. When a `<td>` or `<th>`'s `width` is modified within a
 callback to `.addStyleListener()`, you must indicate to `<regular-table>` that
 its dimensions have changed in order to invalidate this cache, or you may not
 end up with enough rendered columns to fill the screen!
 
 A call to `invalidate()` that does not need new columns only imparts a small
 runtime overhead to re-calculate virtual width per async draw iteration, but
-should be used conservatively if possible.  Calling `invalidate()` outside of
-a callback to `.addStyleListener()` will throw an `Error`.
+should be used conservatively if possible. Calling `invalidate()` outside of a
+callback to `.addStyleListener()` will throw an `Error`.
 
 ```javascript
 table.addStyleListener(() => {
@@ -476,10 +498,9 @@ table.addStyleListener(() => {
 
 ## `.addEventListener()` Interaction
 
-`<regular-table>` is a normal `HTMLElement`!  Use the `regular-table` API
-in concert with regular DOM API methods that work on other `HTMLElement`
-to create advanced functionality, such as this example of virtual row
-select:
+`<regular-table>` is a normal `HTMLElement`! Use the `regular-table` API in
+concert with regular DOM API methods that work on other `HTMLElement` to create
+advanced functionality, such as this example of virtual row select:
 
 ```javascript
 const selected_rows = [];
@@ -500,31 +521,36 @@ table.addStyleListener(() => {
 });
 ```
 
-Advanced examples can be found in the [`examples`](https://github.com/finos/regular-table/tree/master/examples)
-directory, and in the [`bl.ocks` example gallery](https://github.com/finos/regular-table#examples).
+Advanced examples can be found in the
+[`examples`](https://github.com/finos/regular-table/tree/master/examples)
+directory, and in the
+[`bl.ocks` example gallery](https://github.com/finos/regular-table#examples).
 
 ## Scrolling
 
 Because of the structure of the HTML `<table>` element, `<td>` elements must be
 aligned with their respective row/column, which causes default `<regular-table>`
 to only be able to scroll in increments of a cell, which can be irregular when
-column data is of different lengths.  Optionally, you may implement
-_sub-cell scrolling_ in CSS via `<regular-table>` slotted CSS variables.
-The provided `material.css` theme does exactly this, or you can implement this
-in any custom style by importing the `sub_cell_scrollling.css` stylesheet
-explicitly:
+column data is of different lengths. Optionally, you may implement _sub-cell
+scrolling_ in CSS via `<regular-table>` slotted CSS variables. The provided
+`material.css` theme does exactly this, or you can implement this in any custom
+style by importing the `sub_cell_scrollling.css` stylesheet explicitly:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/regular-table/dist/css/sub-cell-scrolling.css">
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/regular-table/dist/css/sub-cell-scrolling.css"
+/>
 ```
 
 ## Pivots, Filters, Sorts, and Column Expressions with `perspective`
 
-`regular-table` is natively compatible with [`perspective`](https://github.com/finos/perspective/),
-a WebAssembly streaming visualization engine.  By using a `perspective.Table` as a
-Virtual Data Nodel, it becomes simple to achieve user-driven row and
-column pivots, filters, sorts, and column expressions, as well as charts
-and persistent layouts, from high-frequency updating data. 
+`regular-table` is natively compatible with
+[`perspective`](https://github.com/finos/perspective/), a WebAssembly streaming
+visualization engine. By using a `perspective.Table` as a Virtual Data Nodel, it
+becomes simple to achieve user-driven row and column pivots, filters, sorts, and
+column expressions, as well as charts and persistent layouts, from
+high-frequency updating data.
 
 <!-- add examples when perspective 0.5.1 is released -->
 
@@ -548,18 +574,22 @@ Run the test suite
 yarn test
 ```
 
-Start the example server at [`http://localhost:8080/examples/`](http://localhost:8080/examples/)
+Start the example server at
+[`http://localhost:8080/examples/`](http://localhost:8080/examples/)
 
 ```bash
 yarn start
 ```
-<!-- 
+
+<!--
 ## Stats
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table) 
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/regular-table)
 -->
 
 #### OpenSSF
-The Regular Table project achieves the ["Passing" Open Source Security Foundation (OpenSSF) Best Practices status](https://bestpractices.coreinfrastructure.org/en/projects/6771).
+
+The Regular Table project achieves the
+["Passing" Open Source Security Foundation (OpenSSF) Best Practices status](https://bestpractices.coreinfrastructure.org/en/projects/6771).
 
 ## License
 
