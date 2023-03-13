@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    </head>
+    <body>
+
+        <regular-table id="example_table"></regular-table>
+        
+        <script type="module">
+            import { addAreaMouseSelection } from "./index.js";
+            import { dataListener } from "https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/examples/two_billion_rows.js";
+        
+            window.addEventListener("load", () => {
+                example_table.setDataListener(dataListener(1000, 50));
+                addAreaMouseSelection(example_table, {
+                    selected: [
+                        { x0: 5, x1: 7, y0: 7, y1: 11 },
+                        { x0: 1, x1: 3, y0: 16, y1: 22 },
+                        { x0: 7, x1: 8, y0: 15, y1: 18 },
+                    ],
+                });
+                example_table.draw();
+            });
+        </script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/umd/regular-table.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/css/material.css" />
+
+        <link rel="stylesheet" href="index.css">
+        <script type="module" src="index.js"></script>
+    </body>
+</html>
+

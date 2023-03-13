@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    </head>
+    <body>
+
+        <regular-table id="example_table"></regular-table>
+        
+        <script type="module">
+            import { addColumnMouseSelection } from "./index.js";
+            import { dataListener } from "https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/examples/two_billion_rows.js";
+        
+            window.addEventListener("load", () => {
+                const dl = dataListener(200, 50);
+                example_table.setDataListener(dl);
+                addColumnMouseSelection(example_table, dl, {
+                    selected: [
+                        {
+                            column_header: ["Group 0", "Column 6"],
+                            column_header_y: 1,
+                            x0: 6,
+                            x1: 6,
+                        },
+                        {
+                            column_header: ["Group 0", "Column 8"],
+                            column_header_y: 1,
+                            x0: 8,
+                            x1: 8,
+                        },
+                        {
+                            column_header: ["Group 0", "Column 9"],
+                            column_header_y: 1,
+                            x0: 8,
+                            x1: 9,
+                        },
+                    ],
+                });
+                example_table.draw();
+            });
+        </script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/umd/regular-table.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/css/material.css" />
+
+        <link rel="stylesheet" href="index.css">
+        <script type="module" src="index.js"></script>
+    </body>
+</html>
+

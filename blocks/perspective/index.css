@@ -1,0 +1,88 @@
+.psp-header-border {
+    border-right: 1px solid #ddd;
+}
+.psp-header-border:last-child {
+    border-right-width: 0px;
+}
+.psp-header-sort-desc:after {
+    font-family: "Material Icons";
+    font-size: 10px;
+    content: "arrow_downward"
+}
+.psp-header-sort-asc:after {
+    font-family: "Material Icons";
+    font-size: 10px;
+    content: "arrow_upward"
+}
+.psp-header-sort-col-desc:after {
+    font-family: "Material Icons";
+    font-size: 10px;
+    content: "arrow_back"
+}
+.psp-header-sort-col-asc:after {
+    font-family: "Material Icons";
+    font-size: 10px;
+    content: "arrow_forward"
+}
+
+tbody th:last-of-type {
+    border-right: 1px solid #ddd;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+tbody th:empty {
+    background-image: linear-gradient(to right, transparent 9px, #eee 10px, transparent 11px);
+    background-repeat: no-repeat;
+    min-width: 20px;
+    max-width: 20px;
+    pointer-events: none;
+}
+.psp-tree-label {
+    max-width: 0px;
+    min-width: 0px;
+}
+.psp-tree-label:before {
+    color: #ccc;
+    font-family: "Material Icons";
+    padding-right: 11px;
+    vertical-align: -1px;
+}
+.psp-tree-label-expand:before {
+    content: "add"
+}
+.psp-tree-label-collapse:before {
+    content: "remove"
+}
+.psp-tree-label:hover:before {
+    color: #1078d1;
+    text-shadow: 0px 0px 5px #1078d1;
+}
+tr:hover th.psp-tree-leaf, tr:hover th.psp-tree-label  {
+    background: #eee;
+}
+.psp-tree-leaf {
+    padding-left: 24px;
+}
+
+.psp-align-right {
+    text-align: right;
+}
+.psp-align-left {
+    text-align: left;
+}
+.psp-positive:not(:focus) {
+    color: #1078d1;
+}
+.psp-negative:not(:focus) {
+    color: #de3838;
+}
+
+html,
+body {
+    overflow: hidden;
+}
+
+regular-table table {
+    user-select: none;
+}
+

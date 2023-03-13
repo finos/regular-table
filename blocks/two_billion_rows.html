@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    </head>
+    <body>
+
+        <regular-table></regular-table>
+        
+        <script type="module">
+            import {init} from "/dist/examples/two_billion_rows.js";
+            window.addEventListener("load", () => init());
+        </script>
+        
+        <script src="/dist/umd/regular-table.js"></script>
+        <link rel='stylesheet' href="/dist/css/material.css">
+
+        <link rel="stylesheet" href="two_billion_rows.css">
+        <script type="module" src="two_billion_rows.js"></script>
+    </body>
+</html>
+

@@ -1,0 +1,15 @@
+td {
+    outline: none;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    min-width: 22px;
+}
+
+th {
+    border-right: 1px solid #eee;
+}
+
+.highlight {
+    background-color: rgba(0,0,155, 0.1);
+}
+

@@ -1,0 +1,94 @@
+.hint-1 {
+    color: black;
+}
+.hint-2 {
+    color: indigo;
+}
+.hint-3 {
+    color: purple;
+}
+.hint-4 {
+    color: blue;
+}
+.hint-5 {
+    color: green;
+}
+.hint-6 {
+    color: yellow;
+}
+.hint-7 {
+    color: orange;
+}
+.hint-8 {
+    color: red;
+}
+
+.brick {
+    background-color: #999 !important; 
+    border-top: 4px solid #CCC;
+    border-left: 4px solid #AAA;
+    border-bottom: 4px solid #666;
+    border-right: 4px solid #888;
+    font-size: 10px !important;
+    color: transparent;
+}
+
+.flag:before {
+    color: red;
+    vertical-align: top;
+    content: "flag";
+    font-family: "Material Icons", monospace;
+}
+
+.exploded {
+    background: red;
+}
+.exploded:before {
+    color: black;
+    vertical-align: top;
+    content: "close";
+    margin-left: 2.5px;
+    font-family: "Material Icons", monospace;
+}
+
+body {
+    background: black;
+}
+
+regular-table::-webkit-scrollbar,
+regular-table::-webkit-scrollbar-corner {
+    width: 16px;
+    height: 16px;
+}
+regular-table::-webkit-scrollbar-thumb {
+    background-color: #FFF !important;
+    border-radius: 0px;
+
+}
+
+regular-table td {
+    max-width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    font-family: monospace;
+    font-weight: 700;
+    text-align: center;
+    padding: 0 !important;
+    font-size: 16px !important;
+    color: transparent;
+    background-color: white;
+}
+regular-table {
+    user-select: none;
+    padding: 0;
+}
+regular-table tr:hover td {
+    background: white;
+}
+table tr:hover {
+    color: #333;
+}
+regular-table.game-over table {
+    pointer-events: none;
+}
+

@@ -1,0 +1,69 @@
+body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    cursor: none;
+}
+#scroll_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    overflow: auto;
+}
+regular-table tbody th {
+    text-align: center;
+}
+regular-table tbody th:last-of-type,
+regular-table thead tr:first-child th
+{
+    border-right: 1px solid white;
+}
+regular-table thead tr:first-child th {
+    text-align: left;
+    padding-left: 6px;
+}
+regular-table thead tr:first-child th:first-child,
+regular-table thead tr:nth-child(2) th:nth-child(2) {
+    border-right: 1px solid white;
+}
+regular-table th:not(:first-child),
+regular-table td {
+    height: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    padding: 0px;
+}
+regular-table th {           
+    color: white;
+    font-family: monospace;
+}
+tbody th[rowspan] {
+    vertical-align: top;
+    border-bottom: 1px solid white;
+    /* border-right: 0px !important; */
+}
+regular-table {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 400px;
+    height: 400px;
+    pointer-events: none;
+}
+
+regular-table::-webkit-scrollbar-thumb {
+    background-color: #fff !important;
+}
+#reticle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 1px solid white;
+}
+

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    </head>
+    <body>
+
+        <regular-table></regular-table>
+        
+        <script type="module">
+            import {createModel, configureRegularTable} from "https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/examples/perspective.js";
+            const URL = "https://cdn.jsdelivr.net/npm/superstore-arrow/superstore.arrow";
+        
+            const datasource = async () => {
+                const request = fetch(URL);
+                const worker = window.perspective.worker();
+                const response = await request;
+                const buffer = await response.arrayBuffer();
+                return worker.table(buffer);
+            };
+        
+            window.addEventListener("load", async function () {
+                const table = await datasource();
+                const view = table.view({
+                    row_pivots: ["Region", "State", "City"],
+                    column_pivots: ["Category", "Sub-Category"],
+                    columns: ["Sales", "Profit"],
+                });
+        
+                const regular = document.getElementsByTagName("regular-table")[0];
+                const model = await createModel(regular, table, view);
+                await configureRegularTable(regular, model);
+        
+                regular.addEventListener("regular-table-psp-sort", async (event) => {
+                    model._view.delete();
+                    const view = model._table.view({...model._config, sort: event.detail.sort});
+                    await createModel(regular, model._table, view, model);
+                    await regular.draw();
+                });
+            });
+        </script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/@finos/perspectivehttps://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/umd/perspective.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/umd/regular-table.js"></script>
+        <link rel='stylesheet' href="https://cdn.jsdelivr.net/npm/regular-table@0.5.6/dist/css/material.css">
+
+        <link rel="stylesheet" href="index.css">
+        <script type="module" src="index.js"></script>
+    </body>
+</html>
+

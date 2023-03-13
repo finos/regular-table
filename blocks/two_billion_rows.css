@@ -1,0 +1,10 @@
+td {
+    color: #1078d1;
+}
+
+tbody th:last-of-type,
+thead tr:nth-child(2) th:nth-child(2),
+thead tr:first-child th:first-child {
+    border-right: 1px solid #ddd;
+}
+

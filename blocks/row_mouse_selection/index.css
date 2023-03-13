@@ -1,0 +1,11 @@
+regular-table tbody tr td.mouse-selected-row,
+regular-table tr th.mouse-selected-row {
+    background-color: #2771a8;
+    color: white;
+}
+
+regular-table tbody tr th,
+regular-table tbody tr td {
+    user-select: none;
+}
+

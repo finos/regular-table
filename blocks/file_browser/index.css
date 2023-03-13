@@ -1,0 +1,24 @@
+tbody th.fb-directory:before {
+    font-family: "Material Icons";
+    content: "folder ";
+}
+tbody th.fb-directory.fb-open:before {
+    content: "folder_open ";
+}
+tbody th.fb-file:before {
+    font-family: "Material Icons";
+    content: "text_snippet ";
+}
+
+table thead, table tbody {
+    user-select: none;
+}
+td:first-of-type, head th {
+    text-align: right;
+}
+
+tbody th:empty {
+    min-width: 20px;
+    max-width: 20px;
+}
+

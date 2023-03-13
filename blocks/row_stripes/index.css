@@ -1,0 +1,16 @@
+.stripes tbody tr:nth-child(odd) td {
+    background-color: #eaedef;
+}
+
+.stripes tbody tr:nth-child(even) td {
+    background-color: white;
+}
+
+.reverse-stripes tbody tr:nth-child(odd) td {
+    background-color: white;
+}
+
+.reverse-stripes tbody tr:nth-child(even) td {
+    background-color: #eaedef;
+}
+
