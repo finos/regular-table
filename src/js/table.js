@@ -55,25 +55,17 @@ export class RegularTableViewModel {
      */
     autosize_cells(last_cells) {
         while (last_cells.length > 0) {
-            const [cell, metadata, row_height_cell] = last_cells.pop();
-            let offsetWidth;
-            const style = getComputedStyle(cell);
-            if (style.boxSizing !== "border-box") {
-                offsetWidth = cell.clientWidth;
-                offsetWidth -= style.paddingLeft ? parseFloat(style.paddingLeft) : 0;
-                offsetWidth -= style.paddingRight ? parseFloat(style.paddingRight) : 0;
-            } else {
-                offsetWidth = parseFloat(style.width);
-            }
-            this._column_sizes.row_height = this._column_sizes.row_height || row_height_cell.offsetHeight;
-            this._column_sizes.indices[metadata.size_key] = offsetWidth;
+            const [cell, metadata] = last_cells.pop();
+            const box = cell.getBoundingClientRect();
+            this._column_sizes.row_height = this._column_sizes.row_height || box.height;
+            this._column_sizes.indices[metadata.size_key] = box.width;
             const is_override = this._column_sizes.override[metadata.size_key] !== undefined;
-            if (offsetWidth && !is_override) {
-                this._column_sizes.auto[metadata.size_key] = offsetWidth;
+            if (box.width && !is_override) {
+                this._column_sizes.auto[metadata.size_key] = box.width;
             }
 
             if (cell.style.minWidth === "0px") {
-                cell.style.minWidth = `${offsetWidth}px`;
+                cell.style.minWidth = `${box.width}px`;
             }
         }
     }
@@ -148,7 +140,7 @@ export class RegularTableViewModel {
                     const {td, metadata} = cont_body.tds[i] || {};
                     const {th, metadata: hmetadata} = cont_heads[i] || {};
                     if (!!td || !!th) {
-                        last_cells.push([th || td, hmetadata || metadata, td || th]);
+                        last_cells.push([th || td, hmetadata || metadata]);
                     }
                 }
             }
@@ -229,7 +221,7 @@ export class RegularTableViewModel {
                 first_col = false;
                 if (!preserve_width) {
                     for (const {td, metadata} of cont_body.tds) {
-                        last_cells.push([cont_head?.th || td, cont_head?.metadata || metadata, td || cont_head?.th]);
+                        last_cells.push([cont_head?.th || td, cont_head?.metadata || metadata]);
                     }
                 }
 

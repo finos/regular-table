@@ -8,11 +8,11 @@
  *
  */
 
-import {log_perf, html, throttlePromise} from "./utils";
-import {DEBUG, BROWSER_MAX_HEIGHT} from "./constants";
+import { log_perf, html, throttle_tag } from "./utils";
+import { DEBUG, BROWSER_MAX_HEIGHT } from "./constants";
 
-import container_css from "../less/container.less";
-import sub_cell_offsets from "../less/sub-cell-offsets.less";
+import container_css from "../../dist/css/container.css";
+import sub_cell_offsets from "../../dist/css/sub-cell-offsets.css";
 
 /**
  * Handles the virtual scroll pane, as well as the double buffering
@@ -67,7 +67,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @memberof RegularVirtualTableViewModel
      */
     create_shadow_dom() {
-        this.attachShadow({mode: "open"});
+        this.attachShadow({ mode: "open" });
         const slot = `<slot></slot>`;
 
         // nosemgrep
@@ -123,10 +123,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      */
     _calculate_viewport(nrows, num_columns) {
-        const {start_row, end_row} = this._calculate_row_range(nrows);
-        const {start_col, end_col} = this._calculate_column_range(num_columns);
+        const { start_row, end_row } = this._calculate_row_range(nrows);
+        const { start_col, end_col } = this._calculate_column_range(num_columns);
         this._nrows = nrows;
-        return {start_col, end_col, start_row, end_row};
+        return { start_col, end_col, start_row, end_row };
     }
 
     /**
@@ -169,7 +169,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      */
     _calculate_row_range(nrows) {
-        const {height} = this._container_size;
+        const { height } = this._container_size;
         const row_height = this._column_sizes.row_height || 19;
         const header_levels = this._view_cache.config.column_pivots.length;
         const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.clientHeight);
@@ -179,7 +179,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const scroll_rows = Math.max(0, Math.ceil(relative_nrows - virtual_panel_row_height));
         const start_row = scroll_rows * percent_scroll;
         const end_row = Math.max(0, Math.min(start_row + virtual_panel_row_height, nrows));
-        return {start_row, end_row};
+        return { start_row, end_row };
     }
 
     _calc_start_column() {
@@ -210,12 +210,12 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _calculate_column_range(num_columns) {
         if (this._virtual_mode === "none" || this._virtual_mode === "vertical") {
-            return {start_col: 0, end_col: Infinity};
+            return { start_col: 0, end_col: Infinity };
         } else {
             const start_col = this._calc_start_column();
             const vis_cols = this.table_model.num_columns() || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
             let end_col = start_col + vis_cols + 1;
-            return {start_col, end_col};
+            return { start_col, end_col };
         }
     }
 
@@ -273,7 +273,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} {start_col, end_col, start_row, end_row}
      * @returns
      */
-    _validate_viewport({start_col, end_col, start_row, end_row}) {
+    _validate_viewport({ start_col, end_col, start_row, end_row }) {
         start_row = Math.floor(start_row);
         end_row = Math.ceil(end_row);
         start_col = Math.floor(start_col);
@@ -284,7 +284,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         this._end_col = end_col;
         this._start_row = start_row;
         this._end_row = end_row;
-        return {invalid_column, invalid_row};
+        return { invalid_column, invalid_row };
     }
 
     _calc_scrollable_column_width(num_columns) {
@@ -334,7 +334,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      */
     _update_virtual_panel_height(nrows) {
-        const {row_height = 19} = this._column_sizes;
+        const { row_height = 19 } = this._column_sizes;
         const header_height = this._view_cache.config.column_pivots.length * row_height;
         let virtual_panel_px_size;
         if (this._virtual_mode === "horizontal" || this._virtual_mode === "none") {
@@ -359,66 +359,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {boolean} [options.invalid_viewport=true]
      * @param {boolean} [options.preserve_width=false]
      */
-    @throttlePromise
     async draw(options = {}) {
-        const __debug_start_time__ = DEBUG && performance.now();
-        const {invalid_viewport = true, preserve_width = false} = options;
-        const {num_columns, num_rows} = await this._view_cache.view(0, 0, 0, 0);
-        this._container_size = {
-            width: this._virtual_mode === "none" || this._virtual_mode === "vertical" ? Infinity : this._table_clip.clientWidth,
-            height: this._virtual_mode === "none" || this._virtual_mode === "horizontal" ? Infinity : this._table_clip.clientHeight,
-        };
-
-        this._update_virtual_panel_height(num_rows);
-        if (!preserve_width) {
-            this._update_virtual_panel_width(invalid_viewport, num_columns);
-        }
-
-        const viewport = this._calculate_viewport(num_rows, num_columns);
-        const {invalid_row, invalid_column} = this._validate_viewport(viewport);
-        if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
-            let autosize_cells = [],
-                needs_sub_cell_update = true;
-            for await (let last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
-                if (last_cells !== undefined) {
-                    autosize_cells = autosize_cells.concat(last_cells);
-                }
-
-                // We want to perform this before the next event loop so there
-                // is no scroll jitter, but only on the first iteration as
-                // subsequent viewports are incorrect.
-                if (needs_sub_cell_update) {
-                    this.update_sub_cell_offset(viewport);
-                    needs_sub_cell_update = false;
-                }
-
-                this._is_styling = true;
-                const callbacks = this._style_callbacks;
-                for (const callback of callbacks) {
-                    await callback({detail: this});
-                }
-
-                this._is_styling = false;
-                if (!this._invalidated && last_cells !== undefined) {
-                    break;
-                }
-
-                this._invalidated = false;
-            }
-
-            this.table_model.autosize_cells(autosize_cells);
-            this.table_model.header.reset_header_cache();
-            if (!preserve_width) {
-                this._update_virtual_panel_width(this._invalid_schema || invalid_column, num_columns);
-            }
-            this._invalid_schema = false;
-        } else {
-            this.update_sub_cell_offset(viewport);
-        }
-
-        if (DEBUG) {
-            log_perf(performance.now() - __debug_start_time__);
-        }
+        return await throttle_tag(this, () => internal_draw.call(this, [options]));
     }
 
     update_sub_cell_offset(viewport) {
@@ -431,6 +373,67 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             style.setProperty(`--regular-table--transform-x`, `-${x_offset}px`);
             style.setProperty(`--regular-table--transform-y`, `-${y_offset}px`);
         }
+    }
+}
+
+async function internal_draw(options) {
+    const __debug_start_time__ = DEBUG && performance.now();
+    const { invalid_viewport = true, preserve_width = false } = options;
+    const { num_columns, num_rows } = await this._view_cache.view(0, 0, 0, 0);
+    this._container_size = {
+        width: this._virtual_mode === "none" || this._virtual_mode === "vertical" ? Infinity : this._table_clip.clientWidth,
+        height: this._virtual_mode === "none" || this._virtual_mode === "horizontal" ? Infinity : this._table_clip.clientHeight,
+    };
+
+    this._update_virtual_panel_height(num_rows);
+    if (!preserve_width) {
+        this._update_virtual_panel_width(invalid_viewport, num_columns);
+    }
+
+    const viewport = this._calculate_viewport(num_rows, num_columns);
+    const { invalid_row, invalid_column } = this._validate_viewport(viewport);
+    if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
+        let autosize_cells = [],
+            needs_sub_cell_update = true;
+        for await (let last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
+            if (last_cells !== undefined) {
+                autosize_cells = autosize_cells.concat(last_cells);
+            }
+
+            // We want to perform this before the next event loop so there
+            // is no scroll jitter, but only on the first iteration as
+            // subsequent viewports are incorrect.
+            if (needs_sub_cell_update) {
+                this.update_sub_cell_offset(viewport);
+                needs_sub_cell_update = false;
+            }
+
+            this._is_styling = true;
+            const callbacks = this._style_callbacks;
+            for (const callback of callbacks) {
+                await callback({ detail: this });
+            }
+
+            this._is_styling = false;
+            if (!this._invalidated && last_cells !== undefined) {
+                break;
+            }
+
+            this._invalidated = false;
+        }
+
+        this.table_model.autosize_cells(autosize_cells);
+        this.table_model.header.reset_header_cache();
+        if (!preserve_width) {
+            this._update_virtual_panel_width(this._invalid_schema || invalid_column, num_columns);
+        }
+        this._invalid_schema = false;
+    } else {
+        this.update_sub_cell_offset(viewport);
+    }
+
+    if (DEBUG) {
+        log_perf(performance.now() - __debug_start_time__);
     }
 }
 
