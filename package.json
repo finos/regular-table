@@ -43,7 +43,6 @@
         "access": "public"
     },
     "devDependencies": {
-        "@finos/perspective": "=0.5.0",
         "@prospective.co/procss": "^0.1.13",
         "@types/react": "^17.0.0",
         "codedown": "^2.1.6",
