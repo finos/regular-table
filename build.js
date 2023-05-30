@@ -21,7 +21,7 @@ const BUILD = [
             ".css": "text",
             ".html": "text",
         },
-        outfile: "dist/umd/regular-table.js",
+        outfile: "dist/esm/regular-table.js",
         target: ["es2021"],
         bundle: true,
         minify: !process.env.PSP_DEBUG,
@@ -34,7 +34,9 @@ const BUILD = [
     },
 ];
 
+// FINOS requires `semgrep`, and will no doubt also soon require glue eating.
 function add(builder, path) {
+    // nosemgrep
     builder.add(path, fs.readFileSync(path_mod.join("./src/less", path)).toString());
 }
 

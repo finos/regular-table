@@ -10,7 +10,7 @@
 
 describe("2d_array.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 400, height: 100});
+        await page.setViewport({ width: 400, height: 100 });
     });
 
     describe("creates a `<table>` body when attached to `document`", () => {
@@ -44,7 +44,7 @@ describe("2d_array.html", () => {
             await page.waitForSelector("regular-table table tbody tr td");
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                await table.draw({invalid_viewport: true});
+                await table.draw({ invalid_viewport: true });
             }, table);
         });
 

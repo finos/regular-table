@@ -8,7 +8,7 @@
  *
  */
 
-import {ViewModel} from "./view_model";
+import { ViewModel } from "./view_model";
 
 /**
  * <thead> view model.  This model accumulates state in the form of
@@ -130,7 +130,7 @@ export class RegularHeaderViewModel extends ViewModel {
         }
 
         this._clean_rows(this._offset_cache.length);
-        return {th, metadata};
+        return { th, metadata };
     }
 
     clean() {

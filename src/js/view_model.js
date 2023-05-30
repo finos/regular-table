@@ -8,7 +8,7 @@
  *
  */
 
-import {METADATA_MAP} from "./constants";
+import { METADATA_MAP } from "./constants";
 
 /******************************************************************************
  *
@@ -73,7 +73,7 @@ export class ViewModel {
     }
 
     _replace_cell(ridx, cidx) {
-        const {tr, row_container} = this._get_row(ridx);
+        const { tr, row_container } = this._get_row(ridx);
         let td = row_container[cidx];
         if (td) {
             tr.removeChild(td);
@@ -86,12 +86,12 @@ export class ViewModel {
         if (ridx < 0 || cidx < 0) {
             return;
         }
-        const {row_container} = this._get_row(ridx);
+        const { row_container } = this._get_row(ridx);
         return row_container[cidx];
     }
 
     _get_cell(tag = "TD", ridx, cidx) {
-        const {tr, row_container} = this._get_row(ridx);
+        const { tr, row_container } = this._get_row(ridx);
         let td = row_container[cidx];
         if (!td) {
             if (cidx < row_container.length) {
@@ -126,7 +126,7 @@ export class ViewModel {
             row_container = this.cells[ridx] = [];
         }
 
-        return {tr, row_container};
+        return { tr, row_container };
     }
 
     _clean_columns(cidx) {

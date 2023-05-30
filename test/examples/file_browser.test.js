@@ -10,7 +10,7 @@
 
 describe("file_browser.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 400, height: 100});
+        await page.setViewport({ width: 400, height: 100 });
     });
 
     describe("creates a `<table>` body when attached to `document`", () => {

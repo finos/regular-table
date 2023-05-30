@@ -83,6 +83,11 @@ const invertPromise = () => {
 };
 const TAGS = new Map();
 
+export async function flush_tag(tag) {
+    await new Promise(requestAnimationFrame);
+    return await TAGS.get(tag);
+}
+
 export async function throttle_tag(tag, f) {
     if (TAGS.has(tag)) {
         await TAGS.get(tag);

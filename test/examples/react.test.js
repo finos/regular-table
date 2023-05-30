@@ -10,7 +10,7 @@
 
 describe("react.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 200, height: 100});
+        await page.setViewport({ width: 200, height: 100 });
     });
 
     describe("creates a `<table>` body when attached to `document`", () => {

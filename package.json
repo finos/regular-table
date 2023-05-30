@@ -10,11 +10,11 @@
         "node": ">=16"
     },
     "license": "Apache-2.0",
-    "main": "dist/umd/regular-table.js",
-    "module": "dist/umd/regular-table.js",
-    "browser": "dist/umd/regular-table.js",
-    "unpkg": "dist/umd/regular-table.js",
-    "jsdelivr": "dist/umd/regular-table.js",
+    "main": "dist/esm/regular-table.js",
+    "module": "dist/esm/regular-table.js",
+    "browser": "dist/esm/regular-table.js",
+    "unpkg": "dist/esm/regular-table.js",
+    "jsdelivr": "dist/esm/regular-table.js",
     "types": "index.d.ts",
     "files": [
         "dist/**/*",

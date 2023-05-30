@@ -28,7 +28,7 @@ describe("row_mouse_selection.html", () => {
         test("selects the row header and cells then deselects", async () => {
             const rowHeader1 = await page.$("regular-table tbody tr:nth-of-type(2) th");
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, rowHeader1);
             await page.waitForSelector("regular-table td.mouse-selected-row");
@@ -37,7 +37,7 @@ describe("row_mouse_selection.html", () => {
             expect(selectedCells.length > 0).toEqual(true);
 
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
                 th.dispatchEvent(event);
             }, rowHeader1);
             expect(await selectedRows()).toEqual([]);

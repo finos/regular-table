@@ -19,7 +19,7 @@ describe.skip("row_column_area_selection.html", () => {
     };
 
     beforeEach(async () => {
-        await page.setViewport({width: 2500, height: 2500});
+        await page.setViewport({ width: 2500, height: 2500 });
         await page.goto("http://localhost:8081/dist/examples/row_column_area_selection.html");
         await page.waitForSelector("regular-table table tbody tr td");
     });
@@ -29,7 +29,7 @@ describe.skip("row_column_area_selection.html", () => {
             const ths = await page.$$("regular-table thead tr:nth-of-type(2) th");
 
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, ths[4]);
             const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-column");

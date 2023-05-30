@@ -21,7 +21,7 @@ describe.skip("row_column_area_selection.html", () => {
     let ths;
 
     beforeEach(async () => {
-        await page.setViewport({width: 2500, height: 2500});
+        await page.setViewport({ width: 2500, height: 2500 });
         await page.goto("http://localhost:8081/dist/examples/row_column_area_selection.html");
         await page.waitForSelector("regular-table table tbody tr td");
         ths = await page.$$("regular-table tbody tr th:nth-of-type(2)");
@@ -30,7 +30,7 @@ describe.skip("row_column_area_selection.html", () => {
     describe("selecting one row", () => {
         test("selects the cells", async () => {
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, ths[0]);
 

@@ -8,8 +8,7 @@
  *
  */
 
-// @import (css) url("https://fonts.googleapis.com/css?family=Roboto+Mono");
-
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
 @import "./sub-cell-scrolling.less";
 
 @row-height: 19px;
@@ -27,7 +26,7 @@ regular-table {
 }
 
 regular-table:hover {
-    scrollbar-color: rgba(0,0,0,0.3) transparent;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
 
 regular-table {
@@ -70,13 +69,10 @@ regular-table {
         text-align: left;
     }
 
-
-
-
     span.rt-tree-container {
-        display:flex;
-        align-items:center;
-        height:100%;
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 
     thead .rt-string,
@@ -84,13 +80,11 @@ regular-table {
     thead .rt-date,
     tbody .rt-date,
     thead .rt-datetime,
-    tbody .rt-datetime  {
+    tbody .rt-datetime {
         text-align: left;
     }
 
     // frozen rows
-
-
 
     thead tr:last-child th {
         border-bottom: 1px solid #ddd;
@@ -107,7 +101,8 @@ regular-table {
         height: 100%;
     }
 
-    td, th {
+    td,
+    th {
         white-space: nowrap;
         font-size: 12px;
         padding-right: 5px;
@@ -116,8 +111,6 @@ regular-table {
         padding-bottom: 0px;
         height: @row-height;
     }
-
-
 
     tr:hover td {
         background: #eee;
@@ -140,7 +133,7 @@ regular-table {
     }
 
     span.rt-row-header-icon {
-        color: #AAA;
+        color: #aaa;
         padding-right: 4px;
         font-family: "Material Icons";
     }
@@ -179,7 +172,8 @@ regular-table {
     //     background: @zebra-stripe-color;
     // }
 
-    td span.rt-group-name, th span.rt-group-name {
+    td span.rt-group-name,
+    th span.rt-group-name {
         margin-right: -5px;
         padding-right: 5px;
         padding-left: 8px;
@@ -191,7 +185,8 @@ regular-table {
         text-align: left;
     }
 
-    td th span.rt-group-leaf, th span.rt-group-leaf {
+    td th span.rt-group-leaf,
+    th span.rt-group-leaf {
         margin-left: 16px;
         height: 100%;
     }
@@ -216,7 +211,7 @@ regular-table {
 
     &::-webkit-scrollbar-thumb {
         background-clip: content-box;
-        background-color: rgba(0,0,0,0);
+        background-color: rgba(0, 0, 0, 0);
         border-radius: 5px;
     }
 
@@ -231,9 +226,9 @@ regular-table {
     }
 
     &:hover::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.15);
+        background-color: rgba(0, 0, 0, 0.15);
     }
     &::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(0,0,0,0.3);
+        background-color: rgba(0, 0, 0, 0.3);
     }
 }

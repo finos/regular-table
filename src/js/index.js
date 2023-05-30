@@ -8,10 +8,10 @@
  *
  */
 
-import {METADATA_MAP} from "./constants";
-import {RegularViewEventModel} from "./events";
-import {RegularTableViewModel} from "./table";
-import {get_draw_fps} from "./utils";
+import { METADATA_MAP } from "./constants";
+import { RegularViewEventModel } from "./events";
+import { RegularTableViewModel } from "./table";
+import { get_draw_fps } from "./utils";
 
 const VIRTUAL_MODES = ["both", "horizontal", "vertical", "none"];
 
@@ -34,7 +34,7 @@ class RegularTableElement extends RegularViewEventModel {
     constructor() {
         super();
         /** @private */
-        this._column_sizes = {auto: [], override: [], indices: []};
+        this._column_sizes = { auto: [], override: [], indices: [] };
         /** @private */
         this._style_callbacks = [];
         /** @private */
@@ -276,7 +276,7 @@ class RegularTableElement extends RegularViewEventModel {
 
         this.scrollLeft = Math.ceil(scroll_left);
         await new Promise(requestAnimationFrame);
-        await this.draw.flush();
+        await this._draw_flush();
     }
 
     /**
@@ -304,7 +304,7 @@ class RegularTableElement extends RegularViewEventModel {
      * "vertical", or "none" indicating which dimensions of the table should be
      * virtualized (vs. rendering completely).
      */
-    setDataListener(dataListener, {virtual_mode = "both"} = {}) {
+    setDataListener(dataListener, { virtual_mode = "both" } = {}) {
         let schema = {};
         let config = {
             row_pivots: [],
@@ -317,7 +317,7 @@ class RegularTableElement extends RegularViewEventModel {
         /** @private */
         this._invalid_schema = true;
         /** @private */
-        this._view_cache = {view: dataListener, config, schema};
+        this._view_cache = { view: dataListener, config, schema };
         this._setup_virtual_scroll();
     }
 

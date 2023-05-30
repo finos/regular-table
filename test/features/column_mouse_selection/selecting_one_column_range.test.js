@@ -33,12 +33,12 @@ describe("column_mouse_selection.html", () => {
 
         test("selects the columns' headers and cells", async () => {
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, ths[9]);
 
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
                 th.dispatchEvent(event);
             }, ths[11]);
 

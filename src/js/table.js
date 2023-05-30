@@ -8,9 +8,9 @@
  *
  */
 
-import {RegularHeaderViewModel} from "./thead";
-import {RegularBodyViewModel} from "./tbody";
-import {html} from "./utils";
+import { RegularHeaderViewModel } from "./thead";
+import { RegularBodyViewModel } from "./tbody";
+import { html } from "./utils";
 
 /**
  * <table> view model.  In order to handle unknown column width when `draw()`
@@ -71,16 +71,16 @@ export class RegularTableViewModel {
     }
 
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
-        const {width: container_width, height: container_height} = container_size;
-        const {view, config} = view_cache;
-        let {data, row_headers, column_headers, metadata: data_listener_metadata} = await view(
+        const { width: container_width, height: container_height } = container_size;
+        const { view, config } = view_cache;
+        let { data, row_headers, column_headers, metadata: data_listener_metadata } = await view(
             Math.floor(viewport.start_col),
             Math.floor(viewport.start_row),
             Math.ceil(viewport.end_col),
             Math.ceil(viewport.end_row)
         );
 
-        const {start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0} = viewport;
+        const { start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0 } = viewport;
 
         // pad row_headers for embedded renderer
         // TODO maybe dont need this - perspective compat
@@ -123,7 +123,7 @@ export class RegularTableViewModel {
                 first_col,
             };
             const size_key = _virtual_x + Math.floor(x0);
-            cont_body = this.body.draw(container_height, column_state, {...view_state, x0: 0}, true, undefined, undefined, size_key);
+            cont_body = this.body.draw(container_height, column_state, { ...view_state, x0: 0 }, true, undefined, undefined, size_key);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
                 const header = this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i);
@@ -132,13 +132,13 @@ export class RegularTableViewModel {
                 }
             }
             first_col = false;
-            view_state.viewport_width += cont_heads.reduce((total, {th}, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
+            view_state.viewport_width += cont_heads.reduce((total, { th }, i) => total + (this._column_sizes.indices[i] || th.offsetWidth), 0);
             view_state.row_height = view_state.row_height || cont_body.row_height;
             _virtual_x = row_headers[0].length;
             if (!preserve_width) {
                 for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                    const {td, metadata} = cont_body.tds[i] || {};
-                    const {th, metadata: hmetadata} = cont_heads[i] || {};
+                    const { td, metadata } = cont_body.tds[i] || {};
+                    const { th, metadata: hmetadata } = cont_heads[i] || {};
                     if (!!td || !!th) {
                         last_cells.push([th || td, hmetadata || metadata]);
                     }
@@ -220,7 +220,7 @@ export class RegularTableViewModel {
                 cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key);
                 first_col = false;
                 if (!preserve_width) {
-                    for (const {td, metadata} of cont_body.tds) {
+                    for (const { td, metadata } of cont_body.tds) {
                         last_cells.push([cont_head?.th || td, cont_head?.metadata || metadata]);
                     }
                 }
@@ -264,11 +264,11 @@ export class RegularTableViewModel {
                     }
                 }
             }
-            this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
+            this.body.clean({ ridx: cont_body?.ridx || 0, cidx: _virtual_x });
             this.header.clean();
             yield last_cells;
         } finally {
-            this.body.clean({ridx: cont_body?.ridx || 0, cidx: _virtual_x});
+            this.body.clean({ ridx: cont_body?.ridx || 0, cidx: _virtual_x });
             this.header.clean();
             this.body._span_factory.reset();
             this.header._span_factory.reset();

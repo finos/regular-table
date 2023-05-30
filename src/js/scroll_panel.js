@@ -8,7 +8,7 @@
  *
  */
 
-import { log_perf, html, throttle_tag } from "./utils";
+import { log_perf, html, throttle_tag, flush_tag } from "./utils";
 import { DEBUG, BROWSER_MAX_HEIGHT } from "./constants";
 
 import container_css from "../../dist/css/container.css";
@@ -361,6 +361,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     async draw(options = {}) {
         return await throttle_tag(this, () => internal_draw.call(this, [options]));
+    }
+
+    async _draw_flush() {
+        await flush_tag(this);
     }
 
     update_sub_cell_offset(viewport) {
