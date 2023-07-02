@@ -1,8 +1,22 @@
 # Changelog
 
+## [v0.5.7](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.6...HEAD)
+
+**Implemented enhancements:**
+
+- Add scroll notification [\#185](https://github.com/finos/regular-table/pull/185) ([texodus](https://github.com/texodus))
+
+**Merged pull requests:**
+
+- `esbuild`` [\#184](https://github.com/finos/regular-table/pull/184) ([texodus](https://github.com/texodus))
+- Fix dev dependency incompatibility with arm64 [\#182](https://github.com/finos/regular-table/pull/182) ([texodus](https://github.com/texodus))
+- Add demo gallery [\#179](https://github.com/finos/regular-table/pull/179) ([texodus](https://github.com/texodus))
+
 ## [v0.5.6](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.5...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.5...v0.5.6)
 
 **Fixed bugs:**
 
