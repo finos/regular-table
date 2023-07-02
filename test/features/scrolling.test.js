@@ -10,7 +10,7 @@
 
 describe("scrolling", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 260, height: 200});
+        await page.setViewport({ width: 260, height: 200 });
     });
 
     describe("scrolls down", () => {
@@ -20,7 +20,7 @@ describe("scrolling", () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = 1000;
-                await table.draw.flush();
+                await table._draw_flush();
             }, table);
         });
 
@@ -50,7 +50,7 @@ describe("scrolling", () => {
             await page.evaluate(async (table) => {
                 table.scrollTop = 0;
                 table.scrollLeft = 1000;
-                await table.draw.flush();
+                await table._draw_flush();
             }, table);
         });
 

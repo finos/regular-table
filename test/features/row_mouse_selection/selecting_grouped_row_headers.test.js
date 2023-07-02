@@ -30,14 +30,14 @@ describe("row_mouse_selection.html", () => {
                 const groupHeader0 = await page.$("regular-table tbody tr th:nth-of-type(1)");
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, groupHeader0);
 
                 const ths = await page.$$("regular-table tbody th");
                 const groupHeader10 = ths[11];
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                    const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
                     th.dispatchEvent(event);
                 }, groupHeader10);
 
@@ -68,7 +68,7 @@ describe("row_mouse_selection.html", () => {
                 ]);
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, ths[8]);
             });
@@ -79,13 +79,13 @@ describe("row_mouse_selection.html", () => {
                 const groupHeader0 = await page.$("regular-table tbody tr th:nth-of-type(1)");
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, groupHeader0);
 
                 const rowHeader11 = await page.$("regular-table tbody tr:nth-of-type(12) th");
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                    const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
                     th.dispatchEvent(event);
                 }, rowHeader11);
 

@@ -10,7 +10,7 @@
 
 describe("web_worker.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 250, height: 100});
+        await page.setViewport({ width: 250, height: 100 });
     });
 
     // TODO don't run these, they depend on unpkg.com

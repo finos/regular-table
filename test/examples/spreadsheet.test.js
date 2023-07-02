@@ -10,7 +10,7 @@
 
 describe("spreadsheet.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 150, height: 150});
+        await page.setViewport({ width: 150, height: 150 });
     });
 
     describe("Navigating with the arrow keys", () => {

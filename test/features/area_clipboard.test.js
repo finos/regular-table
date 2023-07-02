@@ -25,7 +25,7 @@ describe.skip("area_clipboard.html", () => {
         for (const td of selectedCells) {
             metas.push(await page.evaluate((table, td) => table.getMeta(td), table, td));
         }
-        return metas.map(({x, y}) => [x, y]);
+        return metas.map(({ x, y }) => [x, y]);
     };
 
     const draw = async () => {
@@ -83,7 +83,7 @@ describe.skip("area_clipboard.html", () => {
     const makeSelection = async (el1, el2, multi = false) => {
         await page.evaluate(
             async (td, multi) => {
-                const event = new MouseEvent("mousedown", {bubbles: true, ctrlKey: multi});
+                const event = new MouseEvent("mousedown", { bubbles: true, ctrlKey: multi });
                 td.dispatchEvent(event);
             },
             el1,
@@ -92,7 +92,7 @@ describe.skip("area_clipboard.html", () => {
 
         await page.evaluate(
             async (td, multi) => {
-                const event = new MouseEvent("mouseup", {bubbles: true, ctrlKey: multi});
+                const event = new MouseEvent("mouseup", { bubbles: true, ctrlKey: multi });
                 td.dispatchEvent(event);
             },
             el2,
@@ -101,7 +101,7 @@ describe.skip("area_clipboard.html", () => {
     };
 
     beforeEach(async () => {
-        await page.setViewport({width: 100, height: 100});
+        await page.setViewport({ width: 100, height: 100 });
         // const context = await browser.defaultBrowserContext();
         // await context.overridePermissions("http://localhost:8081/dist/examples/area_clipboard.html", ["clipboard-write", "clipboard-read"]);
         await page.goto("http://localhost:8081/dist/features/area_clipboard.html");
@@ -138,12 +138,12 @@ describe.skip("area_clipboard.html", () => {
             const col2Tds = await page.$$("regular-table tbody tr td:nth-of-type(2)");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[0]);
 
@@ -159,12 +159,12 @@ describe.skip("area_clipboard.html", () => {
             ]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[1]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[1]);
 
@@ -202,12 +202,12 @@ describe.skip("area_clipboard.html", () => {
             expect(await positions("clipboard-copy-selected-area")).toEqual([[0, 0]]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[1]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[1]);
 
@@ -239,12 +239,12 @@ describe.skip("area_clipboard.html", () => {
             const col2Tds = await page.$$("regular-table tbody tr td:nth-of-type(2)");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[0]);
 
@@ -260,12 +260,12 @@ describe.skip("area_clipboard.html", () => {
             ]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[1]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, col1Tds[1]);
 

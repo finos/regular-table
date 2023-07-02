@@ -4,7 +4,7 @@ module.exports = {
         launchTimeout: 30000,
         port: 8081,
         waitOnScheme: {
-            resources: ["dist/css/material.css", "dist/umd/regular-table.js"],
+            resources: ["dist/css/material.css", "dist/esm/regular-table.js"],
         },
     },
 };

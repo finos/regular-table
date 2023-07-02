@@ -28,7 +28,7 @@ export function get_draw_fps() {
     AVG = 0;
     TOTAL = 0;
     START = now;
-    return {avg, real_fps, virtual_fps, num_frames, elapsed};
+    return { avg, real_fps, virtual_fps, num_frames, elapsed };
 }
 
 export function log_perf(x) {
@@ -81,32 +81,28 @@ const invertPromise = () => {
     promise.resolve = _resolve;
     return promise;
 };
+const TAGS = new Map();
 
-export function throttlePromise(target, property, descriptor) {
-    const f = descriptor.value;
-    const lock_symbol = Symbol("regular-table throttle lock");
-    descriptor.value = async function (...args) {
-        if (this[lock_symbol] !== undefined) {
-            await this[lock_symbol];
-            if (this[lock_symbol] !== undefined) {
-                await this[lock_symbol];
-                return;
-            }
+export async function flush_tag(tag) {
+    await new Promise(requestAnimationFrame);
+    return await TAGS.get(tag);
+}
+
+export async function throttle_tag(tag, f) {
+    if (TAGS.has(tag)) {
+        await TAGS.get(tag);
+        if (TAGS.has(tag)) {
+            await TAGS.get(tag);
+            return;
         }
-        this[lock_symbol] = invertPromise();
-        let result;
-        try {
-            result = await f.call(this, ...args);
-        } finally {
-            const l = this[lock_symbol];
-            this[lock_symbol] = undefined;
-            l.resolve();
-        }
-        return result;
-    };
-    descriptor.value.flush = async function () {
-        await new Promise(requestAnimationFrame);
-        return await this[lock_symbol];
-    };
-    return descriptor;
+    }
+
+    TAGS.set(tag, invertPromise());
+    try {
+        return await f();
+    } finally {
+        const l = TAGS.get(tag);
+        TAGS.delete(tag);
+        l.resolve();
+    }
 }

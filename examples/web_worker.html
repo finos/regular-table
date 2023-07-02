@@ -9,78 +9,73 @@
 
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+        <script src="../dist/esm/regular-table.js"></script>
+        <link rel="stylesheet" href="../dist/css/material.css" />
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <script src="../dist/umd/regular-table.js"></script>
-    <link rel='stylesheet' href="../dist/css/material.css">
+        <style>
+            td {
+                color: #1078d1;
+            }
+        </style>
+    </head>
 
-    <style>
-        td {
-            color: #1078d1;
-        }
-    </style>
-</head>
+    <body>
+        <regular-table></regular-table>
 
-<body>
+        <script id="two_billion_worker" type="javascript/worker">
 
-    <regular-table></regular-table>
+            const NUM_ROWS = 2000000000;
+            const NUM_COLUMNS = 1000;
 
-    <script id="two_billion_worker" type="javascript/worker">
+            const formatter = new Intl.NumberFormat("en-us");
 
-        const NUM_ROWS = 2000000000;
-        const NUM_COLUMNS = 1000;
-
-        const formatter = new Intl.NumberFormat("en-us");
-
-        async function test_data_model(x0, y0, x1, y1) {
-            const data = [];
-            const column_headers = [];
-            for (let i = x0; i < x1; i++) {
-                const column = [];
-                data.push(column);
-                column_headers.push([`Column ${i}`]);
-                for (let j = y0; j < y1; j++) {
-                    column.push(formatter.format(j + i));
+            async function test_data_model(x0, y0, x1, y1) {
+                const data = [];
+                const column_headers = [];
+                for (let i = x0; i < x1; i++) {
+                    const column = [];
+                    data.push(column);
+                    column_headers.push([`Column ${i}`]);
+                    for (let j = y0; j < y1; j++) {
+                        column.push(formatter.format(j + i));
+                    }
                 }
+
+                return {
+                    num_rows: NUM_ROWS,
+                    num_columns: NUM_COLUMNS,
+                    column_headers,
+                    data,
+                };
             }
 
-            return {
-                num_rows: NUM_ROWS,
-                num_columns: NUM_COLUMNS,
-                column_headers,
-                data,
-            };
-        }
-
-        self.addEventListener("message", async (event) => {
-            const response = await test_data_model.apply(null, event.data);
-            self.postMessage(response);
-        });
-
-    </script>
-
-    <script>
-        const blob = new Blob([document.querySelector("#two_billion_worker").textContent]);
-        const worker = new Worker(window.URL.createObjectURL(blob, {type: "text/javascript"}));
-        const regularTable = document.getElementsByTagName("regular-table")[0];
-        
-        let callback;
-
-        worker.addEventListener("message", (event) => {
-            callback(event.data);
-        });
-
-        regularTable.setDataListener((...viewport) => {
-            return new Promise(function (resolve) {
-                callback = resolve;
-                worker.postMessage(viewport);
+            self.addEventListener("message", async (event) => {
+                const response = await test_data_model.apply(null, event.data);
+                self.postMessage(response);
             });
-        });
+        </script>
 
-        regularTable.draw();
-    </script>
+        <script>
+            const blob = new Blob([document.querySelector("#two_billion_worker").textContent]);
+            const worker = new Worker(window.URL.createObjectURL(blob, { type: "text/javascript" }));
+            const regularTable = document.getElementsByTagName("regular-table")[0];
 
-</body>
+            let callback;
 
+            worker.addEventListener("message", (event) => {
+                callback(event.data);
+            });
+
+            regularTable.setDataListener((...viewport) => {
+                return new Promise(function (resolve) {
+                    callback = resolve;
+                    worker.postMessage(viewport);
+                });
+            });
+
+            regularTable.draw();
+        </script>
+    </body>
 </html>

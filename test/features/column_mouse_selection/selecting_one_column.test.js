@@ -29,7 +29,7 @@ describe("column_mouse_selection.html", () => {
             const ths = await page.$$("regular-table thead tr:nth-of-type(2) th");
 
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, ths[4]);
         });

@@ -10,7 +10,7 @@
 
 describe.skip("fixed_column_widths.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 400, height: 100});
+        await page.setViewport({ width: 400, height: 100 });
     });
 
     describe("creates a `<table>` with fixed column widths", () => {
@@ -57,7 +57,7 @@ describe.skip("fixed_column_widths.html", () => {
 
         test("cell value do not overflow", async () => {
             const first_td = await page.$("regular-table tbody tr td:first-child");
-            const {text_overflow, overflow, white_space} = await page.evaluate((first_td) => {
+            const { text_overflow, overflow, white_space } = await page.evaluate((first_td) => {
                 first_td.text_content = "ABCDEFGHABCDEFGHABCDEFGHABCDEFGH";
                 const styles = getComputedStyle(first_td);
                 return {

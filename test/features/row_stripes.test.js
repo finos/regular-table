@@ -10,7 +10,7 @@
 
 describe("row_stripes.html", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 200, height: 100});
+        await page.setViewport({ width: 200, height: 100 });
         await page.goto("http://localhost:8081/dist/features/row_stripes.html");
         await page.waitForSelector("regular-table table tbody tr td");
     });
@@ -32,7 +32,7 @@ describe("row_stripes.html", () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
                 table.scrollTop = table.scrollTop + 42;
-                await table.draw.flush();
+                await table._draw_flush();
             }, table);
         });
 
@@ -56,7 +56,7 @@ describe("row_stripes.html", () => {
         await page.evaluate(async (table) => {
             // Scroll a few pages down to verify that the style listener wasn't called
             table.scrollBy(0, window.innerHeight * 10);
-            await table.draw.flush();
+            await table._draw_flush();
         }, table);
 
         const tds1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");

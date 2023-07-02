@@ -34,9 +34,6 @@ Pivot Tables, File Trees, or anytime you need:
 <a href="https://finos.github.io/regular-table/block?example=canvas_data_model">
 <img width="30%" src="https://finos.github.io/regular-table/img/canvas_data_model.png"/>
 </a>
-<a href="https://finos.github.io/regular-table/block?example=perspective">
-<img width="30%" src="https://finos.github.io/regular-table/img/perspective.png"/>
-</a>
 <a href="https://finos.github.io/regular-table/block?example=minesweeper">
 <img width="30%" src="https://finos.github.io/regular-table/img/minesweeper.png"/>
 </a>
@@ -64,7 +61,6 @@ Pivot Tables, File Trees, or anytime you need:
 - [canvas_data_model.md](examples/canvas_data_model.md)
 - [file_browser.md](examples/file_browser.md)
 - [minesweeper.md](examples/minesweeper.md)
-- [perspective.md](examples/perspective.md)
 - [react.md](examples/react.md)
 - [spreadsheet.md](examples/spreadsheet.md)
 - [two_billion_rows.md](examples/two_billion_rows.md)
@@ -100,7 +96,6 @@ available.
     -   [canvas_data_model.md](examples/canvas_data_model.md)
     -   [file_browser.md](examples/file_browser.md)
     -   [minesweeper.md](examples/minesweeper.md)
-    -   [perspective.md](examples/perspective.md)
     -   [react.md](examples/react.md)
     -   [spreadsheet.md](examples/spreadsheet.md)
     -   [two_billion_rows.md](examples/two_billion_rows.md)

@@ -36,7 +36,7 @@ describe("row_mouse_selection.html", () => {
                 const groupHeader0 = await page.$("regular-table tbody tr th:nth-of-type(1)");
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, groupHeader0);
 
@@ -48,7 +48,7 @@ describe("row_mouse_selection.html", () => {
 
                 const rowHeader3 = await page.$("regular-table tbody tr:nth-of-type(4) th");
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                    const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
                     th.dispatchEvent(event);
                 }, rowHeader3);
 

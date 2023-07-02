@@ -10,7 +10,7 @@
 
 describe("scrollToCell", () => {
     beforeAll(async () => {
-        await page.setViewport({width: 200, height: 200});
+        await page.setViewport({ width: 200, height: 200 });
         await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
         await page.evaluate(async () => {
             await document.querySelector("regular-table").draw();
@@ -21,7 +21,7 @@ describe("scrollToCell", () => {
         const table = await page.$("regular-table");
         await page.evaluate(async (table) => {
             table.scrollTop = 0;
-            await table.draw.flush();
+            await table._draw_flush();
         }, table);
     });
 

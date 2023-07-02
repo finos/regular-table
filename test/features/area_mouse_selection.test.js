@@ -19,7 +19,7 @@ describe("area_mouse_selection.html", () => {
     };
 
     beforeAll(async () => {
-        await page.setViewport({width: 300, height: 300});
+        await page.setViewport({ width: 300, height: 300 });
         await page.goto("http://localhost:8081/dist/features/area_mouse_selection.html");
         await page.waitForSelector("regular-table table tbody tr td");
     });
@@ -36,12 +36,12 @@ describe("area_mouse_selection.html", () => {
             const tds = await page.$$("regular-table tbody tr td:nth-of-type(1)");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, tds[0]);
 
@@ -55,12 +55,12 @@ describe("area_mouse_selection.html", () => {
             const row1Tds = await page.$$("regular-table tbody tr:nth-of-type(1) td");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, row1Tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, row1Tds[2]);
 
@@ -72,12 +72,12 @@ describe("area_mouse_selection.html", () => {
             const row5Tds = await page.$$("regular-table tbody tr:nth-of-type(5) td");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, row5Tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, row1Tds[0]);
 
@@ -89,12 +89,12 @@ describe("area_mouse_selection.html", () => {
             const row5Tds = await page.$$("regular-table tbody tr:nth-of-type(5) td");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, row5Tds[2]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, row2Tds[1]);
 
@@ -105,12 +105,12 @@ describe("area_mouse_selection.html", () => {
             const row2Tds = await page.$$("regular-table tbody tr:nth-of-type(2) td");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true});
+                const event = new MouseEvent("mousedown", { bubbles: true });
                 td.dispatchEvent(event);
             }, row2Tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true});
+                const event = new MouseEvent("mouseup", { bubbles: true });
                 td.dispatchEvent(event);
             }, row2Tds[1]);
 
@@ -119,12 +119,12 @@ describe("area_mouse_selection.html", () => {
             const row5Tds = await page.$$("regular-table tbody tr:nth-of-type(5) td");
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mousedown", {bubbles: true, ctrlKey: true});
+                const event = new MouseEvent("mousedown", { bubbles: true, ctrlKey: true });
                 td.dispatchEvent(event);
             }, row5Tds[0]);
 
             await page.evaluate(async (td) => {
-                const event = new MouseEvent("mouseup", {bubbles: true, ctrlKey: true});
+                const event = new MouseEvent("mouseup", { bubbles: true, ctrlKey: true });
                 td.dispatchEvent(event);
             }, row5Tds[1]);
 

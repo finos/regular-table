@@ -8,7 +8,7 @@
  *
  */
 
-import {ViewModel} from "./view_model";
+import { ViewModel } from "./view_model";
 
 /**
  * <tbody> view model.
@@ -16,7 +16,7 @@ import {ViewModel} from "./view_model";
  * @class RegularBodyViewModel
  */
 export class RegularBodyViewModel extends ViewModel {
-    _draw_td(tagName, ridx, val, cidx, {column_name}, {ridx_offset}, size_key) {
+    _draw_td(tagName, ridx, val, cidx, { column_name }, { ridx_offset }, size_key) {
         const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
         metadata.y = ridx + Math.floor(ridx_offset);
@@ -46,12 +46,12 @@ export class RegularBodyViewModel extends ViewModel {
         }
 
         metadata.value = val;
-        return {td, metadata};
+        return { td, metadata };
     }
 
     draw(container_height, column_state, view_state, th = false, x, x0, size_key) {
-        const {cidx, column_data, row_headers, column_data_listener_metadata} = column_state;
-        let {row_height} = view_state;
+        const { cidx, column_data, row_headers, column_data_listener_metadata } = column_state;
+        let { row_height } = view_state;
         let metadata;
         const ridx_offset = [],
             tds = [];
@@ -126,10 +126,10 @@ export class RegularBodyViewModel extends ViewModel {
             }
         }
         this._clean_rows(ridx);
-        return {tds, ridx, metadata, row_height};
+        return { tds, ridx, metadata, row_height };
     }
 
-    clean({ridx, cidx}) {
+    clean({ ridx, cidx }) {
         this._clean_rows(ridx);
         this._clean_columns(cidx);
     }

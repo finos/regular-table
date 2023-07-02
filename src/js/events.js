@@ -8,9 +8,9 @@
  *
  */
 
-import {METADATA_MAP} from "./constants";
-import {RegularVirtualTableViewModel} from "./scroll_panel";
-import {throttlePromise} from "./utils";
+import { METADATA_MAP } from "./constants";
+import { RegularVirtualTableViewModel } from "./scroll_panel";
+import { throttle_tag } from "./utils";
 
 /**
  * WHen enabled, override iOS overscroll behavior by emulating scroll position
@@ -50,7 +50,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      */
     _on_scroll(event) {
         event.stopPropagation();
-        this.draw({invalid_viewport: false});
+        this.draw({ invalid_viewport: false });
     }
 
     /**
@@ -87,7 +87,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             return;
         }
 
-        const {clientWidth, clientHeight, scrollTop, scrollLeft} = this;
+        const { clientWidth, clientHeight, scrollTop, scrollLeft } = this;
         event.preventDefault();
         event.returnValue = false;
         const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
@@ -112,7 +112,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         event.stopPropagation();
         event.preventDefault();
         event.returnValue = false;
-        const {clientWidth, clientHeight} = this;
+        const { clientWidth, clientHeight } = this;
         const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
         const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
         this.scrollTop = Math.min(total_scroll_height, this._memo_scroll_top + (this._memo_touch_startY - event.touches[0].pageY));
@@ -236,12 +236,12 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @param {*} metadata
      */
     _on_resize_column(event, element, metadata) {
-        const {_virtual_x, size_key} = metadata;
+        const { _virtual_x, size_key } = metadata;
         const start = event.pageX;
         const header_x = _virtual_x + element.colSpan - 1;
         const header_element = this.table_model.header.get_column_header(header_x);
         const width = this._column_sizes.indices[size_key];
-        const move = (event) => this._on_resize_column_move(event, header_element, start, width, size_key, header_x);
+        const move = (event) => throttle_tag(this, async () => await this._on_resize_column_move(event, header_element, start, width, size_key, header_x));
         const up = () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
@@ -269,9 +269,8 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @param {*} width
      * @param {*} metadata
      */
-    @throttlePromise
     async _on_resize_column_move(event, th, start, width, size_key, virtual_x) {
-        await new Promise(setTimeout);
+        await new Promise(requestAnimationFrame);
         const diff = event.pageX - start;
         const override_width = Math.max(1, width + diff);
         this._column_sizes.override[size_key] = override_width;
@@ -279,7 +278,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         // If the column is smaller, new columns may need to be fetched, so
         // redraw, else just update the DOM widths as if redrawn.
         if (diff < 0) {
-            await this.draw({preserve_width: true});
+            await this.draw({ preserve_width: true });
         } else {
             th.style.minWidth = override_width + "px";
             th.style.maxWidth = override_width + "px";

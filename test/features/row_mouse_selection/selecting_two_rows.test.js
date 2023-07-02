@@ -30,12 +30,12 @@ describe("row_mouse_selection.html", () => {
                 const ths = await page.$$("regular-table tbody tr th");
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, ths[3]);
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: false});
+                    const event = new MouseEvent("click", { bubbles: true, ctrlKey: false });
                     th.dispatchEvent(event);
                 }, ths[5]);
 
@@ -48,12 +48,12 @@ describe("row_mouse_selection.html", () => {
                 const ths = await page.$$("regular-table tbody tr th");
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true});
+                    const event = new MouseEvent("click", { bubbles: true });
                     th.dispatchEvent(event);
                 }, ths[3]);
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                    const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
                     th.dispatchEvent(event);
                 }, ths[5]);
 

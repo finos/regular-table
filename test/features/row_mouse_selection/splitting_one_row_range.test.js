@@ -28,19 +28,19 @@ describe("row_mouse_selection.html", () => {
         test("selects the rows' headers and cells", async () => {
             const rowHeader1 = await page.$("regular-table tbody tr:nth-of-type(2) th");
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true});
+                const event = new MouseEvent("click", { bubbles: true });
                 th.dispatchEvent(event);
             }, rowHeader1);
 
             const rowHeader3 = await page.$("regular-table tbody tr:nth-of-type(4) th");
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true, shiftKey: true});
+                const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
                 th.dispatchEvent(event);
             }, rowHeader3);
 
             const rowHeader2 = await page.$("regular-table tbody tr:nth-of-type(3) th");
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", {bubbles: true, ctrlKey: true});
+                const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
                 th.dispatchEvent(event);
             }, rowHeader2);
 

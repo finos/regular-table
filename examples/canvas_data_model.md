@@ -1,12 +1,11 @@
 ## Canvas Data Model
 
-An example of using a `<canvas>` element as a data model for [`regular-table`](https://github.com/finos/regular-table).
-As you `mouseover` the image, a cursor tooltip `<regular-table>` shows a
-zoom-in via a virtual data model which defers to [`context.getImageData()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData).
+An example of using a `<canvas>` element as a data model for [`regular-table`](https://github.com/finos/regular-table). As you `mouseover` the image, a cursor tooltip `<regular-table>` shows a zoom-in
+via a virtual data model which defers to [`context.getImageData()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData).
 
 ```html
-<script src="/dist/umd/regular-table.js"></script>
-<link rel='stylesheet' href="/dist/css/material.css">
+<script src="/dist/esm/regular-table.js"></script>
+<link rel="stylesheet" href="/dist/css/material.css" />
 ```
 
 ```css
@@ -32,8 +31,7 @@ regular-table tbody th {
     text-align: center;
 }
 regular-table tbody th:last-of-type,
-regular-table thead tr:first-child th
-{
+regular-table thead tr:first-child th {
     border-right: 1px solid white;
 }
 regular-table thead tr:first-child th {
@@ -51,7 +49,7 @@ regular-table td {
     max-width: 20px !important;
     padding: 0px;
 }
-regular-table th {           
+regular-table th {
     color: white;
     font-family: monospace;
 }
@@ -81,10 +79,10 @@ regular-table::-webkit-scrollbar-thumb {
 ```
 
 Alternative large format images
- 
-* https://upload.wikimedia.org/wikipedia/commons/d/d6/STS120LaunchHiRes-edit1.jpg
-* https://upload.wikimedia.org/wikipedia/commons/7/7a/Cassius_Marcellus_Coolidge_-_Poker_Game_%281894%29.png
-* https://upload.wikimedia.org/wikipedia/commons/1/13/Un_bar_aux_Folies-Berg%C3%A8re_d%27E._Manet_%28Fondation_Vuitton%2C_Paris%29_%2833539037428%29.jpg
+
+-   https://upload.wikimedia.org/wikipedia/commons/d/d6/STS120LaunchHiRes-edit1.jpg
+-   https://upload.wikimedia.org/wikipedia/commons/7/7a/Cassius_Marcellus_Coolidge_-_Poker_Game_%281894%29.png
+-   https://upload.wikimedia.org/wikipedia/commons/1/13/Un_bar_aux_Folies-Berg%C3%A8re_d%27E._Manet_%28Fondation_Vuitton%2C_Paris%29_%2833539037428%29.jpg
 
 ```html
 <div id="scroll_container">
@@ -134,16 +132,8 @@ ref_image.onload = async function () {
         }
         return {
             data,
-            row_headers:
-                y1 - y0 === 0
-                    ? []
-                    : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [
-                          clamp(y0 + z, 10),
-                          (y0 + z) % 10,
-                      ]),
-            column_headers: column_names
-                .slice(x0, x1)
-                .map((x) => [clamp(x, 10), x % 10]),
+            row_headers: y1 - y0 === 0 ? [] : Array.from(Array(Math.floor(y1 - y0)).keys()).map((z) => [clamp(y0 + z, 10), (y0 + z) % 10]),
+            column_headers: column_names.slice(x0, x1).map((x) => [clamp(x, 10), x % 10]),
             num_rows: canvas.height,
             num_columns: column_names.length,
         };
@@ -161,10 +151,8 @@ window.addEventListener("mousemove", (event) => {
     const y = event.clientY + scroll_container.scrollTop;
     reticle.style.top = `${y}px`;
     reticle.style.left = `${x}px`;
-    const top_scroll_limit =
-        scroll_container.scrollTop + window.innerHeight - 424;
-    const left_scroll_limit =
-        scroll_container.scrollLeft + window.innerWidth - 424;
+    const top_scroll_limit = scroll_container.scrollTop + window.innerHeight - 424;
+    const left_scroll_limit = scroll_container.scrollLeft + window.innerWidth - 424;
     if (top_scroll_limit < y + 20 && left_scroll_limit < x + 20) {
         if (y - top_scroll_limit < x - left_scroll_limit) {
             table.style.top = `${top_scroll_limit}px`;
