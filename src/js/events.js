@@ -48,9 +48,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @memberof RegularViewEventModel
      * @returns
      */
-    _on_scroll(event) {
+    async _on_scroll(event) {
         event.stopPropagation();
-        this.draw({ invalid_viewport: false });
+        await this.draw({ invalid_viewport: false });
+        this.dispatchEvent(new CustomEvent("regular-table-scroll"));
     }
 
     /**
