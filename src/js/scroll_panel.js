@@ -358,9 +358,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {DrawOptions} [options]
      * @param {boolean} [options.invalid_viewport=true]
      * @param {boolean} [options.preserve_width=false]
+     * @param {boolean} [options.throttle=true]
      */
     async draw(options = {}) {
-        return await throttle_tag(this, () => internal_draw.call(this, [options]));
+        if (typeof options.throttle !== "undefined" && !options.throttle) {
+            return await internal_draw.call(this, [options]);
+        } else {
+            return await throttle_tag(this, () => internal_draw.call(this, [options]));
+        }
     }
 
     async _draw_flush() {
@@ -393,7 +398,6 @@ async function internal_draw(options) {
     if (!preserve_width) {
         this._update_virtual_panel_width(invalid_viewport, num_columns);
     }
-
     const viewport = this._calculate_viewport(num_rows, num_columns);
     const { invalid_row, invalid_column } = this._validate_viewport(viewport);
     if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
