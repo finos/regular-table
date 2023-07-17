@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.5.8](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.7...HEAD)
+
+**Fixed bugs:**
+
+- Fix column resize & row height viewport bugs [\#186](https://github.com/finos/regular-table/pull/186) ([texodus](https://github.com/texodus))
+
 ## [v0.5.7](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.6...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.6...v0.5.7)
 
 **Implemented enhancements:**
 
