@@ -279,7 +279,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         // If the column is smaller, new columns may need to be fetched, so
         // redraw, else just update the DOM widths as if redrawn.
         if (diff < 0) {
-            await this.draw({ preserve_width: true });
+            await this.draw({ preserve_width: true, throttle: false });
         } else {
             th.style.minWidth = override_width + "px";
             th.style.maxWidth = override_width + "px";
