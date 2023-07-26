@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.5.9](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.8...HEAD)
+
+**Fixed bugs:**
+
+- Clamp row height [\#188](https://github.com/finos/regular-table/pull/188) ([texodus](https://github.com/texodus))
+
 ## [v0.5.8](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.7...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.7...v0.5.8)
 
 **Fixed bugs:**
 
