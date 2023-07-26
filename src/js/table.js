@@ -57,7 +57,7 @@ export class RegularTableViewModel {
         while (last_cells.length > 0) {
             const [cell, metadata] = last_cells.pop();
             const box = cell.getBoundingClientRect();
-            this._column_sizes.row_height = box.height;
+            this._column_sizes.row_height = Math.max(10, Math.min(this._column_sizes.row_height || box.height, box.height));
             this._column_sizes.indices[metadata.size_key] = box.width;
             const is_override = this._column_sizes.override[metadata.size_key] !== undefined;
             if (box.width && !is_override) {
