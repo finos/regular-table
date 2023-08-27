@@ -388,7 +388,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 async function internal_draw(options) {
     const __debug_start_time__ = DEBUG && performance.now();
     const { invalid_viewport = true, preserve_width = false } = options;
-    const { num_columns, num_rows } = await this._view_cache.view(0, 0, 0, 0);
+    const { num_columns, num_rows, row_height } = await this._view_cache.view(0, 0, 0, 0);
     this._container_size = {
         width: this._virtual_mode === "none" || this._virtual_mode === "vertical" ? Infinity : this._table_clip.clientWidth,
         height: this._virtual_mode === "none" || this._virtual_mode === "horizontal" ? Infinity : this._table_clip.clientHeight,
@@ -430,7 +430,7 @@ async function internal_draw(options) {
             this._invalidated = false;
         }
 
-        this.table_model.autosize_cells(autosize_cells);
+        this.table_model.autosize_cells(autosize_cells, row_height);
         this.table_model.header.reset_header_cache();
         if (!preserve_width) {
             this._update_virtual_panel_width(this._invalid_schema || invalid_column, num_columns);
