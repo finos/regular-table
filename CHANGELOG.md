@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.6.0](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.9...HEAD)
+
+**Implemented enhancements:**
+
+- Add `column_header_merge_depth` and `row_height` page options [\#191](https://github.com/finos/regular-table/pull/191) ([texodus](https://github.com/texodus))
+
 ## [v0.5.9](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.8...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.8...v0.6.0)
 
 **Fixed bugs:**
 
