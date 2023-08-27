@@ -53,11 +53,11 @@ export class RegularTableViewModel {
      * @param {*} {columns, column_pivots}
      * @memberof RegularTableViewModel
      */
-    autosize_cells(last_cells) {
+    autosize_cells(last_cells, override_row_height) {
         while (last_cells.length > 0) {
             const [cell, metadata] = last_cells.pop();
             const box = cell.getBoundingClientRect();
-            this._column_sizes.row_height = Math.max(10, Math.min(this._column_sizes.row_height || box.height, box.height));
+            this._column_sizes.row_height = override_row_height || Math.max(10, Math.min(this._column_sizes.row_height || box.height, box.height));
             this._column_sizes.indices[metadata.size_key] = box.width;
             const is_override = this._column_sizes.override[metadata.size_key] !== undefined;
             if (box.width && !is_override) {
@@ -73,7 +73,7 @@ export class RegularTableViewModel {
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const { width: container_width, height: container_height } = container_size;
         const { view, config } = view_cache;
-        let { data, row_headers, column_headers, metadata: data_listener_metadata } = await view(
+        let { data, row_headers, column_headers, metadata: data_listener_metadata, column_header_merge_depth } = await view(
             Math.floor(viewport.start_col),
             Math.floor(viewport.start_row),
             Math.ceil(viewport.end_col),
@@ -126,7 +126,7 @@ export class RegularTableViewModel {
             cont_body = this.body.draw(container_height, column_state, { ...view_state, x0: 0 }, true, undefined, undefined, size_key);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                const header = this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i);
+                const header = this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i, column_header_merge_depth);
                 if (!!header) {
                     cont_heads.push(header);
                 }
@@ -182,6 +182,10 @@ export class RegularTableViewModel {
                     yield undefined;
                     const new_col = await new_col_req;
 
+                    if (typeof new_col.column_header_merge_depth !== "undefined") {
+                        column_header_merge_depth = new_col.column_header_merge_depth;
+                    }
+
                     if (new_col.data.length === 0) {
                         // The viewport is size 0, first the estimate, then the
                         // first-pass render, so really actually abort now.
@@ -216,7 +220,7 @@ export class RegularTableViewModel {
 
                 const x = dcidx + x0;
                 const size_key = _virtual_x + Math.floor(x0);
-                const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x);
+                const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x, column_header_merge_depth);
                 cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key);
                 first_col = false;
                 if (!preserve_width) {

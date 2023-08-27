@@ -84,14 +84,16 @@ export class RegularHeaderViewModel extends ViewModel {
         return this._get_cell("TH", this.num_rows() - 1, cidx);
     }
 
-    draw(alias, parts, colspan, x, size_key, x0, _virtual_x) {
+    draw(alias, parts, colspan, x, size_key, x0, _virtual_x, column_header_merge_depth) {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
         if (header_levels === 0) return;
         let th, metadata, column_name;
+        column_header_merge_depth = typeof column_header_merge_depth === "undefined" ? header_levels - 1 : column_header_merge_depth;
         for (let d = 0; d < header_levels; d++) {
             column_name = parts[d] ? parts[d] : "";
             this._offset_cache[d] = this._offset_cache[d] || 0;
-            if (d < header_levels - 1) {
+
+            if (d < column_header_merge_depth) {
                 if (this._group_header_cache?.[d]?.[0]?.value === column_name) {
                     th = this._group_header_cache[d][1];
                     this._group_header_cache[d][2] += 1;

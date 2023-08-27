@@ -376,6 +376,16 @@ field will accompany the metadata records returned by `regular-table`'s
 }
 ```
 
+### Rendering Options
+
+There are some additional values which can be configured for specialty use:
+
+* `column_header_merge_depth: number` configures the number of rows to include
+  from `colspan` merging. This defaults to `header_length - 1`.
+* `row_height: number` configures the pixel height of a row for
+  virtual scrolling calculation. This is typically auto-detected from the DOM,
+  but can be overridden if needed.
+
 ### `async` Data Models
 
 With an `async` data model, it's easy to serve `getDataSlice()` remotely from
