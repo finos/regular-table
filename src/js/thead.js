@@ -88,6 +88,7 @@ export class RegularHeaderViewModel extends ViewModel {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
         if (header_levels === 0) return;
         let th, metadata, column_name;
+        let output = undefined;
         column_header_merge_depth = typeof column_header_merge_depth === "undefined" ? header_levels - 1 : column_header_merge_depth;
         for (let d = 0; d < header_levels; d++) {
             column_name = parts[d] ? parts[d] : "";
@@ -113,12 +114,17 @@ export class RegularHeaderViewModel extends ViewModel {
                 // header has the same metadata coordinates of its rightmost
                 // column.
                 metadata = this._draw_th(alias || parts, column_name, th, x, size_key);
+                if (typeof output === "undefined") {
+                    output = { th, metadata };
+                }
+
                 for (const [group_meta] of this._group_header_cache) {
                     group_meta.size_key = metadata.size_key;
                 }
                 th.removeAttribute("colspan");
             }
 
+            this._get_row(d).tr.classList.toggle("rt-autosize", d === column_header_merge_depth);
             th.classList.toggle("rt-group-corner", x === undefined);
             if (metadata) {
                 metadata.x = typeof x === "undefined" ? x : Math.floor(x);
@@ -132,7 +138,8 @@ export class RegularHeaderViewModel extends ViewModel {
         }
 
         this._clean_rows(this._offset_cache.length);
-        return { th, metadata };
+        output = output || { th, metadata };
+        return output;
     }
 
     clean() {
