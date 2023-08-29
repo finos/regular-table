@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.6.1](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.0...HEAD)
+
+**Fixed bugs:**
+
+- Fix autosize to use last merged column header [\#192](https://github.com/finos/regular-table/pull/192) ([texodus](https://github.com/texodus))
+
 ## [v0.6.0](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.9...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.9...v0.6.0)
 
 **Implemented enhancements:**
 
