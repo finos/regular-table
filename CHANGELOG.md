@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.6.2](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.1...HEAD)
+
+**Fixed bugs:**
+
+- Fix `getMeta()` bug [\#197](https://github.com/finos/regular-table/pull/197) ([texodus](https://github.com/texodus))
+
 ## [v0.6.1](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.0...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.0...v.0.6.1)
 
 **Fixed bugs:**
 
