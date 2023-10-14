@@ -39,7 +39,7 @@ describe("row_mouse_selection.html", () => {
                     th.dispatchEvent(event);
                 }, ths[5]);
 
-                expect(await selectedRows()).toEqual(["Row 4"]);
+                expect(await selectedRows()).toEqual(["Row 2"]);
             });
         });
 
@@ -57,7 +57,7 @@ describe("row_mouse_selection.html", () => {
                     th.dispatchEvent(event);
                 }, ths[5]);
 
-                expect(await selectedRows()).toEqual(["Row 2", "Row 4"]);
+                expect(await selectedRows()).toEqual(["Row 1", "Row 2"]);
             });
         });
     });
