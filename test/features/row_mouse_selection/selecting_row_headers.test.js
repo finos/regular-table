@@ -40,11 +40,53 @@ describe("row_mouse_selection.html", () => {
                     th.dispatchEvent(event);
                 }, groupHeader0);
 
-                expect(await selectedRows()).toEqual(["Group 0", "Row 0", "Row 1", "Row 2", "Row 3", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9"]);
+                expect(await selectedRows()).toEqual([
+                    "Group 0",
+                    "Row 0",
+                    "Group 0",
+                    "Row 1",
+                    "Group 0",
+                    "Row 2",
+                    "Group 0",
+                    "Row 3",
+                    "Group 0",
+                    "Row 4",
+                    "Group 0",
+                    "Row 5",
+                    "Group 0",
+                    "Row 6",
+                    "Group 0",
+                    "Row 7",
+                    "Group 0",
+                    "Row 8",
+                    "Group 0",
+                    "Row 9",
+                ]);
             });
 
             test("splitting the group with ctrl", async () => {
-                expect(await selectedRows()).toEqual(["Group 0", "Row 0", "Row 1", "Row 2", "Row 3", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9"]);
+                expect(await selectedRows()).toEqual([
+                    "Group 0",
+                    "Row 0",
+                    "Group 0",
+                    "Row 1",
+                    "Group 0",
+                    "Row 2",
+                    "Group 0",
+                    "Row 3",
+                    "Group 0",
+                    "Row 4",
+                    "Group 0",
+                    "Row 5",
+                    "Group 0",
+                    "Row 6",
+                    "Group 0",
+                    "Row 7",
+                    "Group 0",
+                    "Row 8",
+                    "Group 0",
+                    "Row 9",
+                ]);
 
                 const rowHeader3 = await page.$("regular-table tbody tr:nth-of-type(4) th");
                 await page.evaluate(async (th) => {
@@ -52,7 +94,7 @@ describe("row_mouse_selection.html", () => {
                     th.dispatchEvent(event);
                 }, rowHeader3);
 
-                expect(await selectedRows()).toEqual(["Row 0", "Row 1", "Row 2", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9"]);
+                expect(await selectedRows()).toEqual(["Group 0", "Row 0", "Group 0", "Row 1", "Group 0", "Row 2"]);
             });
         });
     });

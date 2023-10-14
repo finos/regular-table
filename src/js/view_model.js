@@ -86,8 +86,7 @@ export class ViewModel {
         if (ridx < 0 || cidx < 0) {
             return;
         }
-        const { row_container } = this._get_row(ridx);
-        return row_container[cidx];
+        return this.cells[ridx]?.row_container?.[cidx];
     }
 
     _get_cell(tag = "TD", ridx, cidx) {

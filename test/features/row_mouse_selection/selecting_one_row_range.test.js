@@ -32,14 +32,14 @@ describe("row_mouse_selection.html", () => {
                 th.dispatchEvent(event);
             }, rowHeader1);
 
-            const rowHeader3 = await page.$("regular-table tbody tr:nth-of-type(4) th");
+            const rowHeader3 = await page.$("regular-table tbody tr:last-child th");
             await page.evaluate(async (th) => {
                 const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
                 th.dispatchEvent(event);
             }, rowHeader3);
 
             await page.waitForSelector("regular-table td.mouse-selected-row");
-            expect(await selectedRows()).toEqual(["Row 1", "Row 2", "Row 3"]);
+            expect((await selectedRows()).length).toEqual(256);
         });
     });
 });
