@@ -86,7 +86,23 @@ export class ViewModel {
         if (ridx < 0 || cidx < 0) {
             return;
         }
-        return this.cells[ridx]?.row_container?.[cidx];
+
+        return this.cells[ridx]?.[cidx];
+    }
+
+    _get_row(ridx) {
+        let tr = this.rows[ridx];
+        if (!tr) {
+            tr = this.rows[ridx] = document.createElement("tr");
+            this.table.appendChild(tr);
+        }
+
+        let row_container = this.cells[ridx];
+        if (!row_container) {
+            row_container = this.cells[ridx] = [];
+        }
+
+        return { tr, row_container };
     }
 
     _get_cell(tag = "TD", ridx, cidx) {
@@ -111,21 +127,6 @@ export class ViewModel {
             td = new_td;
         }
         return td;
-    }
-
-    _get_row(ridx) {
-        let tr = this.rows[ridx];
-        if (!tr) {
-            tr = this.rows[ridx] = document.createElement("tr");
-            this.table.appendChild(tr);
-        }
-
-        let row_container = this.cells[ridx];
-        if (!row_container) {
-            row_container = this.cells[ridx] = [];
-        }
-
-        return { tr, row_container };
     }
 
     _clean_columns(cidx) {

@@ -354,6 +354,8 @@ elements in a sequence will be automatically merged via `rowspan` and `colspan`
 attributes. In this example, e.g. `"Rowgroup 1"` will only output to one `<th>`
 node in the resulting `<table>`.
 
+Header merging can be disabled with the `merge_headers` option.
+
 ### `metadata` Data-Aware Styling
 
 A `dataListener` may also optionally provide a `metadata` field in its response,
@@ -378,13 +380,17 @@ field will accompany the metadata records returned by `regular-table`'s
 
 ### Rendering Options
 
-There are some additional values which can be configured for specialty use:
+Additional rendering options which can be set on the object returned by a
+`setDataListener` callback include:
 
 * `column_header_merge_depth: number` configures the number of rows to include
   from `colspan` merging. This defaults to `header_length - 1`.
 * `row_height: number` configures the pixel height of a row for
   virtual scrolling calculation. This is typically auto-detected from the DOM,
   but can be overridden if needed.
+* `merge_headers: "column" | "row" | "both" | "none"` configures whether 
+  equivalent, contiguous `<th>` elements are merged via `rowspan` or `colspan`
+  for `"row"` and `"column"` respectively (defaults to `"both"`).
 
 ### `async` Data Models
 

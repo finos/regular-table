@@ -49,7 +49,7 @@ export class RegularBodyViewModel extends ViewModel {
         return { td, metadata };
     }
 
-    draw(container_height, column_state, view_state, th = false, x, x0, size_key) {
+    draw(container_height, column_state, view_state, th = false, x, x0, size_key, merge_headers) {
         const { cidx, column_data, row_headers, column_data_listener_metadata } = column_state;
         let { row_height } = view_state;
         let metadata;
@@ -71,11 +71,11 @@ export class RegularBodyViewModel extends ViewModel {
                     const prev_col = this._fetch_cell(ridx, cidx + i - (cidx_offset[ridx] || 1));
                     const prev_col_metadata = this._get_or_create_metadata(prev_col);
 
-                    if (prev_col && (prev_col_metadata.value === row_header || row_header === undefined) && !prev_col.hasAttribute("rowspan")) {
+                    if (merge_headers && prev_col && (prev_col_metadata.value === row_header || row_header === undefined) && !prev_col.hasAttribute("rowspan")) {
                         cidx_offset[ridx] = cidx_offset[ridx] ? cidx_offset[ridx] + 1 : 2;
                         prev_col.setAttribute("colspan", cidx_offset[ridx]);
                         this._replace_cell(ridx, cidx + i);
-                    } else if (prev_row && prev_row_metadata.value === row_header && !prev_row.hasAttribute("colspan")) {
+                    } else if (merge_headers && prev_row && prev_row_metadata.value === row_header && !prev_row.hasAttribute("colspan")) {
                         ridx_offset[i] = ridx_offset[i] ? ridx_offset[i] + 1 : 2;
                         prev_row.setAttribute("rowspan", ridx_offset[i]);
                         this._replace_cell(ridx, cidx + i);

@@ -35,14 +35,37 @@ describe("row_mouse_selection.html", () => {
                 }, groupHeader0);
 
                 const ths = await page.$$("regular-table tbody th");
-                const groupHeader10 = ths[ths.length - 2];
+                const groupHeader10 = ths[11];
                 await page.evaluate(async (th) => {
                     const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
                     th.dispatchEvent(event);
                 }, groupHeader10);
 
                 await page.waitForSelector("regular-table td.mouse-selected-row");
-                expect((await selectedRows()).length).toEqual(258);
+                expect(await selectedRows()).toEqual([
+                    "Group 0",
+                    "Row 0",
+                    "Row 1",
+                    "Row 2",
+                    "Row 3",
+                    "Row 4",
+                    "Row 5",
+                    "Row 6",
+                    "Row 7",
+                    "Row 8",
+                    "Row 9",
+                    "Group 10",
+                    "Row 10",
+                    "Row 11",
+                    "Row 12",
+                    "Row 13",
+                    "Row 14",
+                    "Row 15",
+                    "Row 16",
+                    "Row 17",
+                    "Row 18",
+                    "Row 19",
+                ]);
 
                 await page.evaluate(async (th) => {
                     const event = new MouseEvent("click", { bubbles: true });
@@ -67,48 +90,7 @@ describe("row_mouse_selection.html", () => {
                 }, rowHeader11);
 
                 await page.waitForSelector("regular-table td.mouse-selected-row");
-                expect(await selectedRows()).toEqual([
-                    "Group 0",
-                    "Row 0",
-                    "Group 0",
-                    "Row 1",
-                    "Group 0",
-                    "Row 2",
-                    "Group 0",
-                    "Row 3",
-                    "Group 0",
-                    "Row 4",
-                    "Group 0",
-                    "Row 5",
-                    "Group 0",
-                    "Row 6",
-                    "Group 0",
-                    "Row 7",
-                    "Group 0",
-                    "Row 8",
-                    "Group 0",
-                    "Row 9",
-                    "Group 10",
-                    "Row 10",
-                    "Group 10",
-                    "Row 11",
-                    "Group 10",
-                    "Row 12",
-                    "Group 10",
-                    "Row 13",
-                    "Group 10",
-                    "Row 14",
-                    "Group 10",
-                    "Row 15",
-                    "Group 10",
-                    "Row 16",
-                    "Group 10",
-                    "Row 17",
-                    "Group 10",
-                    "Row 18",
-                    "Group 10",
-                    "Row 19",
-                ]);
+                expect(await selectedRows()).toEqual(["Row 0", "Row 1", "Row 2", "Row 3", "Row 4", "Row 5", "Row 6", "Row 7", "Row 8", "Row 9", "Row 10", "Row 11"]);
             });
         });
     });
