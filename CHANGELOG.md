@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.6.3](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.2...HEAD)
+
+**Implemented enhancements:**
+
+- Add `merge_headers` option [\#198](https://github.com/finos/regular-table/pull/198) ([texodus](https://github.com/texodus))
+
 ## [v0.6.2](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.1...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.1...v0.6.2)
 
 **Fixed bugs:**
 
