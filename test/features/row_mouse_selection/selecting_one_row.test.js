@@ -33,26 +33,7 @@ describe("row_mouse_selection.html", () => {
             }, rowHeader1);
             await page.waitForSelector("regular-table td.mouse-selected-row");
             const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-row");
-            expect(await selectedRows()).toEqual([
-                "Group 0",
-                "Row 1",
-                "Group 0",
-                "Row 2",
-                "Group 0",
-                "Row 3",
-                "Group 0",
-                "Row 4",
-                "Group 0",
-                "Row 5",
-                "Group 0",
-                "Row 6",
-                "Group 0",
-                "Row 7",
-                "Group 0",
-                "Row 8",
-                "Group 0",
-                "Row 9",
-            ]);
+            expect(await selectedRows()).toEqual(["Row 1"]);
             expect(selectedCells.length > 0).toEqual(true);
 
             await page.evaluate(async (th) => {

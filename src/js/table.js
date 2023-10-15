@@ -73,12 +73,15 @@ export class RegularTableViewModel {
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const { width: container_width, height: container_height } = container_size;
         const { view, config } = view_cache;
-        let { data, row_headers, column_headers, metadata: data_listener_metadata, column_header_merge_depth } = await view(
+        let { data, row_headers, column_headers, metadata: data_listener_metadata, column_header_merge_depth, merge_headers = "both" } = await view(
             Math.floor(viewport.start_col),
             Math.floor(viewport.start_row),
             Math.ceil(viewport.end_col),
             Math.ceil(viewport.end_row)
         );
+
+        const merge_row_headers = merge_headers === "both" || merge_headers === "row";
+        const merge_column_headers = merge_headers === "both" || merge_headers === "column";
 
         const { start_row: ridx_offset = 0, start_col: x0 = 0, end_col: x1 = 0, end_row: y1 = 0 } = viewport;
 
@@ -123,10 +126,10 @@ export class RegularTableViewModel {
                 first_col,
             };
             const size_key = _virtual_x + Math.floor(x0);
-            cont_body = this.body.draw(container_height, column_state, { ...view_state, x0: 0 }, true, undefined, undefined, size_key);
+            cont_body = this.body.draw(container_height, column_state, { ...view_state, x0: 0 }, true, undefined, undefined, size_key, merge_row_headers);
             const cont_heads = [];
             for (let i = 0; i < view_cache.config.row_pivots.length; i++) {
-                const header = this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i, column_header_merge_depth);
+                const header = this.header.draw(column_name, Array(view_cache.config.column_pivots.length).fill(""), 1, undefined, i, x0, i, column_header_merge_depth, merge_column_headers);
                 if (!!header) {
                     cont_heads.push(header);
                 }
@@ -186,6 +189,10 @@ export class RegularTableViewModel {
                         column_header_merge_depth = new_col.column_header_merge_depth;
                     }
 
+                    if (typeof new_col.merge_headers !== "undefined") {
+                        merge_headers = new_col.merge_headers;
+                    }
+
                     if (new_col.data.length === 0) {
                         // The viewport is size 0, first the estimate, then the
                         // first-pass render, so really actually abort now.
@@ -220,8 +227,8 @@ export class RegularTableViewModel {
 
                 const x = dcidx + x0;
                 const size_key = _virtual_x + Math.floor(x0);
-                const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x, column_header_merge_depth);
-                cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key);
+                const cont_head = this.header.draw(undefined, column_name, undefined, x, size_key, x0, _virtual_x, column_header_merge_depth, merge_column_headers);
+                cont_body = this.body.draw(container_height, column_state, view_state, false, x, x0, size_key, merge_row_headers);
                 first_col = false;
                 if (!preserve_width) {
                     for (const { td, metadata } of cont_body.tds) {
