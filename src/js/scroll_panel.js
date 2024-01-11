@@ -362,9 +362,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     async draw(options = {}) {
         if (typeof options.throttle !== "undefined" && !options.throttle) {
-            return await internal_draw.call(this, [options]);
+            return await internal_draw.call(this, options);
         } else {
-            return await throttle_tag(this, () => internal_draw.call(this, [options]));
+            return await throttle_tag(this, () => internal_draw.call(this, options));
         }
     }
 
