@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.6.4](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.3...HEAD)
+
+**Fixed bugs:**
+
+- Fix viewport staleness check [\#204](https://github.com/finos/regular-table/pull/204) ([texodus](https://github.com/texodus))
+
 ## [v0.6.3](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.2...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.2...v0.6.3)
 
 **Implemented enhancements:**
 
