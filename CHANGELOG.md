@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.6.5](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.4...HEAD)
+
+**Fixed bugs:**
+
+- Allow last column to be sub-cell scrolled [\#223](https://github.com/finos/regular-table/pull/223) ([texodus](https://github.com/texodus))
+
+
 ## [v0.6.4](https://github.com/finos/regular-table/tree/HEAD)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.6.3...HEAD)
