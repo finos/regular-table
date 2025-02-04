@@ -79,9 +79,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 ${sub_cell_offsets}
             </style>
             <div class="rt-virtual-panel"></div>
-            <div class="rt-scroll-table-clip">
-                ${slot}
-            </div>
+            <div class="rt-scroll-table-clip">${slot}</div>
         `;
 
         const [, style, virtual_panel, table_clip] = this.shadowRoot.children;
@@ -296,6 +294,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         while (cidx < max_scroll_column + scroll_index_offset) {
             virtual_width += this._column_sizes.indices[cidx] || 60;
             cidx++;
+        }
+
+        if (cidx < this._column_sizes.indices.length) {
+            let viewport_width = this._column_sizes.indices.slice(0, this._view_cache.config.row_pivots.length).reduce((x, y) => x + y, 0);
+            virtual_width += Math.max(0, this._column_sizes.indices[cidx] - (this._container_size.width - viewport_width) || 0);
         }
 
         return virtual_width;
