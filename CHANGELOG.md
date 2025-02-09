@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.6.6](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.5...HEAD)
+
+**Fixed bugs:**
+
+- Fix scroll offset drift on viewport resize [\#224](https://github.com/finos/regular-table/pull/224) ([texodus](https://github.com/texodus))
+
 ## [v0.6.5](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.4...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.4...v0.6.5)
 
 **Fixed bugs:**
 
@@ -11,7 +19,7 @@
 
 ## [v0.6.4](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.3...v0.6.4)
 
 **Fixed bugs:**
 
