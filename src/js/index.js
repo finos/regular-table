@@ -166,6 +166,12 @@ class RegularTableElement extends RegularViewEventModel {
         return unsubscribe;
     }
 
+    removeStyleListener(styleListener) {
+        const start_len = this._style_callbacks.length;
+        this._style_callbacks = this._style_callbacks.filter((x) => x !== styleListener);
+        console.assert(this._style_callbacks.length === start_len - 1, "No listener found");
+    }
+
     /**
      * When called within the execution scope of a function registered to this
      * `<regular-table>` as a `StyleListener`, invalidate this draw's
@@ -312,13 +318,13 @@ class RegularTableElement extends RegularViewEventModel {
         };
 
         console.assert(VIRTUAL_MODES.indexOf(virtual_mode) > -1, `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`);
-        /** @private */
+        const virtual_mode_changed = (this._virtual_mode = virtual_mode);
         this._virtual_mode = virtual_mode;
-        /** @private */
         this._invalid_schema = true;
-        /** @private */
         this._view_cache = { view: dataListener, config, schema };
-        this._setup_virtual_scroll();
+        if (virtual_mode_changed) {
+            this._setup_virtual_scroll();
+        }
     }
 
     /**

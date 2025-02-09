@@ -39,7 +39,7 @@ describe("scrolling", () => {
         test("with the first row's <td> test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.querySelectorAll("td")).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["39", "40", "41", "42"]);
+            expect(cell_values).toEqual(["52", "53", "54", "55"]);
         });
     });
 

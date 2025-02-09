@@ -31,7 +31,7 @@ describe("row_stripes.html", () => {
         beforeAll(async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                table.scrollTop = table.scrollTop + 42;
+                table.scrollTop = table.scrollTop + 23;
                 await table._draw_flush();
             }, table);
         });

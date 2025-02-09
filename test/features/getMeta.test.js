@@ -175,14 +175,14 @@ describe("getMeta()", () => {
                     return JSON.stringify(table.getMeta(document.querySelector("tbody th")));
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
-                    row_header: ["Group 30", "Row 39"],
+                    row_header: ["Group 50", "Row 52"],
                     size_key: 0,
                     _virtual_x: 0,
-                    value: "Group 30",
+                    value: "Group 50",
                     row_header_x: 0,
-                    y: 39,
-                    y0: 39,
-                    y1: 48,
+                    y: 52,
+                    y0: 52,
+                    y1: 61,
                 });
             });
 

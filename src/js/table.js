@@ -73,12 +73,14 @@ export class RegularTableViewModel {
     async *draw(container_size, view_cache, selected_id, preserve_width, viewport, num_columns) {
         const { width: container_width, height: container_height } = container_size;
         const { view, config } = view_cache;
-        let { data, row_headers, column_headers, metadata: data_listener_metadata, column_header_merge_depth, merge_headers = "both" } = await view(
-            Math.floor(viewport.start_col),
-            Math.floor(viewport.start_row),
-            Math.ceil(viewport.end_col),
-            Math.ceil(viewport.end_row)
-        );
+        let {
+            data,
+            row_headers,
+            column_headers,
+            metadata: data_listener_metadata,
+            column_header_merge_depth,
+            merge_headers = "both",
+        } = await view(Math.floor(viewport.start_col), Math.floor(viewport.start_row), Math.ceil(viewport.end_col), Math.ceil(viewport.end_row));
 
         const merge_row_headers = merge_headers === "both" || merge_headers === "row";
         const merge_column_headers = merge_headers === "both" || merge_headers === "column";

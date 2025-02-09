@@ -170,13 +170,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const { height } = this._container_size;
         const row_height = this._column_sizes.row_height || 19;
         const header_levels = this._view_cache.config.column_pivots.length;
-        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.clientHeight);
+        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - height);
         const percent_scroll = Math.max(Math.ceil(this.scrollTop), 0) / total_scroll_height;
-        const virtual_panel_row_height = height / row_height - header_levels;
+        const clip_panel_row_height = height / row_height - header_levels;
         const relative_nrows = nrows || 0;
-        const scroll_rows = Math.max(0, Math.ceil(relative_nrows - virtual_panel_row_height));
-        const start_row = scroll_rows * percent_scroll;
-        const end_row = Math.max(0, Math.min(start_row + virtual_panel_row_height, nrows));
+        const scrollable_rows = Math.max(0, relative_nrows - clip_panel_row_height);
+        const start_row = scrollable_rows * percent_scroll;
+        const end_row = Math.max(0, Math.min(start_row + clip_panel_row_height, nrows));
         return { start_row, end_row };
     }
 
@@ -340,14 +340,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const { row_height = 19 } = this._column_sizes;
         const header_height = this._view_cache.config.column_pivots.length * row_height;
         let virtual_panel_px_size;
-        if (this._virtual_mode === "horizontal" || this._virtual_mode === "none") {
-            virtual_panel_px_size = nrows * row_height + header_height;
-        } else {
-            //const {height} = this._container_size;
-            // TODO use cached height?
-            const zoom_factor = this.clientHeight / (this._table_clip.offsetHeight - header_height);
-            virtual_panel_px_size = Math.min(BROWSER_MAX_HEIGHT, nrows * row_height * zoom_factor);
-        }
+        virtual_panel_px_size = Math.min(BROWSER_MAX_HEIGHT, nrows * row_height + header_height);
         this._virtual_panel.style.height = `${virtual_panel_px_size}px`;
     }
 

@@ -305,13 +305,13 @@ describe("spreadsheet.html", () => {
                 for (const td of tr1) {
                     tds1.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds1).toEqual(["1", "", "", ""]);
+                expect(tds1).toEqual(["2", "3", "", ""]);
                 const tr2 = await page.$$("regular-table tbody tr:nth-of-type(3) td");
                 const tds2 = [];
                 for (const td of tr2) {
                     tds2.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds2).toEqual(["2", "3", "", ""]);
+                expect(tds2).toEqual(["", "", "", ""]);
             });
         });
     });
