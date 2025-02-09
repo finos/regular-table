@@ -27,14 +27,15 @@
         "build:examples": "literally -c examples/literally.config.js && literally -c features/literally.config.js",
         "build": "npm-run-all -p build:*",
         "clean": "rimraf dist",
+        "docs:sign": "git shortlog --summary --email > ./AUTHORS",
         "declarations": "tsc -b declarationsconfig.json",
         "api": "jsdoc2md src/js/index.js --separators > api.md",
-        "docs": "yarn build && node scripts/sync_gist.js && (cd docs && yarn build)",
+        "docs": "pnpm run build && pnpm run docs:sign && node scripts/sync_gist.js && (cd docs && pnpm run build)",
         "fix": "prettier --write src test features/*.md examples/*.md examples/*.html",
         "lint": "prettier --check src test features/*.md examples/*.md examples/*.html",
         "prettier": "prettier --write test/features/*.test.js features/*.md",
         "start": "http-server",
-        "test": "yarn lint && jest --noStackTrace --runInBand",
+        "test": "pnpm run lint && npx jest --noStackTrace --runInBand",
         "watch:examples": "literally -c examples/literally.config.js --watch",
         "watch:features": "literally -c features/literally.config.js --watch",
         "watch": "npm-run-all -p watch:*"
@@ -43,27 +44,30 @@
         "access": "public"
     },
     "devDependencies": {
-        "@prospective.co/procss": "^0.1.13",
+        "@prospective.co/procss": "^0.1.16",
         "@types/react": "^17.0.0",
-        "codedown": "^2.1.6",
-        "commander": "^5.1.0",
-        "esbuild": "^0.17.19",
-        "glob": "^7.1.6",
+        "esbuild": "^0.25.0",
+        "glob": "^10",
         "http-server": "^0.12.3",
-        "jest": "^26.0.1",
-        "jest-puppeteer": "^6.1.0",
-        "jest-puppeteer-docker": "^1.4.2",
+        "jest": "^29",
+        "jest-puppeteer": "^11",
         "jsdoc-to-markdown": "^6.0.1",
         "literally-cli": "^0.0.10",
         "marked-ast-markdown": "^2.1.0",
         "npm-run-all": "^4.1.3",
-        "prettier": "^2.0.5",
-        "puppeteer": "^13.1.3",
+        "prettier": "^3.4.2",
+        "puppeteer": "^24",
         "react": "15",
         "react-dom": "15",
-        "source-map-explorer": "^2.4.2",
         "superstore-arrow": "^1.0.0",
-        "typescript": "^4.2.4"
+        "typescript": "^5"
     },
-    "dependencies": {}
+    "dependencies": {},
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "puppeteer",
+            "esbuild",
+            "sharp"
+        ]
+    }
 }

@@ -7,7 +7,6 @@ const glob = require("glob");
 compile("examples", [
     "two_billion_rows",
     "canvas_data_model",
-    "perspective",
     "minesweeper",
     "file_browser",
     "spreadsheet",
@@ -38,7 +37,7 @@ function compile(name, hashes) {
             console.log(
                 child_process
                     .execSync(
-                        `yarn literally -c ${name}/literally.config.js --format block --output ${out} ${name}/${hashes[file]}.md`
+                        `npx literally -c ${name}/literally.config.js --format block --output ${out} ${name}/${hashes[file]}.md`
                     )
                     .toString()
             );

@@ -57,13 +57,13 @@ Pivot Tables, File Trees, or anytime you need:
 </a>
 <br/>
 
-- [2d_array.md](examples/2d_array.md)
-- [canvas_data_model.md](examples/canvas_data_model.md)
-- [file_browser.md](examples/file_browser.md)
-- [minesweeper.md](examples/minesweeper.md)
-- [react.md](examples/react.md)
-- [spreadsheet.md](examples/spreadsheet.md)
-- [two_billion_rows.md](examples/two_billion_rows.md)
+-   [2d_array.md](examples/2d_array.md)
+-   [canvas_data_model.md](examples/canvas_data_model.md)
+-   [file_browser.md](examples/file_browser.md)
+-   [minesweeper.md](examples/minesweeper.md)
+-   [react.md](examples/react.md)
+-   [spreadsheet.md](examples/spreadsheet.md)
+-   [two_billion_rows.md](examples/two_billion_rows.md)
 
 ## Documentation
 
@@ -112,10 +112,10 @@ Include via a CDN like [JSDelivr](https://cdn.jsdelivr.net/npm/regular-table):
 />
 ```
 
-Or, add to your project via `yarn`:
+Or, add to your project via `npm`:
 
 ```bash
-yarn add regular-table
+npm add regular-table
 ```
 
 ... then import into your asset bundle.
@@ -383,14 +383,14 @@ field will accompany the metadata records returned by `regular-table`'s
 Additional rendering options which can be set on the object returned by a
 `setDataListener` callback include:
 
-* `column_header_merge_depth: number` configures the number of rows to include
-  from `colspan` merging. This defaults to `header_length - 1`.
-* `row_height: number` configures the pixel height of a row for
-  virtual scrolling calculation. This is typically auto-detected from the DOM,
-  but can be overridden if needed.
-* `merge_headers: "column" | "row" | "both" | "none"` configures whether 
-  equivalent, contiguous `<th>` elements are merged via `rowspan` or `colspan`
-  for `"row"` and `"column"` respectively (defaults to `"both"`).
+-   `column_header_merge_depth: number` configures the number of rows to include
+    from `colspan` merging. This defaults to `header_length - 1`.
+-   `row_height: number` configures the pixel height of a row for virtual
+    scrolling calculation. This is typically auto-detected from the DOM, but can
+    be overridden if needed.
+-   `merge_headers: "column" | "row" | "both" | "none"` configures whether
+    equivalent, contiguous `<th>` elements are merged via `rowspan` or `colspan`
+    for `"row"` and `"column"` respectively (defaults to `"both"`).
 
 ### `async` Data Models
 
@@ -570,26 +570,26 @@ high-frequency updating data.
 First install `dev_dependencies`:
 
 ```bash
-yarn
+pnpm install
 ```
 
 Build the library
 
 ```bash
-yarn build
+pnpm run build
 ```
 
 Run the test suite
 
 ```bash
-yarn test
+pnpm run test
 ```
 
 Start the example server at
 [`http://localhost:8080/examples/`](http://localhost:8080/examples/)
 
 ```bash
-yarn start
+pnpm run start
 ```
 
 <!--

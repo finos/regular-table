@@ -17,12 +17,24 @@ describe("row_stripes.html", () => {
 
     describe("initial view", () => {
         test("row style alternates", async () => {
-            const tds1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");
-            const backgroundColor1 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds1[0]);
+            const tds1 = await page.$$(
+                "regular-table tbody tr:nth-of-type(1) td",
+            );
+            const backgroundColor1 = await page.evaluate(
+                (td) =>
+                    getComputedStyle(td).getPropertyValue("background-color"),
+                tds1[0],
+            );
             expect(backgroundColor1).toEqual("rgb(234, 237, 239)");
 
-            const tds2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
-            const backgroundColor2 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds2[0]);
+            const tds2 = await page.$$(
+                "regular-table tbody tr:nth-of-type(2) td",
+            );
+            const backgroundColor2 = await page.evaluate(
+                (td) =>
+                    getComputedStyle(td).getPropertyValue("background-color"),
+                tds2[0],
+            );
             expect(backgroundColor2).toEqual("rgb(255, 255, 255)");
         });
     });
@@ -37,12 +49,24 @@ describe("row_stripes.html", () => {
         });
 
         test("row style alternates in reverse", async () => {
-            const tds1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");
-            const backgroundColor1 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds1[0]);
+            const tds1 = await page.$$(
+                "regular-table tbody tr:nth-of-type(1) td",
+            );
+            const backgroundColor1 = await page.evaluate(
+                (td) =>
+                    getComputedStyle(td).getPropertyValue("background-color"),
+                tds1[0],
+            );
             expect(backgroundColor1).toEqual("rgb(255, 255, 255)");
 
-            const tds2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
-            const backgroundColor2 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds2[0]);
+            const tds2 = await page.$$(
+                "regular-table tbody tr:nth-of-type(2) td",
+            );
+            const backgroundColor2 = await page.evaluate(
+                (td) =>
+                    getComputedStyle(td).getPropertyValue("background-color"),
+                tds2[0],
+            );
             expect(backgroundColor2).toEqual("rgb(234, 237, 239)");
         });
     });
@@ -60,11 +84,17 @@ describe("row_stripes.html", () => {
         }, table);
 
         const tds1 = await page.$$("regular-table tbody tr:nth-of-type(1) td");
-        const backgroundColor1 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds1[0]);
+        const backgroundColor1 = await page.evaluate(
+            (td) => getComputedStyle(td).getPropertyValue("background-color"),
+            tds1[0],
+        );
         expect(backgroundColor1).toEqual("rgba(0, 0, 0, 0)");
 
         const tds2 = await page.$$("regular-table tbody tr:nth-of-type(2) td");
-        const backgroundColor2 = await page.evaluate((td) => getComputedStyle(td).getPropertyValue("background-color"), tds2[0]);
+        const backgroundColor2 = await page.evaluate(
+            (td) => getComputedStyle(td).getPropertyValue("background-color"),
+            tds2[0],
+        );
         expect(backgroundColor2).toEqual("rgba(0, 0, 0, 0)");
     });
 });

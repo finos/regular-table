@@ -1,7 +1,9 @@
 ## File Browser Example
 
-A simple file browser example built with [`regular-table`](https://github.com/finos/regular-table). Also a great introduction to `row_headers`, and how to use them to achieve group-like and tree-like
-behavior. For this example, we'll want the latter.
+A simple file browser example built with
+[`regular-table`](https://github.com/finos/regular-table). Also a great
+introduction to `row_headers`, and how to use them to achieve group-like and
+tree-like behavior. For this example, we'll want the latter.
 
 ```html
 <regular-table id="regularTable"></regular-table>
@@ -9,24 +11,37 @@ behavior. For this example, we'll want the latter.
 
 ## Tree-like `row_headers`
 
-`regular-table` will merge consecutive `<th>` defined in `row_headers` with the same content, but it will prefer `rowspan` to `colspan`, inserting empty `<th>` when necessary to fill-in gaps, since
-`table-cell` elements cannot overlap. Knowing this, it is easy to fine-tune header structure and behavior with empty cells. In this case, we want to modify the basic _group-like_ `row_headers` layout
-to support _tree-like_ asymmetric groups. Typically, when representing groups of rows via `row_headers`, for example a file structure like so:
+`regular-table` will merge consecutive `<th>` defined in `row_headers` with the
+same content, but it will prefer `rowspan` to `colspan`, inserting empty `<th>`
+when necessary to fill-in gaps, since `table-cell` elements cannot overlap.
+Knowing this, it is easy to fine-tune header structure and behavior with empty
+cells. In this case, we want to modify the basic _group-like_ `row_headers`
+layout to support _tree-like_ asymmetric groups. Typically, when representing
+groups of rows via `row_headers`, for example a file structure like so:
 
--   Dir_1
-    -   Dir_2
-        -   File_1
-    -   File_2
+- Dir_1
+    - Dir_2
+        - File_1
+    - File_2
 
-... one may think to implement a `regular-table` Virtual Data Model using a `row_headers` parameter like this:
+... one may think to implement a `regular-table` Virtual Data Model using a
+`row_headers` parameter like this:
 
 ```json
-[["Dir_1"], ["Dir_1", "Dir_2"], ["Dir_1", "Dir_2", "File_1"], ["Dir_1", "File_2"]]
+[
+    ["Dir_1"],
+    ["Dir_1", "Dir_2"],
+    ["Dir_1", "Dir_2", "File_1"],
+    ["Dir_1", "File_2"]
+]
 ```
 
-This will render _group-like_ row headers, with the consecutive `"Dir_1"` and `"Dir_2"` elements merged via `rowspan`. The resulting headers visually indicate all content on the right-hand side belong
-to the directory. This is exactly what column headers do, but it is not very like a file-tree; each directory "level" will determine its respective column's minimum width, and deeply assymmetric trees
-will yield wide row headers.
+This will render _group-like_ row headers, with the consecutive `"Dir_1"` and
+`"Dir_2"` elements merged via `rowspan`. The resulting headers visually indicate
+all content on the right-hand side belong to the directory. This is exactly what
+column headers do, but it is not very like a file-tree; each directory "level"
+will determine its respective column's minimum width, and deeply assymmetric
+trees will yield wide row headers.
 
 <table>
 <tbody>
@@ -37,16 +52,22 @@ will yield wide row headers.
 </tbody>
 </table>
 
-Group-like row headers are nice for always keeping the entire directory path in view regardless of scroll position, but for a more tree-like like experience, we can instead replace the consecutive
-duplicates with `""`.
+Group-like row headers are nice for always keeping the entire directory path in
+view regardless of scroll position, but for a more tree-like like experience, we
+can instead replace the consecutive duplicates with `""`.
 
 ```json
 [["Dir_1"], ["", "Dir_2"], ["", "", "File_1"], ["", "File_2"]]
 ```
 
-The new consecutive `""` will still merge via `rowspan`, excluding the first row, but `regular-table` will detect that a `<th>` lacks a `rowspan`, and instead merge trailing `undefined`/empty values
-via `colspan` to produce one long `<th>` for each row header group, as in the HTML below. In this tree-like layout, no content will exclusively occupy any but the last column of `row_headers`, and
-these empty columns can then be sized via CSS to create trees of any geometry, where e.g. "directory" group rows overlap the columns of their children as-in a conventional file tree.
+The new consecutive `""` will still merge via `rowspan`, excluding the first
+row, but `regular-table` will detect that a `<th>` lacks a `rowspan`, and
+instead merge trailing `undefined`/empty values via `colspan` to produce one
+long `<th>` for each row header group, as in the HTML below. In this tree-like
+layout, no content will exclusively occupy any but the last column of
+`row_headers`, and these empty columns can then be sized via CSS to create trees
+of any geometry, where e.g. "directory" group rows overlap the columns of their
+children as-in a conventional file tree.
 
 <table>
 <tbody>
@@ -57,7 +78,9 @@ these empty columns can then be sized via CSS to create trees of any geometry, w
 </tbody>
 </table>
 
-Despite this long-winded explanation, the implementation in Javascript is fairly straightforward, and for our purposes, we only need create one such path for `row_headers` at a time.
+Despite this long-winded explanation, the implementation in Javascript is fairly
+straightforward, and for our purposes, we only need create one such path for
+`row_headers` at a time.
 
 ```javascript
 function new_path(n, name) {
@@ -67,14 +90,17 @@ function new_path(n, name) {
 
 ## File System
 
-We can use a regular 2D Array, row oriented, for the file system listing state itself, including file metadata like `size` and the open/closed state of directory rows.
+We can use a regular 2D Array, row oriented, for the file system listing state
+itself, including file metadata like `size` and the open/closed state of
+directory rows.
 
 ```javascript
 const COLUMNS = [["size"], ["kind"], ["modified"], ["writable"]];
 const DATA = Array.from(generateDirContents());
 ```
 
-These file-metadata rows are fake, but for the purposes of an example, they are worth putting "B Movie"-level effort into making look like a "real" file system.
+These file-metadata rows are fake, but for the purposes of an example, they are
+worth putting "B Movie"-level effort into making look like a "real" file system.
 
 ```javascript
 function new_row(type) {
@@ -85,7 +111,8 @@ function new_row(type) {
 }
 ```
 
-For the fake file system contents themselves, we will generate directory contents on the fly as directories are opened and closed by the user.
+For the fake file system contents themselves, we will generate directory
+contents on the fly as directories are opened and closed by the user.
 
 ```javascript
 function* generateDirContents(n = 0) {
@@ -105,7 +132,8 @@ function* generateDirContents(n = 0) {
 }
 ```
 
-Open and close directory operations are applied via `DATA.splice()`, mutating the `Array` reference directly and inserting or stripping elements as needed.
+Open and close directory operations are applied via `DATA.splice()`, mutating
+the `Array` reference directly and inserting or stripping elements as needed.
 
 ```javascript
 function closeDir(y) {
@@ -134,7 +162,9 @@ function toggleDir(y) {
 
 ## Virtual Data Model
 
-`DATA` needs to be _transposed_ before we can return slices of it from our `dataListener()` function, because it is row-oriented and `regular-table` expects column-oriented data.
+`DATA` needs to be _transposed_ before we can return slices of it from our
+`dataListener()` function, because it is row-oriented and `regular-table`
+expects column-oriented data.
 
 ```javascript
 function transpose(m) {
@@ -158,7 +188,8 @@ function dataListener(x0, y0, x1, y1) {
 
 ## Custom Style
 
-Directory and file icon styles applied as classes, using `getMeta()`, every `td` is mapped back to it's row in `DATA`.
+Directory and file icon styles applied as classes, using `getMeta()`, every `td`
+is mapped back to it's row in `DATA`.
 
 ```javascript
 function styleListener() {
@@ -175,7 +206,8 @@ function styleListener() {
 
 ## UI
 
-When directory rows are clicked, generate new directory contents at the `td` metadata's `y` coordinate in `DATA` and redraw.
+When directory rows are clicked, generate new directory contents at the `td`
+metadata's `y` coordinate in `DATA` and redraw.
 
 ```javascript
 // TODO `resetAutoSize()` is not documented - this is currently required to

@@ -59,7 +59,11 @@ class RegularTableElement extends RegularViewEventModel {
             this.setAttribute("tabindex", "0");
 
             this._initialized = true;
-            this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
+            this.table_model = new RegularTableViewModel(
+                this._table_clip,
+                this._column_sizes,
+                this,
+            );
         }
     }
 
@@ -122,7 +126,11 @@ class RegularTableElement extends RegularViewEventModel {
      * @memberof RegularTableElement
      */
     clear() {
-        this.table_model = new RegularTableViewModel(this._table_clip, this._column_sizes, this);
+        this.table_model = new RegularTableViewModel(
+            this._table_clip,
+            this._column_sizes,
+            this,
+        );
     }
 
     /**
@@ -159,17 +167,30 @@ class RegularTableElement extends RegularViewEventModel {
             }
             isSubscribed = false;
 
-            const callbacks = (this._style_callbacks = this._style_callbacks.slice());
+            const callbacks = (this._style_callbacks =
+                this._style_callbacks.slice());
             const index = callbacks.indexOf(styleListener);
             callbacks.splice(index, 1);
         };
         return unsubscribe;
     }
 
+    /**
+     * Removes a style listener added by `addStyleListener`.
+     * `removeStyleListener` throws an error if the provided listener is not
+     * registered.
+     * @param {*} styleListener A listener previously added with
+     * `addStyleListener`
+     */
     removeStyleListener(styleListener) {
         const start_len = this._style_callbacks.length;
-        this._style_callbacks = this._style_callbacks.filter((x) => x !== styleListener);
-        console.assert(this._style_callbacks.length === start_len - 1, "No listener found");
+        this._style_callbacks = this._style_callbacks.filter(
+            (x) => x !== styleListener,
+        );
+        console.assert(
+            this._style_callbacks.length === start_len - 1,
+            "No listener found",
+        );
     }
 
     /**
@@ -184,7 +205,9 @@ class RegularTableElement extends RegularViewEventModel {
      */
     invalidate() {
         if (!this._is_styling) {
-            throw new Error("Cannot call `invalidate()` outside of a `StyleListener`");
+            throw new Error(
+                "Cannot call `invalidate()` outside of a `StyleListener`",
+            );
         }
         /** @private */
         this._invalidated = true;
@@ -214,17 +237,33 @@ class RegularTableElement extends RegularViewEventModel {
         } else if (element instanceof HTMLElement) {
             return METADATA_MAP.get(element);
         } else if (element.row_header_x >= 0) {
-            if (element.row_header_x < this._view_cache.config.row_pivots.length) {
-                const td = this.table_model.body._fetch_cell(element.y, element.row_header_x);
+            if (
+                element.row_header_x < this._view_cache.config.row_pivots.length
+            ) {
+                const td = this.table_model.body._fetch_cell(
+                    element.y,
+                    element.row_header_x,
+                );
                 return this.getMeta(td);
             }
         } else if (element.column_header_y >= 0) {
-            if (element.column_header_y < this._view_cache.config.column_pivots.length) {
-                const td = this.table_model.body._fetch_cell(element.column_header_y, element.y);
+            if (
+                element.column_header_y <
+                this._view_cache.config.column_pivots.length
+            ) {
+                const td = this.table_model.body._fetch_cell(
+                    element.column_header_y,
+                    element.y,
+                );
                 return this.getMeta(td);
             }
         } else {
-            return this.getMeta(this.table_model.body._fetch_cell(element.dy, element.dx + this.table_model._row_headers_length));
+            return this.getMeta(
+                this.table_model.body._fetch_cell(
+                    element.dy,
+                    element.dx + this.table_model._row_headers_length,
+                ),
+            );
         }
     }
 
@@ -268,16 +307,22 @@ class RegularTableElement extends RegularViewEventModel {
         }
 
         const viewport_row_height = this._column_sizes.row_height || 19;
-        const header_height = this._view_cache.config.column_pivots.length * viewport_row_height;
+        const header_height =
+            this._view_cache.config.column_pivots.length * viewport_row_height;
         const body_height = this._table_clip.offsetHeight - header_height;
         const row_height_offset = body_height % viewport_row_height;
-        let real_row_height = (this._virtual_panel.offsetHeight - row_height_offset) / this._nrows;
+        let real_row_height =
+            (this._virtual_panel.offsetHeight - row_height_offset) /
+            this._nrows;
         this.scrollTop = Math.ceil(real_row_height * y);
 
         let scroll_left = 0;
         while (x > 0) {
             x--;
-            scroll_left += this._column_sizes.indices[x + this._view_cache.config.row_pivots.length] || 60;
+            scroll_left +=
+                this._column_sizes.indices[
+                    x + this._view_cache.config.row_pivots.length
+                ] || 60;
         }
 
         this.scrollLeft = Math.ceil(scroll_left);
@@ -305,25 +350,47 @@ class RegularTableElement extends RegularViewEventModel {
      * for a virtual viewport, (x0, y0, x1, y1), and returns a `DataReponse`
      * object.
      * @param {Object} options
+     * @param {boolean} preserve_state If `setDataListener` has already been
+     * called, setting this flag will prevent the internal state from being
+     * reset (other than the callback itself).
      * @param {("both"|"horizontal"|"vertical"|"none")} options.virtual_mode
      * The `virtual_mode` options flag may be one of "both", "horizontal",
      * "vertical", or "none" indicating which dimensions of the table should be
      * virtualized (vs. rendering completely).
      */
-    setDataListener(dataListener, { virtual_mode = "both" } = {}) {
-        let schema = {};
-        let config = {
-            row_pivots: [],
-            column_pivots: [],
-        };
+    setDataListener(
+        dataListener,
+        { virtual_mode = "both", preserve_state = false } = {},
+    ) {
+        console.assert(
+            VIRTUAL_MODES.indexOf(virtual_mode) > -1,
+            `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`,
+        );
 
-        console.assert(VIRTUAL_MODES.indexOf(virtual_mode) > -1, `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`);
-        const virtual_mode_changed = (this._virtual_mode = virtual_mode);
-        this._virtual_mode = virtual_mode;
-        this._invalid_schema = true;
-        this._view_cache = { view: dataListener, config, schema };
-        if (virtual_mode_changed) {
-            this._setup_virtual_scroll();
+        if (preserve_state) {
+            console.assert(
+                !virtual_mode_changed,
+                "preserve_state called with modified virtual_mode",
+            );
+            this._view_cache.view = dataListener;
+        } else {
+            const virtual_mode_changed = (this._virtual_mode = virtual_mode);
+            const config = {
+                row_pivots: [],
+                column_pivots: [],
+            };
+
+            /** @private */
+            this._virtual_mode = virtual_mode;
+
+            /** @private */
+            this._invalid_schema = true;
+
+            /** @private */
+            this._view_cache = { view: dataListener, config };
+            if (virtual_mode_changed) {
+                this._setup_virtual_scroll();
+            }
         }
     }
 
@@ -380,7 +447,7 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  *
  * Example:
  *
- * MetaData                     (x = 0, column_header_y = 0))
+ * MetaData                     (x = 0, column_header_y = 0)
  *                              *-------------------------------------+
  *                              |                                     |
  *                              |                                     |
@@ -471,6 +538,8 @@ if (document.createElement("regular-table").constructor === HTMLElement) {
  * `Array` of row group headers, in specificity order.  No `<th>`
  * elements within `<tbody>` will be generated if this property is not
  * provided.
+ * @property {number?} num_row_headers - Optional number of row headers.
+ * * @property {number?} num_row_headers - Optional number of column headers.
  * @property {(string|HTMLElement)[][]} data - A two dimensional `Array`
  * representing a rectangular section of the underlying data set from
  * (x0, y0) to (x1, y1), arranged in columnar fashion such that

@@ -1,12 +1,18 @@
 # Fixed Column Widths
 
-This example shows how to set up columns with fixed widths in [`regular-table`](https://github.com/finos/regular-table) just using Javascript and CSS rules.
+This example shows how to set up columns with fixed widths in
+[`regular-table`](https://github.com/finos/regular-table) just using Javascript
+and CSS rules.
 
-By default `<regular-table>` sets each column's width based on the content width of each of that column's cells. Currently, each column's width will not increase past the max width of the column's
-content, but you can manually shrink the column width up to the limit of 10 pixels. Column widths are calculated by the library using the max-width css rule meaning that setting the `max-width` from a
+By default `<regular-table>` sets each column's width based on the content width
+of each of that column's cells. Currently, each column's width will not increase
+past the max width of the column's content, but you can manually shrink the
+column width up to the limit of 10 pixels. Column widths are calculated by the
+library using the max-width css rule meaning that setting the `max-width` from a
 css rule will lead to a fixed width behavior for the cells of that column.
 
-To start, we need a `<regular-table>` with an `id` that will be accessible on the window object using
+To start, we need a `<regular-table>` with an `id` that will be accessible on
+the window object using
 [`window.${id}`](https://stackoverflow.com/questions/18713272/why-do-dom-elements-exist-as-properties-on-the-window-object).
 
 ```html
@@ -15,8 +21,9 @@ To start, we need a `<regular-table>` with an `id` that will be accessible on th
 
 ## Styling
 
-Then some `css` to define our `.fixed` `min-width` and `max-width`. We'll also need to disable default header text selection and handle overflow conditions that would otherwise cause some ugly content
-rendering.
+Then some `css` to define our `.fixed` `min-width` and `max-width`. We'll also
+need to disable default header text selection and handle overflow conditions
+that would otherwise cause some ugly content rendering.
 
 ```css
 regular-table tr th.fixed-column-width,
@@ -39,10 +46,13 @@ regular-table tr td {
 
 ## Adding a `StyleListener` with `fixColumnWidths()`
 
-In our `fixColumnWidths()` function, we apply a `StyleListener` to the `<regular-table>` that iterates through each of the visible cells and adding or removing the `FIXED_COLUMN_WIDTH_CLASS` based on
-our `isFixed()` param.
+In our `fixColumnWidths()` function, we apply a `StyleListener` to the
+`<regular-table>` that iterates through each of the visible cells and adding or
+removing the `FIXED_COLUMN_WIDTH_CLASS` based on our `isFixed()` param.
 
-The `isFixed()` parameter supplied should be a predicate function that given a the `table` and a `cell` determines if the cell is in a fixed column by returning `true` or `false`.
+The `isFixed()` parameter supplied should be a predicate function that given a
+the `table` and a `cell` determines if the cell is in a fixed column by
+returning `true` or `false`.
 
 ```javascript
 const FIXED_COLUMN_WIDTH_CLASS = "fixed-column-width";
@@ -70,8 +80,11 @@ const fixColumnWidths = (table, isFixed) => {
 };
 ```
 
-We'll need a predicate to pass in as an argument to `fixColumnWidths()` that will determine if the cell passed in `isFixed()`. For the purposes of this example, we'll check to see if the given cell's
-value contains `"Fixed"`, but this function could reference the `DataModel` or some other logic to make its decision.
+We'll need a predicate to pass in as an argument to `fixColumnWidths()` that
+will determine if the cell passed in `isFixed()`. For the purposes of this
+example, we'll check to see if the given cell's value contains `"Fixed"`, but
+this function could reference the `DataModel` or some other logic to make its
+decision.
 
 ```javascript
 function isFixed(table, cell) {
@@ -82,7 +95,8 @@ function isFixed(table, cell) {
 
 ## DataModel
 
-Our `DataModel` will generate a data set with alternating `"Fixed"` and `"Not Set"` values ensuring a mix of columns for testing in our example.
+Our `DataModel` will generate a data set with alternating `"Fixed"` and
+`"Not Set"` values ensuring a mix of columns for testing in our example.
 
 ```javascript
 class DataModel {
@@ -96,7 +110,9 @@ class DataModel {
         this._columnHeaders = this.columns.map(({ value }) => [value]);
 
         this.dataListener = (x0, y0, x1, y1) => {
-            const data = this._data.slice(x0, x1).map((col) => col.slice(y0, y1));
+            const data = this._data
+                .slice(x0, x1)
+                .map((col) => col.slice(y0, y1));
             const column_headers = this._columnHeaders.slice(x0, x1);
             const num_columns = this._data.length;
             const num_rows = this._data[0].length;
@@ -110,7 +126,9 @@ class DataModel {
     }
 
     _createTextCells(text) {
-        return Array.from(Array(this._cellCount).keys()).map((idx) => `${text} ${idx}`);
+        return Array.from(Array(this._cellCount).keys()).map(
+            (idx) => `${text} ${idx}`,
+        );
     }
 
     _createColumns() {
@@ -129,16 +147,18 @@ class DataModel {
                 ...prev,
                 [curr]: this._createTextCells(curr),
             }),
-            {}
+            {},
         );
     }
 }
 ```
 
-Within our `init()` we will create a `DataModel` and call `setDataListener()` with its `DataListener`, giving our example a reasonable amount of data to test.
+Within our `init()` we will create a `DataModel` and call `setDataListener()`
+with its `DataListener`, giving our example a reasonable amount of data to test.
 
-Next we'll call our `fixColumnWidths()` function with the `#fixedColumnWidthsRegularTable` and our `isFixed()` predicate to decorate `<regular-table>` with our `StyleListener` and then invoke
-`draw()`.
+Next we'll call our `fixColumnWidths()` function with the
+`#fixedColumnWidthsRegularTable` and our `isFixed()` predicate to decorate
+`<regular-table>` with our `StyleListener` and then invoke `draw()`.
 
 This will all be fired on `"load"`.
 

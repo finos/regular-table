@@ -48,7 +48,6 @@ const config = {
         examples: [
             make("two_billion_rows"),
             make("canvas_data_model"),
-            make("perspective"),
             make("minesweeper"),
             make("file_browser"),
             make("spreadsheet"),

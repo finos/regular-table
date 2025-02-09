@@ -15,13 +15,21 @@ describe.skip("fixed_column_widths.html", () => {
 
     describe("creates a `<table>` with fixed column widths", () => {
         beforeAll(async () => {
-            await page.goto("http://localhost:8081/dist/features/fixed_column_widths.html");
+            await page.goto(
+                "http://localhost:8081/dist/features/fixed_column_widths.html",
+            );
             await page.waitForSelector("regular-table table tbody tr td");
         });
 
         test("fixed th has min-width", async () => {
             const first_tr = await page.$("regular-table thead tr:first-child");
-            const minWidths = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => getComputedStyle(x).getPropertyValue("min-width")), first_tr);
+            const minWidths = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) =>
+                        getComputedStyle(x).getPropertyValue("min-width"),
+                    ),
+                first_tr,
+            );
             const fixedWidth = minWidths[0];
             const notSetWidth = minWidths[1];
             expect(fixedWidth).toEqual("100px");
@@ -30,7 +38,13 @@ describe.skip("fixed_column_widths.html", () => {
 
         test("fixed th has max-width", async () => {
             const first_tr = await page.$("regular-table thead tr:first-child");
-            const max_widths = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => getComputedStyle(x).getPropertyValue("max-width")), first_tr);
+            const max_widths = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) =>
+                        getComputedStyle(x).getPropertyValue("max-width"),
+                    ),
+                first_tr,
+            );
             const fixed_width = max_widths[0];
             const not_set_width = max_widths[1];
             expect(fixed_width).toEqual("100px");
@@ -39,7 +53,13 @@ describe.skip("fixed_column_widths.html", () => {
 
         test("fixed td has min-width", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
-            const minWidths = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => getComputedStyle(x).getPropertyValue("min-width")), first_tr);
+            const minWidths = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) =>
+                        getComputedStyle(x).getPropertyValue("min-width"),
+                    ),
+                first_tr,
+            );
             const fixedWidth = minWidths[0];
             const notSetWidth = minWidths[1];
             expect(fixedWidth).toEqual("100px");
@@ -48,7 +68,13 @@ describe.skip("fixed_column_widths.html", () => {
 
         test("fixed td has max-width", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
-            const max_widths = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => getComputedStyle(x).getPropertyValue("max-width")), first_tr);
+            const max_widths = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) =>
+                        getComputedStyle(x).getPropertyValue("max-width"),
+                    ),
+                first_tr,
+            );
             const fixed_width = max_widths[0];
             const not_set_width = max_widths[1];
             expect(fixed_width).toEqual("100px");
@@ -56,16 +82,19 @@ describe.skip("fixed_column_widths.html", () => {
         });
 
         test("cell value do not overflow", async () => {
-            const first_td = await page.$("regular-table tbody tr td:first-child");
-            const { text_overflow, overflow, white_space } = await page.evaluate((first_td) => {
-                first_td.text_content = "ABCDEFGHABCDEFGHABCDEFGHABCDEFGH";
-                const styles = getComputedStyle(first_td);
-                return {
-                    text_overflow: styles.getPropertyValue("text-overflow"),
-                    overflow: styles.getPropertyValue("overflow"),
-                    white_space: styles.getPropertyValue("white-space"),
-                };
-            }, first_td);
+            const first_td = await page.$(
+                "regular-table tbody tr td:first-child",
+            );
+            const { text_overflow, overflow, white_space } =
+                await page.evaluate((first_td) => {
+                    first_td.text_content = "ABCDEFGHABCDEFGHABCDEFGHABCDEFGH";
+                    const styles = getComputedStyle(first_td);
+                    return {
+                        text_overflow: styles.getPropertyValue("text-overflow"),
+                        overflow: styles.getPropertyValue("overflow"),
+                        white_space: styles.getPropertyValue("white-space"),
+                    };
+                }, first_td);
             expect(text_overflow).toEqual("ellipsis");
             expect(overflow).toEqual("hidden");
             expect(white_space).toEqual("nowrap");
@@ -73,7 +102,13 @@ describe.skip("fixed_column_widths.html", () => {
 
         test("ths do not allow text selection", async () => {
             const first_tr = await page.$("regular-table thead tr:first-child");
-            const user_selects = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => getComputedStyle(x).getPropertyValue("user-select")), first_tr);
+            const user_selects = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) =>
+                        getComputedStyle(x).getPropertyValue("user-select"),
+                    ),
+                first_tr,
+            );
 
             // The viewport is 400px wide and the fixed columns are 100px
             // accross, and ~20px of padding is four columns.

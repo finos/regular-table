@@ -22,13 +22,20 @@ describe("web_worker.html", () => {
 
         test("with the correct # of rows", async () => {
             const tbody = await page.$("regular-table tbody");
-            const num_rows = await page.evaluate((tbody) => tbody.children.length, tbody);
+            const num_rows = await page.evaluate(
+                (tbody) => tbody.children.length,
+                tbody,
+            );
             expect(num_rows).toEqual(5);
         });
 
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
-            const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
+            const cell_values = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) => x.textContent),
+                first_tr,
+            );
             expect(cell_values).toEqual(["0", "1", "2", "3"]);
         });
     });
@@ -46,8 +53,18 @@ describe("web_worker.html", () => {
 
         test("with the first row's cell test correct", async () => {
             const first_tr = await page.$("regular-table tbody tr:first-child");
-            const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
-            expect(cell_values).toEqual(["200,001", "200,002", "200,003", "200,004", "200,005"]);
+            const cell_values = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) => x.textContent),
+                first_tr,
+            );
+            expect(cell_values).toEqual([
+                "200,001",
+                "200,002",
+                "200,003",
+                "200,004",
+                "200,005",
+            ]);
         });
     });
 });

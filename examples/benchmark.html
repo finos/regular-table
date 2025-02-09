@@ -7,10 +7,13 @@
 
 -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+        />
         <script src="../dist/esm/regular-table.js"></script>
         <link rel="stylesheet" href="../dist/css/material.css" />
 
@@ -49,7 +52,8 @@
 
             const formatter = new Intl.NumberFormat("en-us");
 
-            const clamp = (x, y, offset = 0) => Math.floor(x / y) * y + offset + "";
+            const clamp = (x, y, offset = 0) =>
+                Math.floor(x / y) * y + offset + "";
 
             async function test_data_model(x0, y0, x1, y1) {
                 const data = [];
@@ -57,7 +61,10 @@
                 for (let i = x0; i < x1; i++) {
                     const column = [];
                     data.push(column);
-                    column_headers.push([`Group ${clamp(i, 10)}`, `Column ${i}`]);
+                    column_headers.push([
+                        `Group ${clamp(i, 10)}`,
+                        `Column ${i}`,
+                    ]);
                     for (let j = y0; j < y1; j++) {
                         column.push(formatter.format(j + i));
                     }
@@ -91,10 +98,16 @@
             (function run() {
                 table.scrollTop += 20;
                 table.scrollLeft += 10;
-                if (table.scrollLeft === table.scrollWidth - table.offsetWidth) {
+                if (
+                    table.scrollLeft ===
+                    table.scrollWidth - table.offsetWidth
+                ) {
                     table.scrollLeft = 0;
                 }
-                if (table.scrollTop === table.scrollHeight - table.offsetHeight) {
+                if (
+                    table.scrollTop ===
+                    table.scrollHeight - table.offsetHeight
+                ) {
                     table.scrollTop = 0;
                 }
                 setTimeout(run);

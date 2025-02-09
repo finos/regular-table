@@ -1,6 +1,7 @@
 ## Minesweeper
 
-A clone of the classic game Minesweeper with 1,000,000 cells, built with [`regular-table`](https://github.com/finos/regular-table).
+A clone of the classic game Minesweeper with 1,000,000 cells, built with
+[`regular-table`](https://github.com/finos/regular-table).
 
 ```html
 <regular-table id="table"></regular-table>
@@ -16,8 +17,10 @@ const HEIGHT = 1000;
 const NUM_MINES = 130000;
 ```
 
-We are going to encode teh game state in a single two dimensional array of integer cell state Enums. 0-8 will be "hints", cells with a number representing the total neighboring mines, and we'll want
-to encode a few additional special states.
+We are going to encode teh game state in a single two dimensional array of
+integer cell state Enums. 0-8 will be "hints", cells with a number representing
+the total neighboring mines, and we'll want to encode a few additional special
+states.
 
 ```javascript
 const FLAG_ENUM = 10;
@@ -27,8 +30,10 @@ const HIDDEN_MINE_ENUM = 11;
 const EXPLODED_ENUM = 13;
 ```
 
-Because the Player's view does not reveal all information about the game state, we will need to calculate some sets out of groups of enums. For example, both an empty and mine-containing cell, when
-un-revealed, will be drawn as a `.brick` cell using `HIDDEN_ENUMS`.
+Because the Player's view does not reveal all information about the game state,
+we will need to calculate some sets out of groups of enums. For example, both an
+empty and mine-containing cell, when un-revealed, will be drawn as a `.brick`
+cell using `HIDDEN_ENUMS`.
 
 ```javascript
 const FLAG_ENUMS = new Set([FLAG_ENUM, FLAG_MINE_ENUM]);
@@ -37,8 +42,10 @@ const MINE_ENUMS = new Set([HIDDEN_MINE_ENUM, FLAG_MINE_ENUM]);
 const HINT_ENUMS = new Set(Array.from(Array(9).keys()));
 ```
 
-The game board begins hidden, with mines randomly distributed throughout. Little effort is made in this example to create a competition-approved distribution, so be sure to avoid using this particular
-implementation in any Leagues, Tournaments or Grand Championships.
+The game board begins hidden, with mines randomly distributed throughout. Little
+effort is made in this example to create a competition-approved distribution, so
+be sure to avoid using this particular implementation in any Leagues,
+Tournaments or Grand Championships.
 
 ```javascript
 const VIEW_DATA = Array(WIDTH)
@@ -66,8 +73,10 @@ function dataListener(x0, y0, x1, y1) {
 
 # Game Logic
 
-The basic unit of calculating player moves is `getNeighbors()`, a generator function which yields the coordinates of all neighboring cells which are members of a `Set()`. We'll use this to implement a
-breadth-first search which respects the game rules, board edges, etc.
+The basic unit of calculating player moves is `getNeighbors()`, a generator
+function which yields the coordinates of all neighboring cells which are members
+of a `Set()`. We'll use this to implement a breadth-first search which respects
+the game rules, board edges, etc.
 
 ```javascript
 function* getNeighbors(x, y, _set) {
@@ -87,8 +96,10 @@ function* getNeighbors(x, y, _set) {
 }
 ```
 
-There are three "actions" the player can make in Minesweeper `detonate()`, `flag()` and `check()`. The `detonate()` action, applied to a blank cell, will fill the cell with a number 0-8, the number of
-neighboring mines. If this number is 0, the neighboring cells will be recursively `detonate()`-ed as well.
+There are three "actions" the player can make in Minesweeper `detonate()`,
+`flag()` and `check()`. The `detonate()` action, applied to a blank cell, will
+fill the cell with a number 0-8, the number of neighboring mines. If this number
+is 0, the neighboring cells will be recursively `detonate()`-ed as well.
 
 ```javascript
 function detonate(x, y) {
@@ -112,8 +123,9 @@ function detonate(x, y) {
 }
 ```
 
-The second player action, `flag()` marks a blank cell as a suspected mine, and prevents it from being `detonate()`-ed. When applied to an already `flag()`-ed cell, it reset the cell to its original
-blank state.
+The second player action, `flag()` marks a blank cell as a suspected mine, and
+prevents it from being `detonate()`-ed. When applied to an already `flag()`-ed
+cell, it reset the cell to its original blank state.
 
 ```javascript
 function flag(x, y) {
@@ -126,8 +138,9 @@ function flag(x, y) {
 }
 ```
 
-The last, `check()`, is applied to an already `detonate()`-ed cell with a number revealed. If this cell has this same number of neighboring cells `flag()`-ed, then all remaining neighbor cells will be
-`detonate()`-ed.
+The last, `check()`, is applied to an already `detonate()`-ed cell with a number
+revealed. If this cell has this same number of neighboring cells `flag()`-ed,
+then all remaining neighbor cells will be `detonate()`-ed.
 
 ```javascript
 function check(x, y) {
@@ -147,8 +160,9 @@ function check(x, y) {
 
 # AAA Graphics
 
-We could easily reflect each cell's value to a table cell attribute, ala `<td data-value="3">3<td>`, and implement the rest of our game's graphics as CSS selectors - but for the sake of readability,
-we'll group these as classes.
+We could easily reflect each cell's value to a table cell attribute, ala
+`<td data-value="3">3<td>`, and implement the rest of our game's graphics as CSS
+selectors - but for the sake of readability, we'll group these as classes.
 
 ```javascript
 function styleListener() {
@@ -157,14 +171,18 @@ function styleListener() {
         const val = VIEW_DATA[meta.x][meta.y];
         td.className = "";
         td.classList.toggle(`hint-${val}`, HINT_ENUMS.has(val));
-        td.classList.toggle("brick", HIDDEN_ENUMS.has(val) || FLAG_ENUMS.has(val));
+        td.classList.toggle(
+            "brick",
+            HIDDEN_ENUMS.has(val) || FLAG_ENUMS.has(val),
+        );
         td.classList.toggle("flag", FLAG_ENUMS.has(val));
         td.classList.toggle("exploded", val === EXPLODED_ENUM);
     }
 }
 ```
 
-The special cell types are pretty simple CSS built on this framework. Hint cells are color coded.
+The special cell types are pretty simple CSS built on this framework. Hint cells
+are color coded.
 
 ```css
 .hint-1 {
@@ -193,7 +211,8 @@ The special cell types are pretty simple CSS built on this framework. Hint cells
 }
 ```
 
-Brick cells have shadowed borders which create the illusion of depth and evoke ... brickness ...
+Brick cells have shadowed borders which create the illusion of depth and evoke
+... brickness ...
 
 ```css
 .brick {
@@ -250,7 +269,8 @@ async function clickEventListener(event) {
 }
 ```
 
-Right clicks are `flag()` actions on `.brick` cells, and `check()` actions on `detonate()`-ed cells.
+Right clicks are `flag()` actions on `.brick` cells, and `check()` actions on
+`detonate()`-ed cells.
 
 ```javascript
 function contextMenuEventListener(event) {

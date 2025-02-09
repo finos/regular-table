@@ -251,7 +251,7 @@ listener functions for `addStyleListener()` and `addEventListener()`.
 
 **Example**  
 ```js
-MetaData                     (x = 0, column_header_y = 0))
+MetaData                     (x = 0, column_header_y = 0)
                              *-------------------------------------+
                              |                                     |
                              |                                     |

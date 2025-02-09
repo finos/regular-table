@@ -11,7 +11,9 @@
 describe("getMeta()", () => {
     beforeAll(async () => {
         await page.setViewport({ width: 200, height: 200 });
-        await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
+        await page.goto(
+            "http://localhost:8081/test/features/2_row_2_column_headers.html",
+        );
         await page.waitForSelector("regular-table table tbody tr td");
     });
 
@@ -19,7 +21,9 @@ describe("getMeta()", () => {
         test("for {x: 0, y: 0}", async () => {
             const table = await page.$("regular-table");
             const meta = await page.evaluate((table) => {
-                return JSON.stringify(table.getMeta(document.querySelector("td")));
+                return JSON.stringify(
+                    table.getMeta(document.querySelector("td")),
+                );
             }, table);
 
             expect(JSON.parse(meta)).toEqual({
@@ -42,7 +46,9 @@ describe("getMeta()", () => {
         test("for {row_header_x: 0, y: 0}", async () => {
             const table = await page.$("regular-table");
             const meta = await page.evaluate((table) => {
-                return JSON.stringify(table.getMeta(document.querySelector("tbody th")));
+                return JSON.stringify(
+                    table.getMeta(document.querySelector("tbody th")),
+                );
             }, table);
             expect(JSON.parse(meta)).toEqual({
                 row_header: ["Group 0", "Row 0"],
@@ -59,7 +65,11 @@ describe("getMeta()", () => {
         test("for {x: 0, column_header_y: 0}", async () => {
             const table = await page.$("regular-table");
             const meta = await page.evaluate((table) => {
-                return JSON.stringify(table.getMeta(document.querySelector("thead th:nth-child(2)")));
+                return JSON.stringify(
+                    table.getMeta(
+                        document.querySelector("thead th:nth-child(2)"),
+                    ),
+                );
             }, table);
             expect(JSON.parse(meta)).toEqual({
                 column_header: ["Group 0", "Column 0"],
@@ -84,7 +94,9 @@ describe("getMeta()", () => {
             test("for {x: 0, y: 0}", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.getMeta(document.querySelector("td")));
+                    return JSON.stringify(
+                        table.getMeta(document.querySelector("td")),
+                    );
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 10", "Column 16"],
@@ -106,7 +118,9 @@ describe("getMeta()", () => {
             test("for {row_header_x: 0, y: 0}", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.getMeta(document.querySelector("tbody th")));
+                    return JSON.stringify(
+                        table.getMeta(document.querySelector("tbody th")),
+                    );
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     row_header: ["Group 0", "Row 0"],
@@ -123,7 +137,11 @@ describe("getMeta()", () => {
             test.skip("for {x: 0, column_header_y: 0}", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.getMeta(document.querySelector("thead th:nth-child(2)")));
+                    return JSON.stringify(
+                        table.getMeta(
+                            document.querySelector("thead th:nth-child(2)"),
+                        ),
+                    );
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 10", "Column 16"],
@@ -150,7 +168,9 @@ describe("getMeta()", () => {
             test.skip("for {x: 0, y: 0}", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.getMeta(document.querySelector("td")));
+                    return JSON.stringify(
+                        table.getMeta(document.querySelector("td")),
+                    );
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 0", "Column 0"],
@@ -172,7 +192,9 @@ describe("getMeta()", () => {
             test("for {row_header_x: 0, y: 0}", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.getMeta(document.querySelector("tbody th")));
+                    return JSON.stringify(
+                        table.getMeta(document.querySelector("tbody th")),
+                    );
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     row_header: ["Group 50", "Row 52"],
@@ -189,7 +211,11 @@ describe("getMeta()", () => {
             test("for {x: 0, column_header_y: 0}", async () => {
                 const table = await page.$("regular-table");
                 const meta = await page.evaluate((table) => {
-                    return JSON.stringify(table.getMeta(document.querySelector("thead th:nth-child(2)")));
+                    return JSON.stringify(
+                        table.getMeta(
+                            document.querySelector("thead th:nth-child(2)"),
+                        ),
+                    );
                 }, table);
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 0", "Column 0"],

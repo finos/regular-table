@@ -1,45 +1,45 @@
 name: Publish Package
 
 on:
-  release:
-    types: [created]
+    release:
+        types: [created]
 
 jobs:
-  deploy:
-    runs-on: ${{ matrix.os }}
+    deploy:
+        runs-on: ${{ matrix.os }}
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [12.x]
-        
-    steps:
-    - uses: actions/checkout@v2
+        strategy:
+            matrix:
+                os: [ubuntu-latest]
+                node-version: [18.x]
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+        steps:
+            - uses: actions/checkout@v2
 
-    - name: Install yarn
-      run: npm install -g yarn
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: |
-        yarn
+            - name: Install pnpm
+              run: npm install -g pnpm
 
-    - name: Lint
-      run: |
-        yarn lint
+            - name: Install dependencies
+              run: |
+                  pnpm install
 
-    - name: Build
-      run: |
-        yarn build
+            - name: Lint
+              run: |
+                  pnpm run lint
 
-    - name: Test
-      run: |
-        yarn test
+            - name: Build
+              run: |
+                  pnpm run build
 
-    - name: Publish
-      run: |
-        npm publish
+            - name: Test
+              run: |
+                  pnpm run test
+
+            - name: Publish
+              run: |
+                  npm publish
