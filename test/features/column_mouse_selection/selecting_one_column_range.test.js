@@ -10,17 +10,23 @@
 
 describe("column_mouse_selection.html", () => {
     const selectedColumns = async () => {
-        const selectedCells = await page.$$("regular-table thead th.mouse-selected-column");
+        const selectedCells = await page.$$(
+            "regular-table thead th.mouse-selected-column",
+        );
         const selectedValues = [];
         for (const td of selectedCells) {
-            selectedValues.push(await page.evaluate((td) => td.firstChild.innerHTML, td));
+            selectedValues.push(
+                await page.evaluate((td) => td.firstChild.innerHTML, td),
+            );
         }
         return selectedValues;
     };
 
     beforeAll(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
-        await page.goto("http://localhost:8081/dist/features/column_mouse_selection.html");
+        await page.goto(
+            "http://localhost:8081/dist/features/column_mouse_selection.html",
+        );
         await page.waitForSelector("regular-table table tbody tr td");
     });
 
@@ -38,12 +44,21 @@ describe("column_mouse_selection.html", () => {
             }, ths[9]);
 
             await page.evaluate(async (th) => {
-                const event = new MouseEvent("click", { bubbles: true, shiftKey: true });
+                const event = new MouseEvent("click", {
+                    bubbles: true,
+                    shiftKey: true,
+                });
                 th.dispatchEvent(event);
             }, ths[11]);
 
-            await page.waitForSelector("regular-table td.mouse-selected-column");
-            expect(await selectedColumns()).toEqual(["Column 2", "Column 3", "Column 4"]);
+            await page.waitForSelector(
+                "regular-table td.mouse-selected-column",
+            );
+            expect(await selectedColumns()).toEqual([
+                "Column 2",
+                "Column 3",
+                "Column 4",
+            ]);
         });
     });
 });

@@ -33,7 +33,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         // // TODO see `_on_click_or_dblclick` method jsdoc
         // this.addEventListener("dblclick", this._on_dblclick.bind(this));
 
-        this.addEventListener("mousedown", this._on_click_or_dblclick.bind(this));
+        this.addEventListener(
+            "mousedown",
+            this._on_click_or_dblclick.bind(this),
+        );
         this.addEventListener("scroll", this._on_scroll.bind(this), {
             passive: true,
         });
@@ -68,9 +71,13 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         this.addEventListener("mousewheel", this._on_mousewheel.bind(this));
         if (IOS_DISABLE_OVERSCROLL) {
             this.addEventListener("touchmove", this._on_touchmove.bind(this));
-            this.addEventListener("touchstart", this._on_touchstart.bind(this), {
-                passive: true,
-            });
+            this.addEventListener(
+                "touchstart",
+                this._on_touchstart.bind(this),
+                {
+                    passive: true,
+                },
+            );
         }
     }
     /**
@@ -91,10 +98,22 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         const { clientWidth, clientHeight, scrollTop, scrollLeft } = this;
         event.preventDefault();
         event.returnValue = false;
-        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
-        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
-        this.scrollTop = Math.max(0, Math.min(total_scroll_height, scrollTop + event.deltaY));
-        this.scrollLeft = Math.max(0, Math.min(total_scroll_width, scrollLeft + event.deltaX));
+        const total_scroll_height = Math.max(
+            1,
+            this._virtual_panel.offsetHeight - clientHeight,
+        );
+        const total_scroll_width = Math.max(
+            1,
+            this._virtual_panel.offsetWidth - clientWidth,
+        );
+        this.scrollTop = Math.max(
+            0,
+            Math.min(total_scroll_height, scrollTop + event.deltaY),
+        );
+        this.scrollLeft = Math.max(
+            0,
+            Math.min(total_scroll_width, scrollLeft + event.deltaX),
+        );
         this._on_scroll(event);
     }
 
@@ -114,10 +133,24 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         event.preventDefault();
         event.returnValue = false;
         const { clientWidth, clientHeight } = this;
-        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - clientHeight);
-        const total_scroll_width = Math.max(1, this._virtual_panel.offsetWidth - clientWidth);
-        this.scrollTop = Math.min(total_scroll_height, this._memo_scroll_top + (this._memo_touch_startY - event.touches[0].pageY));
-        this.scrollLeft = Math.min(total_scroll_width, this._memo_scroll_left + (this._memo_touch_startX - event.touches[0].pageX));
+        const total_scroll_height = Math.max(
+            1,
+            this._virtual_panel.offsetHeight - clientHeight,
+        );
+        const total_scroll_width = Math.max(
+            1,
+            this._virtual_panel.offsetWidth - clientWidth,
+        );
+        this.scrollTop = Math.min(
+            total_scroll_height,
+            this._memo_scroll_top +
+                (this._memo_touch_startY - event.touches[0].pageY),
+        );
+        this.scrollLeft = Math.min(
+            total_scroll_width,
+            this._memo_scroll_left +
+                (this._memo_touch_startX - event.touches[0].pageX),
+        );
         this._on_scroll(event);
     }
 
@@ -163,8 +196,17 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 this._column_sizes.indices[metadata.size_key] = undefined;
             }
 
-            for (const row of event.shiftKey ? [this.table_model.header.cells[this.table_model.header.cells.length - 1], ...this.table_model.body.cells] : this.table_model.body.cells) {
-                for (const td of event.shiftKey ? row : [row[metadata._virtual_x]]) {
+            for (const row of event.shiftKey
+                ? [
+                      this.table_model.header.cells[
+                          this.table_model.header.cells.length - 1
+                      ],
+                      ...this.table_model.body.cells,
+                  ]
+                : this.table_model.body.cells) {
+                for (const td of event.shiftKey
+                    ? row
+                    : [row[metadata._virtual_x]]) {
                     if (!td) {
                         continue;
                     }
@@ -240,14 +282,28 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         const { _virtual_x, size_key } = metadata;
         const start = event.pageX;
         const header_x = _virtual_x + element.colSpan - 1;
-        const header_element = this.table_model.header.get_column_header(header_x);
+        const header_element =
+            this.table_model.header.get_column_header(header_x);
         const width = this._column_sizes.indices[size_key];
-        const move = (event) => throttle_tag(this, async () => await this._on_resize_column_move(event, header_element, start, width, size_key, header_x));
+        const move = (event) =>
+            throttle_tag(
+                this,
+                async () =>
+                    await this._on_resize_column_move(
+                        event,
+                        header_element,
+                        start,
+                        width,
+                        size_key,
+                        header_x,
+                    ),
+            );
         const up = () => {
             document.removeEventListener("mousemove", move);
             document.removeEventListener("mouseup", up);
             const override_width = this._column_sizes.override[size_key];
-            const should_redraw = this._column_sizes.indices[size_key] !== override_width;
+            const should_redraw =
+                this._column_sizes.indices[size_key] !== override_width;
             this._column_sizes.indices[size_key] = override_width;
             if (should_redraw) {
                 this.draw();
@@ -287,8 +343,12 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             for (const row of this.table_model.body.cells) {
                 const td = row[virtual_x];
                 if (td) {
-                    td.style.maxWidth = td.style.minWidth = override_width + "px";
-                    td.classList.toggle("rt-cell-clip", auto_width > override_width);
+                    td.style.maxWidth = td.style.minWidth =
+                        override_width + "px";
+                    td.classList.toggle(
+                        "rt-cell-clip",
+                        auto_width > override_width,
+                    );
                 }
             }
         }

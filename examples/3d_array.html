@@ -2,10 +2,13 @@
     Displaying the contents of a 3D Array
 -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+        />
         <script src="../dist/esm/regular-table.js"></script>
         <link rel="stylesheet" href="../dist/css/material.css" />
     </head>
@@ -26,8 +29,13 @@
                     num_rows: SHAPE[1],
                     num_columns: SHAPE[2],
                     row_headers: range(y0, y1, (y) => [`Green=${y}`]),
-                    column_headers: range(x0, x1, (x) => [`Blue=${Z} (alt key + mouse wheel to scroll through Blue)`, `Red=${x}`]),
-                    data: range(x0, x1, (x) => range(y0, y1, (y) => `${x},${y},${Z}`)),
+                    column_headers: range(x0, x1, (x) => [
+                        `Blue=${Z} (alt key + mouse wheel to scroll through Blue)`,
+                        `Red=${x}`,
+                    ]),
+                    data: range(x0, x1, (x) =>
+                        range(y0, y1, (y) => `${x},${y},${Z}`),
+                    ),
                 };
             }
 
@@ -53,12 +61,17 @@
             }
 
             window.addEventListener("load", () => {
-                const regular = document.getElementsByTagName("regular-table")[0];
+                const regular =
+                    document.getElementsByTagName("regular-table")[0];
                 regular.addStyleListener(rgbCellStyle.bind(null, regular));
                 regular.setDataListener(dataListener);
-                regular.addEventListener("wheel", onAltWheel.bind(null, regular), {
-                    passive: false,
-                });
+                regular.addEventListener(
+                    "wheel",
+                    onAltWheel.bind(null, regular),
+                    {
+                        passive: false,
+                    },
+                );
                 regular.draw();
             });
         </script>

@@ -11,13 +11,17 @@
 describe.skip("row_column_area_selection.html", () => {
     beforeEach(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
-        await page.goto("http://localhost:8081/dist/examples/row_column_area_selection.html");
+        await page.goto(
+            "http://localhost:8081/dist/examples/row_column_area_selection.html",
+        );
         await page.waitForSelector("regular-table table tbody tr td");
     });
 
     describe("selecting one cell", () => {
         test("includes one selection", async () => {
-            const tds = await page.$$("regular-table tbody tr td:nth-of-type(1)");
+            const tds = await page.$$(
+                "regular-table tbody tr td:nth-of-type(1)",
+            );
 
             await page.evaluate(async (td) => {
                 const event = new MouseEvent("mousedown", { bubbles: true });
@@ -29,7 +33,9 @@ describe.skip("row_column_area_selection.html", () => {
                 td.dispatchEvent(event);
             }, tds[0]);
 
-            const selectedCells = await page.$$("regular-table tbody tr td.mouse-selected-area");
+            const selectedCells = await page.$$(
+                "regular-table tbody tr td.mouse-selected-area",
+            );
             expect(selectedCells.length).toEqual(1);
         });
     });

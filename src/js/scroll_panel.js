@@ -91,13 +91,19 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 
     _setup_virtual_scroll() {
         if (this._table_clip) {
-            if (this._virtual_mode === "both" || this._virtual_mode === "vertical") {
+            if (
+                this._virtual_mode === "both" ||
+                this._virtual_mode === "vertical"
+            ) {
                 this._table_clip.style.top = "0px";
             } else {
                 this._table_clip.style.removeProperty("top");
             }
 
-            if (this._virtual_mode === "both" || this._virtual_mode === "horizontal") {
+            if (
+                this._virtual_mode === "both" ||
+                this._virtual_mode === "horizontal"
+            ) {
                 this._table_clip.style.left = "0px";
             } else {
                 this._table_clip.style.removeProperty("left");
@@ -122,7 +128,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _calculate_viewport(nrows, num_columns) {
         const { start_row, end_row } = this._calculate_row_range(nrows);
-        const { start_col, end_col } = this._calculate_column_range(num_columns);
+        const { start_col, end_col } =
+            this._calculate_column_range(num_columns);
         this._nrows = nrows;
         return { start_col, end_col, start_row, end_row };
     }
@@ -170,13 +177,23 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const { height } = this._container_size;
         const row_height = this._column_sizes.row_height || 19;
         const header_levels = this._view_cache.config.column_pivots.length;
-        const total_scroll_height = Math.max(1, this._virtual_panel.offsetHeight - this.clientHeight);
-        const percent_scroll = Math.max(Math.ceil(this.scrollTop), 0) / total_scroll_height;
-        const virtual_panel_row_height = height / row_height - header_levels;
+        const total_scroll_height = Math.max(
+            1,
+            this._virtual_panel.offsetHeight - height,
+        );
+        const percent_scroll =
+            Math.max(Math.ceil(this.scrollTop), 0) / total_scroll_height;
+        const clip_panel_row_height = height / row_height - header_levels;
         const relative_nrows = nrows || 0;
-        const scroll_rows = Math.max(0, Math.ceil(relative_nrows - virtual_panel_row_height));
-        const start_row = scroll_rows * percent_scroll;
-        const end_row = Math.max(0, Math.min(start_row + virtual_panel_row_height, nrows));
+        const scrollable_rows = Math.max(
+            0,
+            relative_nrows - clip_panel_row_height,
+        );
+        const start_row = scrollable_rows * percent_scroll;
+        const end_row = Math.max(
+            0,
+            Math.min(start_row + clip_panel_row_height, nrows),
+        );
         return { start_row, end_row };
     }
 
@@ -186,13 +203,17 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         let offset_width = 0;
         let diff = 0;
         while (offset_width < this.scrollLeft) {
-            const new_val = this._column_sizes.indices[start_col + scroll_index_offset];
+            const new_val =
+                this._column_sizes.indices[start_col + scroll_index_offset];
             diff = this.scrollLeft - offset_width;
             start_col += 1;
             offset_width += new_val !== undefined ? new_val : 60;
         }
 
-        start_col += diff / (this._column_sizes.indices[start_col + scroll_index_offset - 1] || 60);
+        start_col +=
+            diff /
+            (this._column_sizes.indices[start_col + scroll_index_offset - 1] ||
+                60);
         return Math.max(0, start_col - 1);
     }
 
@@ -207,11 +228,19 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      */
     _calculate_column_range(num_columns) {
-        if (this._virtual_mode === "none" || this._virtual_mode === "vertical") {
+        if (
+            this._virtual_mode === "none" ||
+            this._virtual_mode === "vertical"
+        ) {
             return { start_col: 0, end_col: Infinity };
         } else {
             const start_col = this._calc_start_column();
-            const vis_cols = this.table_model.num_columns() || Math.min(num_columns, Math.ceil(this._container_size.width / 60));
+            const vis_cols =
+                this.table_model.num_columns() ||
+                Math.min(
+                    num_columns,
+                    Math.ceil(this._container_size.width / 60),
+                );
             let end_col = start_col + vis_cols + 1;
             return { start_col, end_col };
         }
@@ -245,7 +274,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     _max_scroll_column(num_columns) {
         let width = 0;
         if (this._view_cache.config.row_pivots.length > 0) {
-            for (const w of this._column_sizes.indices.slice(0, this._view_cache.config.row_pivots.length)) {
+            for (const w of this._column_sizes.indices.slice(
+                0,
+                this._view_cache.config.row_pivots.length,
+            )) {
                 width += w;
             }
         }
@@ -253,7 +285,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         let max_scroll_column = num_columns;
         while (width < this._container_size.width && max_scroll_column >= 0) {
             max_scroll_column--;
-            width += this._column_sizes.indices[max_scroll_column + scroll_index_offset] || 60;
+            width +=
+                this._column_sizes.indices[
+                    max_scroll_column + scroll_index_offset
+                ] || 60;
         }
 
         return Math.min(num_columns - 1, max_scroll_column + 1);
@@ -277,7 +312,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         start_col = Math.floor(start_col);
         end_col = Math.ceil(end_col);
         const invalid_column = this._start_col !== start_col;
-        const invalid_row = this._start_row !== start_row || this._end_row !== end_row || this._end_col !== end_col;
+        const invalid_row =
+            this._start_row !== start_row ||
+            this._end_row !== end_row ||
+            this._end_col !== end_col;
         this._start_col = start_col;
         this._end_col = end_col;
         this._start_row = start_row;
@@ -297,8 +335,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         if (cidx < this._column_sizes.indices.length) {
-            let viewport_width = this._column_sizes.indices.slice(0, this._view_cache.config.row_pivots.length).reduce((x, y) => x + y, 0);
-            virtual_width += Math.max(0, this._column_sizes.indices[cidx] - (this._container_size.width - viewport_width) || 0);
+            let viewport_width = this._column_sizes.indices
+                .slice(0, this._view_cache.config.row_pivots.length)
+                .reduce((x, y) => x + y, 0);
+            virtual_width += Math.max(
+                0,
+                this._column_sizes.indices[cidx] -
+                    (this._container_size.width - viewport_width) || 0,
+            );
         }
 
         return virtual_width;
@@ -314,12 +358,19 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _update_virtual_panel_width(invalid, num_columns) {
         if (invalid) {
-            if (this._virtual_mode === "vertical" || this._virtual_mode === "none") {
-                this._virtual_panel.style.width = this._column_sizes.indices.reduce((x, y) => x + y, 0) + "px";
+            if (
+                this._virtual_mode === "vertical" ||
+                this._virtual_mode === "none"
+            ) {
+                this._virtual_panel.style.width =
+                    this._column_sizes.indices.reduce((x, y) => x + y, 0) +
+                    "px";
             } else {
-                const virtual_width = this._calc_scrollable_column_width(num_columns);
+                const virtual_width =
+                    this._calc_scrollable_column_width(num_columns);
                 if (virtual_width !== 0) {
-                    const panel_width = this._container_size.width + virtual_width + 2;
+                    const panel_width =
+                        this._container_size.width + virtual_width + 2;
                     this._virtual_panel.style.width = panel_width + "px";
                 } else {
                     this._virtual_panel.style.width = "1px";
@@ -338,16 +389,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     _update_virtual_panel_height(nrows) {
         const { row_height = 19 } = this._column_sizes;
-        const header_height = this._view_cache.config.column_pivots.length * row_height;
+        const header_height =
+            this._view_cache.config.column_pivots.length * row_height;
         let virtual_panel_px_size;
-        if (this._virtual_mode === "horizontal" || this._virtual_mode === "none") {
-            virtual_panel_px_size = nrows * row_height + header_height;
-        } else {
-            //const {height} = this._container_size;
-            // TODO use cached height?
-            const zoom_factor = this.clientHeight / (this._table_clip.offsetHeight - header_height);
-            virtual_panel_px_size = Math.min(BROWSER_MAX_HEIGHT, nrows * row_height * zoom_factor);
-        }
+        virtual_panel_px_size = Math.min(
+            BROWSER_MAX_HEIGHT,
+            nrows * row_height + header_height,
+        );
         this._virtual_panel.style.height = `${virtual_panel_px_size}px`;
     }
 
@@ -367,7 +415,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         if (typeof options.throttle !== "undefined" && !options.throttle) {
             return await internal_draw.call(this, options);
         } else {
-            return await throttle_tag(this, () => internal_draw.call(this, options));
+            return await throttle_tag(this, () =>
+                internal_draw.call(this, options),
+            );
         }
     }
 
@@ -376,8 +426,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     }
 
     update_sub_cell_offset(viewport) {
-        const y_offset = this._column_sizes.row_height * (viewport.start_row % 1) || 0;
-        const x_offset = this._column_sizes.indices[(this.table_model._row_headers_length || 0) + Math.floor(viewport.start_col)] * (viewport.start_col % 1) || 0;
+        const y_offset =
+            this._column_sizes.row_height * (viewport.start_row % 1) || 0;
+        const x_offset =
+            this._column_sizes.indices[
+                (this.table_model._row_headers_length || 0) +
+                    Math.floor(viewport.start_col)
+            ] *
+                (viewport.start_col % 1) || 0;
         let style = this._sub_cell_style.sheet?.cssRules[0].style;
         if (style) {
             style.setProperty(`--regular-table--clip-x`, `${x_offset}px`);
@@ -391,10 +447,30 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 async function internal_draw(options) {
     const __debug_start_time__ = DEBUG && performance.now();
     const { invalid_viewport = true, preserve_width = false } = options;
-    const { num_columns, num_rows, row_height } = await this._view_cache.view(0, 0, 0, 0);
+    const {
+        num_columns,
+        num_rows,
+        num_row_headers,
+        num_column_headers,
+        row_height,
+    } = await this._view_cache.view(0, 0, 0, 0);
+    if (num_row_headers !== undefined) {
+        this._view_cache.row_pivots = Array(num_row_headers).fill(0);
+    }
+
+    if (num_column_headers !== undefined) {
+        this._view_cache.column_pivots = Array(num_column_headers).fill(0);
+    }
+
     this._container_size = {
-        width: this._virtual_mode === "none" || this._virtual_mode === "vertical" ? Infinity : this._table_clip.clientWidth,
-        height: this._virtual_mode === "none" || this._virtual_mode === "horizontal" ? Infinity : this._table_clip.clientHeight,
+        width:
+            this._virtual_mode === "none" || this._virtual_mode === "vertical"
+                ? Infinity
+                : this._table_clip.clientWidth,
+        height:
+            this._virtual_mode === "none" || this._virtual_mode === "horizontal"
+                ? Infinity
+                : this._table_clip.clientHeight,
     };
 
     this._update_virtual_panel_height(num_rows);
@@ -403,10 +479,22 @@ async function internal_draw(options) {
     }
     const viewport = this._calculate_viewport(num_rows, num_columns);
     const { invalid_row, invalid_column } = this._validate_viewport(viewport);
-    if (this._invalid_schema || invalid_row || invalid_column || invalid_viewport) {
+    if (
+        this._invalid_schema ||
+        invalid_row ||
+        invalid_column ||
+        invalid_viewport
+    ) {
         let autosize_cells = [],
             needs_sub_cell_update = true;
-        for await (let last_cells of this.table_model.draw(this._container_size, this._view_cache, this._selected_id, preserve_width, viewport, num_columns)) {
+        for await (let last_cells of this.table_model.draw(
+            this._container_size,
+            this._view_cache,
+            this._selected_id,
+            preserve_width,
+            viewport,
+            num_columns,
+        )) {
             if (last_cells !== undefined) {
                 autosize_cells = autosize_cells.concat(last_cells);
             }
@@ -436,7 +524,10 @@ async function internal_draw(options) {
         this.table_model.autosize_cells(autosize_cells, row_height);
         this.table_model.header.reset_header_cache();
         if (!preserve_width) {
-            this._update_virtual_panel_width(this._invalid_schema || invalid_column, num_columns);
+            this._update_virtual_panel_width(
+                this._invalid_schema || invalid_column,
+                num_columns,
+            );
         }
         this._invalid_schema = false;
     } else {

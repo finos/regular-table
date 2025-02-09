@@ -7,10 +7,13 @@
 
 -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+        />
         <script src="../dist/esm/regular-table.js"></script>
         <link rel="stylesheet" href="../dist/css/material.css" />
 
@@ -58,9 +61,14 @@
         </script>
 
         <script>
-            const blob = new Blob([document.querySelector("#two_billion_worker").textContent]);
-            const worker = new Worker(window.URL.createObjectURL(blob, { type: "text/javascript" }));
-            const regularTable = document.getElementsByTagName("regular-table")[0];
+            const blob = new Blob([
+                document.querySelector("#two_billion_worker").textContent,
+            ]);
+            const worker = new Worker(
+                window.URL.createObjectURL(blob, { type: "text/javascript" }),
+            );
+            const regularTable =
+                document.getElementsByTagName("regular-table")[0];
 
             let callback;
 

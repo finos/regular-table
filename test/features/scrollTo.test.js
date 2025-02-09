@@ -11,7 +11,9 @@
 describe("scrollToCell", () => {
     beforeAll(async () => {
         await page.setViewport({ width: 200, height: 200 });
-        await page.goto("http://localhost:8081/test/features/2_row_2_column_headers.html");
+        await page.goto(
+            "http://localhost:8081/test/features/2_row_2_column_headers.html",
+        );
         await page.evaluate(async () => {
             await document.querySelector("regular-table").draw();
         });
@@ -72,7 +74,11 @@ describe("scrollToCell", () => {
                 await table.scrollToCell(211, 647, 1000, 1000);
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
-            const cell_values = await page.evaluate((first_tr) => Array.from(first_tr.children).map((x) => x.textContent), first_tr);
+            const cell_values = await page.evaluate(
+                (first_tr) =>
+                    Array.from(first_tr.children).map((x) => x.textContent),
+                first_tr,
+            );
             expect(cell_values).toEqual(["Group 640", "Row 647", "858", "859"]);
         });
     });

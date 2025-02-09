@@ -10,7 +10,9 @@
 
 describe("row_mouse_selection.html", () => {
     const selectedRows = async () => {
-        const selectedCells = await page.$$("regular-table tbody tr th.mouse-selected-row");
+        const selectedCells = await page.$$(
+            "regular-table tbody tr th.mouse-selected-row",
+        );
         const selectedValues = [];
         for (const td of selectedCells) {
             selectedValues.push(await page.evaluate((td) => td.innerHTML, td));
@@ -20,7 +22,9 @@ describe("row_mouse_selection.html", () => {
 
     beforeAll(async () => {
         await page.setViewport({ width: 2500, height: 2500 });
-        await page.goto("http://localhost:8081/dist/features/row_mouse_selection.html");
+        await page.goto(
+            "http://localhost:8081/dist/features/row_mouse_selection.html",
+        );
         await page.waitForSelector("regular-table table tbody tr td");
     });
 
@@ -35,7 +39,10 @@ describe("row_mouse_selection.html", () => {
                 }, ths[3]);
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", { bubbles: true, ctrlKey: false });
+                    const event = new MouseEvent("click", {
+                        bubbles: true,
+                        ctrlKey: false,
+                    });
                     th.dispatchEvent(event);
                 }, ths[5]);
 
@@ -53,7 +60,10 @@ describe("row_mouse_selection.html", () => {
                 }, ths[3]);
 
                 await page.evaluate(async (th) => {
-                    const event = new MouseEvent("click", { bubbles: true, ctrlKey: true });
+                    const event = new MouseEvent("click", {
+                        bubbles: true,
+                        ctrlKey: true,
+                    });
                     th.dispatchEvent(event);
                 }, ths[5]);
 

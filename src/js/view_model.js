@@ -49,7 +49,8 @@ export class ViewModel {
     }
 
     num_columns() {
-        return this._get_row(Math.max(0, this.rows.length - 1)).row_container.length;
+        return this._get_row(Math.max(0, this.rows.length - 1)).row_container
+            .length;
     }
 
     num_rows() {
@@ -113,7 +114,7 @@ export class ViewModel {
                 td = row_container[cidx] = document.createElement(tag);
                 tr.insertBefore(
                     td,
-                    row_container.slice(cidx + 1).find((x) => x)
+                    row_container.slice(cidx + 1).find((x) => x),
                 );
             } else {
                 td = row_container[cidx] = document.createElement(tag);

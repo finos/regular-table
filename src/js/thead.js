@@ -61,10 +61,14 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.size_key = size_key.length ? size_key[0] : size_key; // FIXME
 
         if (!(size_key.length > 1)) {
-            const override_width = this._column_sizes.override[metadata.size_key];
+            const override_width =
+                this._column_sizes.override[metadata.size_key];
             const auto_width = this._column_sizes.auto[metadata.size_key];
             if (override_width) {
-                th.classList.toggle("rt-cell-clip", auto_width > override_width);
+                th.classList.toggle(
+                    "rt-cell-clip",
+                    auto_width > override_width,
+                );
                 th.style.minWidth = override_width + "px";
                 th.style.maxWidth = override_width + "px";
             } else if (auto_width) {
@@ -84,18 +88,34 @@ export class RegularHeaderViewModel extends ViewModel {
         return this._get_cell("TH", this.num_rows() - 1, cidx);
     }
 
-    draw(alias, parts, colspan, x, size_key, x0, _virtual_x, column_header_merge_depth, merge_headers) {
+    draw(
+        alias,
+        parts,
+        colspan,
+        x,
+        size_key,
+        x0,
+        _virtual_x,
+        column_header_merge_depth,
+        merge_headers,
+    ) {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
         if (header_levels === 0) return;
         let th, metadata, column_name;
         let output = undefined;
-        column_header_merge_depth = typeof column_header_merge_depth === "undefined" ? header_levels - 1 : column_header_merge_depth;
+        column_header_merge_depth =
+            typeof column_header_merge_depth === "undefined"
+                ? header_levels - 1
+                : column_header_merge_depth;
         for (let d = 0; d < header_levels; d++) {
             column_name = parts[d] ? parts[d] : "";
             this._offset_cache[d] = this._offset_cache[d] || 0;
 
             if (d < column_header_merge_depth) {
-                if (merge_headers && this._group_header_cache?.[d]?.[0]?.value === column_name) {
+                if (
+                    merge_headers &&
+                    this._group_header_cache?.[d]?.[0]?.value === column_name
+                ) {
                     th = this._group_header_cache[d][1];
                     this._group_header_cache[d][2] += 1;
                     if (colspan === 1) {
@@ -103,7 +123,11 @@ export class RegularHeaderViewModel extends ViewModel {
                     }
                     th.setAttribute("colspan", this._group_header_cache[d][2]);
                 } else {
-                    th = this._draw_group_th(this._offset_cache, d, column_name);
+                    th = this._draw_group_th(
+                        this._offset_cache,
+                        d,
+                        column_name,
+                    );
                     metadata = this._draw_group(parts, column_name, th);
                     this._group_header_cache[d] = [metadata, th, 1];
                 }
@@ -113,7 +137,13 @@ export class RegularHeaderViewModel extends ViewModel {
                 // Update the group header's metadata such that each group
                 // header has the same metadata coordinates of its rightmost
                 // column.
-                metadata = this._draw_th(alias || parts, column_name, th, x, size_key);
+                metadata = this._draw_th(
+                    alias || parts,
+                    column_name,
+                    th,
+                    x,
+                    size_key,
+                );
                 if (typeof output === "undefined") {
                     output = { th, metadata };
                 }
@@ -124,7 +154,10 @@ export class RegularHeaderViewModel extends ViewModel {
                 th.removeAttribute("colspan");
             }
 
-            this._get_row(d).tr.classList.toggle("rt-autosize", d === column_header_merge_depth);
+            this._get_row(d).tr.classList.toggle(
+                "rt-autosize",
+                d === column_header_merge_depth,
+            );
             th.classList.toggle("rt-group-corner", x === undefined);
             if (metadata) {
                 metadata.x = typeof x === "undefined" ? x : Math.floor(x);

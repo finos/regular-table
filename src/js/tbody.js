@@ -16,7 +16,15 @@ import { ViewModel } from "./view_model";
  * @class RegularBodyViewModel
  */
 export class RegularBodyViewModel extends ViewModel {
-    _draw_td(tagName, ridx, val, cidx, { column_name }, { ridx_offset }, size_key) {
+    _draw_td(
+        tagName,
+        ridx,
+        val,
+        cidx,
+        { column_name },
+        { ridx_offset },
+        size_key,
+    ) {
         const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
         metadata.y = ridx + Math.floor(ridx_offset);
@@ -49,8 +57,22 @@ export class RegularBodyViewModel extends ViewModel {
         return { td, metadata };
     }
 
-    draw(container_height, column_state, view_state, th = false, x, x0, size_key, merge_headers) {
-        const { cidx, column_data, row_headers, column_data_listener_metadata } = column_state;
+    draw(
+        container_height,
+        column_state,
+        view_state,
+        th = false,
+        x,
+        x0,
+        size_key,
+        merge_headers,
+    ) {
+        const {
+            cidx,
+            column_data,
+            row_headers,
+            column_data_listener_metadata,
+        } = column_state;
         let { row_height } = view_state;
         let metadata;
         const ridx_offset = [],
@@ -65,22 +87,53 @@ export class RegularBodyViewModel extends ViewModel {
                 let obj;
                 if (th) {
                     const row_header = val[i];
-                    const prev_row = this._fetch_cell(ridx - (ridx_offset[i] || 1), cidx + i);
-                    const prev_row_metadata = this._get_or_create_metadata(prev_row);
+                    const prev_row = this._fetch_cell(
+                        ridx - (ridx_offset[i] || 1),
+                        cidx + i,
+                    );
+                    const prev_row_metadata =
+                        this._get_or_create_metadata(prev_row);
 
-                    const prev_col = this._fetch_cell(ridx, cidx + i - (cidx_offset[ridx] || 1));
-                    const prev_col_metadata = this._get_or_create_metadata(prev_col);
+                    const prev_col = this._fetch_cell(
+                        ridx,
+                        cidx + i - (cidx_offset[ridx] || 1),
+                    );
+                    const prev_col_metadata =
+                        this._get_or_create_metadata(prev_col);
 
-                    if (merge_headers && prev_col && (prev_col_metadata.value === row_header || row_header === undefined) && !prev_col.hasAttribute("rowspan")) {
-                        cidx_offset[ridx] = cidx_offset[ridx] ? cidx_offset[ridx] + 1 : 2;
+                    if (
+                        merge_headers &&
+                        prev_col &&
+                        (prev_col_metadata.value === row_header ||
+                            row_header === undefined) &&
+                        !prev_col.hasAttribute("rowspan")
+                    ) {
+                        cidx_offset[ridx] = cidx_offset[ridx]
+                            ? cidx_offset[ridx] + 1
+                            : 2;
                         prev_col.setAttribute("colspan", cidx_offset[ridx]);
                         this._replace_cell(ridx, cidx + i);
-                    } else if (merge_headers && prev_row && prev_row_metadata.value === row_header && !prev_row.hasAttribute("colspan")) {
-                        ridx_offset[i] = ridx_offset[i] ? ridx_offset[i] + 1 : 2;
+                    } else if (
+                        merge_headers &&
+                        prev_row &&
+                        prev_row_metadata.value === row_header &&
+                        !prev_row.hasAttribute("colspan")
+                    ) {
+                        ridx_offset[i] = ridx_offset[i]
+                            ? ridx_offset[i] + 1
+                            : 2;
                         prev_row.setAttribute("rowspan", ridx_offset[i]);
                         this._replace_cell(ridx, cidx + i);
                     } else {
-                        obj = this._draw_td("TH", ridx, row_header, cidx + i, column_state, view_state, i);
+                        obj = this._draw_td(
+                            "TH",
+                            ridx,
+                            row_header,
+                            cidx + i,
+                            column_state,
+                            view_state,
+                            i,
+                        );
                         obj.td.style.display = "";
                         obj.td.removeAttribute("rowspan");
                         obj.td.removeAttribute("colspan");
@@ -97,18 +150,28 @@ export class RegularBodyViewModel extends ViewModel {
                         tds[i] = obj;
                     }
                 } else {
-                    obj = this._draw_td("TD", ridx, val, cidx, column_state, view_state, size_key);
+                    obj = this._draw_td(
+                        "TD",
+                        ridx,
+                        val,
+                        cidx,
+                        column_state,
+                        view_state,
+                        size_key,
+                    );
                     if (column_data_listener_metadata) {
                         obj.metadata.user = column_data_listener_metadata[ridx];
                     }
 
-                    obj.metadata.x = typeof x === "undefined" ? x : Math.floor(x);
+                    obj.metadata.x =
+                        typeof x === "undefined" ? x : Math.floor(x);
                     obj.metadata.x1 = Math.ceil(view_state.x1);
                     obj.metadata.row_header = id || [];
                     obj.metadata.y0 = Math.floor(view_state.ridx_offset);
                     obj.metadata.y1 = Math.ceil(view_state.y1);
                     obj.metadata.dx = Math.floor(x - x0);
-                    obj.metadata.dy = obj.metadata.y - Math.floor(obj.metadata.y0);
+                    obj.metadata.dy =
+                        obj.metadata.y - Math.floor(obj.metadata.y0);
                     obj.metadata._virtual_x = cidx;
                     if (typeof x0 !== "undefined") {
                         obj.metadata.x0 = Math.floor(x0);
