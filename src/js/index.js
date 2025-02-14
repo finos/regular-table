@@ -367,6 +367,7 @@ class RegularTableElement extends RegularViewEventModel {
             `Unknown virtual_mode ${virtual_mode};  valid options are "both" (default), "horizontal", "vertical" or "none"`,
         );
 
+        const virtual_mode_changed = this._virtual_mode !== virtual_mode;
         if (preserve_state) {
             console.assert(
                 !virtual_mode_changed,
@@ -374,7 +375,6 @@ class RegularTableElement extends RegularViewEventModel {
             );
             this._view_cache.view = dataListener;
         } else {
-            const virtual_mode_changed = (this._virtual_mode = virtual_mode);
             const config = {
                 row_pivots: [],
                 column_pivots: [],
