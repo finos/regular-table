@@ -34,27 +34,40 @@ const BUILD = [
     },
 ];
 
-// FINOS requires `semgrep`, and will no doubt also soon require glue eating.
 function add(builder, path) {
-    // nosemgrep
-    builder.add(path, fs.readFileSync(path_mod.join("./src/less", path)).toString());
+    builder.add(
+        path,
+        fs.readFileSync(path_mod.join("./src/less", path)).toString(),
+    );
 }
 
 async function compile_css() {
     fs.mkdirSync("dist/css", { recursive: true });
     const builder1 = new BuildCss("");
     add(builder1, "./container.less");
-    fs.writeFileSync("dist/css/container.css", builder1.compile().get("container.css"));
+    fs.writeFileSync(
+        "dist/css/container.css",
+        builder1.compile().get("container.css"),
+    );
 
     const builder2 = new BuildCss("");
     add(builder2, "./sub-cell-offsets.less");
-    fs.writeFileSync("dist/css/sub-cell-offsets.css", builder2.compile().get("sub-cell-offsets.css"));
+    fs.writeFileSync(
+        "dist/css/sub-cell-offsets.css",
+        builder2.compile().get("sub-cell-offsets.css"),
+    );
 
     const builder3 = new BuildCss("");
     add(builder3, "./sub-cell-scrolling.less");
     add(builder3, "./material.less");
-    fs.writeFileSync("dist/css/material.css", builder3.compile().get("material.css"));
-    fs.writeFileSync("dist/css/sub-cell-scrolling.css", builder3.compile().get("sub-cell-scrolling.css"));
+    fs.writeFileSync(
+        "dist/css/material.css",
+        builder3.compile().get("material.css"),
+    );
+    fs.writeFileSync(
+        "dist/css/sub-cell-scrolling.css",
+        builder3.compile().get("sub-cell-scrolling.css"),
+    );
 }
 
 async function build_all() {
@@ -63,7 +76,9 @@ async function build_all() {
         BUILD.map(async (x) => {
             console.log("");
             const result = await esbuild.build(x);
-            for (const { inputs, bytes } of Object.values(result.metafile.outputs)) {
+            for (const { inputs, bytes } of Object.values(
+                result.metafile.outputs,
+            )) {
                 for (const input of Object.keys(inputs)) {
                     if (inputs[input].bytesInOutput / bytes < 0.05) {
                         delete inputs[input];
@@ -76,7 +91,7 @@ async function build_all() {
             });
 
             console.log(text);
-        })
+        }),
     );
 }
 

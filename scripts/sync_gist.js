@@ -1,5 +1,3 @@
-// nosemgrep
-
 const fs = require("fs");
 const child_process = require("child_process");
 const glob = require("glob");
@@ -27,7 +25,7 @@ function compile(name, hashes) {
             // Create project in a tmp directory
             if (fs.existsSync(out)) {
                 console.log(
-                    `dist/blocks/${name}/${hashes[file]} exists, skipping checkout`
+                    `dist/blocks/${name}/${hashes[file]} exists, skipping checkout`,
                 );
             } else {
                 fs.mkdirSync(out, { resursive: true });
@@ -37,9 +35,9 @@ function compile(name, hashes) {
             console.log(
                 child_process
                     .execSync(
-                        `npx literally -c ${name}/literally.config.js --format block --output ${out} ${name}/${hashes[file]}.md`
+                        `npx literally -c ${name}/literally.config.js --format block --output ${out} ${name}/${hashes[file]}.md`,
                     )
-                    .toString()
+                    .toString(),
             );
 
             // // Update git
