@@ -70,7 +70,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         this.attachShadow({ mode: "open" });
         const slot = `<slot></slot>`;
 
-        // nosemgrep
         this.shadowRoot.innerHTML = html`
             <style>
                 ${container_css}
