@@ -68,7 +68,10 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      * @memberof RegularViewEventModel
      */
     _register_glitch_scroll_listeners() {
-        this.addEventListener("mousewheel", this._on_mousewheel.bind(this));
+        this.addEventListener("mousewheel", this._on_mousewheel.bind(this), {
+            passive: true,
+        });
+
         if (IOS_DISABLE_OVERSCROLL) {
             this.addEventListener("touchmove", this._on_touchmove.bind(this));
             this.addEventListener(
