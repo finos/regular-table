@@ -60,6 +60,9 @@ export class RegularTableViewModel {
         while (last_cells.length > 0) {
             const [cell, metadata] = last_cells.pop();
             const box = cell.getBoundingClientRect();
+            if (!box) {
+                continue;
+            }
             this._column_sizes.row_height =
                 override_row_height ||
                 Math.max(
@@ -69,6 +72,9 @@ export class RegularTableViewModel {
                         box.height,
                     ),
                 );
+            if (!metadata) {
+                continue;
+            }
             this._column_sizes.indices[metadata.size_key] = box.width;
             const is_override =
                 this._column_sizes.override[metadata.size_key] !== undefined;
@@ -108,13 +114,7 @@ export class RegularTableViewModel {
             Math.ceil(viewport.end_col),
             Math.ceil(viewport.end_row),
         );
-        if (num_row_headers !== undefined) {
-            this._view_cache.row_pivots = Array(num_row_headers).fill(0);
-        }
 
-        if (num_column_headers !== undefined) {
-            this._view_cache.column_pivots = Array(num_column_headers).fill(0);
-        }
         const merge_row_headers =
             merge_headers === "both" || merge_headers === "row";
         const merge_column_headers =
@@ -139,12 +139,22 @@ export class RegularTableViewModel {
             });
         }
 
-        view_cache.config.column_pivots = Array(
-            column_headers?.[0]?.length || 0,
-        ).fill(0);
-        view_cache.config.row_pivots = Array(
-            row_headers?.[0]?.length || 0,
-        ).fill(0);
+        if (num_row_headers !== undefined) {
+            view_cache.config.row_pivots = Array(num_row_headers).fill(0);
+        } else {
+            view_cache.config.row_pivots = Array(
+                row_headers?.[0]?.length || 0,
+            ).fill(0);
+        }
+
+        if (num_column_headers !== undefined) {
+            view_cache.config.column_pivots = Array(num_column_headers).fill(0);
+        } else {
+            view_cache.config.column_pivots = Array(
+                column_headers?.[0]?.length || 0,
+            ).fill(0);
+        }
+
         const sub_cell_offset =
             this._column_sizes.indices[
                 (this._row_headers_length || 0) + Math.floor(viewport.start_col)
