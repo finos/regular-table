@@ -178,7 +178,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         const header_levels = this._view_cache.config.column_pivots.length;
         const total_scroll_height = Math.max(
             1,
-            this._virtual_panel.offsetHeight - height,
+            this._virtual_panel.offsetHeight - this.clientHeight,
         );
         const percent_scroll =
             Math.max(Math.ceil(this.scrollTop), 0) / total_scroll_height;
