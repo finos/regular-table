@@ -79,7 +79,7 @@ describe("2d_array.html", () => {
         test("to (0, 4)", async () => {
             const table = await page.$("regular-table");
             await page.evaluate(async (table) => {
-                await table.scrollToCell(0, 3, 3, 15);
+                await table.scrollToCell(0, 3);
             }, table);
             const first_tr = await page.$("regular-table tbody tr:first-child");
             const cell_values = await page.evaluate(
@@ -87,7 +87,7 @@ describe("2d_array.html", () => {
                     Array.from(first_tr.children).map((x) => x.textContent),
                 first_tr,
             );
-            expect(cell_values).toEqual(["2", "C", "true"]);
+            expect(cell_values).toEqual(["3", "D", "false"]);
         });
     });
 });

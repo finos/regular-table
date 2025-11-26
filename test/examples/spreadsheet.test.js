@@ -342,6 +342,7 @@ describe("spreadsheet.html", () => {
                     event.ctrlKey = true;
                     event.keyCode = 13;
                     table.dispatchEvent(event);
+                    await new Promise((x) => setTimeout(x, 100));
                 }
             }, table);
         });
@@ -354,7 +355,8 @@ describe("spreadsheet.html", () => {
             for (const td of tr2) {
                 tds2.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(tds2).toEqual(["1", "", "", ""]);
+
+            expect(tds2).toEqual(["2", "", "", ""]);
             const tr3 = await page.$$(
                 "regular-table tbody tr:nth-of-type(4) td",
             );
@@ -362,7 +364,7 @@ describe("spreadsheet.html", () => {
             for (const td of tr3) {
                 tds3.push(await page.evaluate((td) => td.innerHTML, td));
             }
-            expect(tds3).toEqual(["2", "3", "", ""]);
+            expect(tds3).toEqual(["", "1", "", ""]);
         });
 
         describe("on scroll", () => {
@@ -382,7 +384,7 @@ describe("spreadsheet.html", () => {
                 for (const td of tr1) {
                     tds1.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds1).toEqual(["2", "3", "", ""]);
+                expect(tds1).toEqual(["2", "", "", ""]);
                 const tr2 = await page.$$(
                     "regular-table tbody tr:nth-of-type(3) td",
                 );
@@ -390,7 +392,7 @@ describe("spreadsheet.html", () => {
                 for (const td of tr2) {
                     tds2.push(await page.evaluate((td) => td.innerHTML, td));
                 }
-                expect(tds2).toEqual(["", "", "", ""]);
+                expect(tds2).toEqual(["", "1", "", ""]);
             });
         });
     });

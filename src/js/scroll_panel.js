@@ -173,15 +173,17 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @returns
      */
     _calculate_row_range(nrows) {
-        const { height } = this._container_size;
+        const { height, containerHeight } = this._container_size;
         const row_height = this._column_sizes.row_height || 19;
         const header_levels = this._view_cache.config.column_pivots.length;
         const total_scroll_height = Math.max(
             1,
-            this._virtual_panel.offsetHeight - height,
+            this._virtual_panel.offsetHeight - containerHeight,
         );
+
         const percent_scroll =
             Math.max(Math.ceil(this.scrollTop), 0) / total_scroll_height;
+
         const clip_panel_row_height = height / row_height - header_levels;
         const relative_nrows = nrows || 0;
         const scrollable_rows = Math.max(
@@ -453,6 +455,7 @@ async function internal_draw(options) {
         num_column_headers,
         row_height,
     } = await this._view_cache.view(0, 0, 0, 0);
+    this._column_sizes.row_height = row_height || this._column_sizes.row_height;
     if (num_row_headers !== undefined) {
         this._view_cache.row_pivots = Array(num_row_headers).fill(0);
     }
@@ -470,6 +473,10 @@ async function internal_draw(options) {
             this._virtual_mode === "none" || this._virtual_mode === "horizontal"
                 ? Infinity
                 : this._table_clip.clientHeight,
+        containerHeight:
+            this._virtual_mode === "none" || this._virtual_mode === "horizontal"
+                ? Infinity
+                : this.clientHeight,
     };
 
     this._update_virtual_panel_height(num_rows);
@@ -520,8 +527,13 @@ async function internal_draw(options) {
             this._invalidated = false;
         }
 
+        const old_height = this.table_model._column_sizes.row_height;
         this.table_model.autosize_cells(autosize_cells, row_height);
         this.table_model.header.reset_header_cache();
+        if (old_height !== this.table_model._column_sizes.row_height) {
+            this._update_virtual_panel_height(num_rows);
+        }
+
         if (!preserve_width) {
             this._update_virtual_panel_width(
                 this._invalid_schema || invalid_column,
