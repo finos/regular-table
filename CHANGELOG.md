@@ -1,14 +1,44 @@
 # Changelog
 
-## [v0.6.6](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.6.9](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.5...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.8...HEAD)
 
 **Fixed bugs:**
 
+- Fix scroll offset calculation when `<regular-table>` has non-zero padding [\#243](https://github.com/finos/regular-table/pull/243) ([texodus](https://github.com/texodus))
+
+**Merged pull requests:**
+
+- New copyright header [\#244](https://github.com/finos/regular-table/pull/244) ([texodus](https://github.com/texodus))
+- Add throttle option to DrawOptions type [\#240](https://github.com/finos/regular-table/pull/240) ([timkpaine](https://github.com/timkpaine))
+
+## [v0.6.8](https://github.com/finos/regular-table/tree/v0.6.8) (2025-06-23)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.7...v0.6.8)
+
+**Fixed bugs:**
+
+- Fix draw error on empty data windows with row\_headers and column\_headers [\#236](https://github.com/finos/regular-table/pull/236) ([texodus](https://github.com/texodus))
+
+## [v0.6.7](https://github.com/finos/regular-table/tree/v0.6.7) (2025-05-25)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.6...v0.6.7)
+
+**Merged pull requests:**
+
+- Fix `preserve_state` API, add test [\#227](https://github.com/finos/regular-table/pull/227) ([texodus](https://github.com/texodus))
+
+## [v0.6.6](https://github.com/finos/regular-table/tree/v0.6.6) (2025-02-09)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.5...v0.6.6)
+
+**Fixed bugs:**
+
+- Horizontal scroll returns one step when the next column is large [\#160](https://github.com/finos/regular-table/issues/160)
 - Fix scroll offset drift on viewport resize [\#224](https://github.com/finos/regular-table/pull/224) ([texodus](https://github.com/texodus))
 
-## [v0.6.5](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.6.5](https://github.com/finos/regular-table/tree/v0.6.5) (2025-02-04)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.6.4...v0.6.5)
 
@@ -16,8 +46,11 @@
 
 - Allow last column to be sub-cell scrolled [\#223](https://github.com/finos/regular-table/pull/223) ([texodus](https://github.com/texodus))
 
+**Closed issues:**
 
-## [v0.6.4](https://github.com/finos/regular-table/tree/HEAD)
+- support for editable enum cell type [\#216](https://github.com/finos/regular-table/issues/216)
+
+## [v0.6.4](https://github.com/finos/regular-table/tree/v0.6.4) (2024-01-11)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.6.3...v0.6.4)
 
@@ -25,31 +58,41 @@
 
 - Fix viewport staleness check [\#204](https://github.com/finos/regular-table/pull/204) ([texodus](https://github.com/texodus))
 
-## [v0.6.3](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.6.3](https://github.com/finos/regular-table/tree/v0.6.3) (2023-10-15)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.6.2...v0.6.3)
 
 **Implemented enhancements:**
 
+- make it optional to merge row\_headers with same data [\#193](https://github.com/finos/regular-table/issues/193)
 - Add `merge_headers` option [\#198](https://github.com/finos/regular-table/pull/198) ([texodus](https://github.com/texodus))
 
-## [v0.6.2](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.6.2](https://github.com/finos/regular-table/tree/v0.6.2) (2023-10-14)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.6.1...v0.6.2)
+
+**Implemented enhancements:**
+
+- Support for explicitly specified row heights [\#122](https://github.com/finos/regular-table/issues/122)
 
 **Fixed bugs:**
 
 - Fix `getMeta()` bug [\#197](https://github.com/finos/regular-table/pull/197) ([texodus](https://github.com/texodus))
 
-## [v0.6.1](https://github.com/finos/regular-table/tree/HEAD)
+**Closed issues:**
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.0...v.0.6.1)
+- Fast horizontal scrolling will whiten the screen [\#195](https://github.com/finos/regular-table/issues/195)
+- perspective\_headers example [\#161](https://github.com/finos/regular-table/issues/161)
+
+## [v0.6.1](https://github.com/finos/regular-table/tree/v0.6.1) (2023-08-29)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.0...v0.6.1)
 
 **Fixed bugs:**
 
 - Fix autosize to use last merged column header [\#192](https://github.com/finos/regular-table/pull/192) ([texodus](https://github.com/texodus))
 
-## [v0.6.0](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.6.0](https://github.com/finos/regular-table/tree/v0.6.0) (2023-08-27)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.5.9...v0.6.0)
 
@@ -57,15 +100,15 @@
 
 - Add `column_header_merge_depth` and `row_height` page options [\#191](https://github.com/finos/regular-table/pull/191) ([texodus](https://github.com/texodus))
 
-## [v0.5.9](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.9](https://github.com/finos/regular-table/tree/v0.5.9) (2023-07-26)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.8...v0.6.0)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.8...v0.5.9)
 
 **Fixed bugs:**
 
 - Clamp row height [\#188](https://github.com/finos/regular-table/pull/188) ([texodus](https://github.com/texodus))
 
-## [v0.5.8](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.8](https://github.com/finos/regular-table/tree/v0.5.8) (2023-07-17)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.5.7...v0.5.8)
 
@@ -73,7 +116,7 @@
 
 - Fix column resize & row height viewport bugs [\#186](https://github.com/finos/regular-table/pull/186) ([texodus](https://github.com/texodus))
 
-## [v0.5.7](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.7](https://github.com/finos/regular-table/tree/v0.5.7) (2023-07-02)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.5.6...v0.5.7)
 
@@ -81,13 +124,23 @@
 
 - Add scroll notification [\#185](https://github.com/finos/regular-table/pull/185) ([texodus](https://github.com/texodus))
 
+**Closed issues:**
+
+- default yarn install fails [\#181](https://github.com/finos/regular-table/issues/181)
+- On a wide table, last two columns don't show if the window size is almost as wide as table [\#148](https://github.com/finos/regular-table/issues/148)
+
 **Merged pull requests:**
 
-- `esbuild`` [\#184](https://github.com/finos/regular-table/pull/184) ([texodus](https://github.com/texodus))
+- `esbuild` [\#184](https://github.com/finos/regular-table/pull/184) ([texodus](https://github.com/texodus))
 - Fix dev dependency incompatibility with arm64 [\#182](https://github.com/finos/regular-table/pull/182) ([texodus](https://github.com/texodus))
 - Add demo gallery [\#179](https://github.com/finos/regular-table/pull/179) ([texodus](https://github.com/texodus))
+- Update to License, Notice and Readme files [\#175](https://github.com/finos/regular-table/pull/175) ([TheJuanAndOnly99](https://github.com/TheJuanAndOnly99))
+- Add link to community code of conduct [\#174](https://github.com/finos/regular-table/pull/174) ([timkpaine](https://github.com/timkpaine))
+- Add `semgrep` [\#167](https://github.com/finos/regular-table/pull/167) ([texodus](https://github.com/texodus))
+- Prepare changes for FINOS move [\#166](https://github.com/finos/regular-table/pull/166) ([timkpaine](https://github.com/timkpaine))
+- updated docs [\#149](https://github.com/finos/regular-table/pull/149) ([lavakush07](https://github.com/lavakush07))
 
-## [v0.5.6](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.6](https://github.com/finos/regular-table/tree/v0.5.6) (2022-03-03)
 
 [Full Changelog](https://github.com/finos/regular-table/compare/v0.5.5...v0.5.6)
 
@@ -95,49 +148,49 @@
 
 - Fix debounce interference between multiple `regular-table` [\#158](https://github.com/finos/regular-table/pull/158) ([texodus](https://github.com/texodus))
 
-## [v0.5.5](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.5](https://github.com/finos/regular-table/tree/v0.5.5) (2022-02-19)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.4...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.4...v0.5.5)
 
 **Fixed bugs:**
 
 - Fix errors when `.draw()` called on empty viewport/invisible element [\#156](https://github.com/finos/regular-table/pull/156) ([texodus](https://github.com/texodus))
 
-## [v0.5.4](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.4](https://github.com/finos/regular-table/tree/v0.5.4) (2022-02-19)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.3...v0.5.4)
 
 **Fixed bugs:**
 
 - Fix a miscalculation in row\_header offsets [\#155](https://github.com/finos/regular-table/pull/155) ([texodus](https://github.com/texodus))
 
-## [v0.5.3](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.3](https://github.com/finos/regular-table/tree/v0.5.3) (2022-02-19)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.2...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.2...v0.5.3)
 
 **Fixed bugs:**
 
 - Fix width overflow by 1px [\#154](https://github.com/finos/regular-table/pull/154) ([texodus](https://github.com/texodus))
 
-## [v0.5.2](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.2](https://github.com/finos/regular-table/tree/v0.5.2) (2022-02-15)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.1...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.1...v0.5.2)
 
 **Fixed bugs:**
 
 - Fix row range max scroll to use sub-cell offset [\#153](https://github.com/finos/regular-table/pull/153) ([texodus](https://github.com/texodus))
 
-## [v0.5.1](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.1](https://github.com/finos/regular-table/tree/v0.5.1) (2022-02-14)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.0...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.5.0...v0.5.1)
 
 **Merged pull requests:**
 
 - Linear column scrolling [\#152](https://github.com/finos/regular-table/pull/152) ([texodus](https://github.com/texodus))
 
-## [v0.5.0](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.5.0](https://github.com/finos/regular-table/tree/v0.5.0) (2022-02-09)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.3...v0.5.0)
 
 **Implemented enhancements:**
 
@@ -151,17 +204,9 @@
 
 - Fix `virtual_mode` CSS bug [\#150](https://github.com/finos/regular-table/pull/150) ([texodus](https://github.com/texodus))
 
-## [v0.4.3](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.4.2](https://github.com/finos/regular-table/tree/v0.4.2) (2021-12-07)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.2...HEAD)
-
-**Fixed bugs:**
-
-- Fix `virtual_mode` CSS bug [\#150](https://github.com/finos/regular-table/pull/150) ([texodus](https://github.com/texodus))
-
-## [v0.4.2](https://github.com/finos/regular-table/tree/HEAD)
-
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.1...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.1...v0.4.2)
 
 **Fixed bugs:**
 
@@ -175,18 +220,18 @@
 
 - Fix screen thrash when "position: sticky" container resize is triggered [\#146](https://github.com/finos/regular-table/pull/146) ([texodus](https://github.com/texodus))
 
-## [v0.4.1](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.4.1](https://github.com/finos/regular-table/tree/v0.4.1) (2021-07-09)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.0...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.4.0...v0.4.1)
 
 **Implemented enhancements:**
 
-- Memoize `\<span\>` elements [\#142](https://github.com/finos/regular-table/pull/142) ([texodus](https://github.com/texodus))
+- Memoize `<span>` elements [\#142](https://github.com/finos/regular-table/pull/142) ([texodus](https://github.com/texodus))
 - Update typings for 0.4.0; add 99% automated typescript declarations build [\#140](https://github.com/finos/regular-table/pull/140) ([telamonian](https://github.com/telamonian))
 
-## [v0.4.0](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.4.0](https://github.com/finos/regular-table/tree/v0.4.0) (2021-04-26)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.3.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.3.3...v0.4.0)
 
 **Breaking changes:**
 
@@ -233,7 +278,7 @@
 
 **Breaking changes:**
 
-- Add 'virtual\_mode' optional argument to `setDataListener\(\)` [\#125](https://github.com/finos/regular-table/pull/125) ([texodus](https://github.com/texodus))
+- Add 'virtual\_mode' optional argument to `setDataListener()` [\#125](https://github.com/finos/regular-table/pull/125) ([texodus](https://github.com/texodus))
 - Return an unsubscribe function from `addStyleListener` [\#121](https://github.com/finos/regular-table/pull/121) ([NMinhNguyen](https://github.com/NMinhNguyen))
 
 **Merged pull requests:**
@@ -241,7 +286,7 @@
 - Make column selection blocks example [\#120](https://github.com/finos/regular-table/pull/120) ([JHawk](https://github.com/JHawk))
 - Make area selection block example [\#119](https://github.com/finos/regular-table/pull/119) ([JHawk](https://github.com/JHawk))
 - Make row stripes block example [\#118](https://github.com/finos/regular-table/pull/118) ([JHawk](https://github.com/JHawk))
-- wrap any plain text column headers in a `\<span\>` [\#117](https://github.com/finos/regular-table/pull/117) ([telamonian](https://github.com/telamonian))
+- wrap any plain text column headers in a `<span>` [\#117](https://github.com/finos/regular-table/pull/117) ([telamonian](https://github.com/telamonian))
 - Update features / example - allow row selection anywhere [\#116](https://github.com/finos/regular-table/pull/116) ([JHawk](https://github.com/JHawk))
 
 ## [v0.2.1](https://github.com/finos/regular-table/tree/v0.2.1) (2021-02-06)
@@ -325,7 +370,7 @@
 
 **Implemented enhancements:**
 
-- `swap` option for `draw\(\)` [\#86](https://github.com/finos/regular-table/pull/86) ([texodus](https://github.com/texodus))
+- `swap` option for `draw()` [\#86](https://github.com/finos/regular-table/pull/86) ([texodus](https://github.com/texodus))
 
 **Fixed bugs:**
 
@@ -345,7 +390,7 @@
 
 **Fixed bugs:**
 
-- Fix `replace\(\)` and unintentional interactive elements. [\#84](https://github.com/finos/regular-table/pull/84) ([texodus](https://github.com/texodus))
+- Fix `replace()` and unintentional interactive elements. [\#84](https://github.com/finos/regular-table/pull/84) ([texodus](https://github.com/texodus))
 
 ## [v0.0.9](https://github.com/finos/regular-table/tree/v0.0.9) (2020-09-01)
 
@@ -353,7 +398,7 @@
 
 **Implemented enhancements:**
 
-- Adds `clear\(\)` method [\#83](https://github.com/finos/regular-table/pull/83) ([texodus](https://github.com/texodus))
+- Adds `clear()` method [\#83](https://github.com/finos/regular-table/pull/83) ([texodus](https://github.com/texodus))
 
 ## [v0.0.8](https://github.com/finos/regular-table/tree/v0.0.8) (2020-08-29)
 
@@ -394,7 +439,7 @@
 - Make data model smaller size for ease of use in `striped.md` example [\#72](https://github.com/finos/regular-table/pull/72) ([JHawk](https://github.com/JHawk))
 - Add a striped example [\#71](https://github.com/finos/regular-table/pull/71) ([JHawk](https://github.com/JHawk))
 - Add keyboard nav [\#70](https://github.com/finos/regular-table/pull/70) ([JHawk](https://github.com/JHawk))
-- Ports `minesweeper.md`, `canvas\_data\_model.md`,  and `perspective.md` [\#68](https://github.com/finos/regular-table/pull/68) ([texodus](https://github.com/texodus))
+- Ports `minesweeper.md`, `canvas_data_model.md`,  and `perspective.md` [\#68](https://github.com/finos/regular-table/pull/68) ([texodus](https://github.com/texodus))
 - Adds manually written index.d.ts typescript type declaration [\#65](https://github.com/finos/regular-table/pull/65) ([telamonian](https://github.com/telamonian))
 - Added new example and md file [\#61](https://github.com/finos/regular-table/pull/61) ([debajitdatta2k](https://github.com/debajitdatta2k))
 - File Browser II [\#57](https://github.com/finos/regular-table/pull/57) ([texodus](https://github.com/texodus))
@@ -414,7 +459,7 @@
 - Adds LICENSE and README info to example gists [\#33](https://github.com/finos/regular-table/pull/33) ([texodus](https://github.com/texodus))
 - `spreadsheet.html` Example [\#32](https://github.com/finos/regular-table/pull/32) ([texodus](https://github.com/texodus))
 - CSS-only filesystem-like row headers [\#29](https://github.com/finos/regular-table/pull/29) ([texodus](https://github.com/texodus))
-- Add benchmark.html and `getDrawFPS\(\)` [\#28](https://github.com/finos/regular-table/pull/28) ([texodus](https://github.com/texodus))
+- Add benchmark.html and `getDrawFPS()` [\#28](https://github.com/finos/regular-table/pull/28) ([texodus](https://github.com/texodus))
 -  Add support for fixed column widths [\#23](https://github.com/finos/regular-table/pull/23) ([patricio-mancini](https://github.com/patricio-mancini))
 
 ## [v0.0.4](https://github.com/finos/regular-table/tree/v0.0.4) (2020-05-30)
@@ -428,7 +473,7 @@
 **Merged pull requests:**
 
 - Updated examples and documentation [\#27](https://github.com/finos/regular-table/pull/27) ([texodus](https://github.com/texodus))
-- Adds file\_browser.html example \(update for `row\_headers` feature\) [\#25](https://github.com/finos/regular-table/pull/25) ([texodus](https://github.com/texodus))
+- Adds file\_browser.html example \(update for `row_headers` feature\) [\#25](https://github.com/finos/regular-table/pull/25) ([texodus](https://github.com/texodus))
 - Row and Column Headers, and `minesweeper.html` [\#24](https://github.com/finos/regular-table/pull/24) ([texodus](https://github.com/texodus))
 - README Examples and User Guide [\#22](https://github.com/finos/regular-table/pull/22) ([texodus](https://github.com/texodus))
 
@@ -463,7 +508,7 @@
 
 ## [v0.0.1](https://github.com/finos/regular-table/tree/v0.0.1) (2020-05-23)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/902cd41649969980fb24b2b370eebe3cfed8ec67...v0.0.1)
+[Full Changelog](https://github.com/finos/regular-table/compare/85d3702940fdbcdf2004935d712077d007a8859e...v0.0.1)
 
 **Merged pull requests:**
 
@@ -471,7 +516,7 @@
 - Adds perspective example [\#7](https://github.com/finos/regular-table/pull/7) ([texodus](https://github.com/texodus))
 - Adds Travis CI [\#6](https://github.com/finos/regular-table/pull/6) ([texodus](https://github.com/texodus))
 - Add Lint and Tests [\#5](https://github.com/finos/regular-table/pull/5) ([texodus](https://github.com/texodus))
-- A Complete Example, `two\_billion\_rows.html` [\#4](https://github.com/finos/regular-table/pull/4) ([texodus](https://github.com/texodus))
+- A Complete Example, `two_billion_rows.html` [\#4](https://github.com/finos/regular-table/pull/4) ([texodus](https://github.com/texodus))
 - Merge from `@finos/perspective-viewer-datagrid` [\#2](https://github.com/finos/regular-table/pull/2) ([texodus](https://github.com/texodus))
 - Make perspective-viewer-datagrid into a standalone package [\#1](https://github.com/finos/regular-table/pull/1) ([telamonian](https://github.com/telamonian))
 

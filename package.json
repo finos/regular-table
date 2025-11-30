@@ -1,6 +1,6 @@
 {
     "name": "regular-table",
-    "version": "0.6.8",
+    "version": "0.6.9",
     "description": "A regular `<table>`, for an async and virtual data model.",
     "repository": {
         "type": "git",
@@ -36,6 +36,7 @@
         "prettier": "prettier --write test/features/*.test.js features/*.md",
         "start": "http-server",
         "test": "pnpm run lint && npx jest --noStackTrace --runInBand",
+        "changelog": "docker run -it --rm -e CHANGELOG_GITHUB_TOKEN=$GITHUB_TOKEN -v \"$(pwd)\":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u finos -p regular-table",
         "watch:examples": "literally -c examples/literally.config.js --watch",
         "watch:features": "literally -c features/literally.config.js --watch",
         "watch": "npm-run-all -p watch:*"
