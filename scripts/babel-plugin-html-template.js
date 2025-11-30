@@ -1,12 +1,13 @@
-/******************************************************************************
- *
- * Copyright (c) 2020, the Regular Table Authors.
- *
- * This file is part of the Regular Table library, distributed under the terms
- * of the Apache License 2.0.  The full license can be found in the LICENSE
- * file.
- *
- */
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+// ░░░░░░░░░░▄▀░█▀▄░█▀▀░█▀▀░█░█░█░░░█▀█░█▀▄░░░░░▀█▀░█▀█░█▀▄░█░░░█▀▀░▀▄░░░░░░░░░░
+// ░░░░░░░░░▀▄░░█▀▄░█▀▀░█░█░█░█░█░░░█▀█░█▀▄░▀▀▀░░█░░█▀█░█▀▄░█░░░█▀▀░░▄▀░░░░░░░░░
+// ░░░░░░░░░░░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀░▀░░░░░░▀░░▀░▀░▀▀░░▀▀▀░▀▀▀░▀░░░░░░░░░░░
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃  *  Copyright (c) 2020, the Regular Table Authors. This file is part   *  ┃
+// ┃  *  of the Regular Table library, distributed under the terms of the   *  ┃
+// ┃  *  [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). *  ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 const pattern = new RegExp("[\n\t ]+", "g");
 
@@ -17,10 +18,13 @@ module.exports = function (babel) {
         visitor: {
             TaggedTemplateExpression(path) {
                 const node = path.node;
-                if (t.isIdentifier(node.tag, {name: "html"})) {
+                if (t.isIdentifier(node.tag, { name: "html" })) {
                     for (const type of ["raw", "cooked"]) {
                         for (const element of node.quasi.quasis) {
-                            element.value[type] = element.value[type].replace(pattern, " ");
+                            element.value[type] = element.value[type].replace(
+                                pattern,
+                                " ",
+                            );
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-declare module 'regular-table' {
+declare module "regular-table" {
     // only need the @types/react pkg for this, not the runtime react pkg
     import { DetailedHTMLProps, HTMLAttributes } from "react";
 
@@ -100,9 +100,9 @@ declare module 'regular-table' {
          * (possibly async) function that styles the inner <table>.
          * @returns {function(): void} A function to remove this style listener.
          */
-        public addStyleListener(styleListener: (arg0: {
-            detail: RegularTableElement;
-        }) => void): () => void;
+        public addStyleListener(
+            styleListener: (arg0: { detail: RegularTableElement }) => void,
+        ): () => void;
         /**
          * When called within the execution scope of a function registered to this
          * `<regular-table>` as a `StyleListener`, invalidate this draw's
@@ -134,7 +134,9 @@ declare module 'regular-table' {
          * coordinates-like object to refer to metadata by logical position.
          * @returns {MetaData} The metadata associated with the element.
          */
-        public getMeta(element: HTMLTableCellElement | Partial<MetaData>): MetaData;
+        public getMeta(
+            element: HTMLTableCellElement | Partial<MetaData>,
+        ): MetaData;
         /**
          * Get performance statistics about this `<regular-table>`.  Calling this
          * method resets the internal state, which makes it convenient to measure
@@ -167,7 +169,12 @@ declare module 'regular-table' {
          * @param {number} ncols - Total number of columns in the data model.
          * @param {number} nrows - Total number of rows in the data model.
          */
-        public scrollToCell(x: number, y: number, ncols: number, nrows: number): Promise<void>;
+        public scrollToCell(
+            x: number,
+            y: number,
+            ncols: number,
+            nrows: number,
+        ): Promise<void>;
         /**
          * Call this method to set `DataListener` for this `<regular-table>`,
          * which will be called whenever a new data slice is needed to render.
@@ -193,9 +200,14 @@ declare module 'regular-table' {
          * "vertical", or "none" indicating which dimensions of the table should be
          * virtualized (vs. rendering completely).
          */
-        public setDataListener(dataListener: DataListener, { virtual_mode }?: {
-            virtual_mode: ("both" | "horizontal" | "vertical" | "none");
-        }): void;
+        public setDataListener(
+            dataListener: DataListener,
+            {
+                virtual_mode,
+            }?: {
+                virtual_mode: "both" | "horizontal" | "vertical" | "none";
+            },
+        ): void;
         /** @private */
         private _virtual_mode;
         /** @private */
@@ -351,7 +363,7 @@ declare module 'regular-table' {
         /**
          * - The value dispalyed in the cell or header.
          */
-        value?: (string | HTMLElement);
+        value?: string | HTMLElement;
     };
     /**
      * The `DataResponse` object describes a rectangular region of a virtual
@@ -417,7 +429,12 @@ declare module 'regular-table' {
      * `Event`); and returns a `Promise` for a `DataResponse` object for this
      * region (as opposed to returning `void` as a standard event listener).
      */
-    export type DataListener = (x0: number, y0: number, x1: number, y1: number) => Promise<DataResponse>;
+    export type DataListener = (
+        x0: number,
+        y0: number,
+        x1: number,
+        y1: number,
+    ) => Promise<DataResponse>;
     /**
      * Options for the draw method.
      */
@@ -449,18 +466,24 @@ declare module 'regular-table' {
     global {
         namespace JSX {
             interface IntrinsicElements {
-                "regular-table": Omit<DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>, "className"> & {
+                "regular-table": Omit<
+                    DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>,
+                    "className"
+                > & {
                     class?: string;
                 };
             }
         }
 
         interface Document {
-            createElement(tagName: "regular-table", options?: ElementCreationOptions): RegularTableElement;
+            createElement(
+                tagName: "regular-table",
+                options?: ElementCreationOptions,
+            ): RegularTableElement;
         }
 
         interface CustomElementRegistry {
-            get(name: 'regular-table'): typeof RegularTableElement;
+            get(name: "regular-table"): typeof RegularTableElement;
         }
     }
 }
