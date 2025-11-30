@@ -424,6 +424,7 @@ declare module 'regular-table' {
     export type DrawOptions = {
         invalid_viewport?: boolean;
         preserve_width?: boolean;
+        throttle?: boolean;
     };
     /**
      * Public summary of table_model type.
