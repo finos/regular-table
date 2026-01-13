@@ -1,0 +1,15 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["src/ts/regular-table.ts", "src/ts/types.ts"],
+    "out": "dist/docs",
+    "name": "regular-table",
+    "readme": "README.md",
+    "includeVersion": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeInternal": true,
+    "navigationLinks": {
+        "GitHub": "https://github.com/finos/regular-table"
+    },
+    "tsconfig": "tsconfig.json"
+}

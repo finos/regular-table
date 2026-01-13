@@ -3,10 +3,9 @@
 </p>
 
 <p align="center">
-<a href="https://community.finos.org/docs/governance/software-projects/stages/active/"><img alt="FINOS active badge" src="https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-active.svg"></a>
-<a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-squar"></a>
-<a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/l/regular-table.svg?color=brightgreen&style=flat-square"></a>
-<a href="https://github.com/finos/regular-table/actions?query=workflow%3A%22Build+Status"><img alt="Build Status" src="https://github.com/finos/regular-table/workflows/Build%20Status/badge.svg?branch=master"></a>
+<a href="https://github.com/texodus/regular-layout/actions"><img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/texodus/regular-layout/build.yaml?event=push&style=flat-square"></a>
+<a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-square"></a>
+<a href="https://bundlephobia.com/package/regular-table"><img alt="Bundlephobia (Minified)" src="https://img.shields.io/bundlephobia/min/regular-table?style=flat-square"></a>
 </p>
 
 #
@@ -19,12 +18,12 @@ queried from a natively `async` virtual data model, making `regular-table` ideal
 for enormous or remote data sets. Use it to build Data Grids, Spreadsheets,
 Pivot Tables, File Trees, or anytime you need:
 
--   Just a regular `<table>`.
--   Virtually rendered for high-performance.
--   `async` data model handles slow, remote, enormous, and/or distributed
-    backends.
--   Easy to style, works with any regular CSS for `<table>`.
--   Small bundle size, no dependencies.
+- Just a regular `<table>`.
+- Virtually rendered for high-performance.
+- `async` data model handles slow, remote, enormous, and/or distributed
+  backends.
+- Easy to style, works with any regular CSS for `<table>`.
+- Small bundle size, no dependencies.
 
 ## Examples
 
@@ -57,13 +56,13 @@ Pivot Tables, File Trees, or anytime you need:
 </a>
 <br/>
 
--   [2d_array.md](examples/2d_array.md)
--   [canvas_data_model.md](examples/canvas_data_model.md)
--   [file_browser.md](examples/file_browser.md)
--   [minesweeper.md](examples/minesweeper.md)
--   [react.md](examples/react.md)
--   [spreadsheet.md](examples/spreadsheet.md)
--   [two_billion_rows.md](examples/two_billion_rows.md)
+- [2d_array.md](examples/2d_array/2d_array.js)
+- [canvas_data_model.md](examples/canvas_data_model/canvas_data_model.js)
+- [file_browser.md](examples/file_browser/file_browser.js)
+- [minesweeper.md](examples/minesweeper/minesweeper.js)
+- [react.md](examples/react/react.js)
+- [spreadsheet.md](examples/spreadsheet/spreadsheet.js)
+- [two_billion_rows.md](examples/two_billion_rows/two_billion_rows.js)
 
 ## Documentation
 
@@ -74,38 +73,37 @@ documented
 [examples](https://github.com/finos/regular-table/tree/master/examples) are also
 available.
 
--   QuickStart
+- QuickStart
+    - [Installation](#installation)
+    - [`<regular-table>` Custom Element](#regular-table-custom-element)
+    - [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
+        - [Column and Row Headers](#column-and-row-headers)
+        - [Hierarchial/Group Headers](#hierarchialgroup-headers)
+        - [`async` Data Models](#async-data-models)
+    - [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
+        - [`.invalidate()`](#invalidate)
+    - [`.addEventListener()` Interaction](#addeventlistener-interaction)
+    - [Scrolling](#scrolling)
+    - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
+    - [Development](#development)
 
-    -   [Installation](#installation)
-    -   [`<regular-table>` Custom Element](#regular-table-custom-element)
-    -   [`.setDataListener()` Virtual Data Model](#setdatalistener-virtual-data-model)
-        -   [Column and Row Headers](#column-and-row-headers)
-        -   [Hierarchial/Group Headers](#hierarchialgroup-headers)
-        -   [`async` Data Models](#async-data-models)
-    -   [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
-        -   [`.invalidate()`](#invalidate)
-    -   [`.addEventListener()` Interaction](#addeventlistener-interaction)
-    -   [Scrolling](#scrolling)
-    -   [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
-    -   [Development](#development)
+- [API Docs](https://github.com/finos/regular-table/blob/master/api.md)
 
--   [API Docs](https://github.com/finos/regular-table/blob/master/api.md)
-
--   Annotated Examples
-    -   [2d_array.md](examples/2d_array.md)
-    -   [canvas_data_model.md](examples/canvas_data_model.md)
-    -   [file_browser.md](examples/file_browser.md)
-    -   [minesweeper.md](examples/minesweeper.md)
-    -   [react.md](examples/react.md)
-    -   [spreadsheet.md](examples/spreadsheet.md)
-    -   [two_billion_rows.md](examples/two_billion_rows.md)
+- Annotated Examples
+    - [2d_array.md](examples/2d_array/2d_array.js)
+    - [canvas_data_model.md](examples/canvas_data_model/canvas_data_model.js)
+    - [file_browser.md](examples/file_browser/file_browser.js)
+    - [minesweeper.md](examples/minesweeper/minesweeper.js)
+    - [react.md](examples/react/react.js)
+    - [spreadsheet.md](examples/spreadsheet/spreadsheet.js)
+    - [two_billion_rows.md](examples/two_billion_rows/two_billion_rows.js)
 
 ## Installation
 
 Include via a CDN like [JSDelivr](https://cdn.jsdelivr.net/npm/regular-table):
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/regular-table"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/regular-table"></script>
 <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/regular-table/dist/css/material.css"
@@ -248,10 +246,10 @@ configured via the `virtual_mode` optional argument. Note that using a
 `<table>` along the non-virtual axis(es), and may cause rendering performance
 degradation.
 
--   "both" (default) virtualizes scrolling on both axes.
--   "vertical" only virtualizes vertical (y) scrolling.
--   "horizontal" only virtualizes horizontal (x) scrolling.
--   "none" disable all scroll virtualization.
+- "both" (default) virtualizes scrolling on both axes.
+- "vertical" only virtualizes vertical (y) scrolling.
+- "horizontal" only virtualizes horizontal (x) scrolling.
+- "none" disable all scroll virtualization.
 
 ```javascript
 table.setDataListener(listener, { virtual_mode: "vertical" });
@@ -383,14 +381,14 @@ field will accompany the metadata records returned by `regular-table`'s
 Additional rendering options which can be set on the object returned by a
 `setDataListener` callback include:
 
--   `column_header_merge_depth: number` configures the number of rows to include
-    from `colspan` merging. This defaults to `header_length - 1`.
--   `row_height: number` configures the pixel height of a row for virtual
-    scrolling calculation. This is typically auto-detected from the DOM, but can
-    be overridden if needed.
--   `merge_headers: "column" | "row" | "both" | "none"` configures whether
-    equivalent, contiguous `<th>` elements are merged via `rowspan` or `colspan`
-    for `"row"` and `"column"` respectively (defaults to `"both"`).
+- `column_header_merge_depth: number` configures the number of rows to include
+  from `colspan` merging. This defaults to `header_length - 1`.
+- `row_height: number` configures the pixel height of a row for virtual
+  scrolling calculation. This is typically auto-detected from the DOM, but can
+  be overridden if needed.
+- `merge_headers: "column" | "row" | "both" | "none"` configures whether
+  equivalent, contiguous `<th>` elements are merged via `rowspan` or `colspan`
+  for `"row"` and `"column"` respectively (defaults to `"both"`).
 
 ### `async` Data Models
 
@@ -445,11 +443,11 @@ However, CSS alone cannot select on properties of your _data_ - if you scroll
 this example, the 2nd row will always be the striped one. Some other
 data-reliant style examples include:
 
--   Styling a specific column in the virtual data set, as `<td>` may represent a
-    different column based on horizontal scroll position.
--   Styling cells by value, +/-, heatmaps, categories, etc.
--   Styling cells based on data within-or-outside of the virtual viewport,
-    grouping depth, grouping categories, etc.
+- Styling a specific column in the virtual data set, as `<td>` may represent a
+  different column based on horizontal scroll position.
+- Styling cells by value, +/-, heatmaps, categories, etc.
+- Styling cells based on data within-or-outside of the virtual viewport,
+  grouping depth, grouping categories, etc.
 
 To make CSS that is virtual-data-model-aware, you'll need to use
 `addStyleListener()`, which invokes a callback whenever the `<table>` is
@@ -605,4 +603,4 @@ The Regular Table project achieves the
 ## License
 
 This software is licensed under the Apache 2.0 license. See the
-[LICENSE](LICENSE) and [AUTHORS](AUTHORS) files for details.
+[LICENSE](LICENSE) file for details.

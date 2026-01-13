@@ -15,49 +15,39 @@
     "browser": "dist/esm/regular-table.js",
     "unpkg": "dist/esm/regular-table.js",
     "jsdelivr": "dist/esm/regular-table.js",
-    "types": "index.d.ts",
+    "types": "dist/esm/regular-table.d.ts",
     "files": [
         "dist/**/*",
-        "src/less/*.less",
-        "babel.config.js",
-        "index.d.ts"
+        "src/**/*"
     ],
     "scripts": {
-        "build:esbuild": "node build.js",
-        "build:examples": "literally -c examples/literally.config.js && literally -c features/literally.config.js",
-        "build": "npm-run-all -p build:*",
-        "clean": "rimraf dist",
         "docs:sign": "git shortlog --summary --email > ./AUTHORS",
-        "declarations": "tsc -b declarationsconfig.json",
-        "api": "jsdoc2md src/js/index.js --separators > api.md",
-        "docs": "pnpm run build && pnpm run docs:sign && node scripts/sync_gist.js && (cd docs && pnpm run build)",
-        "fix": "prettier --write src test features/*.md examples/*.md examples/*.html",
-        "lint": "prettier --check src test features/*.md examples/*.md examples/*.html",
-        "prettier": "prettier --write test/features/*.test.js features/*.md",
+        "build:esbuild": "node build.mjs",
+        "build": "npm-run-all build:esbuild",
+        "clean": "rm -rf dist",
+        "authors": "git shortlog --summary --email",
+        "docs": "pnpm run build && node scripts/sync_gist.js && (cd docs && pnpm run build)",
+        "docs:api": "typedoc",
+        "fix": "prettier --write src tests features/*.js examples/**/*.js examples/*.html",
+        "lint": "prettier --check src tests features/*.js examples/**/*.js examples/*.html",
         "start": "http-server",
-        "test": "pnpm run lint && npx jest --noStackTrace --runInBand",
+        "test": "pnpm exec playwright test",
         "changelog": "docker run -it --rm -e CHANGELOG_GITHUB_TOKEN=$GITHUB_TOKEN -v \"$(pwd)\":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u finos -p regular-table",
-        "watch:examples": "literally -c examples/literally.config.js --watch",
-        "watch:features": "literally -c features/literally.config.js --watch",
         "watch": "npm-run-all -p watch:*"
     },
     "publishConfig": {
         "access": "public"
     },
     "devDependencies": {
+        "@playwright/test": "^1.49.1",
+        "typedoc": "^0.27.0",
         "@prospective.co/procss": "^0.1.16",
         "@types/react": "^17.0.0",
         "esbuild": "^0.25.0",
         "glob": "^10",
         "http-server": "^0.12.3",
-        "jest": "^29",
-        "jest-puppeteer": "^11",
-        "jsdoc-to-markdown": "^6.0.1",
-        "literally-cli": "^0.0.10",
-        "marked-ast-markdown": "^2.1.0",
         "npm-run-all": "^4.1.3",
         "prettier": "^3.4.2",
-        "puppeteer": "^24",
         "react": "15",
         "react-dom": "15",
         "superstore-arrow": "^1.0.0",
@@ -66,7 +56,6 @@
     "dependencies": {},
     "pnpm": {
         "onlyBuiltDependencies": [
-            "puppeteer",
             "esbuild",
             "sharp"
         ]

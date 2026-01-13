@@ -197,3 +197,5 @@ python_junit.xml
 
 docs/.docusaurus
 docs/static/blocks
+test-results
+playwright-report

@@ -50,28 +50,6 @@ function compile(name, hashes) {
                     )
                     .toString(),
             );
-
-            // // Update git
-            // process.chdir(out);
-            // if (!fs.existsSync("./.git")) {
-            //     console.log(child_process.execSync(`git init`).toString());
-            //     console.log(child_process.execSync(`touch README.md`).toString());
-            //     console.log(child_process.execSync(`git add README.md`).toString());
-            //     console.log(child_process.execSync(`git commit -m "First Commit"`).toString());
-            // }
-
-            // child_process.execSync(`git add thumbnail.png preview.png index.html .block README.md`);
-            // console.log(child_process.execSync(`git status`).toString());
-            // console.log(child_process.execSync(`git commit -am"Auto update via sync_gist" --amend`).toString());
-
-            // Run sub command
-            // const command = process.argv.slice(2);
-            // if (command.length > 0) {
-            //     console.log(
-            //         child_process.execSync(command.join(" ")).toString()
-            //     );
-            // }
-            //  process.chdir("../../..");
         } catch (e) {
             console.error(`${file} dist failed!`, e);
         } finally {
