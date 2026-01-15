@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.6.9](https://github.com/finos/regular-table/tree/HEAD)
+## [0.7.0](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.8...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.9...HEAD)
+
+**Merged pull requests:**
+
+- Port to TypeScript & Playwright [\#246](https://github.com/finos/regular-table/pull/246) ([texodus](https://github.com/texodus))
+
+## [v0.6.9](https://github.com/finos/regular-table/tree/v0.6.9) (2025-11-30)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.8...v0.6.9)
 
 **Fixed bugs:**
 
