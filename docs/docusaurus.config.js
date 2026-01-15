@@ -6,7 +6,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const fs = require("fs");
 
-fs.cpSync("../dist/examples", "static/blocks", { recursive: true });
+fs.cpSync("../examples", "static/blocks", { recursive: true });
 console.log("\n");
 
 function make(name, type = "examples") {
@@ -25,7 +25,7 @@ function make(name, type = "examples") {
     console.log(
         `<a href="https://finos.github.io/regular-table/${record.url}">
 <img width="30%" src="https://finos.github.io/regular-table/${record.img}"/>
-</a>`
+</a>`,
     );
 
     return record;
@@ -75,8 +75,7 @@ const config = {
     ],
     stylesheets: [
         {
-            href:
-                "https://fonts.googleapis.com/css?display=block&family=Roboto+Mono:400",
+            href: "https://fonts.googleapis.com/css?display=block&family=Roboto+Mono:400",
             type: "text/css",
         },
     ],

@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "strict": true,
+        "allowJs": true,
+        "checkJs": false,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "experimentalDecorators": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "esnext",
+        "outDir": "dist/esm",
+        "rootDir": "src/ts"
+    },
+    "include": ["src/ts/regular-table.ts"]
+}
