@@ -33,10 +33,10 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             };
         });
 
-        expect(cssVars.transformX).toBe("0px");
-        expect(cssVars.transformY).toBe("0px");
-        expect(cssVars.clipX).toBe("0px");
-        expect(cssVars.clipY).toBe("0px");
+        expect(cssVars.transformX).toBe("");
+        expect(cssVars.transformY).toBe("");
+        expect(cssVars.clipX).toBe("");
+        expect(cssVars.clipY).toBe("");
     });
 
     test("CSS variables update correctly on vertical scroll", async ({

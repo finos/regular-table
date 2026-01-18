@@ -118,7 +118,10 @@ export class RegularHeaderViewModel extends ViewModel {
         merge_headers: boolean,
     ): HeaderDrawResult | undefined {
         const header_levels = parts?.length; //config.column_pivots.length + 1;
-        if (header_levels === 0) return;
+        if (header_levels === 0) {
+            return;
+        }
+
         let th: HTMLTableCellElement | undefined;
         let metadata: CellMetadata | undefined;
         let column_name: unknown;

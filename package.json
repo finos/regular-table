@@ -32,6 +32,7 @@
         "lint": "prettier --check src tests features/*.js examples/**/*.js examples/*.html",
         "start": "http-server",
         "test": "pnpm exec playwright test",
+        "benchmark": "node benchmarks/benchmark.mjs",
         "changelog": "docker run -it --rm -e CHANGELOG_GITHUB_TOKEN=$GITHUB_TOKEN -v \"$(pwd)\":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u finos -p regular-table",
         "watch": "npm-run-all -p watch:*"
     },

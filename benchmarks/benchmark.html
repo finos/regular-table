@@ -1,0 +1,279 @@
+<!--
+-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+-- ░░░░░░░░░░▄▀░█▀▄░█▀▀░█▀▀░█░█░█░░░█▀█░█▀▄░░░░░▀█▀░█▀█░█▀▄░█░░░█▀▀░▀▄░░░░░░░░░░
+-- ░░░░░░░░░▀▄░░█▀▄░█▀▀░█░█░█░█░█░░░█▀█░█▀▄░▀▀▀░░█░░█▀█░█▀▄░█░░░█▀▀░░▄▀░░░░░░░░░
+-- ░░░░░░░░░░░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀░▀░░░░░░▀░░▀░▀░▀▀░░▀▀▀░▀▀▀░▀░░░░░░░░░░░
+-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+-- ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+-- ┃  *  Copyright (c) 2020, the Regular Table Authors. This file is part   *  ┃
+-- ┃  *  of the Regular Table library, distributed under the terms of the   *  ┃
+-- ┃  *  [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). *  ┃
+-- ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+-->
+
+<!doctype html>
+<html>
+    <head>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+        />
+        <link rel="stylesheet" href="../dist/css/material.css" />
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            regular-table {
+                width: 100vw;
+                height: 100vh;
+                box-sizing: border-box;
+            }
+
+            td {
+                color: #1078d1;
+            }
+
+            /* Alternating row colors for visual complexity */
+            tbody tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+
+            /* Highlight negative values */
+            td.negative {
+                color: #dc3545;
+            }
+
+            /* Highlight large values */
+            td.large {
+                font-weight: bold;
+                color: #28a745;
+            }
+        </style>
+    </head>
+
+    <body>
+        <regular-table id="table"></regular-table>
+
+        <script type="module">
+            import "../dist/esm/regular-table.js";
+
+            // Configuration - can be overridden via URL params
+            const params = new URLSearchParams(window.location.search);
+            const NUM_ROWS = parseInt(params.get("rows") || "100000", 10);
+            const NUM_COLUMNS = parseInt(params.get("columns") || "10000", 10);
+            const HEADER_DEPTH = parseInt(params.get("headerDepth") || "4", 10);
+            const SIMULATE_LATENCY = parseInt(params.get("latency") || "0", 10);
+
+            // // Various formatters for complex data
+            // const numberFormatter = new Intl.NumberFormat("en-us");
+            // const currencyFormatter = new Intl.NumberFormat("en-us", {
+            //     style: "currency",
+            //     currency: "USD",
+            // });
+
+            // const percentFormatter = new Intl.NumberFormat("en-us", {
+            //     style: "percent",
+            //     minimumFractionDigits: 2,
+            // });
+
+            // const dateFormatter = new Intl.DateTimeFormat("en-us", {
+            //     year: "numeric",
+            //     month: "short",
+            //     day: "numeric",
+            // });
+
+            // Pseudo-random number generator with seed for reproducibility
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+
+            // Generate a random string of n characters
+            function randomString(n) {
+                const chars =
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                let result = "";
+                for (let i = 0; i < n; i++) {
+                    result += chars.charAt(
+                        Math.floor(Math.random() * chars.length),
+                    );
+                }
+                return result;
+            }
+
+            const STRINGS = Array(200)
+                .fill(0)
+                .map(() => randomString(8));
+
+            // Generate complex cell data based on position
+            function generateCellData(x, y) {
+                const seed = x * 0xdeadbeef + y;
+                const rand = seededRandom(seed);
+                const type = x % 2;
+                switch (type) {
+                    case 0:
+                        return Math.floor(rand * 1000000) - 500000;
+                    case 1:
+                        return STRINGS[Math.floor(rand * STRINGS.length)];
+                }
+            }
+
+            // Generate hierarchical headers
+            function generateColumnHeaders(x) {
+                const headers = [];
+                if (HEADER_DEPTH >= 1) {
+                    headers.push(`Sector ${Math.floor(x / 100)}`);
+                }
+
+                if (HEADER_DEPTH >= 2) {
+                    headers.push(`Group ${Math.floor(x / 10)}`);
+                }
+
+                if (HEADER_DEPTH >= 3) {
+                    headers.push(`Col ${x}`);
+                }
+
+                return headers;
+            }
+
+            function generateRowHeaders(y) {
+                const headers = [];
+                if (HEADER_DEPTH >= 1) {
+                    headers.push(`Region ${Math.floor(y / 100)}`);
+                }
+
+                if (HEADER_DEPTH >= 2) {
+                    headers.push(`Category ${Math.floor(y / 10)}`);
+                }
+
+                if (HEADER_DEPTH >= 3) {
+                    headers.push(`Row ${y}`);
+                }
+
+                return headers;
+            }
+
+            // Complex data listener with optional simulated latency
+            async function dataListener(x0, y0, x1, y1) {
+                // Simulate network/computation latency if configured
+                if (SIMULATE_LATENCY > 0) {
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, SIMULATE_LATENCY),
+                    );
+                }
+
+                const data = [];
+                const column_headers = [];
+
+                for (let x = x0; x < x1; x++) {
+                    const column = [];
+                    data.push(column);
+                    column_headers.push(generateColumnHeaders(x));
+
+                    for (let y = y0; y < y1; y++) {
+                        column.push(generateCellData(x, y));
+                    }
+                }
+
+                const row_headers = [];
+                for (let y = y0; y < y1; y++) {
+                    row_headers.push(generateRowHeaders(y));
+                }
+
+                return {
+                    num_rows: NUM_ROWS,
+                    num_columns: NUM_COLUMNS,
+                    row_headers,
+                    column_headers,
+                    data,
+                };
+            }
+
+            // Style listener to add CSS classes based on cell content
+            function styleListener() {
+                const table = document.getElementById("table");
+                for (const td of table.querySelectorAll("tbody td")) {
+                    const text = td.textContent;
+                    td.classList.remove("negative", "large");
+
+                    // Check for negative values
+                    if (text.startsWith("-") || text.startsWith("($")) {
+                        td.classList.add("negative");
+                    }
+
+                    // Check for large positive values
+                    const numMatch = text.replace(/[$,%]/g, "").match(/[\d.]+/);
+                    if (numMatch) {
+                        const num = parseFloat(numMatch[0]);
+                        if (num > 100000) {
+                            td.classList.add("large");
+                        }
+                    }
+                }
+            }
+
+            // Initialize table
+            const table = document.getElementById("table");
+            table.setDataListener(dataListener);
+            table.addStyleListener(styleListener);
+            await table.draw();
+
+            // Expose benchmark utilities to window for Playwright access
+            window.benchmarkConfig = {
+                numRows: NUM_ROWS,
+                numColumns: NUM_COLUMNS,
+                headerDepth: HEADER_DEPTH,
+                simulateLatency: SIMULATE_LATENCY,
+            };
+
+            window.scrollRight = async function (pixels = 100) {
+                table.scrollLeft += pixels;
+                await table.draw();
+            };
+
+            window.scrollDown = async function (pixels = 100) {
+                table.scrollTop += pixels;
+                await table.draw();
+            };
+
+            window.scrollDiagonal = async function (
+                pixelsX = 50,
+                pixelsY = 50,
+            ) {
+                table.scrollLeft += pixelsX;
+                table.scrollTop += pixelsY;
+                await table.draw();
+            };
+
+            window.scrollToPosition = async function (left, top) {
+                table.scrollLeft = left;
+                table.scrollTop = top;
+                await table.draw();
+            };
+
+            window.getTableMetrics = function () {
+                const fps = table.getDrawFPS();
+                return {
+                    fps: fps,
+                    scrollLeft: table.scrollLeft,
+                    scrollTop: table.scrollTop,
+                    scrollWidth: table.scrollWidth,
+                    scrollHeight: table.scrollHeight,
+                    visibleCells: table.querySelectorAll("tbody td").length,
+                    visibleRows: table.querySelectorAll("tbody tr").length,
+                };
+            };
+
+            window.resetScroll = async function () {
+                table.scrollLeft = 0;
+                table.scrollTop = 0;
+                await table.draw();
+            };
+
+            // Signal that the benchmark page is ready
+            window.benchmarkReady = true;
+        </script>
+    </body>
+</html>
