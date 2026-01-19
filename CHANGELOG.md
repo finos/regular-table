@@ -1,8 +1,16 @@
 # Changelog
 
-## [0.7.0](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.7.1](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.9...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.0...HEAD)
+
+**Merged pull requests:**
+
+- Add benchmark suite and profile-guided optimizations [\#248](https://github.com/finos/regular-table/pull/248) ([texodus](https://github.com/texodus))
+
+## [v0.7.0](https://github.com/finos/regular-table/tree/v0.7.0) (2026-01-15)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.6.9...v0.7.0)
 
 **Merged pull requests:**
 
