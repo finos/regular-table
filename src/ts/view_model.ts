@@ -80,15 +80,15 @@ export class ViewModel {
     _get_or_create_metadata(
         td: HTMLTableCellElement | undefined,
     ): CellMetadata {
-        if (td === undefined) {
+        if (!td) {
             return { value: undefined };
-        } else if (METADATA_MAP.has(td)) {
-            return METADATA_MAP.get(td);
-        } else {
-            const metadata: CellMetadata = { value: undefined };
-            METADATA_MAP.set(td, metadata);
-            return metadata;
         }
+        let metadata = METADATA_MAP.get(td);
+        if (!metadata) {
+            metadata = { value: undefined };
+            METADATA_MAP.set(td, metadata);
+        }
+        return metadata;
     }
 
     _replace_cell(
@@ -147,12 +147,14 @@ export class ViewModel {
                 tr.appendChild(td);
             }
         }
+
         if (td.tagName !== tag) {
             const new_td = document.createElement(tag) as HTMLTableCellElement;
             tr.replaceChild(new_td, td);
             this.cells[ridx].splice(cidx, 1, new_td);
             td = new_td;
         }
+
         return td;
     }
 
@@ -160,23 +162,31 @@ export class ViewModel {
         for (let i = 0; i < this.rows.length; i++) {
             const tr = this.rows[i];
             const row_container = this.cells[i];
-            this.cells[i] = row_container.slice(
-                0,
-                (Array.isArray(cidx) ? cidx[i] : cidx) || 0,
-            );
-
+            row_container.length = (Array.isArray(cidx) ? cidx[i] : cidx) || 0;
             const idx = this.cells[i].filter((x) => x !== undefined).length;
-            while (tr.children[idx]) {
-                tr.removeChild(tr.children[idx]);
+            const toRemove: Element[] = [];
+            for (let j = idx; j < tr.children.length; j++) {
+                toRemove.push(tr.children[j]);
+            }
+
+            for (const node of toRemove) {
+                node.remove();
             }
         }
     }
 
     _clean_rows(ridx: number): void {
-        while (this.table.children[ridx]) {
-            this.table.removeChild(this.table.children[ridx]);
+        // Batch collect rows to remove, then remove all at once
+        const toRemove: Element[] = [];
+        for (let i = ridx; i < this.table.children.length; i++) {
+            toRemove.push(this.table.children[i]);
         }
-        this.rows = this.rows.slice(0, ridx);
-        this.cells = this.cells.slice(0, ridx);
+
+        for (const node of toRemove) {
+            node.remove();
+        }
+
+        this.rows.length = ridx;
+        this.cells.length = ridx;
     }
 }

@@ -45,17 +45,17 @@ export function log_perf(x: number) {
  *
  */
 
-const TAGS: Map<Element, PromiseWithResolvers<undefined>> = new Map();
+const TAGS: Map<any, PromiseWithResolvers<undefined>> = new Map();
 
 export async function flush_tag(
-    tag: Element,
+    tag: any,
 ): Promise<PromiseWithResolvers<undefined> | undefined> {
     await new Promise(requestAnimationFrame);
     return await TAGS.get(tag);
 }
 
 export async function throttle_tag<T>(
-    tag: Element,
+    tag: any,
     f: () => Promise<T>,
 ): Promise<T | undefined> {
     if (TAGS.has(tag)) {

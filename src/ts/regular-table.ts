@@ -43,7 +43,7 @@ export class RegularTableElement extends RegularViewEventModel {
 
     connectedCallback() {
         if (!this._initialized) {
-            this.create_shadow_dom();
+            this._create_shadow_dom();
             this.register_listeners();
             this.setAttribute("tabindex", "0");
             this._initialized = true;
@@ -358,6 +358,7 @@ export class RegularTableElement extends RegularViewEventModel {
                 !virtual_mode_changed,
                 "preserve_state called with modified virtual_mode",
             );
+
             this._view_cache.view = dataListener as any;
         } else {
             this._virtual_mode = virtual_mode;
@@ -367,6 +368,7 @@ export class RegularTableElement extends RegularViewEventModel {
                 row_headers_length: 0,
                 column_headers_length: 0,
             };
+
             if (virtual_mode_changed) {
                 this._setup_virtual_scroll();
             }

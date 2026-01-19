@@ -31,12 +31,13 @@ import container_css from "../../dist/css/container.css";
 // @ts-ignore - CSS imports handled by build system
 import sub_cell_offsets from "../../dist/css/sub-cell-offsets.css";
 
-const CSS_TEMPLATE = (x_offset: number, y_offset: number) => `:host {
---regular-table--clip-x:${x_offset}px;
---regular-table--clip-y:${y_offset}px;
---regular-table--transform-x:${0 - x_offset}px;
---regular-table--transform-y:${0 - y_offset}px;
-}`;
+// CSS custom property names for sub-cell offsets
+const CLIP_X = "--regular-table--clip-x";
+const CLIP_Y = "--regular-table--clip-y";
+const TRANSFORM_X = "--regular-table--transform-x";
+const TRANSFORM_Y = "--regular-table--transform-y";
+
+const HTML_TEMPLATE = `<div class="rt-virtual-panel"></div><div class="rt-scroll-table-clip"><slot></slot></div>`;
 
 /**
  * Handles the virtual scroll pane, as well as the double buffering
@@ -77,7 +78,7 @@ const CSS_TEMPLATE = (x_offset: number, y_offset: number) => `:host {
  * @class RegularVirtualTableViewModel
  */
 export class RegularVirtualTableViewModel extends HTMLElement {
-    private _sub_cell_style!: CSSStyleSheet;
+    private _sub_cell_rule!: CSSStyleRule;
     protected _virtual_panel!: HTMLElement;
     protected _virtual_mode!: VirtualMode;
     protected _container_size!: ContainerSize;
@@ -96,9 +97,36 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     protected _style_callbacks!: Array<StyleCallback>;
 
     /**
+     * Draws this virtual panel, given an object of render options that allow
+     * the implementor to fine tune the individual render frames based on the
+     * interaction and previous render state.
+     *
+     * @param {DrawOptions} [options]
+     * @param {boolean} [options.invalid_viewport=true]
+     * @param {boolean} [options.preserve_width=false]
+     * @param {boolean} [options.throttle=true]
+     */
+    async draw(options: DrawOptions = {}): Promise<void> {
+        if (typeof options.throttle !== "undefined" && !options.throttle) {
+            return await internal_draw.call(this, options);
+        } else {
+            return await throttle_tag(this, () =>
+                internal_draw.call(this, options),
+            );
+        }
+    }
+
+    /**
+     * Await any pending rendering operations.
+     */
+    async flush(): Promise<void> {
+        await flush_tag(this);
+    }
+
+    /**
      * Create the DOM for this `shadowRoot`.
      */
-    create_shadow_dom() {
+    protected _create_shadow_dom() {
         this.attachShadow({ mode: "open" });
         if (!this.shadowRoot) {
             return;
@@ -106,27 +134,22 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 
         const containerStyleSheet = new CSSStyleSheet();
         containerStyleSheet.replaceSync(container_css);
-        this._sub_cell_style = new CSSStyleSheet();
-        this._sub_cell_style.replaceSync(sub_cell_offsets);
-
+        const sub_cell_style = new CSSStyleSheet();
+        sub_cell_style.replaceSync(sub_cell_offsets);
+        this._sub_cell_rule = sub_cell_style.cssRules[0] as CSSStyleRule;
         this.shadowRoot.adoptedStyleSheets = [
             containerStyleSheet,
-            this._sub_cell_style,
+            sub_cell_style,
         ];
 
-        const slot = `<slot></slot>`;
-        this.shadowRoot.innerHTML = `
-            <div class="rt-virtual-panel"></div>
-            <div class="rt-scroll-table-clip">${slot}</div>
-        `;
-
+        this.shadowRoot.innerHTML = HTML_TEMPLATE;
         const [virtual_panel, table_clip] = this.shadowRoot!.children;
         this._table_clip = table_clip as HTMLElement;
         this._virtual_panel = virtual_panel as HTMLElement;
         this._setup_virtual_scroll();
     }
 
-    _setup_virtual_scroll() {
+    protected _setup_virtual_scroll() {
         if (this._table_clip) {
             if (
                 this._virtual_mode === "both" ||
@@ -160,12 +183,150 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      * @returns
      */
-    _calculate_viewport(nrows: number, num_columns: number): Viewport {
+    protected _calculate_viewport(
+        nrows: number,
+        num_columns: number,
+    ): Viewport {
         const { start_row, end_row } = this._calculate_row_range(nrows);
         const { start_col, end_col } =
             this._calculate_column_range(num_columns);
 
         return { start_col, end_col, start_row, end_row };
+    }
+
+    /**
+     * Determines whether the viewport is identical in row and column axes to
+     * the previous viewport rendered, for throttling identical render requests,
+     * e.g. when the logical (row-wise) viewport does not change, but the pixel
+     * viewport has moved a few px.
+     *
+     * @param {*} {start_col, end_col, start_row, end_row}
+     * @returns
+     */
+    protected _validate_viewport({
+        start_col,
+        end_col,
+        start_row,
+        end_row,
+    }: Viewport): ViewportValidation {
+        start_row = Math.floor(start_row);
+        end_row = Math.ceil(end_row);
+        start_col = Math.floor(start_col);
+        end_col = Math.ceil(end_col);
+        const invalid_column = this._start_col !== start_col;
+        const invalid_row =
+            this._start_row !== start_row ||
+            this._end_row !== end_row ||
+            this._end_col !== end_col;
+        this._start_col = start_col;
+        this._end_col = end_col;
+        this._start_row = start_row;
+        this._end_row = end_row;
+        return { invalid_column, invalid_row };
+    }
+
+    /**
+     * Updates the `virtual_panel` width based on view state.
+     *
+     * @param {*} invalid
+     */
+    protected _update_virtual_panel_width(
+        invalid: boolean,
+        num_columns: number,
+    ): void {
+        if (invalid) {
+            if (
+                this._virtual_mode === "vertical" ||
+                this._virtual_mode === "none"
+            ) {
+                let totalWidth = 0;
+                for (const w of this._column_sizes.indices) {
+                    totalWidth += w || 0;
+                }
+                this._virtual_panel.style.width =
+                    totalWidth.toPrecision(10) + "px";
+            } else {
+                const virtual_width =
+                    this._calc_scrollable_column_width(num_columns);
+                if (virtual_width !== 0) {
+                    const panel_width =
+                        this._container_size.width + virtual_width + 2;
+                    this._virtual_panel.style.width =
+                        panel_width.toPrecision(10) + "px";
+                } else {
+                    this._virtual_panel.style.width = "1px";
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the `virtual_panel` height based on the view state.
+     *
+     * @param {*} nrows
+     */
+    protected _update_virtual_panel_height(nrows: number): void {
+        const { row_height = 19 } = this._column_sizes;
+        const header_height =
+            this._view_cache.column_headers_length * row_height;
+        let virtual_panel_px_size;
+        virtual_panel_px_size = Math.min(
+            BROWSER_MAX_HEIGHT,
+            nrows * row_height + header_height,
+        );
+        this._virtual_panel.style.height = `${virtual_panel_px_size.toPrecision(10)}px`;
+    }
+
+    /**
+     * Update sub-cell offset CSS.
+     *
+     * @param viewport
+     */
+    protected _update_sub_cell_offset(viewport: Viewport): void {
+        const y_offset =
+            (this._column_sizes.row_height || 20) * (viewport.start_row % 1) ||
+            0;
+
+        const x_offset =
+            (this._column_sizes.indices[
+                (this.table_model._row_headers_length || 0) +
+                    Math.floor(viewport.start_col)
+            ] || 0) *
+                (viewport.start_col % 1) || 0;
+
+        this._sub_cell_rule.style.setProperty(CLIP_X, `${x_offset}px`);
+        this._sub_cell_rule.style.setProperty(CLIP_Y, `${y_offset}px`);
+        this._sub_cell_rule.style.setProperty(TRANSFORM_X, `${-x_offset}px`);
+        this._sub_cell_rule.style.setProperty(TRANSFORM_Y, `${-y_offset}px`);
+    }
+
+    /**
+     * Calculates `start_col` and `end_col` for the viewport - most of the
+     * details of which are actually calculated in `_max_column`, the equivalent
+     * of `total_scroll_height` from `_calculate_row_range`.
+     *
+     * @returns
+     */
+    protected _calculate_column_range(num_columns: number): {
+        start_col: number;
+        end_col: number;
+    } {
+        if (
+            this._virtual_mode === "none" ||
+            this._virtual_mode === "vertical"
+        ) {
+            return { start_col: 0, end_col: Infinity };
+        } else {
+            const start_col = this._calc_start_column();
+            const vis_cols =
+                this.table_model.num_columns() ||
+                Math.min(
+                    num_columns,
+                    Math.ceil(this._container_size.width / 60),
+                );
+            let end_col = start_col + vis_cols + 1;
+            return { start_col, end_col };
+        }
     }
 
     /**
@@ -204,7 +365,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      * @returns
      */
-    _calculate_row_range(nrows: number): {
+    private _calculate_row_range(nrows: number): {
         start_row: number;
         end_row: number;
     } {
@@ -233,7 +394,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         return { start_row, end_row };
     }
 
-    _calc_start_column(): number {
+    private _calc_start_column(): number {
         const scroll_index_offset = this._view_cache.row_headers_length;
         let start_col = 0;
         let offset_width = 0;
@@ -251,35 +412,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             (this._column_sizes.indices[start_col + scroll_index_offset - 1] ||
                 60);
         return Math.max(0, start_col - 1);
-    }
-
-    /**
-     * Calculates `start_col` and `end_col` for the viewport - most of the
-     * details of which are actually calculated in `_max_column`, the equivalent
-     * of `total_scroll_height` from `_calculate_row_range`.
-     *
-     * @returns
-     */
-    _calculate_column_range(num_columns: number): {
-        start_col: number;
-        end_col: number;
-    } {
-        if (
-            this._virtual_mode === "none" ||
-            this._virtual_mode === "vertical"
-        ) {
-            return { start_col: 0, end_col: Infinity };
-        } else {
-            const start_col = this._calc_start_column();
-            const vis_cols =
-                this.table_model.num_columns() ||
-                Math.min(
-                    num_columns,
-                    Math.ceil(this._container_size.width / 60),
-                );
-            let end_col = start_col + vis_cols + 1;
-            return { start_col, end_col };
-        }
     }
 
     /**
@@ -304,7 +436,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *
      * @returns
      */
-    _max_scroll_column(num_columns: number): number {
+    private _max_scroll_column(num_columns: number): number {
         let width = 0;
         if (this._view_cache.row_headers_length > 0) {
             for (const w of this._column_sizes.indices.slice(
@@ -328,38 +460,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         return Math.min(num_columns - 1, max_scroll_column + 1);
     }
 
-    /**
-     * Determines whether the viewport is identical in row and column axes to
-     * the previous viewport rendered, for throttling identical render requests,
-     * e.g. when the logical (row-wise) viewport does not change, but the pixel
-     * viewport has moved a few px.
-     *
-     * @param {*} {start_col, end_col, start_row, end_row}
-     * @returns
-     */
-    _validate_viewport({
-        start_col,
-        end_col,
-        start_row,
-        end_row,
-    }: Viewport): ViewportValidation {
-        start_row = Math.floor(start_row);
-        end_row = Math.ceil(end_row);
-        start_col = Math.floor(start_col);
-        end_col = Math.ceil(end_col);
-        const invalid_column = this._start_col !== start_col;
-        const invalid_row =
-            this._start_row !== start_row ||
-            this._end_row !== end_row ||
-            this._end_col !== end_col;
-        this._start_col = start_col;
-        this._end_col = end_col;
-        this._start_row = start_row;
-        this._end_row = end_row;
-        return { invalid_column, invalid_row };
-    }
-
-    _calc_scrollable_column_width(num_columns: number): number {
+    private _calc_scrollable_column_width(num_columns: number): number {
         let scroll_index_offset = this._view_cache.row_headers_length;
         const max_scroll_column = this._max_scroll_column(num_columns);
         let cidx = scroll_index_offset,
@@ -371,9 +472,15 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         if (cidx < this._column_sizes.indices.length) {
-            let viewport_width = this._column_sizes.indices
-                .slice(0, this._view_cache.row_headers_length)
-                .reduce((x, y) => (x || 0) + (y || 0), 0);
+            let viewport_width = 0;
+            const rhLen = this._view_cache.row_headers_length;
+            for (
+                let i = 0;
+                i < rhLen && i < this._column_sizes.indices.length;
+                i++
+            ) {
+                viewport_width += this._column_sizes.indices[i] || 0;
+            }
             virtual_width += Math.max(
                 0,
                 (this._column_sizes.indices[cidx] || 0) -
@@ -382,93 +489,6 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         return virtual_width;
-    }
-
-    /**
-     * Updates the `virtual_panel` width based on view state.
-     *
-     * @param {*} invalid
-     */
-    _update_virtual_panel_width(invalid: boolean, num_columns: number): void {
-        if (invalid) {
-            if (
-                this._virtual_mode === "vertical" ||
-                this._virtual_mode === "none"
-            ) {
-                this._virtual_panel.style.width =
-                    this._column_sizes.indices.reduce(
-                        (x, y) => (x || 0) + (y || 0),
-                        0,
-                    ) + "px";
-            } else {
-                const virtual_width =
-                    this._calc_scrollable_column_width(num_columns);
-                if (virtual_width !== 0) {
-                    const panel_width =
-                        this._container_size.width + virtual_width + 2;
-                    this._virtual_panel.style.width = panel_width + "px";
-                } else {
-                    this._virtual_panel.style.width = "1px";
-                }
-            }
-        }
-    }
-
-    /**
-     * Updates the `virtual_panel` height based on the view state.
-     *
-     * @param {*} nrows
-     */
-    _update_virtual_panel_height(nrows: number): void {
-        const { row_height = 19 } = this._column_sizes;
-        const header_height =
-            this._view_cache.column_headers_length * row_height;
-        let virtual_panel_px_size;
-        virtual_panel_px_size = Math.min(
-            BROWSER_MAX_HEIGHT,
-            nrows * row_height + header_height,
-        );
-        this._virtual_panel.style.height = `${virtual_panel_px_size}px`;
-    }
-
-    /**
-     * Draws this virtual panel, given an object of render options that allow
-     * the implementor to fine tune the individual render frames based on the
-     * interaction and previous render state.
-     *
-     * @param {DrawOptions} [options]
-     * @param {boolean} [options.invalid_viewport=true]
-     * @param {boolean} [options.preserve_width=false]
-     * @param {boolean} [options.throttle=true]
-     */
-    async draw(options: DrawOptions = {}): Promise<void> {
-        if (typeof options.throttle !== "undefined" && !options.throttle) {
-            return await internal_draw.call(this, options);
-        } else {
-            return await throttle_tag(this, () =>
-                internal_draw.call(this, options),
-            );
-        }
-    }
-
-    async flush(): Promise<void> {
-        await flush_tag(this);
-    }
-
-    update_sub_cell_offset(viewport: Viewport): void {
-        const y_offset =
-            (this._column_sizes.row_height || 20) * (viewport.start_row % 1) ||
-            0;
-
-        const x_offset =
-            (this._column_sizes.indices[
-                (this.table_model._row_headers_length || 0) +
-                    Math.floor(viewport.start_col)
-            ] || 0) *
-                (viewport.start_col % 1) || 0;
-
-        const cssText = CSS_TEMPLATE(x_offset, y_offset);
-        this._sub_cell_style.replaceSync(cssText);
     }
 }
 
@@ -540,7 +560,7 @@ async function internal_draw(
             // is no scroll jitter, but only on the first iteration as
             // subsequent viewports are incorrect.
             if (first_iteration) {
-                this.update_sub_cell_offset(viewport);
+                this._update_sub_cell_offset(viewport);
                 first_iteration = false;
             }
 
@@ -574,7 +594,7 @@ async function internal_draw(
 
         this._invalid_schema = false;
     } else {
-        this.update_sub_cell_offset(viewport);
+        this._update_sub_cell_offset(viewport);
     }
 
     if (DEBUG) {

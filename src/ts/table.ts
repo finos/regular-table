@@ -129,11 +129,11 @@ abstract class RegularTableViewModelBase {
             }
         }
 
-        view_state.viewport_width += cont_heads.reduce(
-            (total, { th }, i) =>
-                total + (this._column_sizes.indices[i] || th.offsetWidth),
-            0,
-        );
+        for (let i = 0; i < cont_heads.length; i++) {
+            const { th } = cont_heads[i];
+            view_state.viewport_width +=
+                this._column_sizes.indices[i] || th.offsetWidth;
+        }
         view_state.row_height = view_state.row_height || cont_body.row_height;
 
         const _virtual_x = row_headers[0].length;
@@ -329,7 +329,8 @@ abstract class RegularTableViewModelBase {
  */
 export class RegularTableViewModel extends RegularTableViewModelBase {
     public table: HTMLTableElement;
-    public fragment: DocumentFragment;
+    private _columnWidthStyleSheet?: CSSStyleSheet;
+    private _lastColumnWidthCss?: string;
 
     constructor(
         table_clip: HTMLElement,
@@ -351,7 +352,6 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         );
 
         this.body = new RegularBodyViewModel(column_sizes, table_clip, tbody);
-        this.fragment = document.createDocumentFragment();
     }
 
     num_columns(): number {
@@ -376,7 +376,6 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         last_cells: CellTuple[],
         override_row_height?: number,
     ): void {
-        // PHASE 1: READ - Collect all layout measurements first
         const measurements: Array<{
             cell: HTMLElement;
             metadata: CellMetadata | undefined;
@@ -388,7 +387,6 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             measurements.push({ cell, metadata, box });
         }
 
-        // PHASE 2: PROCESS - Update column sizes
         for (const { metadata, box } of measurements) {
             this._column_sizes.row_height =
                 override_row_height ??
@@ -463,7 +461,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         }
 
         for (
-            let size_key = row_headers_size_key; //Math.floor(viewport.start_col);
+            let size_key = row_headers_size_key;
             size_key <
             row_headers_size_key +
                 (Math.ceil(viewport.end_col) - Math.floor(viewport.start_col));
@@ -482,7 +480,6 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 // Override width takes precedence
                 // CSS :nth-child is 1-indexed
                 const columnIndex = size_key + 1; //  Math.floor(viewport.start_col);
-
                 cssRules.push(
                     `thead tr.rt-autosize th:nth-child(${columnIndex}),`,
                     `tbody td.rt-cell-clip:nth-child(${columnIndex})`,
@@ -503,7 +500,6 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         if (cssRules.length > 0) {
             this._applyColumnWidthStyles(cssRules.join("\n"));
         } else if (this._columnWidthStyleSheet) {
-            // Clear stylesheet if no rules
             this._columnWidthStyleSheet.replaceSync("");
         }
     }
@@ -511,11 +507,14 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
     /**
      * Applies column width styles using adoptedStyleSheets.
      * Creates or updates a dedicated stylesheet for column widths.
+     * Caches the CSS string to avoid redundant replaceSync calls.
      */
     private _applyColumnWidthStyles(css: string): void {
-        // Access the shadowRoot through the table's container
-        const shadowRoot = this.table.getRootNode() as ShadowRoot;
+        if (css === this._lastColumnWidthCss) {
+            return;
+        }
 
+        const shadowRoot = this.table.getRootNode() as ShadowRoot;
         if (!shadowRoot || !shadowRoot.adoptedStyleSheets) {
             return;
         }
@@ -530,9 +529,8 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         }
 
         this._columnWidthStyleSheet.replaceSync(css);
+        this._lastColumnWidthCss = css;
     }
-
-    private _columnWidthStyleSheet?: CSSStyleSheet;
 
     async *draw(
         container_size: { width: number; height: number },
@@ -563,10 +561,11 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         const x0 = viewport.start_col ?? 0;
 
         if (view_response.row_headers) {
-            this._row_headers_length = view_response.row_headers.reduce(
-                (max, x) => Math.max(max, x.length),
-                0,
-            );
+            let maxLen = 0;
+            for (const rh of view_response.row_headers) {
+                if (rh.length > maxLen) maxLen = rh.length;
+            }
+            this._row_headers_length = maxLen;
 
             for (let i = 0; i < view_response.row_headers.length; i++) {
                 view_response.row_headers[i].length =
@@ -633,15 +632,15 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                         x0,
                     );
 
-                    yield undefined;
-
                     if (fetch_result.column_header_merge_depth !== undefined) {
                         column_header_merge_depth =
                             fetch_result.column_header_merge_depth;
                     }
+
                     if (fetch_result.merge_headers !== undefined) {
                         merge_headers = fetch_result.merge_headers;
                     }
+
                     if (!view_response.data[dcidx]) {
                         this._cleanupAfterDraw(cont_body, _virtual_x);
                         yield last_cells;
@@ -678,13 +677,15 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 }
 
                 // Update dimensions
-                const col_width =
+                let col_width =
                     this._column_sizes.indices[_virtual_x + Math.floor(x0)] ||
-                    cont_head?.th?.offsetWidth ||
-                    cont_body.tds.reduce(
-                        (sum, { td }) => sum + (td?.offsetWidth || 0),
-                        0,
-                    );
+                    cont_head?.th?.offsetWidth;
+                if (!col_width) {
+                    col_width = 0;
+                    for (const { td } of cont_body.tds) {
+                        col_width += td?.offsetWidth || 0;
+                    }
+                }
                 view_state.viewport_width += col_width;
                 view_state.row_height =
                     view_state.row_height || cont_body.row_height;
@@ -698,10 +699,10 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                     yield last_cells;
 
                     // Recalculate after style listeners
-                    view_state.viewport_width = last_cells.reduce(
-                        (sum, [td]) => sum + td.offsetWidth,
-                        0,
-                    );
+                    view_state.viewport_width = 0;
+                    for (const [td] of last_cells) {
+                        view_state.viewport_width += td.offsetWidth;
+                    }
 
                     if (this._isViewportFilled(view_state, container_width)) {
                         return;
