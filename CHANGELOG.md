@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.7.1](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.7.2](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.0...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.1...HEAD)
+
+**Fixed bugs:**
+
+- Fix FOUT during viewport expansion [\#250](https://github.com/finos/regular-table/pull/250) ([texodus](https://github.com/texodus))
+
+## [v0.7.1](https://github.com/finos/regular-table/tree/v0.7.1) (2026-01-19)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.0...v0.7.1)
 
 **Merged pull requests:**
 
