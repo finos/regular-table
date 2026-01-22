@@ -620,6 +620,8 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             while (dcidx < num_visible_columns) {
                 // Fetch missing columns if needed
                 if (!view_response.data[dcidx]) {
+                    // Style the partially-renderd rows so there is no FOUT
+                    yield undefined;
                     const fetch_result = await this._fetchMissingColumns(
                         viewport,
                         view,
@@ -680,12 +682,14 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 let col_width =
                     this._column_sizes.indices[_virtual_x + Math.floor(x0)] ||
                     cont_head?.th?.offsetWidth;
+
                 if (!col_width) {
                     col_width = 0;
                     for (const { td } of cont_body.tds) {
                         col_width += td?.offsetWidth || 0;
                     }
                 }
+
                 view_state.viewport_width += col_width;
                 view_state.row_height =
                     view_state.row_height || cont_body.row_height;
