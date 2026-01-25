@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.7.2](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.7.3](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.1...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.2...HEAD)
+
+**Fixed bugs:**
+
+- Fix render frame lag issue [\#251](https://github.com/finos/regular-table/pull/251) ([texodus](https://github.com/texodus))
+
+## [v0.7.2](https://github.com/finos/regular-table/tree/v0.7.2) (2026-01-23)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.1...v0.7.2)
 
 **Fixed bugs:**
 
