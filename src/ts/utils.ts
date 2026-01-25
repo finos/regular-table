@@ -51,7 +51,7 @@ export async function flush_tag(
     tag: any,
 ): Promise<PromiseWithResolvers<undefined> | undefined> {
     await new Promise(requestAnimationFrame);
-    return await TAGS.get(tag);
+    return await TAGS.get(tag)?.promise;
 }
 
 export async function throttle_tag<T>(
@@ -59,9 +59,9 @@ export async function throttle_tag<T>(
     f: () => Promise<T>,
 ): Promise<T | undefined> {
     if (TAGS.has(tag)) {
-        await TAGS.get(tag);
+        await TAGS.get(tag)?.promise;
         if (TAGS.has(tag)) {
-            await TAGS.get(tag);
+            await TAGS.get(tag)?.promise;
             return;
         }
     }

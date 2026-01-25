@@ -308,7 +308,7 @@ async function runBenchmarks() {
     await cdpSession.send("Performance.enable");
 
     // Build URL with configuration
-    const url = `http://localhost:8081/benchmarks/benchmark.html?rows=${CONFIG.rows}&columns=${CONFIG.columns}&headerDepth=${CONFIG.headerDepth}`;
+    const url = `http://localhost:8080/benchmarks/benchmark.html?rows=${CONFIG.rows}&columns=${CONFIG.columns}&headerDepth=${CONFIG.headerDepth}`;
 
     console.log(`\nLoading benchmark page: ${url}`);
     await page.goto(url);
