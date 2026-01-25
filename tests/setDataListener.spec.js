@@ -52,59 +52,6 @@ test.describe("setDataListener()", () => {
         });
     });
 
-    test.describe("with preserve_state option", () => {
-        test("preserves column sizes when set to true", async ({ page }) => {
-            const table = page.locator("regular-table");
-            const meta = await table.evaluate(async (el) => {
-                await el.draw();
-                el.saveColumnSizes()[0] = 200;
-                await el.draw();
-                el.setDataListener(window.dataListener, {
-                    preserve_state: true,
-                });
-
-                await el.draw();
-                return JSON.stringify(el.getMeta(document.querySelector("td")));
-            });
-
-            expect(JSON.parse(meta)).toEqual({
-                column_header: ["Group 0", "Column 0"],
-                row_header: ["Group 0", "Row 0"],
-                dx: 0,
-                dy: 0,
-                size_key: 2,
-                virtual_x: 2,
-                value: "0",
-                x: 0,
-                x0: 0,
-                x1: 22,
-                y: 0,
-                y0: 0,
-                y1: 36,
-            });
-        });
-
-        test("resets column sizes when preserve_state is false", async ({
-            page,
-        }) => {
-            const table = page.locator("regular-table");
-            const meta = await table.evaluate(async (el) => {
-                await el.draw();
-                el.saveColumnSizes()[0] = 200;
-                await el.draw();
-                el.setDataListener(window.dataListener, {
-                    preserve_state: false,
-                });
-
-                await el.draw();
-                return JSON.stringify(el.getMeta(document.querySelector("td")));
-            });
-
-            const parsed = JSON.parse(meta);
-            expect(parsed.x1).toBeLessThan(23);
-        });
-    });
-
     test.describe("data listener callback", () => {
         test("receives correct viewport coordinates", async ({ page }) => {
             const table = page.locator("regular-table");

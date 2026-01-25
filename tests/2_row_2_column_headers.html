@@ -34,7 +34,14 @@
             const range = (x0, x1, f) =>
                 Array.from(Array(x1 - x0).keys()).map((x) => f(x + x0));
 
-            function dataListener(x0, y0, x1, y1) {
+            async function dataListener(x0, y0, x1, y1) {
+                // Simulate lag
+                if (Math.random() > 0.3) {
+                    await new Promise((x) =>
+                        setTimeout(x, Math.round(Math.random() * 10)),
+                    );
+                }
+
                 return {
                     num_rows: NUM_ROWS,
                     num_columns: NUM_COLUMNS,
