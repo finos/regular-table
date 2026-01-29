@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.7.3](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.7.4](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.2...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.3...HEAD)
+
+**Fixed bugs:**
+
+- Right to left scroll rendering fix [\#253](https://github.com/finos/regular-table/pull/253) ([texodus](https://github.com/texodus))
+
+## [v0.7.3](https://github.com/finos/regular-table/tree/v0.7.3) (2026-01-25)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.2...v0.7.3)
 
 **Fixed bugs:**
 
