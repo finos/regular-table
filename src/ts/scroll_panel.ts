@@ -282,16 +282,29 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *
      * @param viewport
      */
-    protected _update_sub_cell_offset(viewport: Viewport): void {
+    protected _update_sub_cell_offset(
+        viewport: Viewport,
+        last_cells?: CellTuple[],
+    ): void {
         const y_offset =
             (this._column_sizes.row_height || 20) * (viewport.start_row % 1) ||
             0;
 
+        if (
+            (this.table_model._row_headers_length || 0) +
+                Math.floor(viewport.start_col) >=
+            this._column_sizes.indices.length
+        ) {
+            return;
+        }
+
+        const x_offset_index =
+            (this.table_model._row_headers_length || 0) +
+            Math.floor(viewport.start_col);
+
         const x_offset =
-            (this._column_sizes.indices[
-                (this.table_model._row_headers_length || 0) +
-                    Math.floor(viewport.start_col)
-            ] || 0) *
+            (this._column_sizes.indices[x_offset_index] ||
+                (last_cells?.[0]?.[0]?.offsetWidth ?? 0)) *
                 (viewport.start_col % 1) || 0;
 
         this._sub_cell_rule.style.setProperty(CLIP_X, `${x_offset}px`);
@@ -533,12 +546,6 @@ async function internal_draw(
     }
 
     const viewport = this._calculate_viewport(safe_num_rows, safe_num_columns);
-    // this.table_model.clearWidthStyles();
-    this.table_model.updateColumnWidthStyles(
-        viewport,
-        this._view_cache.row_headers_length,
-    );
-
     const { invalid_row, invalid_column } = this._validate_viewport(viewport);
     const invalid_schema_or_column = this._invalid_schema || invalid_column;
     if (invalid_schema_or_column || invalid_row || invalid_viewport) {
@@ -556,17 +563,21 @@ async function internal_draw(
                 autosize_cells.push(...last_cells);
             }
 
+            this.table_model.updateColumnWidthStyles(
+                viewport,
+                this._view_cache.row_headers_length,
+            );
+
             // We want to perform this before the next event loop so there
             // is no scroll jitter, but only on the first iteration as
             // subsequent viewports are incorrect.
             if (first_iteration) {
-                this._update_sub_cell_offset(viewport);
+                this._update_sub_cell_offset(viewport, autosize_cells);
                 first_iteration = false;
             }
 
             this._is_styling = true;
-            const callbacks = this._style_callbacks;
-            for (const callback of callbacks) {
+            for (const callback of this._style_callbacks) {
                 await callback({ detail: this as RegularTableElement });
             }
 
