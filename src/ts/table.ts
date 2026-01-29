@@ -58,7 +58,7 @@ abstract class RegularTableViewModelBase {
         const sub_cell_offset =
             this._column_sizes.indices[
                 (this._row_headers_length || 0) + Math.floor(viewport.start_col)
-            ] || 0;
+            ] ?? 0;
 
         return {
             viewport_width: 0,
@@ -464,7 +464,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             let size_key = row_headers_size_key;
             size_key <
             row_headers_size_key +
-                (Math.ceil(viewport.end_col) - Math.floor(viewport.start_col));
+                (Math.floor(viewport.end_col) - Math.floor(viewport.start_col));
             size_key++
         ) {
             const override_width =
