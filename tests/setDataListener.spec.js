@@ -56,9 +56,9 @@ test.describe("setDataListener()", () => {
         test("receives correct viewport coordinates", async ({ page }) => {
             const table = page.locator("regular-table");
             const callbackArgs = await table.evaluate(async (el) => {
-                let capturedArgs = null;
+                let capturedArgs = [];
                 const testListener = (x0, y0, x1, y1) => {
-                    capturedArgs = { x0, y0, x1, y1 };
+                    capturedArgs.push({ x0, y0, x1, y1 });
                     return {
                         num_rows: 100,
                         num_columns: 100,
@@ -73,11 +73,12 @@ test.describe("setDataListener()", () => {
                 return capturedArgs;
             });
 
-            expect(callbackArgs).toBeTruthy();
-            expect(callbackArgs.x0).toBe(22);
-            expect(callbackArgs.y0).toBe(0);
-            expect(callbackArgs.x1).toBeGreaterThan(0);
-            expect(callbackArgs.y1).toBeGreaterThan(0);
+            expect(callbackArgs.length).toBe(3);
+            expect(callbackArgs).toStrictEqual([
+                { x0: 0, x1: 0, y0: 0, y1: 0 },
+                { x0: 0, x1: 22, y0: 0, y1: 38 },
+                { x0: 0, x1: 5, y0: 0, y1: 38 },
+            ]);
         });
 
         test("updates when table is scrolled", async ({ page }) => {

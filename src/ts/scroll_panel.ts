@@ -284,27 +284,23 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     protected _update_sub_cell_offset(
         viewport: Viewport,
-        last_cells?: CellTuple[],
+        last_cell?: CellTuple,
     ): void {
         const y_offset =
             (this._column_sizes.row_height || 20) * (viewport.start_row % 1) ||
             0;
 
-        if (
-            (this.table_model._row_headers_length || 0) +
-                Math.floor(viewport.start_col) >=
-            this._column_sizes.indices.length
-        ) {
-            return;
-        }
-
         const x_offset_index =
             (this.table_model._row_headers_length || 0) +
             Math.floor(viewport.start_col);
 
+        if (this._column_sizes.indices[x_offset_index] === undefined) {
+            this._column_sizes.indices[x_offset_index] =
+                last_cell?.[0]?.offsetWidth || 0;
+        }
+
         const x_offset =
-            (this._column_sizes.indices[x_offset_index] ||
-                (last_cells?.[0]?.[0]?.offsetWidth ?? 0)) *
+            this._column_sizes.indices[x_offset_index]! *
                 (viewport.start_col % 1) || 0;
 
         this._sub_cell_rule.style.setProperty(CLIP_X, `${x_offset}px`);
@@ -424,6 +420,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             diff /
             (this._column_sizes.indices[start_col + scroll_index_offset - 1] ||
                 60);
+
         return Math.max(0, start_col - 1);
     }
 
@@ -510,6 +507,10 @@ async function internal_draw(
     options: DrawOptions,
 ): Promise<void> {
     const __debug_start_time__ = DEBUG && performance.now();
+    if (!options.cache) {
+        this.table_model._resetDimState();
+    }
+
     const { invalid_viewport = true, preserve_width = false } = options;
     const {
         num_columns,
@@ -517,7 +518,8 @@ async function internal_draw(
         num_row_headers,
         num_column_headers,
         row_height,
-    } = await this._view_cache.view(0, 0, 0, 0);
+    } = await this.table_model._getDimState(this._view_cache);
+
     this._column_sizes.row_height = row_height || this._column_sizes.row_height;
     if (num_row_headers !== undefined) {
         this._view_cache.row_headers_length = num_row_headers;
@@ -530,8 +532,10 @@ async function internal_draw(
     // Cache virtual mode checks and default values
     const is_non_vertical =
         this._virtual_mode === "none" || this._virtual_mode === "horizontal";
+
     const is_non_horizontal =
         this._virtual_mode === "none" || this._virtual_mode === "vertical";
+
     const safe_num_rows = num_rows || 0;
     const safe_num_columns = num_columns || 0;
     this._container_size = {
@@ -549,48 +553,30 @@ async function internal_draw(
     const { invalid_row, invalid_column } = this._validate_viewport(viewport);
     const invalid_schema_or_column = this._invalid_schema || invalid_column;
     if (invalid_schema_or_column || invalid_row || invalid_viewport) {
-        let autosize_cells: CellTuple[] = [];
         let first_iteration = true;
-        for await (let last_cells of this.table_model.draw(
+        await this.table_model.draw(
             this._container_size,
             this._view_cache,
             this._selected_id,
             preserve_width,
             viewport,
             safe_num_columns,
-        )) {
-            if (last_cells !== undefined) {
-                autosize_cells.push(...last_cells);
-            }
+            async (last_cells) => {
+                // We want to perform this before the next event loop so there
+                // is no scroll jitter, but only on the first iteration as
+                // subsequent viewports are incorrect.
+                if (first_iteration) {
+                    this._update_sub_cell_offset(viewport, last_cells);
+                    first_iteration = false;
+                }
 
-            this.table_model.updateColumnWidthStyles(
-                viewport,
-                this._view_cache.row_headers_length,
-            );
-
-            // We want to perform this before the next event loop so there
-            // is no scroll jitter, but only on the first iteration as
-            // subsequent viewports are incorrect.
-            if (first_iteration) {
-                this._update_sub_cell_offset(viewport, autosize_cells);
-                first_iteration = false;
-            }
-
-            this._is_styling = true;
-            for (const callback of this._style_callbacks) {
-                await callback({ detail: this as RegularTableElement });
-            }
-
-            this._is_styling = false;
-            if (!this._invalidated && last_cells !== undefined) {
-                break;
-            }
-
-            this._invalidated = false;
-        }
+                for (const callback of this._style_callbacks) {
+                    await callback({ detail: this as RegularTableElement });
+                }
+            },
+        );
 
         const old_height = this._column_sizes.row_height;
-        this.table_model.autosize_cells(autosize_cells, row_height);
         this.table_model.header.reset_header_cache();
         if (old_height !== this._column_sizes.row_height) {
             this._update_virtual_panel_height(safe_num_rows);

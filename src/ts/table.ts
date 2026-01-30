@@ -256,7 +256,7 @@ abstract class RegularTableViewModelBase {
         _virtual_x: number,
         x0: number,
     ): Promise<FetchResult> {
-        let missing_cidx = Math.max(viewport.end_col, 0);
+        let missing_cidx = Math.max(dcidx + Math.floor(x0), 0);
         viewport.start_col = missing_cidx;
         this._calculateViewportExtension(
             viewport,
@@ -314,6 +314,9 @@ abstract class RegularTableViewModelBase {
     ): void {
         this.body.clean({ ridx: cont_body?.ridx || 0, cidx: _virtual_x });
         this.header.clean();
+    }
+
+    protected _carriageReturn() {
         this.body._span_factory.reset();
         this.header._span_factory.reset();
     }
@@ -331,6 +334,8 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
     public table: HTMLTableElement;
     private _columnWidthStyleSheet?: CSSStyleSheet;
     private _lastColumnWidthCss?: string;
+    private _lastDataResponse?: DataResponse;
+    private _lastViewport?: Viewport;
 
     constructor(
         table_clip: HTMLElement,
@@ -532,24 +537,38 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         this._lastColumnWidthCss = css;
     }
 
-    async *draw(
+    async _getDimState(view_cache: ViewCache): Promise<DataResponse> {
+        if (!this._lastDataResponse) {
+            return await view_cache.view(0, 0, 0, 0);
+        }
+
+        return this._lastDataResponse!;
+    }
+
+    _resetDimState() {
+        this._lastDataResponse = undefined;
+        this._lastViewport = undefined;
+    }
+
+    async draw(
         container_size: { width: number; height: number },
         view_cache: ViewCache,
         selected_id: number | undefined,
         preserve_width: boolean,
         viewport: Viewport,
         num_columns: number,
-    ): AsyncGenerator<CellTuple[] | undefined, void, unknown> {
+        style_callback: (last_cells: CellTuple) => Promise<undefined>,
+    ): Promise<undefined> {
         const { width: container_width, height: container_height } =
             container_size;
 
         // Fetch and prepare initial data
-        const view_response = await view_cache.view(
+        const view_response = (this._lastDataResponse = await view_cache.view(
             Math.floor(viewport.start_col),
             Math.floor(viewport.start_row),
             Math.ceil(viewport.end_col),
             Math.ceil(viewport.end_row),
-        );
+        ));
 
         let { column_header_merge_depth, merge_headers = "both" } =
             view_response;
@@ -621,7 +640,12 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 // Fetch missing columns if needed
                 if (!view_response.data[dcidx]) {
                     // Style the partially-renderd rows so there is no FOUT
-                    yield undefined;
+                    this.updateColumnWidthStyles(
+                        viewport,
+                        view_cache.row_headers_length,
+                    );
+
+                    await style_callback(last_cells[this._row_headers_length]);
                     const fetch_result = await this._fetchMissingColumns(
                         viewport,
                         view,
@@ -645,7 +669,21 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
 
                     if (!view_response.data[dcidx]) {
                         this._cleanupAfterDraw(cont_body, _virtual_x);
-                        yield last_cells;
+                        this._carriageReturn();
+                        this.updateColumnWidthStyles(
+                            viewport,
+                            view_cache.row_headers_length,
+                        );
+
+                        await style_callback(
+                            last_cells[this._row_headers_length],
+                        );
+
+                        this.autosize_cells(
+                            last_cells,
+                            this._column_sizes.row_height,
+                        );
+
                         return;
                     }
                 }
@@ -700,22 +738,41 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 // Check if viewport filled
                 if (this._isViewportFilled(view_state, container_width)) {
                     this._cleanupAfterDraw(cont_body, _virtual_x);
-                    yield last_cells;
+                    this.updateColumnWidthStyles(
+                        viewport,
+                        view_cache.row_headers_length,
+                    );
+
+                    await style_callback(last_cells[this._row_headers_length]);
 
                     // Recalculate after style listeners
                     view_state.viewport_width = 0;
-                    for (const [td] of last_cells) {
-                        view_state.viewport_width += td.offsetWidth;
+                    this.autosize_cells(
+                        last_cells,
+                        this._column_sizes.row_height,
+                    );
+
+                    for (let i = 0; i < last_cells.length; i++) {
+                        view_state.viewport_width +=
+                            this._column_sizes.indices[Math.floor(x0) + i] || 0;
                     }
 
                     if (this._isViewportFilled(view_state, container_width)) {
+                        this._carriageReturn();
                         return;
                     }
                 }
             }
 
             this._cleanupAfterDraw(cont_body, _virtual_x);
-            yield last_cells;
+            this._carriageReturn();
+            this.updateColumnWidthStyles(
+                viewport,
+                view_cache.row_headers_length,
+            );
+
+            await style_callback(last_cells[this._row_headers_length]);
+            this.autosize_cells(last_cells, this._column_sizes.row_height);
         } finally {
             this._cleanupAfterDraw(cont_body, _virtual_x);
         }

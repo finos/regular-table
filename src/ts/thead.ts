@@ -197,6 +197,8 @@ export class RegularHeaderViewModel extends ViewModel {
                     metadata.row_header_x = Array.isArray(size_key)
                         ? size_key[0]
                         : size_key;
+                } else {
+                    delete metadata.row_header_x;
                 }
             }
         }

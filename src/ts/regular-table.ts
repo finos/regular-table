@@ -184,23 +184,6 @@ export class RegularTableElement extends RegularViewEventModel {
     }
 
     /**
-     * When called within the execution scope of a function registered to this
-     * `<regular-table>` as a `StyleListener`, invalidate this draw's
-     * dimensions and attempt to draw more columns.  Useful if your
-     * `StyleListener` changes a cells dimensions, otherwise `<regular-table>`
-     * may not draw enough columns to fill the screen.
-     */
-    invalidate(): void {
-        if (!this._is_styling) {
-            throw new Error(
-                "Cannot call `invalidate()` outside of a `StyleListener`",
-            );
-        }
-        /**  */
-        this._invalidated = true;
-    }
-
-    /**
      * Returns the `MetaData` object associated with a `<td>` or `<th>`.  When
      * your `StyleListener` is invoked, use this method to look up additional
      * `MetaData` about any `HTMLTableCellElement` in the rendered `<table>`.
