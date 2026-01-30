@@ -314,6 +314,9 @@ abstract class RegularTableViewModelBase {
     ): void {
         this.body.clean({ ridx: cont_body?.ridx || 0, cidx: _virtual_x });
         this.header.clean();
+    }
+
+    protected _carriageReturn() {
         this.body._span_factory.reset();
         this.header._span_factory.reset();
     }
@@ -645,7 +648,13 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
 
                     if (!view_response.data[dcidx]) {
                         this._cleanupAfterDraw(cont_body, _virtual_x);
-                        yield last_cells;
+                        this._carriageReturn();
+                        yield undefined;
+                        this.autosize_cells(
+                            last_cells,
+                            this._column_sizes.row_height,
+                        );
+                        
                         return;
                     }
                 }
@@ -700,22 +709,34 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 // Check if viewport filled
                 if (this._isViewportFilled(view_state, container_width)) {
                     this._cleanupAfterDraw(cont_body, _virtual_x);
-                    yield last_cells;
+                    yield undefined;
 
                     // Recalculate after style listeners
                     view_state.viewport_width = 0;
-                    for (const [td] of last_cells) {
-                        view_state.viewport_width += td.offsetWidth;
+                    this.autosize_cells(
+                        last_cells,
+                        this._column_sizes.row_height,
+                    );
+
+                    for (let i = 0; i < last_cells.length; i++) {
+                        view_state.viewport_width +=
+                            this._column_sizes.indices[Math.floor(x0) + i] || 0;
                     }
 
                     if (this._isViewportFilled(view_state, container_width)) {
+                        this._carriageReturn();
                         return;
                     }
                 }
             }
 
             this._cleanupAfterDraw(cont_body, _virtual_x);
-            yield last_cells;
+            this._carriageReturn();
+            yield undefined;
+            this.autosize_cells(
+                last_cells,
+                this._column_sizes.row_height,
+            );
         } finally {
             this._cleanupAfterDraw(cont_body, _virtual_x);
         }

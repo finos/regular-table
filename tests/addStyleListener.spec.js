@@ -271,47 +271,6 @@ test.describe("addStyleListener() and invalidate()", () => {
         });
     });
 
-    test.describe("invalidate()", () => {
-        test("can be called within a style listener", async ({ page }) => {
-            const table = page.locator("regular-table");
-            const result = await table.evaluate(async (el) => {
-                let invalidateCalled = false;
-                el.addStyleListener(() => {
-                    if (!invalidateCalled) {
-                        try {
-                            el.invalidate();
-                            invalidateCalled = true;
-                        } catch (e) {
-                            invalidateCalled = false;
-                        }
-                    }
-                });
-                await el.draw();
-                return invalidateCalled;
-            });
-
-            expect(result).toBe(true);
-        });
-
-        test("throws error when called outside style listener", async ({
-            page,
-        }) => {
-            const table = page.locator("regular-table");
-            const result = await table.evaluate(async (el) => {
-                try {
-                    el.invalidate();
-                    return false;
-                } catch (e) {
-                    return e.message.includes(
-                        "Cannot call `invalidate()` outside of a `StyleListener`",
-                    );
-                }
-            });
-
-            expect(result).toBe(true);
-        });
-    });
-
     test.describe("integration scenarios", () => {
         test("style listener with invalidate applies striped rows", async ({
             page,

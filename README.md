@@ -81,7 +81,6 @@ available.
         - [Hierarchial/Group Headers](#hierarchialgroup-headers)
         - [`async` Data Models](#async-data-models)
     - [`.addStyleListener()` and `getMeta()` Styling](#addstylelistener-and-getmeta-styling)
-        - [`.invalidate()`](#invalidate)
     - [`.addEventListener()` Interaction](#addeventlistener-interaction)
     - [Scrolling](#scrolling)
     - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
@@ -481,28 +480,6 @@ function style_th(th) {
 .zebra-striped {
     background-color: rgba(0, 0, 0, 0.2);
 }
-```
-
-### `.invalidate()`
-
-To prevent DOM renders, `<regular-table>` conserves DOM calls like `offsetWidth`
-to an internal cache. When a `<td>` or `<th>`'s `width` is modified within a
-callback to `.addStyleListener()`, you must indicate to `<regular-table>` that
-its dimensions have changed in order to invalidate this cache, or you may not
-end up with enough rendered columns to fill the screen!
-
-A call to `invalidate()` that does not need new columns only imparts a small
-runtime overhead to re-calculate virtual width per async draw iteration, but
-should be used conservatively if possible. Calling `invalidate()` outside of a
-callback to `.addStyleListener()` will throw an `Error`.
-
-```javascript
-table.addStyleListener(() => {
-    for (const th of table.querySelectorAll("tbody th")) {
-        th.style.maxWidth = "20px";
-    }
-    table.invalidate();
-});
 ```
 
 ## `.addEventListener()` Interaction

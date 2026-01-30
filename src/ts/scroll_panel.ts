@@ -282,29 +282,21 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *
      * @param viewport
      */
-    protected _update_sub_cell_offset(
-        viewport: Viewport,
-        last_cells?: CellTuple[],
-    ): void {
+    protected _update_sub_cell_offset(viewport: Viewport): void {
         const y_offset =
             (this._column_sizes.row_height || 20) * (viewport.start_row % 1) ||
             0;
-
-        if (
-            (this.table_model._row_headers_length || 0) +
-                Math.floor(viewport.start_col) >=
-            this._column_sizes.indices.length
-        ) {
-            return;
-        }
 
         const x_offset_index =
             (this.table_model._row_headers_length || 0) +
             Math.floor(viewport.start_col);
 
+        if (x_offset_index >= this._column_sizes.indices.length) {
+            return;
+        }
+
         const x_offset =
-            (this._column_sizes.indices[x_offset_index] ||
-                (last_cells?.[0]?.[0]?.offsetWidth ?? 0)) *
+            (this._column_sizes.indices[x_offset_index] || 0) *
                 (viewport.start_col % 1) || 0;
 
         this._sub_cell_rule.style.setProperty(CLIP_X, `${x_offset}px`);
@@ -549,7 +541,6 @@ async function internal_draw(
     const { invalid_row, invalid_column } = this._validate_viewport(viewport);
     const invalid_schema_or_column = this._invalid_schema || invalid_column;
     if (invalid_schema_or_column || invalid_row || invalid_viewport) {
-        let autosize_cells: CellTuple[] = [];
         let first_iteration = true;
         for await (let last_cells of this.table_model.draw(
             this._container_size,
@@ -559,10 +550,6 @@ async function internal_draw(
             viewport,
             safe_num_columns,
         )) {
-            if (last_cells !== undefined) {
-                autosize_cells.push(...last_cells);
-            }
-
             this.table_model.updateColumnWidthStyles(
                 viewport,
                 this._view_cache.row_headers_length,
@@ -572,25 +559,16 @@ async function internal_draw(
             // is no scroll jitter, but only on the first iteration as
             // subsequent viewports are incorrect.
             if (first_iteration) {
-                this._update_sub_cell_offset(viewport, autosize_cells);
+                this._update_sub_cell_offset(viewport);
                 first_iteration = false;
             }
 
-            this._is_styling = true;
             for (const callback of this._style_callbacks) {
                 await callback({ detail: this as RegularTableElement });
             }
-
-            this._is_styling = false;
-            if (!this._invalidated && last_cells !== undefined) {
-                break;
-            }
-
-            this._invalidated = false;
         }
 
         const old_height = this._column_sizes.row_height;
-        this.table_model.autosize_cells(autosize_cells, row_height);
         this.table_model.header.reset_header_cache();
         if (old_height !== this._column_sizes.row_height) {
             this._update_virtual_panel_height(safe_num_rows);

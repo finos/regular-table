@@ -95,6 +95,7 @@ test.describe("getMeta()", () => {
                         el.getMeta(document.querySelector("td")),
                     );
                 });
+
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 10", "Column 16"],
                     row_header: ["Group 0", "Row 0"],
