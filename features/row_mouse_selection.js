@@ -174,16 +174,14 @@ const createRowRangeSelection = (table, rowSelection, dl) => {
             rowSelection.y1,
             lastSelection.y1,
         );
+
         const y1 = Math.max(
             rowSelection.y0,
             lastSelection.y0,
             rowSelection.y1,
             lastSelection.y1,
         );
-        const row_header_x = Math.min(
-            rowSelection.row_header_x,
-            lastSelection.row_header_x,
-        );
+
         rowSelection.y0 = y0;
         rowSelection.y1 = y1;
     }

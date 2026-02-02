@@ -90,11 +90,14 @@ test.describe("getMeta()", () => {
 
             test("for {x: 0, y: 0}", async ({ page }) => {
                 const table = page.locator("regular-table");
-                const meta = await table.evaluate((el) => {
+                const meta = await table.evaluate(async (el) => {
+                    await el.draw();
+                    await el.draw();
                     return JSON.stringify(
                         el.getMeta(document.querySelector("td")),
                     );
                 });
+
                 expect(JSON.parse(meta)).toEqual({
                     column_header: ["Group 10", "Column 16"],
                     row_header: ["Group 0", "Row 0"],
@@ -105,7 +108,7 @@ test.describe("getMeta()", () => {
                     value: "16",
                     x: 16,
                     x0: 16,
-                    x1: 22,
+                    x1: 24,
                     y: 0,
                     y0: 0,
                     y1: 8,

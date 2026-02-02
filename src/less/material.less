@@ -56,32 +56,7 @@ regular-table {
         max-width: 0px;
     }
 
-    thead tr:last-child .rt-float,
-    tbody .rt-float {
-        text-align: right;
-    }
-
-    thead .rt-integer,
-    tbody .rt-integer {
-        text-align: right;
-    }
-
     tbody th {
-        text-align: left;
-    }
-
-    span.rt-tree-container {
-        display: flex;
-        align-items: center;
-        height: 100%;
-    }
-
-    thead .rt-string,
-    tbody .rt-string,
-    thead .rt-date,
-    tbody .rt-date,
-    thead .rt-datetime,
-    tbody .rt-datetime {
         text-align: left;
     }
 
@@ -93,13 +68,6 @@ regular-table {
 
     th {
         position: relative;
-    }
-
-    tr th span.rt-tree-group {
-        margin-left: 5px;
-        margin-right: 15px;
-        border-left: 1px solid #eee;
-        height: 100%;
     }
 
     td,
@@ -133,63 +101,9 @@ regular-table {
         outline: none;
     }
 
-    span.rt-row-header-icon {
-        color: #aaa;
-        padding-right: 4px;
-        font-family: "Material Icons";
-    }
-
-    span.rt-column-header-icon {
-        font-size: 10px;
-        padding-left: 3px;
-        display: inline-block;
-        width: 10px;
-        font-family: "Material Icons";
-    }
-
-    span.rt-row-header-icon:hover {
-        color: #1a7da1;
-        text-shadow: 0px 0px 3px #1a7da1;
-    }
-
-    .rt-selected td {
-        background-color: #eee;
-    }
-
     .rt-cell-clip {
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-
-    // OPTIONAL zebra striping
-
-    // @zebra-stripe-color: rgb(238,238,238);
-
-    // tbody tr:nth-child(even) td:not(.rt-group-header) {
-    //     background: @zebra-stripe-color;
-    // }
-
-    // tbody tr:nth-child(even) span.rt-group-name {
-    //     background: @zebra-stripe-color;
-    // }
-
-    td span.rt-group-name,
-    th span.rt-group-name {
-        margin-right: -5px;
-        padding-right: 5px;
-        padding-left: 8px;
-        flex: 1;
-        height: 100%;
-    }
-
-    th span.rt-group-name {
-        text-align: left;
-    }
-
-    td th span.rt-group-leaf,
-    th span.rt-group-leaf {
-        margin-left: 16px;
-        height: 100%;
     }
 
     .rt-column-resize {

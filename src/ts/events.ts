@@ -56,7 +56,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      */
     async _on_scroll(event: Event) {
         event.stopPropagation();
-        await this.draw({ invalid_viewport: false });
+        await this.draw({ invalid_viewport: false, cache: true });
         this.dispatchEvent(new CustomEvent<undefined>("regular-table-scroll"));
     }
 
@@ -224,7 +224,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 }
             }
 
-            await this.draw();
+            await this.draw({ cache: true });
         }
     }
 
@@ -316,7 +316,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 this._column_sizes.indices[size_key || 0] !== override_width;
             this._column_sizes.indices[size_key || 0] = override_width;
             if (should_redraw) {
-                this.draw();
+                this.draw({ cache: true });
             }
         };
 
@@ -349,7 +349,11 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         // If the column is smaller, new columns may need to be fetched, so
         // redraw, else just update the DOM widths and clipping classes.
         if (diff < 0) {
-            await this.draw({ preserve_width: true, throttle: false });
+            await this.draw({
+                preserve_width: true,
+                throttle: false,
+                cache: true,
+            });
         } else {
             // Update column width styles via adoptedStyleSheets
             this.table_model.updateColumnWidthStyles(

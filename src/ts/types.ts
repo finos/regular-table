@@ -260,6 +260,7 @@ export interface DrawOptions {
     invalid_viewport?: boolean;
     preserve_width?: boolean;
     throttle?: boolean;
+    cache?: boolean;
 }
 
 /**
