@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.7.4](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.8.0](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.4...HEAD)
+
+**Breaking changes:**
+
+- Deprecate `invalidate()` by reordering column auto-size [\#254](https://github.com/finos/regular-table/pull/254) ([texodus](https://github.com/texodus))
+
+## [v0.7.4](https://github.com/finos/regular-table/tree/v0.7.4) (2026-01-29)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.3...v0.7.4)
 
 **Fixed bugs:**
 
