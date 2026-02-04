@@ -9,8 +9,11 @@
 // ┃  *  [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). *  ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-import { METADATA_MAP } from "./constants";
-import { CellMetadata, ColumnSizes } from "./types";
+import { CellMetadata, CellMetadataBuilder, ColumnSizes } from "./types";
+
+// Singleton `WeakMap`s to store metadata for td/th elements, as well as the
+// datagrids themselves for each `<perspective-viewer>`
+export const METADATA_MAP: WeakMap<HTMLElement, CellMetadata> = new WeakMap();
 
 /******************************************************************************
  *
@@ -79,15 +82,17 @@ export class ViewModel {
 
     _get_or_create_metadata(
         td: HTMLTableCellElement | undefined,
-    ): CellMetadata {
+    ): CellMetadataBuilder {
         if (!td) {
-            return { value: undefined };
+            return { value: undefined } as CellMetadataBuilder;
         }
+
         let metadata = METADATA_MAP.get(td);
         if (!metadata) {
-            metadata = { value: undefined };
+            metadata = { value: undefined } as CellMetadata;
             METADATA_MAP.set(td, metadata);
         }
+
         return metadata;
     }
 

@@ -91,23 +91,98 @@ export type DataListener = (
  * header.
  */
 
-export interface CellMetadata {
-    column_header?: CellScalar[];
-    row_header?: CellScalar[];
+export interface CellMetadataBuilder {
+    type: "row_header" | "column_header" | "corner" | "body";
+    column_header: CellScalar[];
+    row_header: CellScalar[];
     value: unknown;
-    size_key?: number;
-    x?: number;
+    size_key: number;
+    virtual_x: number;
     column_header_y?: number;
-    x0?: number;
-    virtual_x?: number;
     row_header_x?: number;
+    x0: number;
+    y0: number;
+    y1: number;
+    x1: number;
+    x?: number;
     y?: number;
-    y0?: number;
-    y1?: number;
-    x1?: number;
     user?: unknown;
     dx?: number;
     dy?: number;
+}
+
+export type CellMetadata =
+    | CellMetadataRowHeader
+    | CellMetadataColumnHeader
+    | CellMetadataBody
+    | CellMetadataCorner;
+
+export interface CellMetadataRowHeader {
+    type: "row_header";
+    column_header: CellScalar[];
+    row_header: CellScalar[];
+    value: unknown;
+    size_key: number;
+    virtual_x: number;
+    row_header_x: number;
+    x0: number;
+    y0: number;
+    y1: number;
+    x1: number;
+    y: number;
+    user?: unknown;
+}
+
+export interface CellMetadataColumnHeader {
+    type: "column_header";
+    column_header: CellScalar[];
+    row_header: CellScalar[];
+    value: unknown;
+    size_key: number;
+    virtual_x: number;
+    column_header_y: number;
+    x0: number;
+    y0: number;
+    y1: number;
+    x1: number;
+    x: number;
+    user?: unknown;
+}
+
+export interface CellMetadataCorner {
+    type: "corner";
+    column_header: CellScalar[];
+    row_header: CellScalar[];
+    value: unknown;
+    size_key: number;
+    virtual_x: number;
+    row_header_x: number;
+    column_header_y: number;
+    x0: number;
+    y0: number;
+    y1: number;
+    x1: number;
+    x: number;
+    y: number;
+    user?: unknown;
+}
+
+export interface CellMetadataBody {
+    type: "body";
+    column_header: CellScalar[];
+    row_header: CellScalar[];
+    value: unknown;
+    size_key: number;
+    virtual_x: number;
+    x0: number;
+    y0: number;
+    y1: number;
+    x1: number;
+    x: number;
+    y: number;
+    user?: unknown;
+    dx: number;
+    dy: number;
 }
 
 /**

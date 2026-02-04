@@ -9,10 +9,10 @@
 // ┃  *  [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). *  ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-import { METADATA_MAP } from "./constants";
 import { RegularVirtualTableViewModel } from "./scroll_panel";
 import { throttle_tag } from "./utils";
 import { CellMetadata } from "./types";
+import { METADATA_MAP } from "./view_model";
 
 /**
  * When enabled, override iOS overscroll behavior by emulating scroll position
@@ -180,7 +180,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         }
 
         const metadata = METADATA_MAP.get(element);
-        if (is_resize) {
+        if (is_resize && metadata) {
             event.stopImmediatePropagation();
 
             // Clear column size data
@@ -215,7 +215,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 : this.table_model.body.cells) {
                 for (const td of event.shiftKey
                     ? row
-                    : [row[metadata._virtual_x]]) {
+                    : [row[metadata.virtual_x!]]) {
                     if (!td) {
                         continue;
                     }
@@ -250,7 +250,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         }
 
         const metadata = METADATA_MAP.get(element);
-        if (is_resize) {
+        if (is_resize && metadata) {
             this._on_resize_column(
                 event,
                 element as HTMLTableCellElement,

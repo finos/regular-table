@@ -257,9 +257,10 @@ abstract class RegularTableViewModelBase {
         x0: number,
     ): Promise<FetchResult> {
         let missing_cidx = Math.max(dcidx + Math.floor(x0), 0);
-        viewport.start_col = missing_cidx;
+        const new_viewport = structuredClone(viewport);
+        new_viewport.start_col = missing_cidx;
         this._calculateViewportExtension(
-            viewport,
+            new_viewport,
             view_state,
             container_width,
             num_columns,
@@ -268,10 +269,10 @@ abstract class RegularTableViewModelBase {
         );
 
         const new_col = await view(
-            Math.floor(viewport.start_col),
-            Math.floor(viewport.start_row),
-            Math.ceil(viewport.end_col),
-            Math.ceil(viewport.end_row),
+            Math.floor(new_viewport.start_col),
+            Math.floor(new_viewport.start_row),
+            Math.ceil(new_viewport.end_col),
+            Math.ceil(new_viewport.end_row),
         );
 
         let column_header_merge_depth: number | undefined;
@@ -289,7 +290,7 @@ abstract class RegularTableViewModelBase {
             return { column_header_merge_depth, merge_headers };
         }
 
-        viewport.end_col = viewport.start_col + new_col.data.length;
+        viewport.end_col = new_viewport.start_col + new_col.data.length;
         for (let i = 0; i < new_col.data.length; i++) {
             view_response.data[dcidx + i] = new_col.data[i];
             if (new_col.metadata && view_response.metadata) {
@@ -413,10 +414,6 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 }
             }
         }
-    }
-
-    clearWidthStyles() {
-        this._columnWidthStyleSheet?.replaceSync("");
     }
 
     /**

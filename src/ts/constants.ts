@@ -9,10 +9,6 @@
 // ┃  *  [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). *  ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-// Singleton `WeakMap`s to store metadata for td/th elements, as well as the
-// datagrids themselves for each `<perspective-viewer>`
-export const METADATA_MAP = new WeakMap();
-
 // Output runtime debug info like FPS.
 export const DEBUG = true;
 

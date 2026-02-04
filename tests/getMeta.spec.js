@@ -26,6 +26,7 @@ test.describe("getMeta()", () => {
             });
 
             expect(JSON.parse(meta)).toEqual({
+                type: "body",
                 column_header: ["Group 0", "Column 0"],
                 row_header: ["Group 0", "Row 0"],
                 dx: 0,
@@ -49,7 +50,9 @@ test.describe("getMeta()", () => {
                     el.getMeta(document.querySelector("tbody th")),
                 );
             });
+
             expect(JSON.parse(meta)).toEqual({
+                type: "row_header",
                 row_header: ["Group 0", "Row 0"],
                 size_key: 0,
                 virtual_x: 0,
@@ -69,6 +72,7 @@ test.describe("getMeta()", () => {
                 );
             });
             expect(JSON.parse(meta)).toEqual({
+                type: "column_header",
                 column_header: ["Group 0", "Column 0"],
                 size_key: 3,
                 virtual_x: 2,
@@ -99,6 +103,7 @@ test.describe("getMeta()", () => {
                 });
 
                 expect(JSON.parse(meta)).toEqual({
+                    type: "body",
                     column_header: ["Group 10", "Column 16"],
                     row_header: ["Group 0", "Row 0"],
                     dx: 0,
@@ -123,6 +128,7 @@ test.describe("getMeta()", () => {
                     );
                 });
                 expect(JSON.parse(meta)).toEqual({
+                    type: "row_header",
                     row_header: ["Group 0", "Row 0"],
                     size_key: 0,
                     virtual_x: 0,
@@ -197,6 +203,7 @@ test.describe("getMeta()", () => {
                     );
                 });
                 expect(JSON.parse(meta)).toEqual({
+                    type: "row_header",
                     row_header: ["Group 50", "Row 52"],
                     size_key: 0,
                     virtual_x: 0,
@@ -217,7 +224,9 @@ test.describe("getMeta()", () => {
                         ),
                     );
                 });
+
                 expect(JSON.parse(meta)).toEqual({
+                    type: "column_header",
                     column_header: ["Group 0", "Column 0"],
                     size_key: 4,
                     virtual_x: 2,
