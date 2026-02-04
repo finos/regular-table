@@ -12,6 +12,7 @@
 import {
     BodyDrawResult,
     CellMetadata,
+    CellMetadataBuilder,
     CellScalar,
     ColumnState,
     ViewState,
@@ -32,7 +33,7 @@ export class RegularBodyViewModel extends ViewModel {
         { column_name }: ColumnState,
         { ridx_offset }: ViewState,
         size_key: number,
-    ): { td: HTMLTableCellElement; metadata: CellMetadata } {
+    ): { td: HTMLTableCellElement; metadata: CellMetadataBuilder } {
         const td = this._get_cell(tagName, ridx, cidx);
         const metadata = this._get_or_create_metadata(td);
         metadata.y = ridx + Math.floor(ridx_offset);
@@ -83,7 +84,7 @@ export class RegularBodyViewModel extends ViewModel {
             column_data_listener_metadata,
         } = column_state;
         let { row_height } = view_state;
-        let metadata: CellMetadata | undefined;
+        let metadata: CellMetadataBuilder | undefined;
         const ridx_offset: number[] = [];
         const tds: Array<{ td: HTMLTableCellElement; metadata: CellMetadata }> =
             [];
@@ -103,7 +104,10 @@ export class RegularBodyViewModel extends ViewModel {
 
             for (const val of column_data) {
                 let obj:
-                    | { td: HTMLTableCellElement; metadata: CellMetadata }
+                    | {
+                          td: HTMLTableCellElement;
+                          metadata: CellMetadataBuilder;
+                      }
                     | undefined;
                 if (th) {
                     const valArray = val as CellScalar[];
@@ -113,6 +117,7 @@ export class RegularBodyViewModel extends ViewModel {
                         ridx - ridx_off_i,
                         cidx_i,
                     );
+
                     const prev_row_metadata =
                         this._get_or_create_metadata(prev_row);
 
@@ -153,11 +158,13 @@ export class RegularBodyViewModel extends ViewModel {
                             view_state,
                             i,
                         );
+
                         const td = obj.td;
                         const meta = obj.metadata;
                         td.style.display = "";
                         td.removeAttribute("rowspan");
                         td.removeAttribute("colspan");
+                        meta.type = "row_header";
                         meta.row_header = valArray;
                         meta.row_header_x = i;
                         meta.y0 = y0_floor;
@@ -168,7 +175,10 @@ export class RegularBodyViewModel extends ViewModel {
                         }
                         ridx_offset[i] = 1;
                         cidx_offset[ridx] = 1;
-                        tds[i] = obj;
+                        tds[i] = obj as {
+                            td: HTMLTableCellElement;
+                            metadata: CellMetadata;
+                        };
                     }
                 } else {
                     obj = this._draw_td(
@@ -185,7 +195,8 @@ export class RegularBodyViewModel extends ViewModel {
                         meta.user = column_data_listener_metadata[ridx];
                     }
 
-                    meta.x = x_floor;
+                    meta.type = "body";
+                    meta.x = x_floor || 0;
                     meta.x1 = x1_ceil;
                     meta.row_header = row_headers?.[ridx] || [];
                     meta.y0 = y0_floor;
@@ -197,7 +208,10 @@ export class RegularBodyViewModel extends ViewModel {
                         meta.x0 = x0_floor;
                     }
 
-                    tds[0] = obj;
+                    tds[0] = obj as {
+                        td: HTMLTableCellElement;
+                        metadata: CellMetadata;
+                    };
                 }
 
                 ridx++;

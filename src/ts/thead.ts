@@ -15,6 +15,9 @@ import {
     ColumnSizes,
     CellMetadata,
     CellScalar,
+    CellMetadataRowHeader,
+    CellMetadataColumnHeader,
+    CellMetadataBuilder,
 } from "./types";
 
 /**
@@ -25,7 +28,11 @@ import {
  * @class RegularHeaderViewModel
  */
 export class RegularHeaderViewModel extends ViewModel {
-    private _group_header_cache: [CellMetadata, HTMLTableCellElement, number][];
+    private _group_header_cache: [
+        CellMetadataBuilder,
+        HTMLTableCellElement,
+        number,
+    ][];
     private _offset_cache: number[];
 
     constructor(
@@ -65,7 +72,7 @@ export class RegularHeaderViewModel extends ViewModel {
         column: CellScalar[],
         column_name: unknown,
         th: HTMLTableCellElement,
-    ): CellMetadata {
+    ): CellMetadataBuilder {
         const metadata = this._get_or_create_metadata(th);
         metadata.column_header = column;
         metadata.value = column_name;
@@ -77,7 +84,7 @@ export class RegularHeaderViewModel extends ViewModel {
         column_name: unknown,
         th: HTMLTableCellElement,
         size_key: number | number[],
-    ): CellMetadata {
+    ): CellMetadataBuilder {
         const metadata = this._get_or_create_metadata(th);
         metadata.column_header = column;
         metadata.value = column_name;
@@ -123,7 +130,7 @@ export class RegularHeaderViewModel extends ViewModel {
         }
 
         let th: HTMLTableCellElement | undefined;
-        let metadata: CellMetadata | undefined;
+        let metadata: CellMetadataBuilder | undefined;
         let column_name: unknown;
         let output: HeaderDrawResult | undefined = undefined;
         column_header_merge_depth =
@@ -172,7 +179,10 @@ export class RegularHeaderViewModel extends ViewModel {
                 );
 
                 if (typeof output === "undefined") {
-                    output = { th, metadata };
+                    output = { th, metadata } as {
+                        th: HTMLTableCellElement;
+                        metadata: CellMetadata;
+                    };
                 }
 
                 for (const [group_meta] of this._group_header_cache) {
@@ -194,17 +204,24 @@ export class RegularHeaderViewModel extends ViewModel {
                 metadata.x0 = Math.floor(x0);
                 metadata.virtual_x = _virtual_x;
                 if (colspan === 1) {
+                    metadata.type = "corner";
                     metadata.row_header_x = Array.isArray(size_key)
                         ? size_key[0]
                         : size_key;
                 } else {
+                    metadata.type = "column_header";
                     delete metadata.row_header_x;
                 }
             }
         }
 
         this._clean_rows(this._offset_cache.length);
-        output = output || { th: th!, metadata: metadata! };
+        output =
+            output ||
+            ({ th: th!, metadata: metadata! } as {
+                th: HTMLTableCellElement;
+                metadata: CellMetadata;
+            });
         return output;
     }
 

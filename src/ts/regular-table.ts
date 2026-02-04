@@ -9,11 +9,16 @@
 // ┃  *  [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). *  ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-import { METADATA_MAP } from "./constants";
 import { RegularViewEventModel } from "./events";
 import { RegularTableViewModel } from "./table";
-import { DataListener, SetDataListenerOptions } from "./types";
+import {
+    CellMetadata,
+    DataListener,
+    FPSRecord,
+    SetDataListenerOptions,
+} from "./types";
 import { get_draw_fps } from "./utils";
+import { METADATA_MAP } from "./view_model";
 
 type VirtualMode = "both" | "horizontal" | "vertical" | "none";
 
@@ -53,26 +58,6 @@ export class RegularTableElement extends RegularViewEventModel {
                 this,
             );
         }
-    }
-
-    /**
-     * Reset the viewport of this regular table.
-     */
-    private _reset_viewport(): void {
-        this._start_row = undefined;
-        this._end_row = undefined;
-        this._start_col = undefined;
-        this._end_col = undefined;
-    }
-
-    /**
-     * Reset the scroll position of this regular table back to the origin.
-     */
-    private _reset_scroll(): void {
-        this._column_sizes.indices = [];
-        this.scrollTop = 0;
-        this.scrollLeft = 0;
-        this._reset_viewport();
     }
 
     /**
@@ -202,30 +187,38 @@ export class RegularTableElement extends RegularViewEventModel {
      * coordinates-like object to refer to metadata by logical position.
      * @returns {MetaData} The metadata associated with the element.
      */
-    getMeta(element: HTMLElement | any): any {
-        if (typeof element === "undefined") {
+    getMeta(element?: HTMLElement | CellMetadata): CellMetadata | undefined {
+        if (element === undefined) {
             return;
         } else if (element instanceof HTMLElement) {
             return METADATA_MAP.get(element);
-        } else if (element.row_header_x >= 0) {
-            if (element.row_header_x < this._view_cache.row_headers_length) {
+        } else if (
+            "row_header_x" in element &&
+            element.row_header_x &&
+            element.row_header_x >= 0
+        ) {
+            if (element.row_header_x! < this._view_cache.row_headers_length) {
                 const td = this.table_model.body._fetch_cell(
-                    element.y,
-                    element.row_header_x,
+                    element.y!,
+                    element.row_header_x!,
                 );
                 return this.getMeta(td);
             }
-        } else if (element.column_header_y >= 0) {
+        } else if (
+            "column_header_y" in element &&
+            element.column_header_y! >= 0
+        ) {
             if (
-                element.column_header_y < this._view_cache.column_headers_length
+                element.column_header_y! <
+                this._view_cache.column_headers_length
             ) {
-                const td = this.table_model.body._fetch_cell(
-                    element.column_header_y,
-                    element.y,
+                const td = this.table_model.header._fetch_cell(
+                    element.column_header_y!,
+                    element.x!,
                 );
                 return this.getMeta(td);
             }
-        } else {
+        } else if ("dx" in element) {
             return this.getMeta(
                 this.table_model.body._fetch_cell(
                     element.dy,
@@ -253,13 +246,7 @@ export class RegularTableElement extends RegularViewEventModel {
      * @returns {Performance} Performance data aggregated since the last
      * call to `getDrawFPS()`.
      */
-    getDrawFPS(): {
-        avg: number;
-        real_fps: number;
-        virtual_fps: number;
-        num_frames: number;
-        elapsed: number;
-    } {
+    getDrawFPS(): FPSRecord {
         return get_draw_fps();
     }
 
@@ -361,4 +348,28 @@ export class RegularTableElement extends RegularViewEventModel {
 
 if (document.createElement("regular-table").constructor === HTMLElement) {
     window.customElements.define("regular-table", RegularTableElement);
+}
+
+// Custom Elements extensions
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            "regular-table": RegularTableElement;
+        }
+    }
+}
+
+declare global {
+    interface Document {
+        createElement(
+            tagName: "regular-table",
+            options?: ElementCreationOptions,
+        ): RegularTableElement;
+        querySelector<E extends Element = Element>(selectors: string): E | null;
+        querySelector(selectors: "regular-table"): RegularTableElement | null;
+    }
+
+    interface CustomElementRegistry {
+        get(tagName: "regular-table"): typeof RegularTableElement;
+    }
 }
