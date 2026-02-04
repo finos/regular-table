@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.8.0](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.8.1](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.4...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.0...HEAD)
+
+**Implemented enhancements:**
+
+- Better TypeScript support for `CellMetadata` [\#255](https://github.com/finos/regular-table/pull/255) ([texodus](https://github.com/texodus))
+
+## [v0.8.0](https://github.com/finos/regular-table/tree/v0.8.0) (2026-02-02)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.7.4...v0.8.0)
 
 **Breaking changes:**
 
