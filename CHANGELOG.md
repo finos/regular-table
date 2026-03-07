@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.8.2](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.8.3](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.1...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.2...HEAD)
+
+**Fixed bugs:**
+
+- Fix row header column resize [\#259](https://github.com/finos/regular-table/pull/259) ([texodus](https://github.com/texodus))
+
+## [v0.8.2](https://github.com/finos/regular-table/tree/v0.8.2) (2026-03-02)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.1...v0.8.2)
 
 **Implemented enhancements:**
 
