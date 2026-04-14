@@ -95,6 +95,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     protected _is_styling?: boolean;
     protected table_model!: RegularTableViewModel;
     protected _style_callbacks!: Array<StyleCallback>;
+    private _probe_element?: [HTMLElement, HTMLElement];
 
     /**
      * Draws this virtual panel, given an object of render options that allow
@@ -121,6 +122,30 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      */
     async flush(): Promise<void> {
         await flush_tag(this);
+    }
+
+    /**
+     * Probe the shadow DOM to measure the default row height from CSS.
+     */
+    protected _probe_row_height() {
+        if (!this._probe_element) {
+            this._probe_element = [
+                document.createElement("table"),
+                document.createElement("td"),
+            ];
+            this._probe_element[0].style.visibility = "hidden";
+            this._probe_element[0].style.position = "absolute";
+            const tbody = document.createElement("tbody");
+            const tr = document.createElement("tr");
+            this._probe_element[1].textContent = "X";
+            tr.appendChild(this._probe_element[1]);
+            tbody.appendChild(tr);
+            this._probe_element[0].appendChild(tbody);
+        }
+
+        this.appendChild(this._probe_element[0]);
+        this._column_sizes.row_height = this._probe_element[1].offsetHeight;
+        this._probe_element[0].remove();
     }
 
     /**
@@ -243,11 +268,13 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 for (const w of this._column_sizes.indices) {
                     totalWidth += w || 0;
                 }
+
                 this._virtual_panel.style.width =
                     totalWidth.toPrecision(10) + "px";
             } else {
                 const virtual_width =
                     this._calc_scrollable_column_width(num_columns);
+
                 if (virtual_width !== 0) {
                     const panel_width =
                         this._container_size.width + virtual_width + 2;
@@ -266,7 +293,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      */
     protected _update_virtual_panel_height(nrows: number): void {
-        const { row_height = 19 } = this._column_sizes;
+        const { row_height = 0 } = this._column_sizes;
         const header_height =
             this._view_cache.column_headers_length * row_height;
         let virtual_panel_px_size;
@@ -287,7 +314,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         last_cell?: CellTuple,
     ): void {
         const y_offset =
-            (this._column_sizes.row_height || 20) * (viewport.start_row % 1) ||
+            (this._column_sizes.row_height || 0) * (viewport.start_row % 1) ||
             0;
 
         const x_offset_index =
@@ -379,7 +406,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         end_row: number;
     } {
         const { height, containerHeight } = this._container_size;
-        const row_height = this._column_sizes.row_height || 19;
+        const row_height = this._column_sizes.row_height || 0;
         const header_levels = this._view_cache.column_headers_length;
         const total_scroll_height = Math.max(
             1,
@@ -521,6 +548,10 @@ async function internal_draw(
     } = await this.table_model._getDimState(this._view_cache);
 
     this._column_sizes.row_height = row_height || this._column_sizes.row_height;
+    if (!this._column_sizes.row_height) {
+        this._probe_row_height();
+    }
+
     if (num_row_headers !== undefined) {
         this._view_cache.row_headers_length = num_row_headers;
     }
