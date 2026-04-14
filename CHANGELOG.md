@@ -1,8 +1,16 @@
 # Changelog
 
+## [v0.8.4](https://github.com/finos/regular-table/tree/HEAD)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.3...HEAD)
+
+**Implemented enhancements:**
+
+- Pre render row height [\#264](https://github.com/finos/regular-table/pull/264) ([texodus](https://github.com/texodus))
+
 ## [v0.8.3](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.2...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.3...HEAD)
 
 **Fixed bugs:**
 
