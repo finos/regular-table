@@ -20,9 +20,16 @@ import {
 import { get_draw_fps } from "./utils";
 import { METADATA_MAP } from "./view_model";
 
-type VirtualMode = "both" | "horizontal" | "vertical" | "none";
+export type VirtualMode = "both" | "horizontal" | "vertical" | "none";
 
 const VIRTUAL_MODES: VirtualMode[] = ["both", "horizontal", "vertical", "none"];
+
+export type ResetAutoSizeOptions = {
+    auto: boolean;
+    override: boolean;
+    indices: boolean;
+    row_height: boolean;
+};
 
 /**
  * The `<regular-table>` custom element.
@@ -64,10 +71,22 @@ export class RegularTableElement extends RegularViewEventModel {
      * Reset column autosizing, such that column sizes will be recalculated
      * on the next draw() call.
      */
-    resetAutoSize() {
-        this._column_sizes.auto = [];
-        this._column_sizes.override = {};
-        this._column_sizes.indices = [];
+    resetAutoSize(options?: ResetAutoSizeOptions) {
+        if (!options || options.auto) {
+            this._column_sizes.auto = [];
+        }
+
+        if (!options || options.override) {
+            this._column_sizes.override = {};
+        }
+
+        if (!options || options.indices) {
+            this._column_sizes.indices = [];
+        }
+
+        if (!options || options.row_height) {
+            this._column_sizes.row_height = undefined;
+        }
     }
 
     /**
@@ -271,7 +290,7 @@ export class RegularTableElement extends RegularViewEventModel {
             return;
         }
 
-        const viewport_row_height = this._column_sizes.row_height || 19;
+        const viewport_row_height = this._column_sizes.row_height || 0;
         this.scrollTop = Math.ceil(viewport_row_height * y);
         let scroll_left = 0;
         while (x > 0) {
