@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-<a href="https://community.finos.org/docs/governance/lifecycle-stages/graduated"><img alt="FINOS - Graduated" src="https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-graduated.svg"></a>
 <a href="https://github.com/texodus/regular-layout/actions"><img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/texodus/regular-layout/build.yaml?event=push&style=flat-square"></a>
 <a href="https://www.npmjs.com/package/regular-table"><img alt="NPM Version" src="https://img.shields.io/npm/v/regular-table.svg?color=brightgreen&style=flat-square"></a>
 <a href="https://bundlephobia.com/package/regular-table"><img alt="Bundlephobia (Minified)" src="https://img.shields.io/bundlephobia/min/regular-table?style=flat-square"></a>
+<a href="https://community.finos.org/docs/governance/lifecycle-stages/graduated"><img alt="FINOS - Graduated" src="https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-graduated.svg"></a>
 </p>
 
 #
