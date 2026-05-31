@@ -68,9 +68,10 @@ Pivot Tables, File Trees, or anytime you need:
 ## Documentation
 
 What follows functions as a quick-start guide, and will explain the basics of
-the Virtual Data Models, Styling and Interaction APIs. Complete
-[API docs](https://github.com/finos/regular-table/blob/master/api.md) and
-documented
+the Virtual Data Models, Styling and Interaction APIs. The public API is
+documented inline in the TypeScript source for
+[`<regular-table>`](src/ts/regular-table.ts) and the
+[virtual data model types](src/ts/types.ts), and documented
 [examples](https://github.com/finos/regular-table/tree/master/examples) are also
 available.
 
@@ -87,7 +88,8 @@ available.
     - [Pivots, Filters, Sorts, and Column Expressions with `perspective`](#pivots-filters-sorts-and-column-expressions-with-perspective)
     - [Development](#development)
 
-- [API Docs](https://github.com/finos/regular-table/blob/master/api.md)
+- [API Reference](src/ts/regular-table.ts)
+- [Data Model Types](src/ts/types.ts)
 
 - Annotated Examples
     - [2d_array.md](examples/2d_array/2d_array.js)
