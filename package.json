@@ -44,7 +44,7 @@
         "typedoc": "^0.27.0",
         "@prospective.co/procss": "^0.1.16",
         "@types/react": "^17.0.0",
-        "esbuild": "^0.25.0",
+        "esbuild": "^0.28.1",
         "glob": "^10",
         "http-server": "^0.12.3",
         "npm-run-all": "^4.1.3",
