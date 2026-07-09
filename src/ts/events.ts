@@ -56,6 +56,17 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      */
     async _on_scroll(event: Event) {
         event.stopPropagation();
+        if (this._scroll_pending) {
+            return;
+        }
+
+        this._scroll_pending = true;
+        try {
+            await new Promise(requestAnimationFrame);
+        } finally {
+            this._scroll_pending = false;
+        }
+
         await this.draw({ invalid_viewport: false, cache: true });
         this.dispatchEvent(new CustomEvent<undefined>("regular-table-scroll"));
     }
@@ -221,6 +232,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                     }
 
                     td.classList.remove("rt-cell-clip");
+                    this.table_model.body._untagColumn(td);
                 }
             }
 
@@ -372,11 +384,17 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             // Update header clipping class
             th.classList.toggle("rt-cell-clip", should_clip);
 
-            // Update body cell clipping classes
+            // Update body cell clipping classes. Clipped cells must carry the
+            // column tag so the override's `max-width` clamp reaches them.
             for (const row of this.table_model.body.cells) {
                 const td = row[virtual_x];
                 if (td) {
                     td.classList.toggle("rt-cell-clip", should_clip);
+                    if (should_clip) {
+                        this.table_model.body._tagColumn(td, size_key);
+                    } else {
+                        this.table_model.body._untagColumn(td);
+                    }
                 }
             }
         }

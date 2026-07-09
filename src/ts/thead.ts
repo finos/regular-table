@@ -74,6 +74,9 @@ export class RegularHeaderViewModel extends ViewModel {
         th: HTMLTableCellElement,
     ): CellMetadataBuilder {
         const metadata = this._get_or_create_metadata(th);
+        // Group (non-`rt-autosize`) header cells span columns and must not carry
+        // a per-column width tag (they are neutralized with `max-width:0`).
+        this._untagColumn(th);
         metadata.column_header = column;
         metadata.value = column_name;
         return metadata;
@@ -90,6 +93,7 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.value = column_name;
         metadata.size_key = Array.isArray(size_key) ? size_key[0] : size_key;
         if (!Array.isArray(size_key) || size_key.length <= 1) {
+            this._tagColumn(th, metadata.size_key || 0);
             const override_width =
                 this._column_sizes.override[metadata.size_key || 0];
             const auto_width =
@@ -104,6 +108,9 @@ export class RegularHeaderViewModel extends ViewModel {
             } else {
                 th.classList.remove("rt-cell-clip");
             }
+        } else {
+            // A leaf header spanning multiple columns has no single width.
+            this._untagColumn(th);
         }
 
         return metadata;

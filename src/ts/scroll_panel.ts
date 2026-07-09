@@ -14,7 +14,6 @@ import { DEBUG, BROWSER_MAX_HEIGHT } from "./constants";
 import type { RegularTableViewModel } from "./table";
 import { RegularTableElement } from "./regular-table";
 import {
-    CellTuple,
     ColumnSizes,
     StyleCallback,
     ContainerSize,
@@ -95,6 +94,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     protected _is_styling?: boolean;
     protected table_model!: RegularTableViewModel;
     protected _style_callbacks!: Array<StyleCallback>;
+    protected _scroll_pending?: boolean;
     private _probe_element?: [HTMLElement, HTMLElement];
 
     /**
@@ -121,7 +121,11 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * Await any pending rendering operations.
      */
     async flush(): Promise<void> {
-        await flush_tag(this);
+        // A scroll-driven draw may still be waiting on its animation frame
+        // (see `_on_scroll`); keep flushing until none is pending.
+        do {
+            await flush_tag(this);
+        } while (this._scroll_pending);
     }
 
     /**
@@ -309,10 +313,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *
      * @param viewport
      */
-    protected _update_sub_cell_offset(
-        viewport: Viewport,
-        last_cell?: CellTuple,
-    ): void {
+    protected _update_sub_cell_offset(viewport: Viewport): void {
         const y_offset =
             (this._column_sizes.row_height || 0) * (viewport.start_row % 1) ||
             0;
@@ -321,13 +322,9 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             (this.table_model._row_headers_length || 0) +
             Math.floor(viewport.start_col);
 
-        if (this._column_sizes.indices[x_offset_index] === undefined) {
-            this._column_sizes.indices[x_offset_index] =
-                last_cell?.[0]?.offsetWidth || 0;
-        }
-
         const x_offset =
-            this._column_sizes.indices[x_offset_index]! *
+            (this._column_sizes.indices[x_offset_index] ??
+                this.table_model._estimated_column_width()) *
                 (viewport.start_col % 1) || 0;
 
         this._sub_cell_rule.style.setProperty(CLIP_X, `${x_offset}px`);
@@ -592,12 +589,12 @@ async function internal_draw(
             preserve_width,
             viewport,
             safe_num_columns,
-            async (last_cells) => {
+            async () => {
                 // We want to perform this before the next event loop so there
                 // is no scroll jitter, but only on the first iteration as
                 // subsequent viewports are incorrect.
                 if (first_iteration) {
-                    this._update_sub_cell_offset(viewport, last_cells);
+                    this._update_sub_cell_offset(viewport);
                     first_iteration = false;
                 }
 
@@ -606,6 +603,10 @@ async function internal_draw(
                 }
             },
         );
+
+        // Re-apply with post-measurement widths, in case the first
+        // application used an estimate for a never-measured leading column.
+        this._update_sub_cell_offset(viewport);
 
         const old_height = this._column_sizes.row_height;
         this.table_model.header.reset_header_cache();

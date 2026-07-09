@@ -42,7 +42,11 @@ export class RegularBodyViewModel extends ViewModel {
             metadata.column_header = column_name;
         }
 
-        // Handle clipping class for overridden columns
+        // Handle clipping class for overridden columns. A body cell carries
+        // its column tag only while clipped by an override — the `max-width`
+        // clamp must reach it. Unclipped cells need no width rule (the header
+        // cell's `min-width` floors the column), so leaving them untagged
+        // keeps the width rules' matched set to one cell per column.
         const override_width = this._column_sizes.override[key];
         if (override_width) {
             const auto_width = this._column_sizes.auto[key] || 0;
@@ -50,8 +54,15 @@ export class RegularBodyViewModel extends ViewModel {
             if (td.classList.contains("rt-cell-clip") !== clip) {
                 td.classList.toggle("rt-cell-clip", clip);
             }
+
+            if (clip) {
+                this._tagColumn(td, key);
+            } else {
+                this._untagColumn(td);
+            }
         } else {
             td.classList.remove("rt-cell-clip");
+            this._untagColumn(td);
         }
 
         if (metadata.value !== val) {

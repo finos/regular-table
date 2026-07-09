@@ -74,6 +74,27 @@ abstract class RegularTableViewModelBase {
     }
 
     /**
+     * Estimate the width of a never-measured column from the average of all
+     * measured columns, falling back to the same 60px guess used by the
+     * scroll-range math. Used in place of mid-loop `offsetWidth` reads (which
+     * force a synchronous layout per unvisited column); the viewport-filled
+     * check re-validates against real measurements after the single batched
+     * read pass in `autosize_cells`.
+     */
+    _estimated_column_width(): number {
+        let total = 0,
+            count = 0;
+        for (const w of this._column_sizes.indices) {
+            if (w) {
+                total += w;
+                count++;
+            }
+        }
+
+        return count ? total / count : 60;
+    }
+
+    /**
      * Draws row headers and returns updated state.
      */
     protected _drawRowHeaders(
@@ -331,10 +352,14 @@ abstract class RegularTableViewModelBase {
  *
  * @class RegularTableViewModel
  */
+let _instance_counter = 0;
+
 export class RegularTableViewModel extends RegularTableViewModelBase {
     public table: HTMLTableElement;
     private _columnWidthStyleSheet?: CSSStyleSheet;
-    private _lastColumnWidthCss?: string;
+    private _columnWidthRules: Map<number, CSSStyleRule> = new Map();
+    private _columnWidthCache: Map<number, string> = new Map();
+    private _scope_class: string;
     private _lastDataResponse?: DataResponse;
     private _lastViewport?: Viewport;
 
@@ -351,6 +376,13 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             table.children as HTMLCollectionOf<HTMLTableSectionElement>;
 
         this.table = table;
+
+        // Instance-scoped class placed on the `<table>` so that this instance's
+        // generated column-width rules (`.rt-scope-N .rt-col-K`) only match this
+        // instance's cells, even when several `<regular-table>`s share a root.
+        this._scope_class = `rt-scope-${_instance_counter++}`;
+        this.table.classList.add(this._scope_class);
+
         this.header = new RegularHeaderViewModel(
             column_sizes,
             table_clip,
@@ -420,9 +452,13 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
     }
 
     /**
-     * Updates column width styles for all columns using adoptedStyleSheets.
-     * Generates CSS rules with :nth-child selectors for both auto-sized and
-     * overridden column widths, applying them all in a single stylesheet update.
+     * Updates the generated column-width rules for the currently-visible
+     * columns. Each column `size_key` owns exactly one `CSSStyleRule` keyed by a
+     * stable `.rt-col-{size_key}` class (applied to cells by `_tagColumn`), so
+     * widths are position-independent — no `:nth-of-type` bookkeeping, no
+     * colspan/rowspan index gymnastics — and are updated surgically (a single
+     * `rule.style` mutation for the changed column) instead of by re-serializing
+     * the whole sheet.
      *
      * This method should be called whenever column sizes change, including:
      * - After autosize_cells() measurements
@@ -433,110 +469,135 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         viewport: Viewport,
         row_headers_length: number,
     ): void {
-        const cssRules: string[] = [];
+        if (!this._ensureColumnWidthSheet()) {
+            return;
+        }
 
+        // Row-header columns are keyed `0..row_headers_length-1`; data columns
+        // continue from there offset by the horizontal scroll position. These
+        // are exactly the `metadata.size_key` values carried by the cells.
         let row_headers_size_key;
         for (
             row_headers_size_key = 0;
             row_headers_size_key < row_headers_length;
             row_headers_size_key++
         ) {
-            const override_width =
-                this._column_sizes.override[row_headers_size_key];
-            const auto_width = this._column_sizes.auto[row_headers_size_key];
-            if (override_width !== undefined) {
-                // Override width takes precedence
-                // CSS :nth-child is 1-indexed
-                const columnIndex = row_headers_size_key + 1; // - Math.floor(viewport.start_col);
-
-                // Work backwards to handle colspan/rowspan missing elements in
-                // `row_headers`.
-                cssRules.push(
-                    `thead tr.rt-autosize th:nth-of-type(${columnIndex}),`,
-                    `tbody th.rt-cell-clip:nth-last-of-type(${row_headers_length - row_headers_size_key})`,
-                    `{min-width:${override_width}px;max-width:${override_width}px;}`,
-                );
-            } else if (auto_width !== undefined) {
-                // Auto width applies when no override
-                const columnIndex = row_headers_size_key + 1; // - Math.floor(viewport.start_col);
-                cssRules.push(
-                    `thead tr.rt-autosize th:nth-of-type(${columnIndex}),`,
-                    `tbody th.rt-cell-clip:nth-last-of-type(${row_headers_length - row_headers_size_key})`,
-                    `{min-width:${auto_width}px;}`,
-                );
-            }
+            this._updateColumnRule(row_headers_size_key);
         }
 
+        const start_col = Math.floor(viewport.start_col);
         for (
             let size_key = row_headers_size_key;
             size_key <
-            row_headers_size_key +
-                (Math.floor(viewport.end_col) - Math.floor(viewport.start_col));
+            row_headers_size_key + (Math.floor(viewport.end_col) - start_col);
             size_key++
         ) {
-            const override_width =
-                this._column_sizes.override[
-                    size_key + Math.floor(viewport.start_col)
-                ];
-            const auto_width =
-                this._column_sizes.auto[
-                    size_key + Math.floor(viewport.start_col)
-                ];
-
-            if (override_width !== undefined) {
-                // Override width takes precedence
-                // CSS :nth-child is 1-indexed
-                const columnIndex = size_key + 1; //  Math.floor(viewport.start_col);
-                cssRules.push(
-                    `thead tr.rt-autosize th:nth-of-type(${columnIndex}),`,
-                    `tbody td.rt-cell-clip:nth-of-type(${columnIndex - row_headers_size_key})`,
-                    `{min-width:${override_width}px;max-width:${override_width}px;}`,
-                );
-            } else if (auto_width !== undefined) {
-                // Auto width applies when no override
-                const columnIndex = size_key + 1; // Math.floor(viewport.start_col);
-                cssRules.push(
-                    `thead tr.rt-autosize th:nth-of-type(${columnIndex}),`,
-                    `tbody td.rt-cell-clip:nth-of-type(${columnIndex - row_headers_size_key})`,
-                    `{min-width:${auto_width}px;}`,
-                );
-            }
-        }
-
-        // Apply all rules via single stylesheet update
-        if (cssRules.length > 0) {
-            this._applyColumnWidthStyles(cssRules.join("\n"));
-        } else if (this._columnWidthStyleSheet) {
-            this._columnWidthStyleSheet.replaceSync("");
+            this._updateColumnRule(size_key + start_col);
         }
     }
 
     /**
-     * Applies column width styles using adoptedStyleSheets.
-     * Creates or updates a dedicated stylesheet for column widths.
-     * Caches the CSS string to avoid redundant replaceSync calls.
+     * Apply the effective width for a single column `size_key` to its rule.
+     * Override wins and clamps (min+max); auto is a grow-to-content floor
+     * (min only); neither present clears the rule.
      */
-    private _applyColumnWidthStyles(css: string): void {
-        if (css === this._lastColumnWidthCss) {
-            return;
+    private _updateColumnRule(size_key: number): void {
+        const override_width = this._column_sizes.override[size_key];
+        const auto_width = this._column_sizes.auto[size_key];
+        if (override_width !== undefined) {
+            this._setColumnRule(size_key, override_width, override_width);
+        } else if (auto_width !== undefined) {
+            this._setColumnRule(size_key, auto_width, undefined);
+        } else {
+            this._clearColumnRule(size_key);
+        }
+    }
+
+    /**
+     * Lazily create — and re-adopt after a root change — the single stylesheet
+     * holding this instance's per-column width rules. The sheet is adopted on
+     * the cells' root node (the `<table>` is slotted into the light DOM, so a
+     * sheet on `<regular-table>`'s own shadow root could not reach the cells);
+     * instance-scoping via `_scope_class` keeps sibling tables from colliding.
+     * Returns `undefined` when the root does not support `adoptedStyleSheets`.
+     */
+    private _ensureColumnWidthSheet(): CSSStyleSheet | undefined {
+        const root = this.table.getRootNode() as {
+            adoptedStyleSheets?: CSSStyleSheet[];
+        };
+        if (!root || !root.adoptedStyleSheets) {
+            return undefined;
         }
 
-        const shadowRoot = this.table.getRootNode() as ShadowRoot;
-        if (!shadowRoot || !shadowRoot.adoptedStyleSheets) {
-            return;
-        }
-
-        // Find or create the column width stylesheet
         if (!this._columnWidthStyleSheet) {
             this._columnWidthStyleSheet = new CSSStyleSheet();
-            shadowRoot.adoptedStyleSheets = [
-                ...shadowRoot.adoptedStyleSheets,
+        }
+
+        if (!root.adoptedStyleSheets.includes(this._columnWidthStyleSheet)) {
+            root.adoptedStyleSheets = [
+                ...root.adoptedStyleSheets,
                 this._columnWidthStyleSheet,
             ];
         }
 
-        this._columnWidthStyleSheet.replaceSync(css);
-        this._lastColumnWidthCss = css;
+        return this._columnWidthStyleSheet;
+    }
+
+    private _getOrCreateColumnRule(size_key: number): CSSStyleRule | undefined {
+        let rule = this._columnWidthRules.get(size_key);
+        if (rule) {
+            return rule;
+        }
+
+        const sheet = this._columnWidthStyleSheet;
+        if (!sheet) {
+            return undefined;
+        }
+
+        const index = sheet.cssRules.length;
+        sheet.insertRule(`.${this._scope_class} .rt-col-${size_key}{}`, index);
+        rule = sheet.cssRules[index] as CSSStyleRule;
+        this._columnWidthRules.set(size_key, rule);
+        return rule;
+    }
+
+    private _setColumnRule(
+        size_key: number,
+        min: number,
+        max: number | undefined,
+    ): void {
+        const cache_value = max === undefined ? `${min}` : `${min}|${max}`;
+        if (this._columnWidthCache.get(size_key) === cache_value) {
+            return;
+        }
+
+        const rule = this._getOrCreateColumnRule(size_key);
+        if (!rule) {
+            return;
+        }
+
+        rule.style.minWidth = `${min}px`;
+        if (max === undefined) {
+            rule.style.removeProperty("max-width");
+        } else {
+            rule.style.maxWidth = `${max}px`;
+        }
+
+        this._columnWidthCache.set(size_key, cache_value);
+    }
+
+    private _clearColumnRule(size_key: number): void {
+        if (this._columnWidthCache.get(size_key) === "") {
+            return;
+        }
+
+        const rule = this._columnWidthRules.get(size_key);
+        if (rule) {
+            rule.style.removeProperty("min-width");
+            rule.style.removeProperty("max-width");
+        }
+
+        this._columnWidthCache.set(size_key, "");
     }
 
     async _getDimState(view_cache: ViewCache): Promise<DataResponse> {
@@ -636,8 +697,10 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         // Draw data columns
         try {
             let dcidx = 0;
+            let unmeasured_col_width = 0;
             const num_visible_columns = num_columns - viewport.start_col;
 
+            const warm = this._column_sizes.indices.some(Boolean);
             while (dcidx < num_visible_columns) {
                 // Fetch missing columns if needed
                 if (!view_response.data[dcidx]) {
@@ -718,16 +781,25 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                     }
                 }
 
-                // Update dimensions
+                // Update dimensions. The first never-measured column drawn in
+                // a pass is read once and its width reused for subsequent
+                // unmeasured columns, rather than forcing a synchronous layout
+                // per new column. The viewport-filled check below re-validates
+                // against real measurements after a batched read pass, so a
+                // width difference among new columns cannot under-fill.
                 let col_width =
                     this._column_sizes.indices[_virtual_x + Math.floor(x0)] ||
-                    cont_head?.th?.offsetWidth;
+                    (warm ? unmeasured_col_width : 0);
 
                 if (!col_width) {
-                    col_width = 0;
-                    for (const { td } of cont_body.tds) {
-                        col_width += td?.offsetWidth || 0;
+                    col_width = cont_head?.th?.offsetWidth || 0;
+                    if (!col_width) {
+                        for (const { td } of cont_body.tds) {
+                            col_width += td?.offsetWidth || 0;
+                        }
                     }
+
+                    unmeasured_col_width = col_width;
                 }
 
                 view_state.viewport_width += col_width;
@@ -747,12 +819,24 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
 
                     await style_callback(last_cells[this._row_headers_length]);
 
+                    // `preserve_width` draws skip measurement, so the
+                    // estimate-based filled check above is final; a follow-up
+                    // draw (e.g. on resize mouseup) re-measures.
+                    if (preserve_width) {
+                        this._carriageReturn();
+                        return;
+                    }
+
                     // Recalculate after style listeners
                     view_state.viewport_width = 0;
                     this.autosize_cells(
                         last_cells,
                         this._column_sizes.row_height,
                     );
+
+                    // Newly-visited columns are now measured; force a fresh
+                    // read if a later pass draws further unmeasured columns.
+                    unmeasured_col_width = 0;
 
                     for (let i = 0; i < last_cells.length; i++) {
                         view_state.viewport_width +=

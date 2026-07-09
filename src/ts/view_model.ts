@@ -15,6 +15,12 @@ import { CellMetadata, CellMetadataBuilder, ColumnSizes } from "./types";
 // datagrids themselves for each `<perspective-viewer>`
 export const METADATA_MAP: WeakMap<HTMLElement, CellMetadata> = new WeakMap();
 
+// Tracks the `size_key` currently encoded in a cell's `rt-col-{size_key}`
+// class, so `_tagColumn` can cheaply detect when a pooled cell changes columns
+// without a DOM read. Module-level so `thead`/`tbody` models and the event
+// model share one tracker.
+const COLUMN_TAG_MAP: WeakMap<Element, number> = new WeakMap();
+
 /******************************************************************************
  *
  * View Model
@@ -78,6 +84,45 @@ export class ViewModel {
 
     _set_metadata(td: HTMLTableCellElement, metadata: CellMetadata): void {
         METADATA_MAP.set(td, metadata);
+    }
+
+    /**
+     * Tag a cell with a stable, position-independent `rt-col-{size_key}` class
+     * identifying its logical column, so generated width rules can target it
+     * without `:nth-of-type`. Only rewrites the class when the cell actually
+     * changes columns (horizontal scroll), so vertical scroll adds no churn.
+     *
+     * Body cells are tagged only when their column's width must reach them (an
+     * override clamp on clipped cells) — header cells alone carry the auto
+     * `min-width` floor, keeping the rule-matched element set small.
+     */
+    _tagColumn(cell: HTMLTableCellElement, size_key: number): void {
+        const prev = COLUMN_TAG_MAP.get(cell);
+        if (prev === size_key) {
+            return;
+        }
+
+        if (prev !== undefined) {
+            cell.classList.remove(`rt-col-${prev}`);
+        }
+
+        cell.classList.add(`rt-col-${size_key}`);
+        COLUMN_TAG_MAP.set(cell, size_key);
+    }
+
+    /**
+     * Remove a cell's `rt-col-{size_key}` column tag — used when a pooled cell
+     * is (re)drawn as a merged group header (spans columns, must not carry a
+     * width) or as a body cell that no longer needs its column's clamp.
+     */
+    _untagColumn(cell: HTMLTableCellElement): void {
+        const prev = COLUMN_TAG_MAP.get(cell);
+        if (prev === undefined) {
+            return;
+        }
+
+        cell.classList.remove(`rt-col-${prev}`);
+        COLUMN_TAG_MAP.delete(cell);
     }
 
     _get_or_create_metadata(
