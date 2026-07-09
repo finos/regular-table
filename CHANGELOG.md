@@ -1,16 +1,29 @@
 # Changelog
 
-## [v0.8.4](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.8.5](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.4...HEAD)
+
+**Implemented enhancements:**
+
+- Instance column size CSS and general stylesheet optimization [\#275](https://github.com/finos/regular-table/pull/275) ([texodus](https://github.com/texodus))
+
+**Merged pull requests:**
+
+- Add MAINTAINERS.md file [\#269](https://github.com/finos/regular-table/pull/269) ([TheJuanAndOnly99](https://github.com/TheJuanAndOnly99))
+- Update README.md with FINOS Graduated badge [\#268](https://github.com/finos/regular-table/pull/268) ([TheJuanAndOnly99](https://github.com/TheJuanAndOnly99))
+
+## [v0.8.4](https://github.com/finos/regular-table/tree/v0.8.4) (2026-04-14)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.3...v0.8.4)
 
 **Implemented enhancements:**
 
 - Pre render row height [\#264](https://github.com/finos/regular-table/pull/264) ([texodus](https://github.com/texodus))
 
-## [v0.8.3](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.8.3](https://github.com/finos/regular-table/tree/v0.8.3) (2026-03-07)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.3...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.2...v0.8.3)
 
 **Fixed bugs:**
 

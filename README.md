@@ -68,9 +68,7 @@ Pivot Tables, File Trees, or anytime you need:
 ## Documentation
 
 What follows functions as a quick-start guide, and will explain the basics of
-the Virtual Data Models, Styling and Interaction APIs. Complete
-[API docs](https://github.com/finos/regular-table/blob/master/api.md) and
-documented
+the Virtual Data Models, Styling and Interaction APIs. Documented
 [examples](https://github.com/finos/regular-table/tree/master/examples) are also
 available.
 
