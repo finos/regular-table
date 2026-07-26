@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.8.5](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.8.6](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.4...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.5...HEAD)
+
+**Implemented enhancements:**
+
+- Add `predraw` API for flawless async layout [\#278](https://github.com/finos/regular-table/pull/278) ([texodus](https://github.com/texodus))
+
+## [v0.8.5](https://github.com/finos/regular-table/tree/v0.8.5) (2026-07-09)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.4...v0.8.5)
 
 **Implemented enhancements:**
 
