@@ -620,11 +620,8 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         preserve_width: boolean,
         viewport: Viewport,
         num_columns: number,
-        style_callback: (last_cells: CellTuple) => Promise<undefined>,
+        style_callback: () => Promise<undefined>,
     ): Promise<undefined> {
-        const { width: container_width, height: container_height } =
-            container_size;
-
         // Fetch and prepare initial data
         const view_response = (this._lastDataResponse = await view_cache.view(
             Math.floor(viewport.start_col),
@@ -632,6 +629,103 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             Math.ceil(viewport.end_col),
             Math.ceil(viewport.end_row),
         ));
+
+        const render_pass = this._render_pass(
+            container_size,
+            view_cache,
+            selected_id,
+            preserve_width,
+            viewport,
+            num_columns,
+            view_response,
+        );
+
+        try {
+            let step = render_pass.next();
+            while (!step.done) {
+                await style_callback();
+                step = render_pass.next(
+                    step.value === "style"
+                        ? undefined
+                        : await step.value.fetch(),
+                );
+            }
+        } finally {
+            render_pass.return(false);
+        }
+    }
+
+    /**
+     * Synchronous variant of `draw()`, used by the commit closure returned
+     * from `predraw()`. The data slab must be fully pre-fetched: `fetch`
+     * effects yielded by the render pass are not executed (so the pass
+     * finishes on its data-exhausted path when the slab runs dry), and
+     * `style_callback` is invoked without being awaited.
+     *
+     * @returns `false` if `view_response` was exhausted before the viewport
+     * was filled (e.g. the data set changed shape between plan and commit, or
+     * a style listener shrank columns below their measured widths), in which
+     * case the caller should schedule a corrective `draw()`; `true` otherwise.
+     */
+    draw_sync(
+        container_size: { width: number; height: number },
+        view_cache: ViewCache,
+        selected_id: number | undefined,
+        preserve_width: boolean,
+        viewport: Viewport,
+        num_columns: number,
+        view_response: DataResponse,
+        style_callback: () => void,
+    ): boolean {
+        this._lastDataResponse = view_response;
+        const render_pass = this._render_pass(
+            container_size,
+            view_cache,
+            selected_id,
+            preserve_width,
+            viewport,
+            num_columns,
+            view_response,
+        );
+
+        let step = render_pass.next();
+        while (!step.done) {
+            if (step.value === "style") {
+                style_callback();
+            }
+
+            step = render_pass.next();
+        }
+
+        return step.value;
+    }
+
+    /**
+     * The single render pass shared by `draw()` (which awaits each yielded
+     * effect) and `draw_sync()` (which runs it to completion synchronously
+     * against a pre-fetched slab). Yields `"style"` where style listeners
+     * must be invoked, and `{ fetch }` thunks where additional column data
+     * is required; a driver which cannot fetch resumes with `undefined` and
+     * the pass finishes on its data-exhausted path.
+     *
+     * @returns `true` if the viewport was filled or the data set exhausted,
+     * `false` if the pass ran out of data before the viewport was filled.
+     */
+    private *_render_pass(
+        container_size: { width: number; height: number },
+        view_cache: ViewCache,
+        selected_id: number | undefined,
+        preserve_width: boolean,
+        viewport: Viewport,
+        num_columns: number,
+        view_response: DataResponse,
+    ): Generator<
+        "style" | { fetch: () => Promise<FetchResult> },
+        boolean,
+        FetchResult | undefined
+    > {
+        const { width: container_width, height: container_height } =
+            container_size;
 
         let { column_header_merge_depth, merge_headers = "both" } =
             view_response;
@@ -710,25 +804,27 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                         view_cache.row_headers_length,
                     );
 
-                    await style_callback(last_cells[this._row_headers_length]);
-                    const fetch_result = await this._fetchMissingColumns(
-                        viewport,
-                        view,
-                        view_response,
-                        dcidx,
-                        view_state,
-                        container_width,
-                        num_columns,
-                        _virtual_x,
-                        x0,
-                    );
+                    const fetch_result = yield {
+                        fetch: () =>
+                            this._fetchMissingColumns(
+                                viewport,
+                                view,
+                                view_response,
+                                dcidx,
+                                view_state,
+                                container_width,
+                                num_columns,
+                                _virtual_x,
+                                x0,
+                            ),
+                    };
 
-                    if (fetch_result.column_header_merge_depth !== undefined) {
+                    if (fetch_result?.column_header_merge_depth !== undefined) {
                         column_header_merge_depth =
                             fetch_result.column_header_merge_depth;
                     }
 
-                    if (fetch_result.merge_headers !== undefined) {
+                    if (fetch_result?.merge_headers !== undefined) {
                         merge_headers = fetch_result.merge_headers;
                     }
 
@@ -740,16 +836,16 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                             view_cache.row_headers_length,
                         );
 
-                        await style_callback(
-                            last_cells[this._row_headers_length],
-                        );
-
+                        yield "style";
                         this.autosize_cells(
                             last_cells,
                             this._column_sizes.row_height,
                         );
 
-                        return;
+                        return this._isViewportFilled(
+                            view_state,
+                            container_width,
+                        );
                     }
                 }
 
@@ -817,14 +913,14 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                         view_cache.row_headers_length,
                     );
 
-                    await style_callback(last_cells[this._row_headers_length]);
+                    yield "style";
 
                     // `preserve_width` draws skip measurement, so the
                     // estimate-based filled check above is final; a follow-up
                     // draw (e.g. on resize mouseup) re-measures.
                     if (preserve_width) {
                         this._carriageReturn();
-                        return;
+                        return true;
                     }
 
                     // Recalculate after style listeners
@@ -845,7 +941,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
 
                     if (this._isViewportFilled(view_state, container_width)) {
                         this._carriageReturn();
-                        return;
+                        return true;
                     }
                 }
             }
@@ -857,8 +953,9 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 view_cache.row_headers_length,
             );
 
-            await style_callback(last_cells[this._row_headers_length]);
+            yield "style";
             this.autosize_cells(last_cells, this._column_sizes.row_height);
+            return true;
         } finally {
             this._cleanupAfterDraw(cont_body, _virtual_x);
         }

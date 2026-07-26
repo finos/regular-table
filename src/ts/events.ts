@@ -210,7 +210,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 {
                     start_row: 0,
                     end_row: 0,
-                    ...this._calculate_column_range(0),
+                    ...this._calculate_column_range(0, this.scrollLeft),
                 },
                 this._view_cache.row_headers_length,
             );
@@ -372,7 +372,7 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                 {
                     start_row: 0,
                     end_row: 0,
-                    ...this._calculate_column_range(0),
+                    ...this._calculate_column_range(0, this.scrollLeft),
                 },
                 this._view_cache.row_headers_length,
             );

@@ -22,6 +22,8 @@ import { METADATA_MAP } from "./view_model";
 
 export type VirtualMode = "both" | "horizontal" | "vertical" | "none";
 
+export type { PredrawCommit, PredrawOptions } from "./types";
+
 const VIRTUAL_MODES: VirtualMode[] = ["both", "horizontal", "vertical", "none"];
 
 export type ResetAutoSizeOptions = {
