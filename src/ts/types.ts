@@ -339,6 +339,48 @@ export interface DrawOptions {
 }
 
 /**
+ * Options for the `predraw()` method.
+ *
+ * @property {boolean} [invalid_viewport=true] Assume the viewport contents
+ * have changed, forcing a full render at commit (as `DrawOptions`).
+ * @property {boolean} [preserve_width=false] Skip column auto-sizing (as
+ * `DrawOptions`).
+ * @property {boolean} [cache=false] Reuse the previous `DataResponse` for
+ * dimensions rather than re-requesting (as `DrawOptions`).
+ * @property {number} [scroll_left] Horizontal scroll position to render at,
+ * defaulting to the element's `scrollLeft` when `predraw()` is called.
+ * @property {number} [scroll_top] Vertical scroll position to render at,
+ * defaulting to the element's `scrollTop` when `predraw()` is called.
+ * @property {number} [container_height] The `clientHeight` of the
+ * `<regular-table>` element itself, when it differs from the `height`
+ * argument (the height of the visible scrollable region).
+ */
+export interface PredrawOptions {
+    invalid_viewport?: boolean;
+    preserve_width?: boolean;
+    cache?: boolean;
+    scroll_left?: number;
+    scroll_top?: number;
+    container_height?: number;
+}
+
+/**
+ * The commit closure returned by `predraw()`. Invoking it applies the
+ * prepared render to the DOM synchronously. It returns `false` if the
+ * pre-fetched data did not fill the viewport and a corrective async
+ * `draw()` was scheduled, `true` otherwise; callers which don't care may
+ * treat it as `() => void`.
+ */
+export type PredrawCommit = (() => boolean) & {
+    /**
+     * `true` when the column widths of the target viewport were not yet
+     * known, so `predraw()` fell back to drawing inline (equivalent to
+     * `draw()`) and this closure is a no-op.
+     */
+    inline: boolean;
+};
+
+/**
  * View state containing viewport and rendering information
  */
 export interface ViewState {

@@ -15,9 +15,12 @@ import type { RegularTableViewModel } from "./table";
 import { RegularTableElement } from "./regular-table";
 import {
     ColumnSizes,
+    DataResponse,
     StyleCallback,
     ContainerSize,
     DrawOptions,
+    PredrawCommit,
+    PredrawOptions,
     ViewCache,
     Viewport,
     ViewportValidation,
@@ -37,6 +40,8 @@ const TRANSFORM_X = "--regular-table--transform-x";
 const TRANSFORM_Y = "--regular-table--transform-y";
 
 const HTML_TEMPLATE = `<div class="rt-virtual-panel"></div><div class="rt-scroll-table-clip"><slot></slot></div>`;
+
+const PREDRAW_COLUMN_PAD = 1;
 
 /**
  * Handles the virtual scroll pane, as well as the double buffering
@@ -129,6 +134,369 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     }
 
     /**
+     * Prepare a draw without applying it to the DOM. `predraw()` performs
+     * the asynchronous portion of `draw()` - `DataListener` invocation and
+     * viewport calculation - against the provided viewport dimensions, and
+     * returns a closure which applies the prepared render to the DOM
+     * synchronously, so the visible mutation can be scheduled within a
+     * larger async workflow (e.g. batched with other component updates in a
+     * single animation frame).
+     *
+     * # Examples
+     *
+     * ```javascript
+     * const commit = await table.predraw(table.clientWidth, table.clientHeight);
+     * requestAnimationFrame(() => commit());
+     * ```
+     *
+     * @param {number} width - The width of the scrollable viewport region to
+     * fill. This is the box `draw()` measures as its internal scroll clip's
+     * `clientWidth`: the element's `clientWidth` less any classic scrollbar
+     * gutter (they are identical under overlay scrollbars).
+     * @param {number} height - The height of the scrollable viewport region
+     * to fill (as `width`, the element's `clientHeight` less any classic
+     * scrollbar gutter).
+     * @param {PredrawOptions} [options]
+     * @returns A closure which synchronously applies this render to the DOM.
+     */
+    async predraw(
+        width: number,
+        height: number,
+        options: PredrawOptions = {},
+    ): Promise<PredrawCommit> {
+        const {
+            invalid_viewport = true,
+            preserve_width = false,
+            cache = false,
+            scroll_left = this.scrollLeft,
+            scroll_top = this.scrollTop,
+            container_height = height,
+        } = options;
+
+        const noop = (): PredrawCommit =>
+            Object.assign(() => true, { inline: true });
+
+        const inline = async (): Promise<PredrawCommit> => {
+            await this.draw({ invalid_viewport, preserve_width, cache });
+            return noop();
+        };
+
+        if (!this._view_cache) {
+            console.warn("data listener not configured");
+            return noop();
+        }
+
+        const { num_columns, num_rows } = await this._update_dim_state(cache);
+        if (!this._column_sizes.row_height) {
+            return await inline();
+        }
+
+        const safe_num_rows = num_rows || 0;
+        const safe_num_columns = num_columns || 0;
+        const container_size = this._resolve_container_size(
+            () => width,
+            () => height,
+            () => container_height,
+        );
+
+        this._container_size = container_size;
+        const panel_height = Math.round(
+            this._virtual_panel_height(safe_num_rows),
+        );
+
+        const clamped_scroll_top = Number.isFinite(
+            container_size.containerHeight,
+        )
+            ? Math.min(
+                  scroll_top,
+                  Math.max(0, panel_height - container_size.containerHeight),
+              )
+            : scroll_top;
+
+        let viewport!: Viewport;
+        let view_response: DataResponse | undefined;
+        let should_render = false;
+        let invalid_schema_or_column = false;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const planned_row_headers_length =
+                this._view_cache.row_headers_length;
+
+            const replanned = this._calculate_viewport(
+                safe_num_rows,
+                safe_num_columns,
+                clamped_scroll_top,
+                scroll_left,
+            );
+
+            const end_col = this._plan_column_extent(
+                replanned,
+                safe_num_columns,
+            );
+
+            if (end_col === undefined) {
+                return await inline();
+            }
+
+            replanned.end_col = Math.min(
+                safe_num_columns,
+                end_col + PREDRAW_COLUMN_PAD,
+            );
+
+            if (attempt === 0) {
+                const { invalid_row, invalid_column } =
+                    this._validate_viewport(replanned);
+
+                invalid_schema_or_column = !!(
+                    this._invalid_schema || invalid_column
+                );
+
+                should_render =
+                    invalid_schema_or_column || invalid_row || invalid_viewport;
+            } else if (
+                Math.floor(replanned.start_col) ===
+                    Math.floor(viewport.start_col) &&
+                Math.ceil(replanned.end_col) <= Math.ceil(viewport.end_col)
+            ) {
+                // The already-fetched slab is a superset; keep its extent.
+                replanned.end_col = viewport.end_col;
+                viewport = replanned;
+                break;
+            }
+
+            viewport = replanned;
+            if (!should_render) {
+                break;
+            }
+
+            view_response = await this._view_cache.view(
+                Math.floor(viewport.start_col),
+                Math.floor(viewport.start_row),
+                Math.ceil(viewport.end_col),
+                Math.ceil(viewport.end_row),
+            );
+
+            const actual_row_headers_length =
+                view_response.num_row_headers ??
+                view_response.row_headers?.[0]?.length ??
+                0;
+
+            if (actual_row_headers_length === planned_row_headers_length) {
+                break;
+            }
+
+            this._view_cache.row_headers_length = actual_row_headers_length;
+        }
+
+        const view_cache = this._view_cache;
+        return Object.assign(
+            () => {
+                this._container_size = container_size;
+                this._commit_viewport(viewport);
+                this._update_virtual_panels(
+                    invalid_viewport,
+                    safe_num_rows,
+                    safe_num_columns,
+                    preserve_width,
+                );
+
+                if (!should_render || view_response === undefined) {
+                    this._update_sub_cell_offset(viewport);
+                    return true;
+                }
+
+                let first_iteration = true;
+                const style_callback = () => {
+                    if (first_iteration) {
+                        this._update_sub_cell_offset(viewport);
+                        first_iteration = false;
+                    }
+
+                    for (const callback of this._style_callbacks) {
+                        // Style listeners may be async, but a synchronous commit
+                        // cannot await them; any DOM effects they defer land
+                        // after this commit and are not measured by it.
+                        callback({
+                            detail: this as unknown as RegularTableElement,
+                        });
+                    }
+                };
+
+                const complete = this.table_model.draw_sync(
+                    container_size,
+                    view_cache,
+                    this._selected_id,
+                    preserve_width,
+                    viewport,
+                    safe_num_columns,
+                    view_response,
+                    style_callback,
+                );
+
+                this._post_render(
+                    viewport,
+                    safe_num_rows,
+                    safe_num_columns,
+                    preserve_width,
+                    invalid_schema_or_column,
+                );
+
+                if (view_cache === this._view_cache) {
+                    this._invalid_schema = false;
+                }
+
+                if (!complete) {
+                    this.draw({ invalid_viewport: true });
+                }
+
+                return complete;
+            },
+            { inline: false },
+        );
+    }
+
+    /**
+     * Fetch the data set dimensions and apply them to view state - the
+     * shared head of both `draw()` and `predraw()`.
+     */
+    protected async _update_dim_state(
+        cache: boolean | undefined,
+    ): Promise<DataResponse> {
+        if (!cache) {
+            this.table_model._resetDimState();
+        }
+
+        const dims = await this.table_model._getDimState(this._view_cache);
+        this._column_sizes.row_height =
+            dims.row_height || this._column_sizes.row_height;
+
+        if (dims.num_row_headers !== undefined) {
+            this._view_cache.row_headers_length = dims.num_row_headers;
+        }
+
+        if (dims.num_column_headers !== undefined) {
+            this._view_cache.column_headers_length = dims.num_column_headers;
+        }
+
+        return dims;
+    }
+
+    /**
+     * Mask the viewport dimensions to `Infinity` on axes this table does not
+     * virtualize. Dimensions are supplied as thunks so that a masked axis's
+     * value is never evaluated - `draw()` passes `clientWidth` etc. reads,
+     * which must not force layout for axes that don't need them.
+     */
+    protected _resolve_container_size(
+        width: () => number,
+        height: () => number,
+        containerHeight: () => number,
+    ): ContainerSize {
+        const is_non_vertical =
+            this._virtual_mode === "none" ||
+            this._virtual_mode === "horizontal";
+
+        const is_non_horizontal =
+            this._virtual_mode === "none" || this._virtual_mode === "vertical";
+
+        return {
+            width: is_non_horizontal ? Infinity : width(),
+            height: is_non_vertical ? Infinity : height(),
+            containerHeight: is_non_vertical ? Infinity : containerHeight(),
+        };
+    }
+
+    /**
+     * The virtual panel writes preceding a render.
+     */
+    protected _update_virtual_panels(
+        invalid: boolean,
+        nrows: number,
+        num_columns: number,
+        preserve_width: boolean,
+    ): void {
+        this._update_virtual_panel_height(nrows);
+        if (!preserve_width) {
+            this._update_virtual_panel_width(invalid, num_columns);
+        }
+    }
+
+    /**
+     * The DOM writes following a render - the shared tail of both `draw()`
+     * and `predraw()`'s commit.
+     */
+    protected _post_render(
+        viewport: Viewport,
+        nrows: number,
+        num_columns: number,
+        preserve_width: boolean,
+        invalid: boolean,
+    ): void {
+        this._update_sub_cell_offset(viewport);
+
+        const old_height = this._column_sizes.row_height;
+        this.table_model.header.reset_header_cache();
+        if (old_height !== this._column_sizes.row_height) {
+            this._update_virtual_panel_height(nrows);
+        }
+
+        if (!preserve_width) {
+            this._update_virtual_panel_width(invalid, num_columns);
+        }
+    }
+
+    /**
+     * Attempt to pre-calculate the exact column extent of the viewport from
+     * cached column widths, without rendering. Returns the exclusive
+     * `end_col`, or `undefined` if any column in the candidate extent has
+     * never been measured, in which case the extent cannot be known without
+     * rendering and `predraw()` must fall back to drawing inline.
+     */
+    private _plan_column_extent(
+        viewport: Viewport,
+        num_columns: number,
+    ): number | undefined {
+        if (
+            this._virtual_mode === "none" ||
+            this._virtual_mode === "vertical"
+        ) {
+            return viewport.end_col;
+        }
+
+        const { indices, override } = this._column_sizes;
+        const effective_width = (size_key: number) =>
+            override[size_key] ?? indices[size_key];
+
+        const row_headers_length = this._view_cache.row_headers_length;
+        let width = 0;
+        for (let i = 0; i < row_headers_length; i++) {
+            const w = effective_width(i);
+            if (w === undefined) {
+                return undefined;
+            }
+
+            width += w;
+        }
+
+        const start_col = Math.floor(viewport.start_col);
+        const sub_cell_offset = indices[row_headers_length + start_col] ?? 0;
+        let end_col = start_col;
+        while (
+            end_col < num_columns &&
+            width - sub_cell_offset <= this._container_size.width
+        ) {
+            const w = effective_width(row_headers_length + end_col);
+            if (w === undefined) {
+                return undefined;
+            }
+
+            width += w;
+            end_col++;
+        }
+
+        return end_col;
+    }
+
+    /**
      * Probe the shadow DOM to measure the default row height from CSS.
      */
     protected _probe_row_height() {
@@ -215,10 +583,17 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     protected _calculate_viewport(
         nrows: number,
         num_columns: number,
+        scroll_top: number,
+        scroll_left: number,
     ): Viewport {
-        const { start_row, end_row } = this._calculate_row_range(nrows);
-        const { start_col, end_col } =
-            this._calculate_column_range(num_columns);
+        const { start_row, end_row } = this._calculate_row_range(
+            nrows,
+            scroll_top,
+        );
+        const { start_col, end_col } = this._calculate_column_range(
+            num_columns,
+            scroll_left,
+        );
 
         return { start_col, end_col, start_row, end_row };
     }
@@ -247,11 +622,25 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             this._start_row !== start_row ||
             this._end_row !== end_row ||
             this._end_col !== end_col;
-        this._start_col = start_col;
-        this._end_col = end_col;
-        this._start_row = start_row;
-        this._end_row = end_row;
         return { invalid_column, invalid_row };
+    }
+
+    /**
+     * Records the viewport most recently applied to the DOM, against which
+     * `_validate_viewport` compares. Split from `_validate_viewport` so that
+     * `predraw()` can validate speculatively without recording until its
+     * commit closure actually runs.
+     */
+    protected _commit_viewport({
+        start_col,
+        end_col,
+        start_row,
+        end_row,
+    }: Viewport): void {
+        this._start_col = Math.floor(start_col);
+        this._end_col = Math.ceil(end_col);
+        this._start_row = Math.floor(start_row);
+        this._end_row = Math.ceil(end_row);
     }
 
     /**
@@ -297,15 +686,21 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      */
     protected _update_virtual_panel_height(nrows: number): void {
+        const virtual_panel_px_size = this._virtual_panel_height(nrows);
+        this._virtual_panel.style.height = `${virtual_panel_px_size.toPrecision(10)}px`;
+    }
+
+    /**
+     * The px height `_update_virtual_panel_height` sets (or will set) on the
+     * virtual panel. Computing this directly rather than reading
+     * `_virtual_panel.offsetHeight` back avoids a forced layout in the draw
+     * path, and lets `predraw()` calculate row ranges without any DOM reads.
+     */
+    protected _virtual_panel_height(nrows: number): number {
         const { row_height = 0 } = this._column_sizes;
         const header_height =
             this._view_cache.column_headers_length * row_height;
-        let virtual_panel_px_size;
-        virtual_panel_px_size = Math.min(
-            BROWSER_MAX_HEIGHT,
-            nrows * row_height + header_height,
-        );
-        this._virtual_panel.style.height = `${virtual_panel_px_size.toPrecision(10)}px`;
+        return Math.min(BROWSER_MAX_HEIGHT, nrows * row_height + header_height);
     }
 
     /**
@@ -340,7 +735,10 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      *
      * @returns
      */
-    protected _calculate_column_range(num_columns: number): {
+    protected _calculate_column_range(
+        num_columns: number,
+        scroll_left: number,
+    ): {
         start_col: number;
         end_col: number;
     } {
@@ -350,7 +748,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         ) {
             return { start_col: 0, end_col: Infinity };
         } else {
-            const start_col = this._calc_start_column();
+            const start_col = this._calc_start_column(scroll_left);
             const vis_cols =
                 this.table_model.num_columns() ||
                 Math.min(
@@ -398,20 +796,21 @@ export class RegularVirtualTableViewModel extends HTMLElement {
      * @param {*} nrows
      * @returns
      */
-    private _calculate_row_range(nrows: number): {
+    private _calculate_row_range(
+        nrows: number,
+        scroll_top: number,
+    ): {
         start_row: number;
         end_row: number;
     } {
         const { height, containerHeight } = this._container_size;
         const row_height = this._column_sizes.row_height || 0;
         const header_levels = this._view_cache.column_headers_length;
-        const total_scroll_height = Math.max(
-            1,
-            this._virtual_panel.offsetHeight - containerHeight,
-        );
+        const panel_height = Math.round(this._virtual_panel_height(nrows));
+        const total_scroll_height = Math.max(1, panel_height - containerHeight);
 
         const percent_scroll =
-            Math.max(Math.ceil(this.scrollTop), 0) / total_scroll_height;
+            Math.max(Math.ceil(scroll_top), 0) / total_scroll_height;
 
         const clip_panel_row_height = height / row_height - header_levels;
         const relative_nrows = nrows || 0;
@@ -427,15 +826,15 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         return { start_row, end_row };
     }
 
-    private _calc_start_column(): number {
+    private _calc_start_column(scroll_left: number): number {
         const scroll_index_offset = this._view_cache.row_headers_length;
         let start_col = 0;
         let offset_width = 0;
         let diff = 0;
-        while (offset_width < this.scrollLeft) {
+        while (offset_width < scroll_left) {
             const new_val =
                 this._column_sizes.indices[start_col + scroll_index_offset];
-            diff = this.scrollLeft - offset_width;
+            diff = scroll_left - offset_width;
             start_col += 1;
             offset_width += new_val !== undefined ? new_val : 60;
         }
@@ -531,54 +930,41 @@ async function internal_draw(
     options: DrawOptions,
 ): Promise<void> {
     const __debug_start_time__ = DEBUG && performance.now();
-    if (!options.cache) {
-        this.table_model._resetDimState();
-    }
-
     const { invalid_viewport = true, preserve_width = false } = options;
-    const {
-        num_columns,
-        num_rows,
-        num_row_headers,
-        num_column_headers,
-        row_height,
-    } = await this.table_model._getDimState(this._view_cache);
+    const { num_columns, num_rows } = await this._update_dim_state(
+        options.cache,
+    );
 
-    this._column_sizes.row_height = row_height || this._column_sizes.row_height;
     if (!this._column_sizes.row_height) {
         this._probe_row_height();
     }
 
-    if (num_row_headers !== undefined) {
-        this._view_cache.row_headers_length = num_row_headers;
-    }
-
-    if (num_column_headers !== undefined) {
-        this._view_cache.column_headers_length = num_column_headers;
-    }
-
-    // Cache virtual mode checks and default values
-    const is_non_vertical =
-        this._virtual_mode === "none" || this._virtual_mode === "horizontal";
-
-    const is_non_horizontal =
-        this._virtual_mode === "none" || this._virtual_mode === "vertical";
-
     const safe_num_rows = num_rows || 0;
     const safe_num_columns = num_columns || 0;
-    this._container_size = {
-        width: is_non_horizontal ? Infinity : this._table_clip.clientWidth,
-        height: is_non_vertical ? Infinity : this._table_clip.clientHeight,
-        containerHeight: is_non_vertical ? Infinity : this.clientHeight,
-    };
+    this._container_size = this._resolve_container_size(
+        () => this._table_clip.clientWidth,
+        () => this._table_clip.clientHeight,
+        () => this.clientHeight,
+    );
 
-    this._update_virtual_panel_height(safe_num_rows);
-    if (!preserve_width) {
-        this._update_virtual_panel_width(invalid_viewport, safe_num_columns);
-    }
+    this._update_virtual_panels(
+        invalid_viewport,
+        safe_num_rows,
+        safe_num_columns,
+        preserve_width,
+    );
 
-    const viewport = this._calculate_viewport(safe_num_rows, safe_num_columns);
+    // Scroll positions are read after the virtual panel writes above, as the
+    // browser may clamp them when the panel shrinks.
+    const viewport = this._calculate_viewport(
+        safe_num_rows,
+        safe_num_columns,
+        this.scrollTop,
+        this.scrollLeft,
+    );
+
     const { invalid_row, invalid_column } = this._validate_viewport(viewport);
+    this._commit_viewport(viewport);
     const invalid_schema_or_column = this._invalid_schema || invalid_column;
     if (invalid_schema_or_column || invalid_row || invalid_viewport) {
         let first_iteration = true;
@@ -604,22 +990,13 @@ async function internal_draw(
             },
         );
 
-        // Re-apply with post-measurement widths, in case the first
-        // application used an estimate for a never-measured leading column.
-        this._update_sub_cell_offset(viewport);
-
-        const old_height = this._column_sizes.row_height;
-        this.table_model.header.reset_header_cache();
-        if (old_height !== this._column_sizes.row_height) {
-            this._update_virtual_panel_height(safe_num_rows);
-        }
-
-        if (!preserve_width) {
-            this._update_virtual_panel_width(
-                invalid_schema_or_column,
-                safe_num_columns,
-            );
-        }
+        this._post_render(
+            viewport,
+            safe_num_rows,
+            safe_num_columns,
+            preserve_width,
+            invalid_schema_or_column,
+        );
 
         this._invalid_schema = false;
     } else {
