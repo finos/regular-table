@@ -13,8 +13,14 @@ import { test, expect } from "@playwright/test";
 
 test.describe("setDataListener()", () => {
     test.beforeEach(async ({ page }) => {
+        await page.setViewportSize({ width: 400, height: 300 });
         await page.goto("/tests/api.html");
         await page.waitForSelector("regular-table table tbody tr td");
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+            await new Promise(requestAnimationFrame);
+            await new Promise(requestAnimationFrame);
+        });
     });
 
     test.describe("basic functionality", () => {
@@ -76,8 +82,8 @@ test.describe("setDataListener()", () => {
             expect(callbackArgs.length).toBe(3);
             expect(callbackArgs).toStrictEqual([
                 { x0: 0, x1: 0, y0: 0, y1: 0 },
-                { x0: 0, x1: 22, y0: 0, y1: 38 },
-                { x0: 0, x1: 5, y0: 0, y1: 38 },
+                { x0: 0, x1: 8, y0: 0, y1: 16 },
+                { x0: 0, x1: 5, y0: 0, y1: 16 },
             ]);
         });
 

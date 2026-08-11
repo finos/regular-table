@@ -27,6 +27,7 @@ import {
     ViewState,
 } from "./types";
 import { ColumnSizes } from "./types";
+import { COLUMN_TAG_MAP } from "./view_model";
 
 /**
  * Base class containing protected helper methods for table rendering.
@@ -334,13 +335,12 @@ abstract class RegularTableViewModelBase {
         cont_body: BodyDrawResult | undefined,
         _virtual_x: number,
     ): void {
-        this.body.clean({ ridx: cont_body?.ridx || 0, cidx: _virtual_x });
+        this.body.clean({
+            ridx: cont_body?.ridx || 0,
+            cidx: _virtual_x,
+            drawn_ridx: cont_body?.drawn_ridx ?? cont_body?.ridx ?? 0,
+        });
         this.header.clean();
-    }
-
-    protected _carriageReturn() {
-        this.body._span_factory.reset();
-        this.header._span_factory.reset();
     }
 }
 
@@ -362,6 +362,17 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
     private _scope_class: string;
     private _lastDataResponse?: DataResponse;
     private _lastViewport?: Viewport;
+    private _autosize_observer?: ResizeObserver;
+    private _observed_cells: WeakSet<Element> = new WeakSet();
+    private _measured_overrides: Record<number, number> = {};
+    private _draw_in_flight = false;
+
+    /**
+     * Invoked (post-layout, from the autosize `ResizeObserver`) after any
+     * observed column width amendment, so the host element can re-validate
+     * viewport fill without a draw-path DOM read.
+     */
+    public _on_autosize_change?: () => void;
 
     constructor(
         table_clip: HTMLElement,
@@ -383,13 +394,75 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         this._scope_class = `rt-scope-${_instance_counter++}`;
         this.table.classList.add(this._scope_class);
 
+        this._autosize_observer = new ResizeObserver(
+            this._on_autosize_entries.bind(this),
+        );
+
         this.header = new RegularHeaderViewModel(
             column_sizes,
             table_clip,
             thead,
+            (th) => this._observe_autosize(th),
         );
 
         this.body = new RegularBodyViewModel(column_sizes, table_clip, tbody);
+    }
+
+    dispose(): void {
+        this._autosize_observer?.disconnect();
+    }
+
+    private _observe_autosize(cell: HTMLTableCellElement): void {
+        if (!this._autosize_observer || this._observed_cells.has(cell)) {
+            return;
+        }
+
+        this._observed_cells.add(cell);
+        this._autosize_observer.observe(cell);
+    }
+
+    private _on_autosize_entries(entries: ResizeObserverEntry[]): void {
+        if (this._draw_in_flight) {
+            for (const entry of entries) {
+                this._autosize_observer!.unobserve(entry.target);
+                this._autosize_observer!.observe(entry.target);
+            }
+
+            return;
+        }
+
+        const zoom = this.table.currentCSSZoom ?? 1;
+        const amendments: Array<[number, number]> = [];
+        for (const entry of entries) {
+            const size_key = COLUMN_TAG_MAP.get(entry.target);
+            if (size_key === undefined) {
+                continue;
+            }
+
+            if (this._column_sizes.override[size_key] !== undefined) {
+                continue;
+            }
+
+            const width = entry.target.getBoundingClientRect().width / zoom;
+            if (!width) {
+                continue;
+            }
+
+            if (this._column_sizes.indices[size_key] !== width) {
+                amendments.push([size_key, width]);
+            }
+        }
+
+        if (amendments.length > 0) {
+            this._ensureColumnWidthSheet();
+            for (const [size_key, width] of amendments) {
+                this._column_sizes.indices[size_key] = width;
+                this._column_sizes.auto[size_key] = width;
+                this._updateColumnRule(size_key);
+            }
+
+            this._on_autosize_change?.();
+        }
     }
 
     num_columns(): number {
@@ -399,6 +472,26 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
     clear(element: HTMLElement): void {
         element.innerHTML =
             '<table cellspacing="0"><thead></thead><tbody></tbody></table>';
+    }
+
+    private _needs_autosize(last_cells: CellTuple[]): boolean {
+        for (const [, metadata] of last_cells) {
+            const size_key = metadata?.size_key;
+            if (size_key === undefined) {
+                return true;
+            }
+
+            const override_width = this._column_sizes.override[size_key];
+            if (override_width !== undefined) {
+                if (this._measured_overrides[size_key] !== override_width) {
+                    return true;
+                }
+            } else if (!this._column_sizes.indices[size_key]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -440,12 +533,16 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             if (metadata?.size_key !== undefined) {
                 this._column_sizes.indices[metadata.size_key] =
                     box.width / zoom;
-                if (
-                    box.width / zoom &&
-                    this._column_sizes.override[metadata.size_key] === undefined
-                ) {
+                const override_width =
+                    this._column_sizes.override[metadata.size_key];
+                if (box.width / zoom && override_width === undefined) {
                     this._column_sizes.auto[metadata.size_key] =
                         box.width / zoom;
+                }
+
+                if (override_width !== undefined) {
+                    this._measured_overrides[metadata.size_key] =
+                        override_width;
                 }
             }
         }
@@ -640,6 +737,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             view_response,
         );
 
+        this._draw_in_flight = true;
         try {
             let step = render_pass.next();
             while (!step.done) {
@@ -651,6 +749,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 );
             }
         } finally {
+            this._draw_in_flight = false;
             render_pass.return(false);
         }
     }
@@ -799,6 +898,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                 // Fetch missing columns if needed
                 if (!view_response.data[dcidx]) {
                     // Style the partially-renderd rows so there is no FOUT
+                    this.header.flush_colspans();
                     this.updateColumnWidthStyles(
                         viewport,
                         view_cache.row_headers_length,
@@ -830,17 +930,18 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
 
                     if (!view_response.data[dcidx]) {
                         this._cleanupAfterDraw(cont_body, _virtual_x);
-                        this._carriageReturn();
                         this.updateColumnWidthStyles(
                             viewport,
                             view_cache.row_headers_length,
                         );
 
                         yield "style";
-                        this.autosize_cells(
-                            last_cells,
-                            this._column_sizes.row_height,
-                        );
+                        if (this._needs_autosize(last_cells)) {
+                            this.autosize_cells(
+                                last_cells,
+                                this._column_sizes.row_height,
+                            );
+                        }
 
                         return this._isViewportFilled(
                             view_state,
@@ -919,42 +1020,48 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
                     // estimate-based filled check above is final; a follow-up
                     // draw (e.g. on resize mouseup) re-measures.
                     if (preserve_width) {
-                        this._carriageReturn();
                         return true;
                     }
 
                     // Recalculate after style listeners
                     view_state.viewport_width = 0;
-                    this.autosize_cells(
-                        last_cells,
-                        this._column_sizes.row_height,
-                    );
+                    if (this._needs_autosize(last_cells)) {
+                        this.autosize_cells(
+                            last_cells,
+                            this._column_sizes.row_height,
+                        );
+                    }
 
                     // Newly-visited columns are now measured; force a fresh
                     // read if a later pass draws further unmeasured columns.
                     unmeasured_col_width = 0;
 
+                    const row_headers_length =
+                        view_state.row_headers_length || 0;
                     for (let i = 0; i < last_cells.length; i++) {
+                        const size_key =
+                            i < row_headers_length ? i : Math.floor(x0) + i;
                         view_state.viewport_width +=
-                            this._column_sizes.indices[Math.floor(x0) + i] || 0;
+                            this._column_sizes.indices[size_key] || 0;
                     }
 
                     if (this._isViewportFilled(view_state, container_width)) {
-                        this._carriageReturn();
                         return true;
                     }
                 }
             }
 
             this._cleanupAfterDraw(cont_body, _virtual_x);
-            this._carriageReturn();
             this.updateColumnWidthStyles(
                 viewport,
                 view_cache.row_headers_length,
             );
 
             yield "style";
-            this.autosize_cells(last_cells, this._column_sizes.row_height);
+            if (this._needs_autosize(last_cells)) {
+                this.autosize_cells(last_cells, this._column_sizes.row_height);
+            }
+
             return true;
         } finally {
             this._cleanupAfterDraw(cont_body, _virtual_x);

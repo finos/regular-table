@@ -36,6 +36,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
     private _memo_touch_startY?: number;
     private _memo_touch_startX?: number;
     private _last_clicked_time?: number;
+    private _scroll_dirty?: boolean;
+    private _scroll_left?: number;
+    private _scroll_top?: number;
     register_listeners() {
         // // TODO see `_on_click_or_dblclick` method jsdoc
         // this.addEventListener("dblclick", this._on_dblclick.bind(this));
@@ -56,18 +59,40 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
      */
     async _on_scroll(event: Event) {
         event.stopPropagation();
+        this._scroll_left = this.scrollLeft;
+        this._scroll_top = this.scrollTop;
         if (this._scroll_pending) {
+            this._scroll_dirty = true;
             return;
         }
 
         this._scroll_pending = true;
+        const width = this._table_clip.clientWidth;
+        const height = this._table_clip.clientHeight;
+        const container_height = this.clientHeight;
         try {
-            await new Promise(requestAnimationFrame);
+            await throttle_tag(this, async () => {
+                do {
+                    this._scroll_dirty = false;
+                    const commit = await this.predraw(width, height, {
+                        invalid_viewport: false,
+                        cache: true,
+                        throttle: false,
+                        container_height,
+                        scroll_left: this._scroll_left,
+                        scroll_top: this._scroll_top,
+                    });
+
+                    if (!commit.inline) {
+                        await new Promise(requestAnimationFrame);
+                        commit();
+                    }
+                } while (this._scroll_dirty);
+            });
         } finally {
             this._scroll_pending = false;
         }
 
-        await this.draw({ invalid_viewport: false, cache: true });
         this.dispatchEvent(new CustomEvent<undefined>("regular-table-scroll"));
     }
 
@@ -232,7 +257,9 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
                     }
 
                     td.classList.remove("rt-cell-clip");
-                    this.table_model.body._untagColumn(td);
+                    if (!this._column_classes) {
+                        this.table_model.body._untagColumn(td);
+                    }
                 }
             }
 
@@ -384,16 +411,20 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
             // Update header clipping class
             th.classList.toggle("rt-cell-clip", should_clip);
 
-            // Update body cell clipping classes. Clipped cells must carry the
-            // column tag so the override's `max-width` clamp reaches them.
+            // Update body cell clipping classes. Clipped cells must carry
+            // the `rt-col-{size_key}` class so the override's `max-width`
+            // clamp reaches them; under the opt-in `column_classes`
+            // annotation they already do.
             for (const row of this.table_model.body.cells) {
                 const td = row[virtual_x];
                 if (td) {
                     td.classList.toggle("rt-cell-clip", should_clip);
-                    if (should_clip) {
-                        this.table_model.body._tagColumn(td, size_key);
-                    } else {
-                        this.table_model.body._untagColumn(td);
+                    if (!this._column_classes) {
+                        if (should_clip) {
+                            this.table_model.body._tagColumn(td, size_key);
+                        } else {
+                            this.table_model.body._untagColumn(td);
+                        }
                     }
                 }
             }

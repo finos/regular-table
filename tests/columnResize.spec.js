@@ -16,6 +16,11 @@ test.describe("Column resize behavior", () => {
         await page.setViewportSize({ width: 600, height: 400 });
         await page.goto("/tests/api.html");
         await page.waitForSelector("regular-table table tbody tr td");
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+            await new Promise(requestAnimationFrame);
+            await new Promise(requestAnimationFrame);
+        });
     });
 
     test.describe("resize handle presence", () => {
@@ -658,6 +663,13 @@ test.describe("Column resize behavior", () => {
         }) => {
             const table = page.locator("regular-table");
 
+            const th = page.locator(
+                "regular-table thead tr:last-child th:nth-child(2)",
+            );
+            const width_before = await th.evaluate(
+                (el) => el.getBoundingClientRect().width,
+            );
+
             const resizeHandle = page.locator(
                 "regular-table thead tr:last-child th:nth-child(2) .rt-column-resize",
             );
@@ -677,7 +689,10 @@ test.describe("Column resize behavior", () => {
                 return el.saveColumnSizes();
             });
 
-            expect(hasOverride).toStrictEqual({ 1: 143.34375 });
+            expect(hasOverride[1]).toBeCloseTo(
+                width_before + (100 - box.width / 2),
+                0,
+            );
         });
     });
 });

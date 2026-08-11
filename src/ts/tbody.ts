@@ -17,7 +17,7 @@ import {
     ColumnState,
     ViewState,
 } from "./types";
-import { ViewModel } from "./view_model";
+import { METADATA_MAP, ViewModel } from "./view_model";
 
 /**
  * <tbody> view model.
@@ -25,6 +25,8 @@ import { ViewModel } from "./view_model";
  * @class RegularBodyViewModel
  */
 export class RegularBodyViewModel extends ViewModel {
+    public _column_classes?: boolean;
+
     _draw_td(
         tagName: string,
         ridx: number,
@@ -42,26 +44,14 @@ export class RegularBodyViewModel extends ViewModel {
             metadata.column_header = column_name;
         }
 
-        // Handle clipping class for overridden columns. A body cell carries
-        // its column tag only while clipped by an override — the `max-width`
-        // clamp must reach it. Unclipped cells need no width rule (the header
-        // cell's `min-width` floors the column), so leaving them untagged
-        // keeps the width rules' matched set to one cell per column.
         const override_width = this._column_sizes.override[key];
-        if (override_width) {
-            const auto_width = this._column_sizes.auto[key] || 0;
-            const clip = auto_width > override_width;
-            if (td.classList.contains("rt-cell-clip") !== clip) {
-                td.classList.toggle("rt-cell-clip", clip);
-            }
-
-            if (clip) {
-                this._tagColumn(td, key);
-            } else {
-                this._untagColumn(td);
-            }
+        const clip =
+            !!override_width &&
+            (this._column_sizes.auto[key] || 0) > override_width;
+        td.classList.toggle("rt-cell-clip", clip);
+        if (this._column_classes || clip) {
+            this._tagColumn(td, key);
         } else {
-            td.classList.remove("rt-cell-clip");
             this._untagColumn(td);
         }
 
@@ -102,6 +92,8 @@ export class RegularBodyViewModel extends ViewModel {
         let ridx = 0;
         const cidx_offset: number[] = [];
         const loops = th ? (view_state.row_headers_length ?? 1) : 1;
+        const overdraw = (view_state.ridx_offset ?? 0) % 1 !== 0 ? 1 : 0;
+        let broke = false;
         const y0_floor = Math.floor(view_state.ridx_offset);
         const y1_ceil = Math.ceil(view_state.y1);
         const x1_ceil = Math.ceil(view_state.x1);
@@ -111,6 +103,7 @@ export class RegularBodyViewModel extends ViewModel {
 
         for (let i = 0; i < loops; i++) {
             ridx = 0;
+            broke = false;
             const cidx_i = cidx + i;
 
             for (const val of column_data) {
@@ -228,17 +221,69 @@ export class RegularBodyViewModel extends ViewModel {
                 ridx++;
                 metadata = obj ? obj.metadata : metadata;
                 row_height = row_height || obj?.td.offsetHeight;
-                if (ridx * (row_height ?? 0) > container_height) {
+                if ((ridx - overdraw) * (row_height ?? 0) > container_height) {
+                    broke = true;
                     break;
                 }
             }
         }
-        this._clean_rows(ridx);
-        return { tds, ridx, row_height };
+
+        let clean_ridx = broke ? ridx : ridx + overdraw;
+        if (clean_ridx > ridx) {
+            const stale = this.rows[ridx];
+            const prev = this.rows[ridx - 1];
+            const mergeable =
+                !!merge_headers && (view_state.row_headers_length ?? 0) > 0;
+
+            if (
+                mergeable ||
+                !stale ||
+                !prev ||
+                stale.children.length !== prev.children.length ||
+                stale.querySelector("[colspan],[rowspan]") !== null ||
+                prev.querySelector("[colspan],[rowspan]") !== null
+            ) {
+                clean_ridx = ridx;
+            }
+        }
+
+        this._clean_rows(clean_ridx);
+        return { tds, ridx: clean_ridx, drawn_ridx: ridx, row_height };
     }
 
-    clean({ ridx, cidx }: { ridx: number; cidx: number }): void {
+    clean({
+        ridx,
+        cidx,
+        drawn_ridx = ridx,
+    }: {
+        ridx: number;
+        cidx: number;
+        drawn_ridx?: number;
+    }): void {
         this._clean_rows(ridx);
         this._clean_columns(cidx);
+
+        if (drawn_ridx < this.rows.length) {
+            const stale = this.rows[drawn_ridx];
+            const prev = this.rows[drawn_ridx - 1];
+            const last = (tr: HTMLTableRowElement | undefined) =>
+                tr?.children[tr.children.length - 1] as
+                    HTMLTableCellElement | undefined;
+
+            const stale_last = last(stale);
+            const prev_last = last(prev);
+            const stale_meta = (stale_last && METADATA_MAP.get(stale_last)) as
+                { x?: number } | undefined;
+            const prev_meta = (prev_last && METADATA_MAP.get(prev_last)) as
+                { x?: number } | undefined;
+            if (
+                !stale_meta ||
+                !prev_meta ||
+                stale_meta.x !== prev_meta.x ||
+                stale.children.length !== prev!.children.length
+            ) {
+                this._clean_rows(drawn_ridx);
+            }
+        }
     }
 }

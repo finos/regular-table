@@ -80,9 +80,20 @@ test.describe("CSS variables and sub-cell scrolling", () => {
     }) => {
         const table = page.locator("regular-table");
 
+        await table.evaluate(async (el) => {
+            const overrides = {};
+            for (let i = 0; i < 40; i++) {
+                overrides[i] = 60;
+            }
+
+            el.restoreColumnSizes(overrides);
+            await el.draw();
+            await el.draw();
+        });
+
         // Scroll horizontally by a fractional amount
         await table.evaluate(async (el) => {
-            el.scrollLeft = 180;
+            el.scrollLeft = 190;
             await el.draw();
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
@@ -104,9 +115,9 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             };
         });
 
-        expect(parseFloat(cssVars.transformX)).toBeCloseTo(-59.3125, 3);
+        expect(parseFloat(cssVars.transformX)).toBeCloseTo(-10, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(0, 3);
-        expect(parseFloat(cssVars.clipX)).toBeCloseTo(59.3125, 3);
+        expect(parseFloat(cssVars.clipX)).toBeCloseTo(10, 3);
         expect(parseFloat(cssVars.clipY)).toBeCloseTo(0, 3);
     });
 
@@ -114,6 +125,17 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         page,
     }) => {
         const table = page.locator("regular-table");
+
+        await table.evaluate(async (el) => {
+            const overrides = {};
+            for (let i = 0; i < 40; i++) {
+                overrides[i] = 60;
+            }
+
+            el.restoreColumnSizes(overrides);
+            await el.draw();
+            await el.draw();
+        });
 
         // Scroll both vertically and horizontally
         await table.evaluate(async (el) => {
@@ -140,9 +162,9 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             };
         });
 
-        expect(parseFloat(cssVars.transformX)).toBeCloseTo(-38.969, 3);
+        expect(parseFloat(cssVars.transformX)).toBeCloseTo(-40, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(-15.197, 3);
-        expect(parseFloat(cssVars.clipX)).toBeCloseTo(38.969, 3);
+        expect(parseFloat(cssVars.clipX)).toBeCloseTo(40, 3);
         expect(parseFloat(cssVars.clipY)).toBeCloseTo(15.197, 3);
     });
 
@@ -151,10 +173,21 @@ test.describe("CSS variables and sub-cell scrolling", () => {
     }) => {
         const table = page.locator("regular-table");
 
+        await table.evaluate(async (el) => {
+            const overrides = {};
+            for (let i = 0; i < 40; i++) {
+                overrides[i] = 60;
+            }
+
+            el.restoreColumnSizes(overrides);
+            await el.draw();
+            await el.draw();
+        });
+
         // Scroll away from origin
         await table.evaluate(async (el) => {
             el.scrollTop = 400;
-            el.scrollLeft = 300;
+            el.scrollLeft = 310;
             await el.draw();
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
@@ -173,8 +206,8 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             };
         });
 
-        expect(parseFloat(scrolledVars.transformX)).toBeCloseTo(-58.625, 3);
-        expect(parseFloat(scrolledVars.clipX)).toBeCloseTo(58.625, 3);
+        expect(parseFloat(scrolledVars.transformX)).toBeCloseTo(-10, 3);
+        expect(parseFloat(scrolledVars.clipX)).toBeCloseTo(10, 3);
 
         // Scroll back to origin
         await table.evaluate(async (el) => {
@@ -338,6 +371,17 @@ test.describe("CSS variables and sub-cell scrolling", () => {
     }) => {
         const table = page.locator("regular-table");
 
+        await table.evaluate(async (el) => {
+            const overrides = {};
+            for (let i = 0; i < 40; i++) {
+                overrides[i] = 60;
+            }
+
+            el.restoreColumnSizes(overrides);
+            await el.draw();
+            await el.draw();
+        });
+
         // Scroll to create sub-cell offsets
         await table.evaluate(async (el) => {
             el.scrollTop = 150;
@@ -355,9 +399,9 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         const firstCellMatch = firstCellClipPath.match(
             /polygon\(([\d.]+)px ([\d.]+)px, ([\d.]+)px [\d.]+%, [\d.]+% [\d.]+%, [\d.]+% ([\d.]+)px\)/,
         );
-        expect(parseFloat(firstCellMatch[1])).toBeCloseTo(29.313, 3);
+        expect(parseFloat(firstCellMatch[1])).toBeCloseTo(30, 3);
         expect(parseFloat(firstCellMatch[2])).toBeCloseTo(17.098, 3);
-        expect(parseFloat(firstCellMatch[3])).toBeCloseTo(29.313, 3);
+        expect(parseFloat(firstCellMatch[3])).toBeCloseTo(30, 3);
         expect(parseFloat(firstCellMatch[4])).toBeCloseTo(17.098, 3);
 
         // Check that first row cells have clip-path
@@ -368,9 +412,9 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         const firstRowMatch = firstRowCellClipPath.match(
             /polygon\(([\d.]+)px ([\d.]+)px, ([\d.]+)px [\d.]+%, [\d.]+% [\d.]+%, [\d.]+% ([\d.]+)px\)/,
         );
-        expect(parseFloat(firstRowMatch[1])).toBeCloseTo(29.313, 3);
+        expect(parseFloat(firstRowMatch[1])).toBeCloseTo(30, 3);
         expect(parseFloat(firstRowMatch[2])).toBeCloseTo(17.098, 3);
-        expect(parseFloat(firstRowMatch[3])).toBeCloseTo(29.313, 3);
+        expect(parseFloat(firstRowMatch[3])).toBeCloseTo(30, 3);
         expect(parseFloat(firstRowMatch[4])).toBeCloseTo(17.098, 3);
 
         // Check that first column cells have clip-path
@@ -381,9 +425,9 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         const firstColMatch = firstColCellClipPath.match(
             /polygon\(([\d.]+)px ([\d.]+)px, ([\d.]+)px [\d.]+%, [\d.]+% [\d.]+%, [\d.]+% ([\d.]+)px\)/,
         );
-        expect(parseFloat(firstColMatch[1])).toBeCloseTo(29.313, 3);
+        expect(parseFloat(firstColMatch[1])).toBeCloseTo(30, 3);
         expect(parseFloat(firstColMatch[2])).toBeCloseTo(0, 3);
-        expect(parseFloat(firstColMatch[3])).toBeCloseTo(29.313, 3);
+        expect(parseFloat(firstColMatch[3])).toBeCloseTo(30, 3);
         expect(parseFloat(firstColMatch[4])).toBeCloseTo(0, 3);
     });
 
@@ -391,6 +435,17 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         page,
     }) => {
         const table = page.locator("regular-table");
+
+        await table.evaluate(async (el) => {
+            const overrides = {};
+            for (let i = 0; i < 40; i++) {
+                overrides[i] = 60;
+            }
+
+            el.restoreColumnSizes(overrides);
+            await el.draw();
+            await el.draw();
+        });
 
         // Scroll to create sub-cell offsets
         await table.evaluate(async (el) => {
@@ -408,7 +463,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         const cellMatch = cellTransform.match(
             /matrix\([\d.]+, [\d.]+, [\d.]+, [\d.]+, ([-\d.]+), ([-\d.]+)\)/,
         );
-        expect(parseFloat(cellMatch[1])).toBeCloseTo(-4.313, 3);
+        expect(parseFloat(cellMatch[1])).toBeCloseTo(-5, 3);
         expect(parseFloat(cellMatch[2])).toBeCloseTo(0, 3);
 
         // Check that tbody has transform applied
@@ -431,7 +486,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         const headerMatch = headerTransform.match(
             /matrix\([\d.]+, [\d.]+, [\d.]+, [\d.]+, ([-\d.]+), ([-\d.]+)\)/,
         );
-        expect(parseFloat(headerMatch[1])).toBeCloseTo(-4.313, 3);
+        expect(parseFloat(headerMatch[1])).toBeCloseTo(-5, 3);
         expect(parseFloat(headerMatch[2])).toBeCloseTo(0, 3);
     });
 });

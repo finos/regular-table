@@ -20,6 +20,11 @@ import {
     CellMetadataBuilder,
 } from "./types";
 
+const HEADER_STATE: WeakMap<
+    HTMLTableCellElement,
+    { value: unknown; span: HTMLElement; resize: HTMLElement }
+> = new WeakMap();
+
 /**
  * <thead> view model.  This model accumulates state in the form of
  * column_sizes, which leverages <tables> autosize behavior across
@@ -34,15 +39,18 @@ export class RegularHeaderViewModel extends ViewModel {
         number,
     ][];
     private _offset_cache: number[];
+    private _observe_autosize?: (th: HTMLTableCellElement) => void;
 
     constructor(
         column_sizes: ColumnSizes,
         container: HTMLElement,
         table: HTMLElement,
+        observe_autosize?: (th: HTMLTableCellElement) => void,
     ) {
         super(column_sizes, container, table);
         this._group_header_cache = [];
         this._offset_cache = [];
+        this._observe_autosize = observe_autosize;
     }
 
     _draw_group_th(
@@ -52,19 +60,40 @@ export class RegularHeaderViewModel extends ViewModel {
     ): HTMLTableCellElement {
         const th = this._get_cell("TH", d, offset_cache[d] || 0);
         offset_cache[d] += 1;
+        let state = HEADER_STATE.get(th);
+        if (
+            state !== undefined &&
+            state.value === column &&
+            th.lastChild === state.resize &&
+            th.firstChild ===
+                (column instanceof HTMLElement ? column : state.span)
+        ) {
+            return th;
+        }
+
         th.removeAttribute("colspan");
         th.textContent = "";
+        if (state === undefined) {
+            const resize = document.createElement("span");
+            resize.className = "rt-column-resize";
+            state = {
+                value: undefined,
+                span: document.createElement("span"),
+                resize,
+            };
+
+            HEADER_STATE.set(th, state);
+        }
+
         if (column instanceof HTMLElement) {
             th.appendChild(column);
         } else {
-            const span = this._span_factory.get();
-            span.textContent = String(column ?? "");
-            th.appendChild(span);
+            state.span.textContent = String(column ?? "");
+            th.appendChild(state.span);
         }
 
-        const resizeSpan = this._span_factory.get();
-        resizeSpan.className = "rt-column-resize";
-        th.appendChild(resizeSpan);
+        th.appendChild(state.resize);
+        state.value = column;
         return th;
     }
 
@@ -94,20 +123,16 @@ export class RegularHeaderViewModel extends ViewModel {
         metadata.size_key = Array.isArray(size_key) ? size_key[0] : size_key;
         if (!Array.isArray(size_key) || size_key.length <= 1) {
             this._tagColumn(th, metadata.size_key || 0);
+            this._observe_autosize?.(th);
             const override_width =
                 this._column_sizes.override[metadata.size_key || 0];
             const auto_width =
                 this._column_sizes.auto[metadata.size_key || 0] || 0;
 
-            // Handle clipping class for overridden columns
-            if (override_width) {
-                th.classList.toggle(
-                    "rt-cell-clip",
-                    auto_width > override_width,
-                );
-            } else {
-                th.classList.remove("rt-cell-clip");
-            }
+            th.classList.toggle(
+                "rt-cell-clip",
+                !!override_width && auto_width > override_width,
+            );
         } else {
             // A leaf header spanning multiple columns has no single width.
             this._untagColumn(th);
@@ -159,11 +184,8 @@ export class RegularHeaderViewModel extends ViewModel {
                         this._group_header_cache[d][0].row_header_x =
                             Array.isArray(size_key) ? size_key[0] : size_key;
                     }
-                    th.setAttribute(
-                        "colspan",
-                        String(this._group_header_cache[d][2]),
-                    );
                 } else {
+                    this._flush_colspan(d);
                     th = this._draw_group_th(
                         this._offset_cache,
                         d,
@@ -232,7 +254,31 @@ export class RegularHeaderViewModel extends ViewModel {
         return output;
     }
 
+    private _flush_colspan(d: number): void {
+        const entry = this._group_header_cache[d];
+        if (!entry) {
+            return;
+        }
+
+        const [, th, count] = entry;
+        if (count > 1) {
+            const val = String(count);
+            if (th.getAttribute("colspan") !== val) {
+                th.setAttribute("colspan", val);
+            }
+        } else if (th.hasAttribute("colspan")) {
+            th.removeAttribute("colspan");
+        }
+    }
+
+    flush_colspans(): void {
+        for (let d = 0; d < this._group_header_cache.length; d++) {
+            this._flush_colspan(d);
+        }
+    }
+
     clean(): void {
+        this.flush_colspans();
         this._clean_columns(this._offset_cache);
     }
 

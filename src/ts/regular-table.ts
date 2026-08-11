@@ -61,12 +61,21 @@ export class RegularTableElement extends RegularViewEventModel {
             this.register_listeners();
             this.setAttribute("tabindex", "0");
             this._initialized = true;
-            this.table_model = new RegularTableViewModel(
-                this._table_clip,
-                this._column_sizes,
-                this,
-            );
+            this._create_table_model();
         }
+    }
+
+    private _create_table_model(): void {
+        this.table_model?.dispose();
+        this.table_model = new RegularTableViewModel(
+            this._table_clip,
+            this._column_sizes,
+            this,
+        );
+
+        this.table_model._on_autosize_change = () =>
+            this._autosize_fill_check();
+        this.table_model.body._column_classes = this._column_classes;
     }
 
     /**
@@ -113,11 +122,7 @@ export class RegularTableElement extends RegularViewEventModel {
      * Clears the current renderer `<table>`.
      */
     clear(): void {
-        this.table_model = new RegularTableViewModel(
-            this._table_clip,
-            this._column_sizes,
-            this,
-        );
+        this._create_table_model();
     }
 
     /**
@@ -336,6 +341,7 @@ export class RegularTableElement extends RegularViewEventModel {
         {
             virtual_mode = "both",
             preserve_state = false,
+            column_classes = false,
         }: SetDataListenerOptions = {},
     ): void {
         console.assert(
@@ -353,6 +359,11 @@ export class RegularTableElement extends RegularViewEventModel {
             this._view_cache.view = dataListener as any;
         } else {
             this._virtual_mode = virtual_mode;
+            this._column_classes = column_classes;
+            if (this.table_model) {
+                this.table_model.body._column_classes = column_classes;
+            }
+
             this._invalid_schema = true;
             this._view_cache = {
                 view: dataListener as any,
