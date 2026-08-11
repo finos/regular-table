@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.8.6](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.9.0](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.5...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.6...HEAD)
+
+**Breaking changes:**
+
+- Profile-guided performance optimization for scrolling [\#284](https://github.com/finos/regular-table/pull/284) ([texodus](https://github.com/texodus))
+
+## [v0.8.6](https://github.com/finos/regular-table/tree/v0.8.6) (2026-07-26)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.5...v0.8.6)
 
 **Implemented enhancements:**
 
