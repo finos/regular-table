@@ -19,7 +19,7 @@ export const METADATA_MAP: WeakMap<HTMLElement, CellMetadata> = new WeakMap();
 // class, so `_tagColumn` can cheaply detect when a pooled cell changes columns
 // without a DOM read. Module-level so `thead`/`tbody` models and the event
 // model share one tracker.
-const COLUMN_TAG_MAP: WeakMap<Element, number> = new WeakMap();
+export const COLUMN_TAG_MAP: WeakMap<Element, number> = new WeakMap();
 
 /******************************************************************************
  *
@@ -27,35 +27,9 @@ const COLUMN_TAG_MAP: WeakMap<Element, number> = new WeakMap();
  *
  */
 
-class ElemFactory {
-    private _name: string;
-    private _elements: HTMLElement[];
-    private _index: number;
-    constructor(name: string) {
-        this._name = name;
-        this._elements = [];
-        this._index = 0;
-    }
-
-    reset() {
-        this._index = 0;
-    }
-
-    get() {
-        if (!this._elements[this._index]) {
-            this._elements[this._index] = document.createElement(this._name);
-        }
-
-        const elem = this._elements[this._index];
-        this._index += 1;
-        return elem;
-    }
-}
-
 export class ViewModel {
     protected _column_sizes: ColumnSizes;
     protected _container: HTMLElement;
-    public _span_factory: ElemFactory;
     public table: HTMLElement;
     public cells: (HTMLTableCellElement | undefined)[][];
     public rows: HTMLTableRowElement[];
@@ -67,7 +41,6 @@ export class ViewModel {
     ) {
         this._column_sizes = column_sizes;
         this._container = container;
-        this._span_factory = new ElemFactory("span");
         this.table = table;
         this.cells = [];
         this.rows = [];
@@ -226,6 +199,8 @@ export class ViewModel {
     }
 
     _clean_rows(ridx: number): void {
+        ridx = Math.min(ridx, this.rows.length);
+
         // Batch collect rows to remove, then remove all at once
         const toRemove: Element[] = [];
         for (let i = ridx; i < this.table.children.length; i++) {

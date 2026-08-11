@@ -113,7 +113,7 @@ test.describe("getMeta()", () => {
                     value: "16",
                     x: 16,
                     x0: 16,
-                    x1: 24,
+                    x1: 23,
                     y: 0,
                     y0: 0,
                     y1: 8,

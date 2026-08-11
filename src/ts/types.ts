@@ -82,7 +82,16 @@ export type DataListener = (
  * `DataResponse.row_headers[y]`, this property is only generated for `<th>`
  * from `row_headers`.
  * @property {number} size_key - The unique index of this column in a full
- * `<table>`, which is `x` + (Total Row Header Columns).
+ * `<table>`, which is `x` + (Total Row Header Columns). With the
+ * `column_classes` option of `setDataListener()` enabled, every rendered
+ * leaf header and body cell of the column carries a stable
+ * `rt-col-{size_key}` class; target it from your own stylesheet (e.g. a
+ * `CSSStyleSheet` adopted on the same root) to apply column-scoped
+ * declarations such as `text-align` or `color` without styling individual
+ * cells - the classes follow the columns as the table scrolls.
+ * `regular-table`'s own generated width rules target the same classes at
+ * higher specificity, so column sizing cannot be accidentally overridden by
+ * a bare `.rt-col-*` rule.
  * @property {(string|HTMLElement)[]} [row_header] - The `Array` for this `y` in
  * `DataResponse.row_headers`, if it was provided.
  * @property {(string|HTMLElement)[]} [column_header] - The `Array` for this `x`
@@ -255,10 +264,17 @@ export interface DataResponse {
  * The `virtual_mode` options flag may be one of "both", "horizontal",
  * "vertical", or "none" indicating which dimensions of the table should be
  * virtualized (vs. rendering completely).
+ * @param {boolean} options.column_classes When set, every leaf header and
+ * body cell is annotated with a stable `rt-col-{size_key}` class identifying
+ * its logical column, which your own stylesheets can target to apply
+ * column-scoped declarations (see the `size_key` `MetaData` docs). Off by
+ * default - without it, only the cells regular-table's own column sizing
+ * requires carry the class.
  */
 export interface SetDataListenerOptions {
     virtual_mode?: VirtualMode;
     preserve_state?: boolean;
+    column_classes?: boolean;
 }
 
 /**
@@ -362,6 +378,7 @@ export interface PredrawOptions {
     scroll_left?: number;
     scroll_top?: number;
     container_height?: number;
+    throttle?: boolean;
 }
 
 /**
@@ -449,6 +466,7 @@ export interface BodyDrawResult {
     tds: Array<{ td: HTMLTableCellElement; metadata: CellMetadata }>;
     row_height?: number;
     ridx?: number;
+    drawn_ridx?: number;
 }
 
 /**

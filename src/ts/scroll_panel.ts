@@ -100,6 +100,8 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     protected table_model!: RegularTableViewModel;
     protected _style_callbacks!: Array<StyleCallback>;
     protected _scroll_pending?: boolean;
+    protected _num_columns?: number;
+    protected _column_classes?: boolean;
     private _probe_element?: [HTMLElement, HTMLElement];
 
     /**
@@ -171,13 +173,20 @@ export class RegularVirtualTableViewModel extends HTMLElement {
             scroll_left = this.scrollLeft,
             scroll_top = this.scrollTop,
             container_height = height,
+            throttle,
         } = options;
 
         const noop = (): PredrawCommit =>
             Object.assign(() => true, { inline: true });
 
         const inline = async (): Promise<PredrawCommit> => {
-            await this.draw({ invalid_viewport, preserve_width, cache });
+            await this.draw({
+                invalid_viewport,
+                preserve_width,
+                cache,
+                throttle,
+            });
+
             return noop();
         };
 
@@ -366,6 +375,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         const dims = await this.table_model._getDimState(this._view_cache);
+        this._num_columns = dims.num_columns || 0;
         this._column_sizes.row_height =
             dims.row_height || this._column_sizes.row_height;
 
@@ -494,6 +504,41 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         return end_col;
+    }
+
+    protected _autosize_fill_check(): void {
+        if (
+            this._start_col === undefined ||
+            this._end_col === undefined ||
+            !this._view_cache ||
+            this._virtual_mode === "none" ||
+            this._virtual_mode === "vertical" ||
+            this._end_col >= (this._num_columns ?? 0)
+        ) {
+            return;
+        }
+
+        const { indices, override } = this._column_sizes;
+        const row_headers_length = this._view_cache.row_headers_length;
+        let width = 0;
+        for (let i = 0; i < row_headers_length; i++) {
+            width += indices[i] || 0;
+        }
+
+        for (let cidx = this._start_col; cidx < this._end_col; cidx++) {
+            const size_key = row_headers_length + cidx;
+            const w = override[size_key] ?? indices[size_key];
+            if (w === undefined) {
+                return;
+            }
+
+            width += w;
+        }
+
+        const sub_cell_offset = indices[row_headers_length + this._start_col];
+        if (width - (sub_cell_offset ?? 0) <= this._container_size.width) {
+            this.draw({ invalid_viewport: true });
+        }
     }
 
     /**
