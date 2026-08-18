@@ -70,24 +70,41 @@ export class RegularViewEventModel extends RegularVirtualTableViewModel {
         const width = this._table_clip.clientWidth;
         const height = this._table_clip.clientHeight;
         const container_height = this.clientHeight;
+        let rendered_scroll_top: number | undefined;
+        let rendered_scroll_left: number | undefined;
         try {
             await throttle_tag(this, async () => {
                 do {
                     this._scroll_dirty = false;
+                    rendered_scroll_top = this._scroll_top;
+                    rendered_scroll_left = this._scroll_left;
                     const commit = await this.predraw(width, height, {
                         invalid_viewport: false,
                         cache: true,
                         throttle: false,
                         container_height,
-                        scroll_left: this._scroll_left,
-                        scroll_top: this._scroll_top,
+                        scroll_left: rendered_scroll_left,
+                        scroll_top: rendered_scroll_top,
                     });
 
                     if (!commit.inline) {
                         await new Promise(requestAnimationFrame);
                         commit();
                     }
-                } while (this._scroll_dirty);
+                    // `_scroll_dirty` alone races with a native `scroll` event: those dispatch as
+                    // macrotasks, not microtasks, so one can land in the exact gap between this
+                    // check and `_scroll_pending` being released below, updating `_scroll_top`/
+                    // `_scroll_left` (that part always runs, unconditionally, above) without ever
+                    // setting `_scroll_dirty` in time to be seen here. Comparing the live
+                    // scrollTop/scrollLeft against what this pass actually rendered for closes
+                    // that gap regardless of timing - if the page has moved on since, loop again,
+                    // which is exactly a scroll gesture's true final resting position (e.g.
+                    // settling back at scrollTop 0) otherwise going un-rendered.
+                } while (
+                    this._scroll_dirty ||
+                    this.scrollTop !== rendered_scroll_top ||
+                    this.scrollLeft !== rendered_scroll_left
+                );
             });
         } finally {
             this._scroll_pending = false;
