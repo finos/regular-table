@@ -707,8 +707,18 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                     totalWidth += w || 0;
                 }
 
+                // On the very first draw no column has been measured yet, so
+                // `_column_sizes.indices` is empty and totalWidth sums to 0 - which set the
+                // virtual panel to `width: 0px`. A zero-width absolutely-positioned box does not
+                // contribute to its scrollable ancestor's scrollHeight in at least
+                // Chromium/WebKit, even with an otherwise-correct explicit height, so the very
+                // first draw always under-reported the scrollable range (only self-correcting once
+                // some later draw - typically triggered by the user's first real scroll - measured
+                // real column widths). Falling back to the container's own width keeps the panel's
+                // box non-degenerate until real column widths are known.
                 this._virtual_panel.style.width =
-                    totalWidth.toPrecision(10) + "px";
+                    (totalWidth || this._container_size.width).toPrecision(10) +
+                    "px";
             } else {
                 const virtual_width =
                     this._calc_scrollable_column_width(num_columns);
