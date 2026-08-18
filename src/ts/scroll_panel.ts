@@ -297,6 +297,26 @@ export class RegularVirtualTableViewModel extends HTMLElement {
         }
 
         const view_cache = this._view_cache;
+        // `commit()` (returned below) doesn't run synchronously with predraw() - _on_scroll
+        // awaits a requestAnimationFrame between them - so `viewport` here can be stale relative
+        // to scrollTop/scrollLeft by the time it's actually applied: the scroll position it was
+        // computed for is exactly what `scroll_top`/`scroll_left` (captured from options above)
+        // still hold, which may no longer match reality. The fetched *content* isn't worth
+        // recomputing here (that needs another round trip through the row/col range and possibly
+        // a re-fetch), but the sub-cell offset is pure, cheap, synchronous math - recomputing it
+        // fresh whenever scroll has moved on means the visible transform always reflects the true
+        // current position even if the content is a frame behind, instead of a stale offset
+        // baked in at predraw()-call time silently overwriting whatever was already correctly
+        // rendered by the time this deferred commit finally runs.
+        const offset_viewport = (): Viewport =>
+            this.scrollTop === scroll_top && this.scrollLeft === scroll_left
+                ? viewport
+                : this._calculate_viewport(
+                      safe_num_rows,
+                      safe_num_columns,
+                      this.scrollTop,
+                      this.scrollLeft,
+                  );
         return Object.assign(
             () => {
                 this._container_size = container_size;
@@ -309,14 +329,14 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 );
 
                 if (!should_render || view_response === undefined) {
-                    this._update_sub_cell_offset(viewport);
+                    this._update_sub_cell_offset(offset_viewport());
                     return true;
                 }
 
                 let first_iteration = true;
                 const style_callback = () => {
                     if (first_iteration) {
-                        this._update_sub_cell_offset(viewport);
+                        this._update_sub_cell_offset(offset_viewport());
                         first_iteration = false;
                     }
 
