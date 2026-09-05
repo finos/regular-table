@@ -1,8 +1,16 @@
 # Changelog
 
-## [v0.9.0](https://github.com/finos/regular-table/tree/HEAD)
+## [Unreleased](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.6...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.9.0...HEAD)
+
+**Fixed bugs:**
+
+- Fix column header persistence zero rows bug [\#294](https://github.com/finos/regular-table/pull/294) ([texodus](https://github.com/texodus))
+
+## [v0.9.0](https://github.com/finos/regular-table/tree/v0.9.0) (2026-08-11)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.8.6...v0.9.0)
 
 **Breaking changes:**
 
