@@ -158,7 +158,7 @@ abstract class RegularTableViewModelBase {
         }
         view_state.row_height = view_state.row_height || cont_body.row_height;
 
-        const _virtual_x = row_headers[0].length;
+        const _virtual_x = row_headers_length;
 
         if (!preserve_width) {
             for (let i = 0; i < row_headers_length; i++) {
@@ -840,7 +840,7 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
             for (const rh of view_response.row_headers) {
                 if (rh.length > maxLen) maxLen = rh.length;
             }
-            this._row_headers_length = maxLen;
+            this._row_headers_length = view_response.num_row_headers ?? maxLen;
 
             for (let i = 0; i < view_response.row_headers.length; i++) {
                 view_response.row_headers[i].length =
@@ -868,9 +868,13 @@ export class RegularTableViewModel extends RegularTableViewModelBase {
         let last_cells: CellTuple[] = [];
         let first_col = true;
 
-        if (view_response.row_headers?.length) {
+        const has_row_headers =
+            !!view_response.row_headers &&
+            (view_response.row_headers.length > 0 || row_headers_length > 0);
+
+        if (has_row_headers) {
             const row_header_result = this._drawRowHeaders(
-                view_response.row_headers,
+                view_response.row_headers!,
                 row_headers_length,
                 column_headers_length,
                 container_height,
