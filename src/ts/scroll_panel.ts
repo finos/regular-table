@@ -30,9 +30,6 @@ import {
 // @ts-ignore - CSS imports handled by build system
 import container_css from "../../dist/css/container.css";
 
-// @ts-ignore - CSS imports handled by build system
-import sub_cell_offsets from "../../dist/css/sub-cell-offsets.css";
-
 // CSS custom property names for sub-cell offsets
 const CLIP_X = "--regular-table--clip-x";
 const CLIP_Y = "--regular-table--clip-y";
@@ -82,7 +79,6 @@ const PREDRAW_COLUMN_PAD = 1;
  * @class RegularVirtualTableViewModel
  */
 export class RegularVirtualTableViewModel extends HTMLElement {
-    private _sub_cell_rule!: CSSStyleRule;
     protected _virtual_panel!: HTMLElement;
     protected _virtual_mode!: VirtualMode;
     protected _container_size!: ContainerSize;
@@ -576,13 +572,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
 
         const containerStyleSheet = new CSSStyleSheet();
         containerStyleSheet.replaceSync(container_css);
-        const sub_cell_style = new CSSStyleSheet();
-        sub_cell_style.replaceSync(sub_cell_offsets);
-        this._sub_cell_rule = sub_cell_style.cssRules[0] as CSSStyleRule;
-        this.shadowRoot.adoptedStyleSheets = [
-            containerStyleSheet,
-            sub_cell_style,
-        ];
+        this.shadowRoot.adoptedStyleSheets = [containerStyleSheet];
 
         this.shadowRoot.innerHTML = HTML_TEMPLATE;
         const [virtual_panel, table_clip] = this.shadowRoot!.children;
@@ -749,6 +739,26 @@ export class RegularVirtualTableViewModel extends HTMLElement {
     }
 
     /**
+     * Write the sub-cell offset CSS custom properties to the slotted
+     * `<table>`'s inline style, from where they inherit into every cell.
+     *
+     * These used to be written to a `:host ::slotted(table)` rule in a
+     * constructed stylesheet adopted on the shadow root. WebKit does not
+     * reliably invalidate the slotted element's computed style when that
+     * rule's declarations are mutated via CSSOM, so after some scroll
+     * sequences the offsets froze at a stale value and the first row stayed
+     * clipped (finos/regular-table#292). An inline style mutation always
+     * invalidates the element itself, on every engine.
+     */
+    protected _set_sub_cell_offset(x_offset: number, y_offset: number): void {
+        const style = this.table_model.table.style;
+        style.setProperty(CLIP_X, `${x_offset}px`);
+        style.setProperty(CLIP_Y, `${y_offset}px`);
+        style.setProperty(TRANSFORM_X, `${-x_offset}px`);
+        style.setProperty(TRANSFORM_Y, `${-y_offset}px`);
+    }
+
+    /**
      * Update sub-cell offset CSS.
      *
      * @param viewport
@@ -767,10 +777,7 @@ export class RegularVirtualTableViewModel extends HTMLElement {
                 this.table_model._estimated_column_width()) *
                 (viewport.start_col % 1) || 0;
 
-        this._sub_cell_rule.style.setProperty(CLIP_X, `${x_offset}px`);
-        this._sub_cell_rule.style.setProperty(CLIP_Y, `${y_offset}px`);
-        this._sub_cell_rule.style.setProperty(TRANSFORM_X, `${-x_offset}px`);
-        this._sub_cell_rule.style.setProperty(TRANSFORM_Y, `${-y_offset}px`);
+        this._set_sub_cell_offset(x_offset, y_offset);
     }
 
     /**
