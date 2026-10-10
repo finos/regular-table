@@ -1,8 +1,20 @@
 # Changelog
 
-## [Unreleased](https://github.com/finos/regular-table/tree/HEAD)
+## [v0.9.2](https://github.com/finos/regular-table/tree/HEAD)
 
-[Full Changelog](https://github.com/finos/regular-table/compare/v0.9.0...HEAD)
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.9.1...HEAD)
+
+**Fixed bugs:**
+
+- Add Webkit and Firefox support [\#298](https://github.com/finos/regular-table/pull/298) ([texodus](https://github.com/texodus))
+
+**Closed issues:**
+
+- Safari/WebKit: writing sub-cell offset custom properties via CSSOM rule.style is not reliably reflected in computed style on the slotted table [\#292](https://github.com/finos/regular-table/issues/292)
+
+## [v0.9.1](https://github.com/finos/regular-table/tree/v0.9.1) (2026-09-05)
+
+[Full Changelog](https://github.com/finos/regular-table/compare/v0.9.0...v0.9.1)
 
 **Fixed bugs:**
 
