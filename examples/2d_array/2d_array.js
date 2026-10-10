@@ -53,4 +53,12 @@ export function dataListener(x0, y0, x1, y1) {
 }
 
 window.regularTable.setDataListener(dataListener);
+if (document.readyState !== "complete") {
+    await new Promise((resolve) => {
+        window.addEventListener("load", resolve, { once: true });
+    });
+}
+
+await document.fonts.load('12px "Open Sans"');
+await document.fonts.ready;
 window.regularTable.draw();

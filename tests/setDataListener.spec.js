@@ -62,6 +62,15 @@ test.describe("setDataListener()", () => {
         test("receives correct viewport coordinates", async ({ page }) => {
             const table = page.locator("regular-table");
             const callbackArgs = await table.evaluate(async (el) => {
+                // browser font metric pin
+                const overrides = {};
+                for (let i = 0; i < 100; i++) {
+                    overrides[i] = 45;
+                }
+
+                el.restoreColumnSizes(overrides);
+                await el.draw();
+
                 let capturedArgs = [];
                 const testListener = (x0, y0, x1, y1) => {
                     capturedArgs.push({ x0, y0, x1, y1 });
@@ -82,8 +91,8 @@ test.describe("setDataListener()", () => {
             expect(callbackArgs.length).toBe(3);
             expect(callbackArgs).toStrictEqual([
                 { x0: 0, x1: 0, y0: 0, y1: 0 },
-                { x0: 0, x1: 8, y0: 0, y1: 16 },
-                { x0: 0, x1: 5, y0: 0, y1: 16 },
+                { x0: 0, x1: 11, y0: 0, y1: 16 },
+                { x0: 0, x1: 9, y0: 0, y1: 16 },
             ]);
         });
 

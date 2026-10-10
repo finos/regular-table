@@ -15,8 +15,10 @@ import { dataListener } from "/examples/two_billion_rows/two_billion_rows.js";
 import "/node_modules/react/dist/react.js";
 import "/node_modules/react-dom/dist/react-dom.js";
 
-function setRegularTable(table) {
+async function setRegularTable(table) {
     table.setDataListener(dataListener(1000, 50));
+    await document.fonts.load('12px "Open Sans"');
+    await document.fonts.ready;
     table.draw();
 }
 

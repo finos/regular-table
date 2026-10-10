@@ -19,6 +19,10 @@
             content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
         />
         <link rel="stylesheet" href="/dist/css/material.css" />
+        <link
+            rel="stylesheet"
+            href="/node_modules/@fontsource/open-sans/index.css"
+        />
     </head>
     <body>
         <regular-table></regular-table>
@@ -61,6 +65,20 @@
 
             const table = document.getElementsByTagName("regular-table")[0];
             table.setDataListener(dataListener);
+
+            // Module scripts are not blocked by pending stylesheets in WebKit,
+            // and the first `draw()` measures row height and column widths, so
+            // wait for the stylesheets and then for the (self-hosted) web font
+            // before drawing, or the first layout happens in the fallback font.
+            if (document.readyState !== "complete") {
+                await new Promise((resolve) => {
+                    window.addEventListener("load", resolve, { once: true });
+                });
+            }
+
+            await document.fonts.load('12px "Open Sans"');
+            await document.fonts.ready;
+
             table.draw();
         </script>
     </body>
