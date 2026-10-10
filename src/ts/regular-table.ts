@@ -76,6 +76,7 @@ export class RegularTableElement extends RegularViewEventModel {
         this.table_model._on_autosize_change = () =>
             this._autosize_fill_check();
         this.table_model.body._column_classes = this._column_classes;
+        this._set_sub_cell_offset(0, 0);
     }
 
     /**

@@ -11,6 +11,19 @@
 
 import { test, expect } from "@playwright/test";
 
+async function readOffsets(page) {
+    return await page.evaluate(() => {
+        const table = document.querySelector("regular-table table");
+        const style = getComputedStyle(table);
+        return {
+            transformX: style.getPropertyValue("--regular-table--transform-x"),
+            transformY: style.getPropertyValue("--regular-table--transform-y"),
+            clipX: style.getPropertyValue("--regular-table--clip-x"),
+            clipY: style.getPropertyValue("--regular-table--clip-y"),
+        };
+    });
+}
+
 test.describe("CSS variables and sub-cell scrolling", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto("/examples/react/index.html");
@@ -37,6 +50,12 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         expect(cssVars.transformY).toBe("");
         expect(cssVars.clipX).toBe("");
         expect(cssVars.clipY).toBe("");
+
+        const offsets = await readOffsets(page);
+        expect(parseFloat(offsets.transformX)).toBe(0);
+        expect(parseFloat(offsets.transformY)).toBe(0);
+        expect(parseFloat(offsets.clipX)).toBe(0);
+        expect(parseFloat(offsets.clipY)).toBe(0);
     });
 
     test("CSS variables update correctly on vertical scroll", async ({
@@ -52,23 +71,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        const cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        const cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(0, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(-3.164, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(0, 3);
@@ -98,23 +101,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        const cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        const cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(-10, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(0, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(10, 3);
@@ -145,23 +132,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        const cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        const cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(-40, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(-15.197, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(40, 3);
@@ -193,19 +164,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
         });
 
         // Verify variables are set
-        const scrolledVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-            };
-        });
-
+        const scrolledVars = await readOffsets(page);
         expect(parseFloat(scrolledVars.transformX)).toBeCloseTo(-10, 3);
         expect(parseFloat(scrolledVars.clipX)).toBeCloseTo(10, 3);
 
@@ -217,27 +176,44 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        const originVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        const originVars = await readOffsets(page);
         expect(parseFloat(originVars.transformX)).toBeCloseTo(0, 3);
         expect(parseFloat(originVars.transformY)).toBeCloseTo(0, 3);
         expect(parseFloat(originVars.clipX)).toBeCloseTo(0, 3);
         expect(parseFloat(originVars.clipY)).toBeCloseTo(0, 3);
+    });
+
+    test("CSS variables reach layout after scrolling to the end", async ({
+        page,
+    }) => {
+        const table = page.locator("regular-table");
+
+        // Regression test for #292. When the offsets were written to a
+        // `:host ::slotted(table)` rule via CSSOM, WebKit stopped applying
+        // them to the slotted `<table>` after this scroll sequence, and the
+        // computed value stayed frozen at the previous offset for the life of
+        // the page while the rule itself read back correctly.
+        for (const scrollTop of [250, 1234.5, 99999999]) {
+            await table.evaluate(async (el, scrollTop) => {
+                el.scrollTop = scrollTop;
+                await el.draw();
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+            }, scrollTop);
+        }
+
+        const cssVars = await readOffsets(page);
+        expect(parseFloat(cssVars.transformX)).toBeCloseTo(0, 3);
+        expect(parseFloat(cssVars.transformY)).toBeCloseTo(-14, 3);
+        expect(parseFloat(cssVars.clipX)).toBeCloseTo(0, 3);
+        expect(parseFloat(cssVars.clipY)).toBeCloseTo(14, 3);
+
+        // And the `<tbody>` transform that consumes the variable agrees.
+        const tbodyY = await page
+            .locator("regular-table tbody")
+            .evaluate(
+                (el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).f,
+            );
+        expect(tbodyY).toBeCloseTo(-14, 3);
     });
 
     test.skip("CSS variables are consistent after multiple scrolls", async ({
@@ -253,23 +229,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        let cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        let cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(-18.969, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(-6.328, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(18.969, 3);
@@ -283,23 +243,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(-37.9375, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(-12.655, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(37.9375, 3);
@@ -313,23 +257,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(-39.65625, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(-15.197, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(39.65625, 3);
@@ -343,23 +271,7 @@ test.describe("CSS variables and sub-cell scrolling", () => {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         });
 
-        cssVars = await page.evaluate(() => {
-            const table = document.querySelector("regular-table");
-            const shadowRoot = table.shadowRoot;
-            const styleSheet = shadowRoot.adoptedStyleSheets[1];
-            const rule = styleSheet.cssRules[0];
-            return {
-                transformX: rule.style.getPropertyValue(
-                    "--regular-table--transform-x",
-                ),
-                transformY: rule.style.getPropertyValue(
-                    "--regular-table--transform-y",
-                ),
-                clipX: rule.style.getPropertyValue("--regular-table--clip-x"),
-                clipY: rule.style.getPropertyValue("--regular-table--clip-y"),
-            };
-        });
-
+        cssVars = await readOffsets(page);
         expect(parseFloat(cssVars.transformX)).toBeCloseTo(0, 3);
         expect(parseFloat(cssVars.transformY)).toBeCloseTo(0, 3);
         expect(parseFloat(cssVars.clipX)).toBeCloseTo(0, 3);

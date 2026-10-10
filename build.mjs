@@ -55,13 +55,6 @@ async function compile_css() {
         builder1.compile().get("container.css"),
     );
 
-    const builder2 = new BuildCss("");
-    add(builder2, "./sub-cell-offsets.less");
-    fs.writeFileSync(
-        "dist/css/sub-cell-offsets.css",
-        builder2.compile().get("sub-cell-offsets.css"),
-    );
-
     const builder3 = new BuildCss("");
     add(builder3, "./sub-cell-scrolling.less");
     add(builder3, "./material.less");

@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@fontsource/open-sans':
+        specifier: 5.3.0
+        version: 5.3.0
       '@playwright/test':
         specifier: ^1.62.0
         version: 1.62.0
@@ -25,7 +28,7 @@ importers:
         version: 10.5.0
       http-server:
         specifier: ^0.12.3
-        version: 0.12.3
+        version: 0.12.3(debug@4.4.3(supports-color@5.5.0))(supports-color@5.5.0)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -205,6 +208,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/open-sans@5.3.0':
+    resolution: {integrity: sha512-V1bdMlGNyZrJwzrdusshMOw2YR0aqYDL7kOo9dkxUEKl8dFv66A9HLckOOXl572sG/7ohhDQrCrTFGSn9LZcSw==}
 
   '@gerrit0/mini-shiki@1.27.2':
     resolution: {integrity: sha512-GeWyHz8ao2gBiUW4OJnQDxXQnFgZQwwQk05t/CVVgNBN7/rK8XZ7xY6YhLVv9tH3VppWWmr9DCl3MwemB/i+Og==}
@@ -1207,6 +1213,8 @@ snapshots:
   '@esbuild/win32-x64@0.25.12':
     optional: true
 
+  '@fontsource/open-sans@5.3.0': {}
+
   '@gerrit0/mini-shiki@1.27.2':
     dependencies:
       '@shikijs/engine-oniguruma': 1.29.2
@@ -1395,9 +1403,11 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.2
 
-  debug@4.4.3:
+  debug@4.4.3(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
+      supports-color: 5.5.0
 
   define-data-property@1.1.4:
     dependencies:
@@ -1571,7 +1581,9 @@ snapshots:
       setimmediate: 1.0.5
       ua-parser-js: 0.7.41
 
-  follow-redirects@1.16.0: {}
+  follow-redirects@1.16.0(debug@4.4.3(supports-color@5.5.0)):
+    optionalDependencies:
+      debug: 4.4.3(supports-color@5.5.0)
 
   for-each@0.3.5:
     dependencies:
@@ -1671,24 +1683,24 @@ snapshots:
 
   hosted-git-info@2.8.9: {}
 
-  http-proxy@1.18.1:
+  http-proxy@1.18.1(debug@4.4.3(supports-color@5.5.0)):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.16.0
+      follow-redirects: 1.16.0(debug@4.4.3(supports-color@5.5.0))
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
 
-  http-server@0.12.3:
+  http-server@0.12.3(debug@4.4.3(supports-color@5.5.0))(supports-color@5.5.0):
     dependencies:
       basic-auth: 1.1.0
       colors: 1.4.0
       corser: 2.0.1
       ecstatic: 3.3.2
-      http-proxy: 1.18.1
+      http-proxy: 1.18.1(debug@4.4.3(supports-color@5.5.0))
       minimist: 1.2.8
       opener: 1.5.2
-      portfinder: 1.0.38
+      portfinder: 1.0.38(supports-color@5.5.0)
       secure-compare: 3.0.1
       union: 0.5.0
     transitivePeerDependencies:
@@ -1968,10 +1980,10 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  portfinder@1.0.38:
+  portfinder@1.0.38(supports-color@5.5.0):
     dependencies:
       async: 3.2.6
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
